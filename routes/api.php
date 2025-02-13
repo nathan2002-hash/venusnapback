@@ -17,6 +17,7 @@ Route::post('/google/login', 'Api\AuthController@googleLogin');
 //Route::get('/user/profile', 'Api\ProfileController@index');
 
 Route::middleware('auth:api')->get('/user/profile', 'Api\ProfileController@index');
+Route::middleware('auth:api')->get('/post/comments/{postMediaId}', 'Api\PostController@getCommentsAndReplies');
 Route::middleware('auth:api')->post('/user/profile/update', 'Api\ProfileController@update');
 Route::middleware('auth:api')->post('/post/store', 'Api\PostController@store');
 Route::middleware('auth:api')->post('/post/admire', 'Api\PostController@admire');
@@ -25,6 +26,8 @@ Route::middleware('auth:api')->get('/categories', function () {
 });
 
 Route::middleware('auth:api')->post('/post/view', 'Api\ViewController@view');
+Route::middleware('auth:api')->post('/post/comment/{id}', 'Api\PostController@storeComment');
+Route::middleware('auth:api')->post('/post/replies', 'Api\PostController@storeReply');
 
 
 
@@ -36,7 +39,7 @@ Route::get('/welcome', 'Api\WelcomeController@index');
 //posts routes
 Route::get('/posts', 'Api\PostController@index');
 Route::post('/post/save/{id}', 'Api\PostController@save');
-Route::post('/post/comment/{id}', 'Api\PostController@comment');
+//Route::post('/post/comment/{id}', 'Api\PostController@comment');
 Route::post('/post/comment/reply/{id}', 'Api\PostController@commentreply');
 Route::post('/post/admire/{id}', 'Api\PostController@admire');
 Route::post('/post/report/{id}', 'Api\PostController@report');

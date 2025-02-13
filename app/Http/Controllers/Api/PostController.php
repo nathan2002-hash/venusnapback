@@ -169,4 +169,72 @@ class PostController extends Controller
         $report->reason = $request->report;
         $report->save();
     }
+
+    public function getCommentsAndReplies($postMediaId)
+    {
+        // Fetch comments with replies, ordered by creation date (newest first)
+        $comments = Comment::with(['commentreplies', 'user']) // Include the user relationship
+            ->where('post_media_id', $postMediaId)
+            ->orderBy('created_at', 'desc') // Newest comments first
+            ->get();
+
+        // Format the response to include username and profile picture URL
+        $formattedComments = $comments->map(function ($comment) {
+            return [
+                'id' => $comment->id,
+                'user_id' => $comment->user_id,
+                'username' => $comment->user->name, // Assuming the user relationship has a 'name' field
+                'profile_picture_url' => $comment->user->profile_photo_path
+                ? asset('storage/' . $comment->user->profile_photo_path)
+                : asset('default/profile.png'), // Assuming the user has a 'profile_picture_url' field
+                'comment' => $comment->comment,
+                'created_at' => $comment->created_at,
+                'commentreplies' => $comment->commentreplies->map(function ($commentreply) {
+                    return [
+                        'id' => $commentreply->id,
+                        'user_id' => $commentreply->user_id,
+                        'username' => $commentreply->user->name, // Assuming the user relationship has a 'name' field
+                        'profile_picture_url' => $commentreply->user->profile_photo_path
+                        ? asset('storage/' . $commentreply->user->profile_photo_path)
+                        : asset('default/profile.png'), // Assuming the user has a 'profile_picture_url' field
+                        'reply' => $commentreply->reply,
+                        'created_at' => $commentreply->created_at,
+                    ];
+                }),
+            ];
+        });
+
+        return response()->json($formattedComments);
+    }
+
+    public function storeComment(Request $request, $id)
+    {
+        $request->validate([
+            'comment' => 'required|string',
+        ]);
+        $user =  $user = Auth::user();
+        $comment = new Comment();
+        $comment->user_id = $user->id;
+        $comment->post_media_id = $id;
+        $comment->comment = $request->comment;
+        $comment->save();
+        return response()->json($comment, 201);
+    }
+
+    public function storeReply(Request $request)
+    {
+        $request->validate([
+            'comment_id' => 'required|integer',
+            'reply' => 'required|string',
+        ]);
+        $user =  $user = Auth::user();
+
+        $reply = CommentReply::create([
+            'comment_id' => $request->comment_id,
+            'user_id' => $user->id,
+            'reply' => $request->reply,
+        ]);
+
+        return response()->json($reply, 201);
+    }
 }
