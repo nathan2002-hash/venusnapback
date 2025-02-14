@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class PostController extends Controller
 {
@@ -134,15 +135,15 @@ class PostController extends Controller
         return redirect()->back();
     }
 
-    public function commentreply(Request $request, $id)
-    {
-        $commentreply = new CommentReply();
-        $commentreply->comment_id = $id;
-        $commentreply->user_id = '2';
-        $commentreply->reply = $request->reply;
-        $commentreply->save();
-        return redirect()->back();
-    }
+    // public function commentreply(Request $request, $id)
+    // {
+    //     $commentreply = new CommentReply();
+    //     $commentreply->comment_id = $id;
+    //     $commentreply->user_id = '2';
+    //     $commentreply->reply = $request->reply;
+    //     $commentreply->save();
+    //     return redirect()->back();
+    // }
 
     public function admire(Request $request)
     {
@@ -173,32 +174,32 @@ class PostController extends Controller
     public function getCommentsAndReplies($postMediaId)
     {
         // Fetch comments with replies, ordered by creation date (newest first)
-        $comments = Comment::with(['commentreplies', 'user']) // Include the user relationship
+        $comments = Comment::with(['commentreplies', 'user'])
             ->where('post_media_id', $postMediaId)
-            ->orderBy('created_at', 'desc') // Newest comments first
+            ->orderBy('created_at', 'desc')
             ->get();
 
-        // Format the response to include username and profile picture URL
+        // Format the response
         $formattedComments = $comments->map(function ($comment) {
             return [
                 'id' => $comment->id,
                 'user_id' => $comment->user_id,
-                'username' => $comment->user->name, // Assuming the user relationship has a 'name' field
+                'username' => $comment->user->name,
                 'profile_picture_url' => $comment->user->profile_photo_path
-                ? asset('storage/' . $comment->user->profile_photo_path)
-                : asset('default/profile.png'), // Assuming the user has a 'profile_picture_url' field
+                    ? asset('storage/' . $comment->user->profile_photo_path)
+                    : asset('default/profile.png'),
                 'comment' => $comment->comment,
-                'created_at' => $comment->created_at,
+                'created_at' => Carbon::parse($comment->created_at)->diffForHumans(), // Format the timestamp
                 'commentreplies' => $comment->commentreplies->map(function ($commentreply) {
                     return [
                         'id' => $commentreply->id,
                         'user_id' => $commentreply->user_id,
-                        'username' => $commentreply->user->name, // Assuming the user relationship has a 'name' field
+                        'username' => $commentreply->user->name,
                         'profile_picture_url' => $commentreply->user->profile_photo_path
-                        ? asset('storage/' . $commentreply->user->profile_photo_path)
-                        : asset('default/profile.png'), // Assuming the user has a 'profile_picture_url' field
+                            ? asset('storage/' . $commentreply->user->profile_photo_path)
+                            : asset('default/profile.png'),
                         'reply' => $commentreply->reply,
-                        'created_at' => $commentreply->created_at,
+                        'created_at' => Carbon::parse($commentreply->created_at)->diffForHumans(), // Format timestamp
                     ];
                 }),
             ];
@@ -218,23 +219,48 @@ class PostController extends Controller
         $comment->post_media_id = $id;
         $comment->comment = $request->comment;
         $comment->save();
-        return response()->json($comment, 201);
+
+        $comment->load('user');
+
+        return response()->json([
+            'id' => $comment->id,
+            'comment' => $comment->comment,
+            'post_media_id' => $comment->post_media_id,
+            'id' => $comment->user->id,
+            'username' => $comment->user->name,
+            'profile_picture_url' => $comment->user->profile_photo_path
+                ? asset('storage/' . $comment->user->profile_photo_path)
+                : asset('default/profile.png'),
+            'created_at' => Carbon::parse($comment->created_at)->diffForHumans(),
+        ], 201);
     }
 
-    public function storeReply(Request $request)
+    public function storeReply(Request $request, $id)
     {
-        $request->validate([
-            'comment_id' => 'required|integer',
-            'reply' => 'required|string',
-        ]);
-        $user =  $user = Auth::user();
+        // $request->validate([
+        //     'reply' => 'required|string',
+        // ]);
+        //$user = Auth::user();
 
-        $reply = CommentReply::create([
-            'comment_id' => $request->comment_id,
-            'user_id' => $user->id,
-            'reply' => $request->reply,
-        ]);
+        $reply = new CommentReply();
+        $reply->user_id = Auth::user()->id;
+        $reply->comment_id = $id;
+        $reply->reply = $request->reply;
+        $reply->save();
 
-        return response()->json($reply, 201);
+        $reply->load('user');
+
+        return response()->json([
+            'id' => $reply->id,
+            'reply' => $reply->reply,
+            'comment_id' => $reply->comment_id,
+            'id' => $reply->user->id,
+            'username' => $reply->user->name,
+            'profile_picture_url' => $reply->user->profile_photo_path
+                ? asset('storage/' . $reply->user->profile_photo_path)
+                : asset('default/profile.png'),
+
+            'created_at' => Carbon::parse($reply->created_at)->diffForHumans(),
+        ], 201);
     }
 }

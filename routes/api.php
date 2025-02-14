@@ -27,7 +27,15 @@ Route::middleware('auth:api')->get('/categories', function () {
 
 Route::middleware('auth:api')->post('/post/view', 'Api\ViewController@view');
 Route::middleware('auth:api')->post('/post/comment/{id}', 'Api\PostController@storeComment');
-Route::middleware('auth:api')->post('/post/replies', 'Api\PostController@storeReply');
+Route::middleware('auth:api')->post('/post/comment/reply/{id}', 'Api\PostController@storeReply');
+
+Route::middleware('auth:api')->post('/logout', function (Request $request) {
+    $request->user()->token()->revoke();
+    return response()->json([
+        'message' => 'Successfully logged out'
+    ]);
+});
+
 
 
 
@@ -40,7 +48,7 @@ Route::get('/welcome', 'Api\WelcomeController@index');
 Route::get('/posts', 'Api\PostController@index');
 Route::post('/post/save/{id}', 'Api\PostController@save');
 //Route::post('/post/comment/{id}', 'Api\PostController@comment');
-Route::post('/post/comment/reply/{id}', 'Api\PostController@commentreply');
+//Route::post('/post/comment/reply/{id}', 'Api\PostController@commentreply');
 Route::post('/post/admire/{id}', 'Api\PostController@admire');
 Route::post('/post/report/{id}', 'Api\PostController@report');
 
