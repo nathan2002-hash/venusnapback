@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\Artboard;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
+use App\Models\Artboard;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+
 
 
 class ProfileController extends Controller
@@ -17,8 +18,6 @@ class ProfileController extends Controller
     {
         // Get the currently authenticated user
         $user = Auth::user();
-
-        Log::info('User logged in: ' . $user->name);
         if (!$user) {
             return response()->json([
                 'error' => 'Unauthenticated user'
