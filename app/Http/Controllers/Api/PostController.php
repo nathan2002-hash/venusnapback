@@ -20,56 +20,59 @@ use Carbon\Carbon;
 class PostController extends Controller
 {
     public function index()
-    {
-        $posts = Post::with('postmedias.comments.commentreplies', 'postmedias.admires', 'user.supporters')
-            ->paginate(2); // Fetch 5 posts per page
+{
+    // Eager load only the necessary relationships to avoid overhead
+    $posts = Post::with(['postmedias.comments', 'postmedias.admires', 'user.supporters'])
+        ->paginate(2);
 
-        $postsData = $posts->map(function ($post) {
-            $postMediaData = $post->postMedias->map(function ($media) {
-                return [
-                    'id' => $media->id,
-                    'filepath' => Storage::disk('s3')->url($media->file_path),
-                    'sequence_order' => $media->sequence_order,
-                    'comments_count' => $media->comments->count(),
-                    'likes_count' => $media->admires->count(),
-                    'comments' => $media->comments->map(function ($comment) {
-                        return [
-                            'id' => $comment->id,
-                            'user' => $comment->user->name,
-                            'user_profile' => 'http://venusnap:85/storage/posts/image6_1736101826.jpg',
-                            'comment' => $comment->comment,
-                            'commentreplies' => $comment->commentreplies->map(function ($reply) {
-                                return [
-                                    'id' => $reply->id,
-                                    'user' => $reply->user->name,
-                                    'user_profile' => 'http://venusnap:85/storage/posts/image6_1736101826.jpg',
-                                    'reply' => $reply->reply,
-                                ];
-                            })->toArray(),
-                        ];
-                    })->toArray(),
-                ];
-            })->toArray();
-
+    $postsData = $posts->map(function ($post) {
+        // Directly return the transformed post without using nested map operations
+        $postMediaData = $post->postMedias->map(function ($media) {
             return [
-                'id' => $post->id,
-                'title' => $post->title,
-                'user' => $post->user->name,
-                'supporters' => (string) $post->user->supporters->count(),
-                'profile' => $post->user->profile_photo_path
-                    ? asset('storage/' . $post->user->profile_photo_path)
-                    : asset('default/profile.png'),
-                'post_media' => $postMediaData,
+                'id' => $media->id,
+                'filepath' => Storage::disk('s3')->url($media->file_path),
+                'sequence_order' => $media->sequence_order,
+                'comments_count' => $media->comments->count(),
+                'likes_count' => $media->admires->count(),
+                'comments' => $media->comments->map(function ($comment) {
+                    return [
+                        'id' => $comment->id,
+                        'user' => $comment->user->name,
+                        'user_profile' => 'http://venusnap:85/storage/posts/image6_1736101826.jpg',
+                        'comment' => $comment->comment,
+                        'commentreplies' => $comment->commentreplies->map(function ($reply) {
+                            return [
+                                'id' => $reply->id,
+                                'user' => $reply->user->name,
+                                'user_profile' => 'http://venusnap:85/storage/posts/image6_1736101826.jpg',
+                                'reply' => $reply->reply,
+                            ];
+                        })->toArray(),
+                    ];
+                })->toArray(),
             ];
-        });
+        })->toArray();
 
-        return response()->json([
-            'posts' => $postsData,
-            'current_page' => $posts->currentPage(),
-            'last_page' => $posts->lastPage(),
-            'total' => $posts->total(),
-        ], 200);
-    }
+        return [
+            'id' => $post->id,
+            'title' => $post->title,
+            'user' => $post->user->name,
+            'supporters' => (string) $post->user->supporters->count(),
+            'profile' => $post->user->profile_photo_path
+                ? asset('storage/' . $post->user->profile_photo_path)
+                : asset('default/profile.png'),
+            'post_media' => $postMediaData,
+        ];
+    });
+
+    return response()->json([
+        'posts' => $postsData,
+        'current_page' => $posts->currentPage(),
+        'last_page' => $posts->lastPage(),
+        'total' => $posts->total(),
+    ], 200);
+}
+
 
 
     public function store(Request $request)
