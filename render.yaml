@@ -1,0 +1,19 @@
+services:
+  - name: laravel-app
+    type: web
+    env: docker
+    plan: free
+    autoDeploy: true
+    repo: https://github.com/nathan2002-hash/dsi
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        value: base64:RmHZrPL/tKP+X6z4Flmxdssd47vz9YZ86Atm2hjmldE=
+      - key: APP_DEBUG
+        value: false
+      - key: PORT
+        value: 8000
+    disk:
+      name: storage
+      mountPath: /var/www/html/storage
