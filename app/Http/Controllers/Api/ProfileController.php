@@ -18,6 +18,7 @@ class ProfileController extends Controller
         // Get the currently authenticated user
         $user = Auth::user();
 
+        Log::info('User logged in: ' . $user->name);
         if (!$user) {
             return response()->json([
                 'error' => 'Unauthenticated user'
