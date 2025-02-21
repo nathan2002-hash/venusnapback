@@ -58,6 +58,13 @@ return [
             'ignore_exceptions' => false,
         ],
 
+        's3' => [
+            'driver' => 's3',
+            'level' => 'debug', // or any level you want (info, error, etc.)
+            'path' => 'logs/laravel.log', // Path to save logs in S3
+            'disk' => 's3',
+        ],
+
         'single' => [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),
