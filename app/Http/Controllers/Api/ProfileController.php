@@ -50,7 +50,7 @@ class ProfileController extends Controller
                     'supporters' => $artboard->supporters->count(),
                     'is_verified' => (bool) $artboard->is_verified,
                     'visibility' => $artboard->visibility,
-                    'logo' => $profileUrl,
+                    'logo' => $logoUrl,
                 ] : null
             ]
         ]);
