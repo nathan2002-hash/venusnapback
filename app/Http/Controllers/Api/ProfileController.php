@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 
 class ProfileController extends Controller
@@ -28,9 +29,10 @@ class ProfileController extends Controller
             'user' => [
                 'name' => $user->name,
                 'email' => $user->email,
-                'profile' => $user->profile_photo_path
-            ? asset('storage/' . $user->profile_photo_path)
-            : asset('default/profile.png'),
+                'profile' => Storage::disk('s3')->url($user->profile_photo_path),
+            //     'profile' => $user->profile_photo_path
+            // ? asset('storage/' . $user->profile_photo_path)
+            // : asset('default/profile.png'),
                 'date_joined' => $user->created_at->format('j F, Y'),
                 'total_posts' => (string) $user->posts->count(), // Count user's posts
                 'total_admires' => (string) $this->formatNumber(
@@ -46,9 +48,10 @@ class ProfileController extends Controller
                     'supporters' => $artboard->supporters->count(),
                     'is_verified' => (bool) $artboard->is_verified,
                     'visibility' => $artboard->visibility,
-                    'logo' => $artboard->logo
-                ? asset('storage/' . $artboard->logo)
-                : asset('default/artboard_logo.png'),
+                    'logo' => Storage::disk('s3')->url($artboard->logo),
+                //     'logo' => $artboard->logo
+                // ? asset('storage/' . $artboard->logo)
+                // : asset('default/artboard_logo.png'),
                 ] : null
             ]
         ]);
@@ -80,7 +83,7 @@ class ProfileController extends Controller
 
     // Save profile image
     if ($request->hasFile('profile')) {
-        $profilePath = $request->file('profile')->store('profiles', 'public');
+        $profilePath = $request->file('profile')->store('profiles', 's3');
         $user->profile_photo_path = $profilePath;
     }
 
@@ -93,7 +96,7 @@ class ProfileController extends Controller
 
     // Save artboard logo
     if ($request->hasFile('artboard_profile')) {
-        $artboardLogoPath = $request->file('artboard_profile')->store('artboards/logos/', 'public');
+        $artboardLogoPath = $request->file('artboard_profile')->store('artboards/logos/', 's3');
         $artboard->logo = $artboardLogoPath;
     }
 

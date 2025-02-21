@@ -180,9 +180,10 @@ class PostController extends Controller
                 'id' => $comment->id,
                 'user_id' => $comment->user_id,
                 'username' => $comment->user->name,
-                'profile_picture_url' => $comment->user->profile_photo_path
-                    ? asset('storage/' . $comment->user->profile_photo_path)
-                    : asset('default/profile.png'),
+                'profile_picture_url' => Storage::disk('s3')->url($comment->user->profile_photo_path),
+                // 'profile_picture_url' => $comment->user->profile_photo_path
+                //     ? asset('storage/' . $comment->user->profile_photo_path)
+                //     : asset('default/profile.png'),
                 'comment' => $comment->comment,
                 'created_at' => Carbon::parse($comment->created_at)->diffForHumans(), // Format the timestamp
                 'total_replies' => $comment->commentreplies()->count(), // Total number of replies
@@ -191,9 +192,10 @@ class PostController extends Controller
                         'id' => $commentreply->id,
                         'user_id' => $commentreply->user_id,
                         'username' => $commentreply->user->name,
-                        'profile_picture_url' => $commentreply->user->profile_photo_path
-                            ? asset('storage/' . $commentreply->user->profile_photo_path)
-                            : asset('default/profile.png'),
+                        'profile_picture_url' => Storage::disk('s3')->url($commentreply->user->profile_photo_path),
+                        // 'profile_picture_url' => $commentreply->user->profile_photo_path
+                        //     ? asset('storage/' . $commentreply->user->profile_photo_path)
+                        //     : asset('default/profile.png'),
                         'reply' => $commentreply->reply,
                         'created_at' => Carbon::parse($commentreply->created_at)->diffForHumans(), // Format timestamp
                     ];
@@ -229,9 +231,10 @@ class PostController extends Controller
             'post_media_id' => $comment->post_media_id,
             'user_id' => $comment->user->id,
             'username' => $comment->user->name,
-            'profile_picture_url' => $comment->user->profile_photo_path
-                ? asset('storage/' . $comment->user->profile_photo_path)
-                : asset('default/profile.png'),
+            'profile_picture_url' => Storage::disk('s3')->url($comment->user->profile_photo_path),
+            // 'profile_picture_url' => $comment->user->profile_photo_path
+            //     ? asset('storage/' . $comment->user->profile_photo_path)
+            //     : asset('default/profile.png'),
             'created_at' => Carbon::parse($comment->created_at)->diffForHumans(),
             'commentreplies' => [], // Add an empty array for replies
             'total_replies' => 0, // Add total replies count
@@ -258,9 +261,10 @@ class PostController extends Controller
             'comment_id' => $reply->comment_id,
             'id' => $reply->user->id,
             'username' => $reply->user->name,
-            'profile_picture_url' => $reply->user->profile_photo_path
-                ? asset('storage/' . $reply->user->profile_photo_path)
-                : asset('default/profile.png'),
+            'profile_picture_url' => Storage::disk('s3')->url($reply->user->profile_photo_path),
+            // 'profile_picture_url' => $reply->user->profile_photo_path
+            //     ? asset('storage/' . $reply->user->profile_photo_path)
+            //     : asset('default/profile.png'),
 
             'created_at' => Carbon::parse($reply->created_at)->diffForHumans(),
         ], 201);
