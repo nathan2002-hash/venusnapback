@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class PostController extends Controller
@@ -21,13 +22,13 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::with('postmedias.comments.commentreplies', 'postmedias.admires', 'user.supporters')
-            ->paginate(5); // Fetch 5 posts per page
+            ->paginate(2); // Fetch 5 posts per page
 
         $postsData = $posts->map(function ($post) {
             $postMediaData = $post->postMedias->map(function ($media) {
                 return [
                     'id' => $media->id,
-                    'filepath' => asset('storage/' . $media->file_path),
+                    'filepath' => Storage::disk('s3')->url($media->file_path),
                     'sequence_order' => $media->sequence_order,
                     'comments_count' => $media->comments->count(),
                     'likes_count' => $media->admires->count(),
@@ -80,7 +81,7 @@ class PostController extends Controller
 
         $validator = Validator::make($request->all(), [
             'description' => 'required|string|max:200',
-            'type' => 'required|string|in:Photography,Artwork,Meme',
+            'type' => 'required',
             'visibility' => 'required|string|in:Public,Private,Friends Only',
             'post_medias' => 'required|array',
             'post_medias.*.file' => 'required|file|mimes:jpeg,png,jpg|max:2048',
@@ -104,7 +105,7 @@ class PostController extends Controller
             ->values(); // Reindex the collection
 
         foreach ($sequenceOrders as $media) {
-            $path = $media['file']->store('uploads/posts', 'public');
+            $path = $media['file']->store('uploads/posts', 's3');
 
             PostMedia::create([
                 'post_id' => $post->id,
@@ -124,26 +125,6 @@ class PostController extends Controller
         $save->user_id = '2';
         $save->save();
     }
-
-    public function comment(Request $request, $id)
-    {
-        $comment = new Comment();
-        $comment->post_media_id = $id;
-        $comment->user_id = '2';
-        $comment->comment = $request->comment;
-        $comment->save();
-        return redirect()->back();
-    }
-
-    // public function commentreply(Request $request, $id)
-    // {
-    //     $commentreply = new CommentReply();
-    //     $commentreply->comment_id = $id;
-    //     $commentreply->user_id = '2';
-    //     $commentreply->reply = $request->reply;
-    //     $commentreply->save();
-    //     return redirect()->back();
-    // }
 
     public function admire(Request $request)
     {
@@ -171,16 +152,30 @@ class PostController extends Controller
         $report->save();
     }
 
-    public function getCommentsAndReplies($postMediaId)
+    public function getCommentsAndReplies($postMediaId, Request $request)
     {
+        // Pagination parameters for comments
+        $commentPage = $request->query('comment_page', 1); // Default to page 1
+        $commentLimit = $request->query('comment_limit', 10); // Default to 10 comments per page
+
         // Fetch comments with replies, ordered by creation date (newest first)
-        $comments = Comment::with(['commentreplies', 'user'])
+        $comments = Comment::with(['commentreplies.user', 'user'])
             ->where('post_media_id', $postMediaId)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate($commentLimit, ['*'], 'comment_page', $commentPage);
 
         // Format the response
-        $formattedComments = $comments->map(function ($comment) {
+        $formattedComments = $comments->map(function ($comment) use ($request) {
+            // Pagination parameters for replies
+            $replyPage = $request->query('reply_page', 1); // Default to page 1
+            $replyLimit = $request->query('reply_limit', 5); // Default to 5 replies per page
+
+            // Fetch replies for the current comment with pagination
+            $replies = $comment->commentreplies()
+                ->with('user')
+                ->orderBy('created_at', 'desc')
+                ->paginate($replyLimit, ['*'], 'reply_page', $replyPage);
+
             return [
                 'id' => $comment->id,
                 'user_id' => $comment->user_id,
@@ -190,7 +185,8 @@ class PostController extends Controller
                     : asset('default/profile.png'),
                 'comment' => $comment->comment,
                 'created_at' => Carbon::parse($comment->created_at)->diffForHumans(), // Format the timestamp
-                'commentreplies' => $comment->commentreplies->map(function ($commentreply) {
+                'total_replies' => $comment->commentreplies()->count(), // Total number of replies
+                'commentreplies' => $replies->map(function ($commentreply) {
                     return [
                         'id' => $commentreply->id,
                         'user_id' => $commentreply->user_id,
@@ -201,11 +197,15 @@ class PostController extends Controller
                         'reply' => $commentreply->reply,
                         'created_at' => Carbon::parse($commentreply->created_at)->diffForHumans(), // Format timestamp
                     ];
-                }),
+                })->toArray(), // Convert replies to array
+                'replies_next_page' => $replies->hasMorePages() ? $replyPage + 1 : null, // Next page for replies
             ];
         });
 
-        return response()->json($formattedComments);
+        return response()->json([
+            'comments' => $formattedComments->toArray(), // Convert comments to array
+            'comments_next_page' => $comments->hasMorePages() ? $commentPage + 1 : null, // Next page for comments
+        ]);
     }
 
     public function storeComment(Request $request, $id)
@@ -213,7 +213,8 @@ class PostController extends Controller
         $request->validate([
             'comment' => 'required|string',
         ]);
-        $user =  $user = Auth::user();
+
+        $user = Auth::user();
         $comment = new Comment();
         $comment->user_id = $user->id;
         $comment->post_media_id = $id;
@@ -226,21 +227,22 @@ class PostController extends Controller
             'id' => $comment->id,
             'comment' => $comment->comment,
             'post_media_id' => $comment->post_media_id,
-            'id' => $comment->user->id,
+            'user_id' => $comment->user->id,
             'username' => $comment->user->name,
             'profile_picture_url' => $comment->user->profile_photo_path
                 ? asset('storage/' . $comment->user->profile_photo_path)
                 : asset('default/profile.png'),
             'created_at' => Carbon::parse($comment->created_at)->diffForHumans(),
+            'commentreplies' => [], // Add an empty array for replies
+            'total_replies' => 0, // Add total replies count
         ], 201);
     }
 
     public function storeReply(Request $request, $id)
     {
-        // $request->validate([
-        //     'reply' => 'required|string',
-        // ]);
-        //$user = Auth::user();
+        $request->validate([
+            'reply' => 'required|string',
+        ]);
 
         $reply = new CommentReply();
         $reply->user_id = Auth::user()->id;

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('artboards', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->unique()->constrained()->onDelete('cascade'); // ONE Artboard per user
+            $table->foreignId('user_id'); // ONE Artboard per user
             $table->string('name')->unique(); // Artboard name (e.g., "John's Artboard")
             $table->string('slug')->unique(); // URL-friendly name
             $table->text('description')->nullable(); // Short bio or description
