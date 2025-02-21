@@ -4,12 +4,12 @@ services:
     env: docker
     plan: free
     autoDeploy: true
-    repo: https://github.com/nathan2002-hash/dsi
+    repo: https://github.com/nathan2002-hash/venusnapback
     envVars:
       - key: APP_ENV
         value: production
       - key: APP_KEY
-        value: base64:RmHZrPL/tKP+X6z4Flmxdssd47vz9YZ86Atm2hjmldE=
+        value: base64:MWUwaThUezip3y/E/igwnzw/jVw0PgWNbYGpFi0Lv90=
       - key: APP_DEBUG
         value: false
       - key: PORT
