@@ -24,15 +24,17 @@ class ProfileController extends Controller
             ], 401);
         }
         $artboard = $user->artboard;
+
+        $profileUrl = $user->profile_photo_path ? Storage::disk('s3')->url($user->profile_photo_path) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
+
+    // Check if artboard logo exists, otherwise use default 100x100 avatar
+    $logoUrl = $artboard && $artboard->logo ? Storage::disk('s3')->url($artboard->logo) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
         // Return the user profile data
         return response()->json([
             'user' => [
                 'name' => $user->name,
                 'email' => $user->email,
-                'profile' => Storage::disk('s3')->url($user->profile_photo_path),
-            //     'profile' => $user->profile_photo_path
-            // ? asset('storage/' . $user->profile_photo_path)
-            // : asset('default/profile.png'),
+                'profile' => $profileUrl,
                 'date_joined' => $user->created_at->format('j F, Y'),
                 'total_posts' => (string) $user->posts->count(), // Count user's posts
                 'total_admires' => (string) $this->formatNumber(
@@ -48,10 +50,7 @@ class ProfileController extends Controller
                     'supporters' => $artboard->supporters->count(),
                     'is_verified' => (bool) $artboard->is_verified,
                     'visibility' => $artboard->visibility,
-                    'logo' => Storage::disk('s3')->url($artboard->logo),
-                //     'logo' => $artboard->logo
-                // ? asset('storage/' . $artboard->logo)
-                // : asset('default/artboard_logo.png'),
+                    'logo' => $profileUrl,
                 ] : null
             ]
         ]);
