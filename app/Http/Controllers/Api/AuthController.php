@@ -126,7 +126,7 @@ class AuthController extends Controller
             'description' => "This is " . $request->full_name . "'s Artboard",
             'user_id' => $user->id,
             'type' => "General",
-            'slug' => "General",
+            'slug' => "General$user->name",
             'is_verified' => 0,
             'visibility' => "public",
             'logo' => "artboards/rUSWa6xIDbTvpdf3sJcxCdWx0q02jyqyp8VAdXVj.jpg",
