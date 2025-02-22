@@ -24,6 +24,6 @@ Route::get('/test-backblaze-connection', 'Api\PostController@testConnection');
 
 
 
-Route::prefix('restricted')->middleware('auth')->group(function () {
+Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     Route::get('/welcome', 'Admin\WelcomeController@index');
 });
