@@ -72,8 +72,8 @@
                                             <h5 class="font-size-15 text-uppercase">
                                                 Do you need Support?</h5>
                                             <p class="text-muted mb-0">If you have any questions or need help, feel free to reach out to us! <a
-                                                        href="mailto:contanct@venusnap.com"
-                                                        class="text-decoration-underline">contanct@venusnap.com</a></p>
+                                                        href="mailto:contact@venusnap.com"
+                                                        class="text-decoration-underline">contact@venusnap.com</a></p>
                                         </div>
                                     </div>
                                 </div>
