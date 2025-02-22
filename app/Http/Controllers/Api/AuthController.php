@@ -121,12 +121,14 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        $randomNumber = mt_rand(1000, 9999);
+
         $artboard = Artboard::create([
-            'name' => $request->full_name,
+            'name' => $request->full_name . $randomNumber,
             'description' => "This is " . $request->full_name . "'s Artboard",
             'user_id' => $user->id,
             'type' => "General",
-            'slug' => "General$user->name",
+            'slug' => "$user->full_name $randomNumber",
             'is_verified' => 0,
             'visibility' => "public",
             'logo' => "artboards/rUSWa6xIDbTvpdf3sJcxCdWx0q02jyqyp8VAdXVj.jpg",
