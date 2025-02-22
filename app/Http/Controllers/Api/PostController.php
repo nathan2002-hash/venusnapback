@@ -183,10 +183,7 @@ class PostController extends Controller
                 'id' => $comment->id,
                 'user_id' => $comment->user_id,
                 'username' => $comment->user->name,
-                'profile_picture_url' => Storage::disk('s3')->url($comment->user->profile_photo_path),
-                // 'profile_picture_url' => $comment->user->profile_photo_path
-                //     ? asset('storage/' . $comment->user->profile_photo_path)
-                //     : asset('default/profile.png'),
+                'profile_picture_url' => $comment->user->profile_photo_path ? Storage::disk('s3')->url($comment->user->profile_photo_path) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp',
                 'comment' => $comment->comment,
                 'created_at' => Carbon::parse($comment->created_at)->diffForHumans(), // Format the timestamp
                 'total_replies' => $comment->commentreplies()->count(), // Total number of replies
@@ -195,10 +192,7 @@ class PostController extends Controller
                         'id' => $commentreply->id,
                         'user_id' => $commentreply->user_id,
                         'username' => $commentreply->user->name,
-                        'profile_picture_url' => Storage::disk('s3')->url($commentreply->user->profile_photo_path),
-                        // 'profile_picture_url' => $commentreply->user->profile_photo_path
-                        //     ? asset('storage/' . $commentreply->user->profile_photo_path)
-                        //     : asset('default/profile.png'),
+                        'profile_picture_url' => $commentreply->user->profile_photo_path ? Storage::disk('s3')->url($commentreply->user->profile_photo_path) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($commentreply->user->email))) . '?s=100&d=mp',
                         'reply' => $commentreply->reply,
                         'created_at' => Carbon::parse($commentreply->created_at)->diffForHumans(), // Format timestamp
                     ];
