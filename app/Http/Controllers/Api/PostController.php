@@ -227,6 +227,7 @@ class PostController extends Controller
         $comment->save();
 
         $comment->load('user');
+        $profileUrl = $comment->user->profile_photo_path ? Storage::disk('s3')->url($comment->user->profile_photo_path) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp';
 
         return response()->json([
             'id' => $comment->id,
@@ -234,10 +235,7 @@ class PostController extends Controller
             'post_media_id' => $comment->post_media_id,
             'user_id' => $comment->user->id,
             'username' => $comment->user->name,
-            'profile_picture_url' => Storage::disk('s3')->url($comment->user->profile_photo_path),
-            // 'profile_picture_url' => $comment->user->profile_photo_path
-            //     ? asset('storage/' . $comment->user->profile_photo_path)
-            //     : asset('default/profile.png'),
+            'profile_picture_url' => $profileUrl,
             'created_at' => Carbon::parse($comment->created_at)->diffForHumans(),
             'commentreplies' => [], // Add an empty array for replies
             'total_replies' => 0, // Add total replies count
@@ -257,6 +255,7 @@ class PostController extends Controller
         $reply->save();
 
         $reply->load('user');
+        $profileUrl = $reply->user->profile_photo_path ? Storage::disk('s3')->url($reply->user->profile_photo_path) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($reply->user->email))) . '?s=100&d=mp';
 
         return response()->json([
             'id' => $reply->id,
@@ -264,10 +263,7 @@ class PostController extends Controller
             'comment_id' => $reply->comment_id,
             'id' => $reply->user->id,
             'username' => $reply->user->name,
-            'profile_picture_url' => Storage::disk('s3')->url($reply->user->profile_photo_path),
-            // 'profile_picture_url' => $reply->user->profile_photo_path
-            //     ? asset('storage/' . $reply->user->profile_photo_path)
-            //     : asset('default/profile.png'),
+            'profile_picture_url' => $profileUrl,
 
             'created_at' => Carbon::parse($reply->created_at)->diffForHumans(),
         ], 201);
