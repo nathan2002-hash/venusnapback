@@ -27,6 +27,9 @@ RUN composer install --no-dev --optimize-autoloader
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Clear Laravel cache
+RUN php artisan cache:clear && php artisan config:clear && php artisan config:cache && php artisan route:clear && php artisan view:clear
+
 # Expose port
 EXPOSE 8000
 
