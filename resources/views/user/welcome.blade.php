@@ -5,7 +5,7 @@
 <head>
 
         <meta charset="utf-8" />
-        <title>Maintenance Page | Venusnap</title>
+        <title> Coming Soon | Venusnap</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta content="Venusnap" name="description" />
         <meta content="Venusnap" name="author" />
@@ -42,7 +42,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <h3 class="mt-5">Site is Under Maintenance</h3>
+                            <h3 class="mt-5">Venusnap Coming Soon</h3>
                             <p>Please check back in sometime.</p>
 
                             <div class="row">
