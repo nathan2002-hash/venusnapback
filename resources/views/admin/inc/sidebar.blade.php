@@ -25,7 +25,7 @@
                         <span key="t-dashboards">Users</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="#" key="t-tui-calendar">Users</a></li>
+                        <li><a href="/restricted/users" key="t-tui-calendar">Users</a></li>
                         <li><a href="#" key="t-full-calendar">Demographic</a></li>
                     </ul>
                 </li>
