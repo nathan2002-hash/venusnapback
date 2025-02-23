@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libonig-dev \
     libzip-dev \
+    nodejs \
+    npm \
     && docker-php-ext-install pdo pdo_mysql mbstring zip
 
 # Install Composer
@@ -21,8 +23,11 @@ WORKDIR /var/www/html
 # Copy Laravel app to the container
 COPY . .
 
-# Install dependencies
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
+
+# Install Node dependencies & build Vite assets
+RUN npm install && npm run build
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache

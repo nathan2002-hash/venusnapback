@@ -128,6 +128,7 @@ class AuthController extends Controller
             'description' => "This is " . $request->full_name . "'s Artboard",
             'user_id' => $user->id,
             'type' => "General",
+            'status' => "active",
             'slug' => "$user->full_name $randomNumber",
             'is_verified' => 0,
             'visibility' => "public",
