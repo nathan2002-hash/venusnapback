@@ -24,6 +24,15 @@ class PostController extends Controller
 {
     $userId = Auth::id(); // Get the authenticated user
 
+    // Check if there are any recommendations for this user
+    $recommendationsCount = Recommendation::where('user_id', $userId)
+        ->where('status', 'active')
+        ->count();
+
+    if ($recommendationsCount == 0) {
+        return response()->json(['message' => 'No recommendations found for this user.'], 404);
+    }
+
     // Fetch recommended posts for this user
     $posts = Recommendation::where('user_id', $userId)
         ->where('status', 'active')
