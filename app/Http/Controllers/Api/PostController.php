@@ -22,7 +22,7 @@ class PostController extends Controller
 {
     public function index()
 {
-    $userId = 1; // Get the authenticated user
+    $userId = Auth::user()->id; // Get the authenticated user
 
     // Check if there are any recommendations for this user
     $recommendationsCount = Recommendation::where('user_id', $userId)
