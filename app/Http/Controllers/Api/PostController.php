@@ -8,7 +8,7 @@ use App\Models\Comment;
 use App\Models\CommentReply;
 use App\Models\Post;
 use App\Models\PostMedia;
-use App\Models\Recommedation;
+use App\Models\Recommendation;
 use App\Models\Report;
 use App\Models\Saved;
 use Illuminate\Http\Request;
@@ -26,7 +26,7 @@ class PostController extends Controller
         $userId = Auth::id();
 
         // Fetch recommendations that are active and meant for this user
-        $recommendations = Recommedation::where('user_id', $userId) // Ensure it's for the logged-in user
+        $recommendations = Recommendation::where('user_id', $userId) // Ensure it's for the logged-in user
             ->where('status', 'active') // Only fetch active recommendations
             ->with(['post.postmedias.comments', 'post.postmedias.admires', 'post.user.supporters']) // Load post relations
             ->paginate(2);
