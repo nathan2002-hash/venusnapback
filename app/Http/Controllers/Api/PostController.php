@@ -22,13 +22,7 @@ class PostController extends Controller
 {
     public function index()
 {
-    $user = Auth::user();
-    if (!$user) {
-        return response()->json(['message' => 'Unauthorized. Please log in.'], 401);
-    }
-
-    $userId = $user->id;
-
+    $userId = Auth::user()->id; // Get the authenticated user
 
     // Check if there are any recommendations for this user
     $recommendationsCount = Recommendation::where('user_id', $userId)

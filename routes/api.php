@@ -16,6 +16,7 @@ Route::post('/google/login', 'Api\AuthController@googleLogin');
 //profile routes
 //Route::get('/user/profile', 'Api\ProfileController@index');
 
+Route::middleware('auth:api')->get('/posts', 'Api\PostController@index');
 Route::middleware('auth:api')->get('/user/profile', 'Api\ProfileController@index');
 Route::middleware('auth:api')->get('/post/comments/{postMediaId}', 'Api\PostController@getCommentsAndReplies');
 Route::middleware('auth:api')->post('/user/profile/update', 'Api\ProfileController@update');
@@ -45,7 +46,6 @@ Route::middleware('auth:api')->post('/logout', function (Request $request) {
 Route::get('/welcome', 'Api\WelcomeController@index');
 
 //posts routes
-Route::get('/posts', 'Api\PostController@index');
 Route::post('/post/save/{id}', 'Api\PostController@save');
 //Route::post('/post/comment/{id}', 'Api\PostController@comment');
 //Route::post('/post/comment/reply/{id}', 'Api\PostController@commentreply');
