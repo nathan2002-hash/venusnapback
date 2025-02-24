@@ -19,4 +19,8 @@ class Post extends Model
     public function user(){
         return $this->belongsTo(User::class);
     }
+
+    public function recommendations(){
+        return $this->hasMany(Recommedation::class);
+    }
 }
