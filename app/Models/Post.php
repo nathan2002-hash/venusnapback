@@ -21,6 +21,6 @@ class Post extends Model
     }
 
     public function recommendations(){
-        return $this->hasMany(Recommendation::class);
+        return $this->hasMany(Recommendation::class, 'post_id');
     }
 }
