@@ -21,78 +21,72 @@ use Carbon\Carbon;
 class PostController extends Controller
 {
     public function index()
-    {
-        $userId = Auth::id(); // Get the authenticated user
+{
+    $userId = Auth::id(); // Get the authenticated user
 
-        // Fetch recommended posts for this user
-        $posts = Recommendation::where('user_id', $userId)
-            ->where('status', 'active')
-            ->with(['post.postmedias.comments', 'post.postmedias.admires', 'post.user.supporters'])
-            ->paginate(2);
+    // Check if there are any recommendations for this user
+    $recommendationsCount = Recommendation::where('user_id', $userId)
+        ->where('status', 'active')
+        ->count();
 
-        // Check if there are no recommendations
-        if ($posts->isEmpty()) {
-            return response()->json([
-                'posts' => [],  // Return empty array instead of an error
-                'current_page' => 1,
-                'last_page' => 1,
-                'total' => 0,
-            ], 200);
-        }
-
-        // Format post data
-        $postsData = $posts->map(function ($rec) {
-            $post = $rec->post; // Get the actual post
-
-            $postMediaData = $post->postMedias->map(function ($media) {
-                return [
-                    'id' => $media->id,
-                    'filepath' => Storage::disk('s3')->url($media->file_path),
-                    'sequence_order' => $media->sequence_order,
-                    'comments_count' => $media->comments->count(),
-                    'likes_count' => $media->admires->count(),
-                    'comments' => $media->comments->map(function ($comment) {
-                        return [
-                            'id' => $comment->id,
-                            'user' => $comment->user->name,
-                            'user_profile' => asset('storage/' . $comment->user->profile_photo_path),
-                            'comment' => $comment->comment,
-                            'commentreplies' => $comment->commentreplies->map(function ($reply) {
-                                return [
-                                    'id' => $reply->id,
-                                    'user' => $reply->user->name,
-                                    'user_profile' => asset('storage/' . $reply->user->profile_photo_path),
-                                    'reply' => $reply->reply,
-                                ];
-                            })->toArray(),
-                        ];
-                    })->toArray(),
-                ];
-            })->toArray();
-
-            return [
-                'id' => $post->id,
-                'title' => $post->title,
-                'user' => $post->user->name,
-                'supporters' => (string) $post->user->supporters->count(),
-                'profile' => $post->user->profile_photo_path
-                    ? asset('storage/' . $post->user->profile_photo_path)
-                    : asset('default/profile.png'),
-                'post_media' => $postMediaData,
-            ];
-        });
-
-        return response()->json([
-            'posts' => $postsData,
-            'current_page' => $posts->currentPage(),
-            'last_page' => $posts->lastPage(),
-            'total' => $posts->total(),
-        ], 200);
+    if ($recommendationsCount == 0) {
+        return response()->json(['message' => 'No recommendations found for this user.'], 404);
     }
 
+    // Fetch recommended posts for this user
+    $posts = Recommendation::where('user_id', $userId)
+        ->where('status', 'active')
+        ->with(['post.postmedias.comments', 'post.postmedias.admires', 'post.user.supporters'])
+        ->paginate(2);
 
+    $postsData = $posts->map(function ($rec) {
+        $post = $rec->post; // Get the actual post
 
+        $postMediaData = $post->postMedias->map(function ($media) {
+            return [
+                'id' => $media->id,
+                'filepath' => Storage::disk('s3')->url($media->file_path),
+                'sequence_order' => $media->sequence_order,
+                'comments_count' => $media->comments->count(),
+                'likes_count' => $media->admires->count(),
+                'comments' => $media->comments->map(function ($comment) {
+                    return [
+                        'id' => $comment->id,
+                        'user' => $comment->user->name,
+                        'user_profile' => asset('storage/' . $comment->user->profile_photo_path),
+                        'comment' => $comment->comment,
+                        'commentreplies' => $comment->commentreplies->map(function ($reply) {
+                            return [
+                                'id' => $reply->id,
+                                'user' => $reply->user->name,
+                                'user_profile' => asset('storage/' . $reply->user->profile_photo_path),
+                                'reply' => $reply->reply,
+                            ];
+                        })->toArray(),
+                    ];
+                })->toArray(),
+            ];
+        })->toArray();
 
+        return [
+            'id' => $post->id,
+            'title' => $post->title,
+            'user' => $post->user->name,
+            'supporters' => (string) $post->user->supporters->count(),
+            'profile' => $post->user->profile_photo_path
+                ? asset('storage/' . $post->user->profile_photo_path)
+                : asset('default/profile.png'),
+            'post_media' => $postMediaData,
+        ];
+    });
+
+    return response()->json([
+        'posts' => $postsData,
+        'current_page' => $posts->currentPage(),
+        'last_page' => $posts->lastPage(),
+        'total' => $posts->total(),
+    ], 200);
+}
 
     public function store(Request $request)
     {
