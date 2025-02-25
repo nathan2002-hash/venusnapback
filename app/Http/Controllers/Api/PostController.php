@@ -8,7 +8,6 @@ use App\Models\Comment;
 use App\Models\CommentReply;
 use App\Models\Post;
 use App\Models\PostMedia;
-use App\Models\Recommendation;
 use App\Models\Report;
 use App\Models\Saved;
 use Illuminate\Http\Request;
@@ -20,12 +19,11 @@ use Carbon\Carbon;
 
 class PostController extends Controller
 {
-
     public function index()
 {
     // Eager load only the necessary relationships to avoid overhead
     $posts = Post::with(['postmedias.comments', 'postmedias.admires', 'user.supporters'])
-        ->paginate(2);
+        ->paginate(1);
 
     $postsData = $posts->map(function ($post) {
         // Directly return the transformed post without using nested map operations
@@ -74,73 +72,8 @@ class PostController extends Controller
         'total' => $posts->total(),
     ], 200);
 }
-    public function indexg()
-{
-    $userId = Auth::id(); // Get the authenticated user
 
-    // Check if there are any recommendations for this user
-    $recommendationsCount = Recommendation::where('user_id', $userId)
-        ->where('status', 'active')
-        ->count();
 
-    if ($recommendationsCount == 0) {
-        return response()->json(['message' => 'No recommendations found for this user.'], 404);
-    }
-
-    // Fetch recommended posts for this user
-    $posts = Recommendation::where('user_id', $userId)
-        ->where('status', 'active')
-        ->with(['post.postmedias.comments', 'post.postmedias.admires', 'post.user.supporters'])
-        ->paginate(2);
-
-    $postsData = $posts->map(function ($rec) {
-        $post = $rec->post; // Get the actual post
-
-        $postMediaData = $post->postMedias->map(function ($media) {
-            return [
-                'id' => $media->id,
-                'filepath' => Storage::disk('s3')->url($media->file_path),
-                'sequence_order' => $media->sequence_order,
-                'comments_count' => $media->comments->count(),
-                'likes_count' => $media->admires->count(),
-                'comments' => $media->comments->map(function ($comment) {
-                    return [
-                        'id' => $comment->id,
-                        'user' => $comment->user->name,
-                        'user_profile' => asset('storage/' . $comment->user->profile_photo_path),
-                        'comment' => $comment->comment,
-                        'commentreplies' => $comment->commentreplies->map(function ($reply) {
-                            return [
-                                'id' => $reply->id,
-                                'user' => $reply->user->name,
-                                'user_profile' => asset('storage/' . $reply->user->profile_photo_path),
-                                'reply' => $reply->reply,
-                            ];
-                        })->toArray(),
-                    ];
-                })->toArray(),
-            ];
-        })->toArray();
-
-        return [
-            'id' => $post->id,
-            'title' => $post->title,
-            'user' => $post->user->name,
-            'supporters' => (string) $post->user->supporters->count(),
-            'profile' => $post->user->profile_photo_path
-                ? asset('storage/' . $post->user->profile_photo_path)
-                : asset('default/profile.png'),
-            'post_media' => $postMediaData,
-        ];
-    });
-
-    return response()->json([
-        'posts' => $postsData,
-        'current_page' => $posts->currentPage(),
-        'last_page' => $posts->lastPage(),
-        'total' => $posts->total(),
-    ], 200);
-}
 
     public function store(Request $request)
     {
