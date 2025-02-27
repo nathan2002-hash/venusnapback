@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\Admire;
-use App\Models\Comment;
-use App\Models\CommentReply;
-use App\Models\Post;
-use App\Models\PostMedia;
-use App\Models\Report;
-use App\Models\Saved;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use App\Models\Post;
+use App\Models\Saved;
+use App\Models\Admire;
+use App\Models\Report;
+use App\Models\Comment;
+use App\Models\PostMedia;
+use App\Models\CommentReply;
+use Illuminate\Http\Request;
+use App\Jobs\CompressImageJob;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
@@ -87,7 +88,7 @@ class PostController extends Controller
             'type' => 'required',
             'visibility' => 'required|string|in:Public,Private,Friends Only',
             'post_medias' => 'required|array',
-            'post_medias.*.file' => 'required|file|mimes:jpeg,png,jpg|max:2048',
+            'post_medias.*.file' => 'required|file|mimes:jpeg,png,jpg,webp|max:2048',
             'post_medias.*.sequence_order' => 'required|integer',
         ]);
 
@@ -107,15 +108,19 @@ class PostController extends Controller
             ->sortBy('sequence_order') // Ensure images are sorted by their sequence order
             ->values(); // Reindex the collection
 
-        foreach ($sequenceOrders as $media) {
-            $path = $media['file']->store('uploads/posts', 's3');
+            foreach ($sequenceOrders as $media) {
+                $path = $media['file']->store('uploads/posts', 's3');  // Store the original file
 
-            PostMedia::create([
-                'post_id' => $post->id,
-                'file_path' => $path,
-                'sequence_order' => $media['sequence_order'],
-            ]);
-        }
+                $postMedia = PostMedia::create([
+                    'post_id' => $post->id,
+                    'file_path' => $path,
+                    'sequence_order' => $media['sequence_order'],
+                    'status' => 'original',  // Status set to original
+                ]);
+
+                // Dispatch a job to compress the image asynchronously
+                CompressImageJob::dispatch($postMedia);  // Use a queued job for compression
+            }
 
         return response()->json(['message' => 'Post created successfully', 'post' => $post], 200);
     }

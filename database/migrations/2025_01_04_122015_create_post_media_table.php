@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('post_id');
             $table->string('file_path');
+            $table->string('file_path_compress');
             $table->string('sequence_order');
+            $table->string('status')->default('original');
             $table->timestamps();
         });
     }
