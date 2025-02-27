@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class SupportController extends Controller
 {
-    public function support($id)
+    public function support()
     {
         $support = new Supporter();
         $support->user_id = Auth::user()->id;
