@@ -16,6 +16,6 @@ class SupportController extends Controller
         $support->artboard_id = '5';
         $support->status = '1';
         $support->save();
-        return redirect()->back();
+        return response()->json(['message' => 'Post created successfully'], 200);
     }
 }
