@@ -17,6 +17,7 @@ return new class extends Migration
             $table->longText('description');
             $table->string('source');
             $table->string('status');
+            $table->string('user_id');
             $table->timestamps();
         });
     }
