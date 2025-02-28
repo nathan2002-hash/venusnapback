@@ -120,7 +120,7 @@ class PostController extends Controller
                 ]);
 
                 // Dispatch a job to compress the image asynchronously
-                CompressImageJob::dispatch($postMedia);  // Use a queued job for compression
+                CompressImageJob::dispatch($postMedia->fresh());  // Use a queued job for compression
             }
 
         return response()->json(['message' => 'Post created successfully', 'post' => $post], 200);
