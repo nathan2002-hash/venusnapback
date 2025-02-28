@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Album;
 use App\Models\Artboard;
 use App\Models\Artwork;
 use App\Models\User;
@@ -60,12 +61,12 @@ class AuthController extends Controller
         return response()->json([
             'username' => $user->name,
             'email' => $user->email,
-            'artboard' => $user->artboard->name,
-            'artboard_description' => $user->artboard->description,
+            'album' => $user->album->name,
+            'album_description' => $user->album->description,
             'token' => $token->accessToken,
             'userid' => (string) $user->id,
             'profile' => "https://ui-avatars.com/api/?name=" . urlencode($user->name) . "&color=7F9CF5&background=EBF4FF",
-            'artboard_profile' => "https://ui-avatars.com/api/?name=" . urlencode($user->name) . "&color=7F9CF5&background=EBF4FF",
+            'album_profile' => "https://ui-avatars.com/api/?name=" . urlencode($user->name) . "&color=7F9CF5&background=EBF4FF",
         ]);
     }
 
@@ -123,9 +124,9 @@ class AuthController extends Controller
 
         $randomNumber = mt_rand(1000, 9999);
 
-        $artboard = Artboard::create([
+        $artboard = Album::create([
             'name' => $request->full_name . $randomNumber,
-            'description' => "This is " . $request->full_name . "'s Artboard",
+            'description' => "This is " . $request->full_name . "'s Album",
             'user_id' => $user->id,
             'type' => "General",
             'status' => "active",

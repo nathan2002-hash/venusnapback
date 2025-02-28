@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('user_id');
             $table->string('description');
+            $table->string('album_id');
             $table->string('type');
             $table->string('visibility');
             $table->timestamps();

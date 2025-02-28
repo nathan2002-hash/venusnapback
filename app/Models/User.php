@@ -81,8 +81,8 @@ class User extends Authenticatable
         return $this->hasMany(Supporter::class);
     }
 
-    public function artboard(){
-        return $this->hasOne(Artboard::class);
+    public function albums(){
+        return $this->hasMany(Album::class);
     }
 
     public function artworks(){

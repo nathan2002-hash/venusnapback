@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('supporters', function (Blueprint $table) {
             $table->id();
-            $table->string('artboard_id');
+            $table->string('album_id');
             $table->string('user_id');
             $table->string('status');
             $table->timestamps();

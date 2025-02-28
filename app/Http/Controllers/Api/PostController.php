@@ -101,6 +101,7 @@ class PostController extends Controller
         $post->user_id = Auth::user()->id; // Assign authenticated user's ID
         $post->description = $request->description;
         $post->type = $request->type;
+        $post->album_id = $request->album_id;
         $post->visibility = $request->visibility;
         $post->save();
 

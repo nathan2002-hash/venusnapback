@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('artboards', function (Blueprint $table) {
+        Schema::create('albums', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id'); // ONE Artboard per user
             $table->string('name')->unique(); // Artboard name (e.g., "John's Artboard")

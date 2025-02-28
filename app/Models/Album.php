@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Artboard extends Model
+class Album extends Model
 {
     protected $fillable = ['name', 'description', 'user_id', 'slug', 'type'];
 

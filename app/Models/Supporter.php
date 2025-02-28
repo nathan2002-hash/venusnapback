@@ -14,7 +14,7 @@ class Supporter extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function artboard(){
-        return $this->belongsTo(Artboard::class);
+    public function album(){
+        return $this->belongsTo(Album::class);
     }
 }

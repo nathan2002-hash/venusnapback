@@ -13,7 +13,7 @@ class SupportController extends Controller
     {
         $support = new Supporter();
         $support->user_id = Auth::user()->id;
-        $support->artboard_id = '5';
+        $support->album = '5';
         $support->status = '1';
         $support->save();
         return response()->json(['message' => 'Post created successfully'], 200);
