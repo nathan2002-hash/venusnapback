@@ -222,10 +222,18 @@ class AuthController extends Controller
             ], 404);
         }
 
+        $formattedActivities = $activities->map(function ($activity) {
+            return [
+                'time' => $activity->created_at->format('MMM dd, yyyy - hh:mm a'),
+                'status' => $activity->status ? 'changed' : 'failed', // Assuming 'status' is boolean (true for successful, false for failed)
+                'action' => 'Password Updated',  // Assuming the activity title is "Password Updated"
+            ];
+        });
+
         // Return activities
         return response()->json([
             'success' => true,
-            'data' => $activities,
+            'data' => $formattedActivities,
         ]);
     }
 }
