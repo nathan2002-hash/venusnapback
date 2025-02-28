@@ -147,4 +147,34 @@ class AuthController extends Controller
         ], 201);
     }
 
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'string'],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],  // must pass 'new_password_confirmation' too
+        ]);
+
+        $user = auth()->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->with('error', 'Current password is incorrect.');
+        }
+
+        $user->update([
+            'password' => Hash::make($request->new_password),
+        ]);
+
+        // Log this activity
+        $user->activities()->create([
+            'title' => 'Password Updated',
+            'description' => 'Your account password was changed.',
+            'status_changed' => true,  // This is for your green/red logic
+            'time' => now()->format('Y-m-d H:i:s'),
+        ]);
+
+        return back()->with('success', 'Password updated successfully.');
+    }
+
+
 }

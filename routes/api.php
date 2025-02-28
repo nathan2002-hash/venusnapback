@@ -23,6 +23,8 @@ Route::middleware('auth:api')->post('/user/profile/update', 'Api\ProfileControll
 Route::middleware('auth:api')->post('/post/store', 'Api\PostController@store');
 Route::middleware('auth:api')->post('/post/admire', 'Api\PostController@admire');
 Route::middleware('auth:api')->post('/supporter/subscribe', 'Api\SupportController@support');
+Route::middleware('auth:api')->post('/change/password', 'Api\AuthController@changePassword');
+
 Route::middleware('auth:api')->get('/categories', function () {
     return response()->json(Category::all());
 });
