@@ -120,8 +120,8 @@
                             <div class="card-body">
                                 <div class="d-flex">
                                     <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Artboards</p>
-                                        <h4 class="mb-0">{{ $artboards }}</h4>
+                                        <p class="text-muted fw-medium">Albums</p>
+                                        <h4 class="mb-0">{{ $album }}</h4>
                                     </div>
 
                                     <div class="flex-shrink-0 align-self-center ">

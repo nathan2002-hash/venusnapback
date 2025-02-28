@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Album;
 use App\Models\Artboard;
 use App\Models\Post;
 use App\Models\User;
@@ -15,11 +16,11 @@ class WelcomeController extends Controller
         $users = User::orderBy('created_at', 'desc')->paginate(10);
         $usersc = User::count();
         $posts = Post::count();
-        $artboards = Artboard::count();
+        $album = Album::count();
         return view('admin.welcome', [
            'users' => $users,
            'posts' => $posts,
-           'artboards' => $artboards,
+           'album' => $album,
            'usersc' => $usersc,
         ]);
     }

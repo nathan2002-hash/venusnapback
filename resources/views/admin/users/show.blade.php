@@ -20,11 +20,11 @@
                     <img src="{{ asset('assets/images/users/avatar-1.jpg') }}" alt="" class="avatar-sm rounded">
                     <div class="ms-3 flex-grow-1">
                         <h5 class="mb-2 card-title">{{ $user->name }}</h5>
-                        <p class="text-muted mb-0">{{ $user->artboard->name }}</p>
+                        {{-- <p class="text-muted mb-0">{{ $user->album->name }}</p> --}}
                     </div>
                     <div>
                         <a href="javascript:void(0);" class="btn btn-danger"><i class="bx bx-pause align-middle"></i> Suspend Account</a>
-                        <a href="javascript:void(0);" class="btn btn-danger"><i class="bx bx-stop-circle align-middle"></i> Suspend Artboard</a>
+                        <a href="javascript:void(0);" class="btn btn-danger"><i class="bx bx-stop-circle align-middle"></i> Suspend Album</a>
                     </div>
                 </div>
             </div><!--end col-->
