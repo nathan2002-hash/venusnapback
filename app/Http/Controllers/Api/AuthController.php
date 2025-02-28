@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Activity;
 use App\Models\Album;
 use App\Models\Artboard;
 use App\Models\Artwork;
@@ -48,6 +49,16 @@ class AuthController extends Controller
 
         // Attempt to authenticate
         if (!Auth::attempt($request->only('email', 'password'))) {
+            $user = User::where('email', $request->email)->first();
+            if ($user) {
+                $activity = new Activity();
+                $activity->title = 'Login Failed';
+                $activity->description = 'Failed login attempt due to incorrect password.';
+                $activity->source = 'Authentication';
+                $activity->user_id = $user->id; // Log this against the existing user if email exists
+                $activity->status = false;
+                $activity->save();
+            }
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
@@ -57,16 +68,20 @@ class AuthController extends Controller
         // Create a token for the user
         $token = $user->createToken('authToken');
 
+        $activity = new Activity();
+        $activity->title = 'Login Successful';
+        $activity->description = 'You successfully logged into your account';
+        $activity->source = 'Authentication';
+        $activity->user_id = Auth::id();
+        $activity->status = true;
+        $activity->save();
+
         // Return the token and user details
         return response()->json([
             'username' => $user->name,
             'email' => $user->email,
-            'album' => $user->album->name,
-            'album_description' => $user->album->description,
             'token' => $token->accessToken,
-            'userid' => (string) $user->id,
             'profile' => "https://ui-avatars.com/api/?name=" . urlencode($user->name) . "&color=7F9CF5&background=EBF4FF",
-            'album_profile' => "https://ui-avatars.com/api/?name=" . urlencode($user->name) . "&color=7F9CF5&background=EBF4FF",
         ]);
     }
 
@@ -155,26 +170,62 @@ class AuthController extends Controller
             'new_password' => ['required', 'string', 'min:8', 'confirmed'],  // must pass 'new_password_confirmation' too
         ]);
 
-        $user = auth()->user();
+        $user = Auth::user();
 
         if (!Hash::check($request->current_password, $user->password)) {
-            return back()->with('error', 'Current password is incorrect.');
+            $activity = new Activity();
+            $activity->title = 'Password Update Failed';
+            $activity->description = 'Password change failed due to incorrect current password';
+            $activity->source = 'Authentication';
+            $activity->user_id = Auth::user()->id;
+            $activity->status = false;
+            $activity->save();
+            return response()->json([
+                'message' => 'Current password is incorrect',
+                'success' => false,
+            ], 422);
         }
 
         $user->update([
             'password' => Hash::make($request->new_password),
         ]);
 
-        // Log this activity
-        $user->activities()->create([
-            'title' => 'Password Updated',
-            'description' => 'Your account password was changed.',
-            'status_changed' => true,  // This is for your green/red logic
-            'time' => now()->format('Y-m-d H:i:s'),
+        $activity = new Activity();
+        $activity->title = 'Password Updated';
+        $activity->description = 'Your account password was changed';
+        $activity->source = 'Authentication';
+        $activity->user_id = Auth::user()->id;
+        $activity->status = true;
+        $activity->save();
+        return response()->json([
+            'message' => 'Password updated successfully',
+            'success' => true,
         ]);
-
-        return back()->with('success', 'Password updated successfully.');
     }
 
+    public function fetchPasswordActivities()
+    {
+        // Get the current authenticated user
+        $user = Auth::user();
 
+        // Fetch password-related activities for the user (e.g., password change attempts)
+        $activities = Activity::where('user_id', $user->id)
+                            ->where('source', 'Authentication') // Filter activities related to authentication
+                            ->orderBy('created_at', 'desc')   // Order by most recent first
+                            ->get();
+
+        // Check if activities exist
+        if ($activities->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No password-related activities found.',
+            ], 404);
+        }
+
+        // Return activities
+        return response()->json([
+            'success' => true,
+            'data' => $activities,
+        ]);
+    }
 }
