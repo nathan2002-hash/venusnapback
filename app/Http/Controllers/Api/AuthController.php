@@ -79,7 +79,6 @@ class AuthController extends Controller
         // Return the token and user details
         return response()->json([
             'username' => $user->name,
-            'email' => $user->email,
             'token' => $token->accessToken,
             'profile' => "https://ui-avatars.com/api/?name=" . urlencode($user->name) . "&color=7F9CF5&background=EBF4FF",
         ]);
@@ -115,8 +114,6 @@ class AuthController extends Controller
         'token' => $token,
         'username' => $user->name,
         'profile' => $user->profile_photo_path,
-        'email' => $user->email,
-        'userid' => $user->id,
     ]);
     }
 
