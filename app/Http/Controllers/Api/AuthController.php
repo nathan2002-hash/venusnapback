@@ -95,7 +95,8 @@ class AuthController extends Controller
         $album->logo = 'albums/rUSWa6xIDbTvpdf3sJcxCdWx0q02jyqyp8VAdXVj.jpg';
         $album->save();
         return response()->json([
-            'message' => 'User registered successfully'
+            'status' => 'success',
+            'message' => 'Registration successful'
         ], 200);
     }
 
