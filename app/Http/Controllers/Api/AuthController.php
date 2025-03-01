@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\Activity;
-use App\Models\Album;
-use App\Models\Artboard;
-use App\Models\Artwork;
 use App\Models\User;
+use App\Models\Album;
 use GuzzleHttp\Client;
+use App\Models\Artwork;
+use App\Models\Activity;
+use App\Models\Artboard;
 use Illuminate\Http\Request;
+use App\Jobs\RegistrationJob;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
@@ -81,19 +82,8 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $randomNumber = mt_rand(1000, 9999);
+        RegistrationJob::dispatch($user);
 
-        $album = new Album();
-        $album->name = $request->full_name . $randomNumber;
-        $album->description = "This is " . $request->full_name . "'s Album";
-        $album->user_id = $user->id;
-        $album->type = "general";
-        $album->status = 'active';
-        $album->slug = "$user->full_name $randomNumber";
-        $album->is_verified = 0;
-        $album->visibility = 'public';
-        $album->cover = 'albums/rUSWa6xIDbTvpdf3sJcxCdWx0q02jyqyp8VAdXVj.jpg';
-        $album->save();
         return response()->json([
             'status' => 'success',
             'message' => 'Registration successful'
