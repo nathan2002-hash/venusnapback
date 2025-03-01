@@ -126,7 +126,7 @@ class AuthController extends Controller
 
         $formattedActivities = $activities->map(function ($activity) {
             return [
-                'time' => $activity->created_at->format('MMM dd, yyyy - hh:mm a'),
+                'time' => $activity->created_at->format('M d, Y - h:m a'),
                 'status' => $activity->status ? 'changed' : 'failed', // Assuming 'status' is boolean (true for successful, false for failed)
                 'action' => 'Password Updated',  // Assuming the activity title is "Password Updated"
             ];
