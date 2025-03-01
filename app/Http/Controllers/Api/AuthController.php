@@ -83,27 +83,20 @@ class AuthController extends Controller
 
         $randomNumber = mt_rand(1000, 9999);
 
-        $album = Album::create([
-            'name' => $request->full_name . $randomNumber,
-            'description' => "This is " . $request->full_name . "'s Album",
-            'user_id' => $user->id,
-            'type' => "General",
-            'status' => "active",
-            'slug' => "$user->full_name $randomNumber",
-            'is_verified' => 0,
-            'visibility' => "public",
-            'logo' => "albums/rUSWa6xIDbTvpdf3sJcxCdWx0q02jyqyp8VAdXVj.jpg",
-        ]);
-        // Generate a token for the user
-        $token = $user->createToken('authToken');
-
-
-
+        $album = new Album();
+        $album->name = $request->full_name . $randomNumber;
+        $album->description = "This is " . $request->full_name . "'s Album";
+        $album->user_id = $user->id;
+        $album->type = "general";
+        $album->status = 'active';
+        $album->slug = "$user->full_name $randomNumber";
+        $album->is_verified = 0;
+        $album->visibility = 'public';
+        $album->logo = 'albums/rUSWa6xIDbTvpdf3sJcxCdWx0q02jyqyp8VAdXVj.jpg';
+        $album->save();
         return response()->json([
-            'user' => $user,
-            'access_token' => $token,
-            'album' => $album,
-        ], 201);
+            'message' => 'User registered successfully'
+        ], 200);
     }
 
 
