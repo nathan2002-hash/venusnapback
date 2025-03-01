@@ -20,59 +20,6 @@ use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
-//     public function index()
-// {
-//     // Eager load only the necessary relationships to avoid overhead
-//     $posts = Post::with(['postmedias.comments', 'postmedias.admires', 'user.supporters'])
-//         ->paginate(1);
-
-//     $postsData = $posts->map(function ($post) {
-//         // Directly return the transformed post without using nested map operations
-//         $postMediaData = $post->postMedias->map(function ($media) {
-//             return [
-//                 'id' => $media->id,
-//                 'filepath' => Storage::disk('s3')->url($media->file_path),
-//                 'sequence_order' => $media->sequence_order,
-//                 'comments_count' => $media->comments->count(),
-//                 'likes_count' => $media->admires->count(),
-//                 'comments' => $media->comments->map(function ($comment) {
-//                     return [
-//                         'id' => $comment->id,
-//                         'user' => $comment->user->name,
-//                         'user_profile' => 'http://venusnap:85/storage/posts/image6_1736101826.jpg',
-//                         'comment' => $comment->comment,
-//                         'commentreplies' => $comment->commentreplies->map(function ($reply) {
-//                             return [
-//                                 'id' => $reply->id,
-//                                 'user' => $reply->user->name,
-//                                 'user_profile' => 'http://venusnap:85/storage/posts/image6_1736101826.jpg',
-//                                 'reply' => $reply->reply,
-//                             ];
-//                         })->toArray(),
-//                     ];
-//                 })->toArray(),
-//             ];
-//         })->toArray();
-
-//         return [
-//             'id' => $post->id,
-//             'title' => $post->title,
-//             'user' => $post->user->name,
-//             'supporters' => (string) $post->user->supporters->count(),
-//             'profile' => $post->user->profile_photo_path
-//                 ? asset('storage/' . $post->user->profile_photo_path)
-//                 : asset('default/profile.png'),
-//             'post_media' => $postMediaData,
-//         ];
-//     });
-
-//     return response()->json([
-//         'posts' => $postsData,
-//         'current_page' => $posts->currentPage(),
-//         'last_page' => $posts->lastPage(),
-//         'total' => $posts->total(),
-//     ], 200);
-// }
 
 public function index(Request $request)
 {

@@ -11,6 +11,7 @@ use App\Models\Artboard;
 use Illuminate\Http\Request;
 use App\Jobs\RegistrationJob;
 use App\Jobs\LoginActivityJob;
+use App\Jobs\ChangePasswordJob;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -89,30 +90,13 @@ class AuthController extends Controller
         $user = Auth::user();
 
         if (!Hash::check($request->current_password, $user->password)) {
-            $activity = new Activity();
-            $activity->title = 'Password Update Failed';
-            $activity->description = 'Password change failed due to incorrect current password';
-            $activity->source = 'Authentication';
-            $activity->user_id = Auth::user()->id;
-            $activity->status = false;
-            $activity->save();
+            ChangePasswordJob::dispatch($user, $request->current_password, $request->new_password);
             return response()->json([
                 'message' => 'Current password is incorrect',
                 'success' => false,
             ], 422);
         }
-
-        $user->update([
-            'password' => Hash::make($request->new_password),
-        ]);
-
-        $activity = new Activity();
-        $activity->title = 'Password Updated';
-        $activity->description = 'Your account password was changed';
-        $activity->source = 'Authentication';
-        $activity->user_id = Auth::user()->id;
-        $activity->status = true;
-        $activity->save();
+        ChangePasswordJob::dispatch($user, $request->current_password, $request->new_password);
         return response()->json([
             'message' => 'Password updated successfully',
             'success' => true,
