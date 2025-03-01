@@ -18,27 +18,6 @@ use Laravel\Passport\Client as PassportClient;
 
 class AuthController extends Controller
 {
-    // public function login(Request $request)
-    // {
-    //     $credentials = $request->only('email', 'password');
-
-    //     if (Auth::attempt($credentials)) {
-    //         $user = Auth::user();
-    //         $token = $user->createToken('authToken')->plainTextToken;
-
-    //         return response()->json([
-    //             'status' => 'success',
-    //             'user' => $user,
-    //             'token' => $token,
-    //         ]);
-    //     }
-
-    //     return response()->json([
-    //         'status' => 'error',
-    //         'message' => 'Invalid credentials',
-    //     ], 401);
-    // }
-
     public function login(Request $request)
     {
         // Validate the request
@@ -84,41 +63,6 @@ class AuthController extends Controller
         ]);
     }
 
-    public function googleLogin(Request $request)
-    {
-        $idToken = $request->input('idToken');
-
-    // Verify ID token with Google
-    $response = Http::get("https://oauth2.googleapis.com/tokeninfo?id_token={$idToken}");
-    $googleUser = $response->json();
-
-    if (!isset($googleUser['email'])) {
-        return response()->json(['error' => 'Invalid Google token'], 401);
-    }
-
-    // Check if user exists, otherwise create a new one
-    $user = User::firstOrCreate(
-        ['email' => $googleUser['email']],
-        [
-            'name' => $googleUser['name'],
-            'password' => bcrypt(uniqid()), // Dummy password, not needed
-            'profile_photo_path' => $googleUser['picture'],
-        ]
-    );
-
-    // Generate token
-    $token = $user->createToken('authToken');
-    //$token = $user->createToken('auth_token')->plainTextToken;
-
-    return response()->json([
-        'token' => $token,
-        'username' => $user->name,
-        'profile' => $user->profile_photo_path,
-    ]);
-    }
-
-
-
     public function register(Request $request)
     {
         $request->validate([
@@ -131,12 +75,15 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $request->full_name,
             'email' => $request->email,
+            'username' => $request->full_name,
+            'country' => $request->country,
+            'status' => 'active',
             'password' => Hash::make($request->password),
         ]);
 
         $randomNumber = mt_rand(1000, 9999);
 
-        $artboard = Album::create([
+        $album = Album::create([
             'name' => $request->full_name . $randomNumber,
             'description' => "This is " . $request->full_name . "'s Album",
             'user_id' => $user->id,
@@ -145,7 +92,7 @@ class AuthController extends Controller
             'slug' => "$user->full_name $randomNumber",
             'is_verified' => 0,
             'visibility' => "public",
-            'logo' => "artboards/rUSWa6xIDbTvpdf3sJcxCdWx0q02jyqyp8VAdXVj.jpg",
+            'logo' => "albums/rUSWa6xIDbTvpdf3sJcxCdWx0q02jyqyp8VAdXVj.jpg",
         ]);
         // Generate a token for the user
         $token = $user->createToken('authToken');
@@ -155,7 +102,7 @@ class AuthController extends Controller
         return response()->json([
             'user' => $user,
             'access_token' => $token,
-            'artboard' => $artboard,
+            'album' => $album,
         ], 201);
     }
 
