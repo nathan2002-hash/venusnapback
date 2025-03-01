@@ -28,12 +28,13 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
+        $userAgent = $request->header('User-Agent');
 
         if (!Auth::attempt($request->only('email', 'password'))) {
             $user = User::where('email', $request->email)->first();
             if ($user) {
                 // Dispatch the login failed activity to the queue
-                LoginActivityJob::dispatch($user, false, 'Failed login attempt due to incorrect password.', 'Login Failed');
+                LoginActivityJob::dispatch($user, false, 'Failed login attempt due to incorrect password.', 'Login Failed', $userAgent);
             }
             return response()->json(['message' => 'Unauthorized'], 401);
         }
@@ -44,7 +45,7 @@ class AuthController extends Controller
         // Create a token for the user
         $token = $user->createToken('authToken');
 
-        LoginActivityJob::dispatch($user, true, 'You successfully logged into your account', 'Login Successful');
+        LoginActivityJob::dispatch($user, true, 'You successfully logged into your account', 'Login Successful', $userAgent);
 
         // Return the token and user details
         return response()->json([
@@ -61,7 +62,7 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);
-
+        $userAgent = $request->header('User-Agent');
 
         $user = User::create([
             'name' => $request->full_name,
@@ -71,7 +72,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        RegistrationJob::dispatch($user);
+        RegistrationJob::dispatch($user, $userAgent);
 
         return response()->json([
             'status' => 'success',
@@ -88,15 +89,16 @@ class AuthController extends Controller
         ]);
 
         $user = Auth::user();
+        $userAgent = $request->header('User-Agent');
 
         if (!Hash::check($request->current_password, $user->password)) {
-            ChangePasswordJob::dispatch($user, $request->current_password, $request->new_password);
+            ChangePasswordJob::dispatch($user, $request->current_password, $request->new_password, $userAgent);
             return response()->json([
                 'message' => 'Current password is incorrect',
                 'success' => false,
             ], 422);
         }
-        ChangePasswordJob::dispatch($user, $request->current_password, $request->new_password);
+        ChangePasswordJob::dispatch($user, $request->current_password, $request->new_password, $userAgent);
         return response()->json([
             'message' => 'Password updated successfully',
             'success' => true,

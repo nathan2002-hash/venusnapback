@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('source');
             $table->string('status');
             $table->string('user_id');
+            $table->longText('user_agent');
             $table->timestamps();
         });
     }

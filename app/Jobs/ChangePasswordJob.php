@@ -15,14 +15,16 @@ class ChangePasswordJob implements ShouldQueue
     protected $user;
     protected $currentPassword;
     protected $newPassword;
+    protected $userAgent;
     /**
      * Create a new job instance.
      */
-    public function __construct(User $user, $currentPassword, $newPassword)
+    public function __construct(User $user, $currentPassword, $newPassword, $userAgent)
     {
         $this->user = $user;
         $this->currentPassword = $currentPassword;
         $this->newPassword = $newPassword;
+        $this->userAgent = $userAgent;
     }
 
 
@@ -45,6 +47,7 @@ class ChangePasswordJob implements ShouldQueue
                 'source' => 'Authentication',
                 'user_id' => $this->user->id,
                 'status' => true, // Success status
+                'user_agent' => $this->userAgent,
             ]);
         } else {
             // Log failed activity if the current password is incorrect
@@ -54,6 +57,7 @@ class ChangePasswordJob implements ShouldQueue
                 'source' => 'Authentication',
                 'user_id' => $this->user->id,
                 'status' => false, // Failed status
+                'user_agent' => $this->userAgent,
             ]);
         }
     }

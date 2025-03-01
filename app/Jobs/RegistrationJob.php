@@ -13,10 +13,12 @@ class RegistrationJob implements ShouldQueue
     use Queueable;
 
     protected $user;
+    protected $userAgent;
 
-    public function __construct(User $user)
+    public function __construct(User $user, $userAgent)
     {
         $this->user = $user;
+        $this->userAgent = $userAgent;
     }
 
     /**
@@ -44,6 +46,7 @@ class RegistrationJob implements ShouldQueue
         $activity->source = 'Registration';
         $activity->user_id = $this->user->id;
         $activity->status = true;
+        $activity->user_agent = $this->userAgent;
         $activity->save();
     }
 }

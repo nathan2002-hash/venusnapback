@@ -15,16 +15,18 @@ class LoginActivityJob implements ShouldQueue
     protected $status;
     protected $description;
     protected $title;
+    protected $userAgent;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(User $user, bool $status, string $description, string $title)
+    public function __construct(User $user, bool $status, string $description, string $title, string $userAgent)
     {
         $this->user = $user;
         $this->status = $status;
         $this->description = $description;
         $this->title = $title;
+        $this->userAgent = $userAgent;
     }
 
     /**
@@ -38,6 +40,7 @@ class LoginActivityJob implements ShouldQueue
         $activity->source = 'Authentication';
         $activity->user_id = $this->user->id;
         $activity->status = $this->status;
+        $activity->user_agent = $this->userAgent;
         $activity->save();
     }
 }
