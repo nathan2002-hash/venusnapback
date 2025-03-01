@@ -20,7 +20,8 @@ return new class extends Migration
             $table->string('type'); // Artboard category
             $table->string('is_verified')->default(0); // Verification status
             $table->string('visibility')->default('public'); // public, private, followers-only
-            $table->string('logo')->nullable(); // Artboard logo
+            $table->string('cover')->nullable(); // Artboard logo
+            $table->string('status')->default('active'); // Artboard logo
             $table->timestamps();
         });
     }

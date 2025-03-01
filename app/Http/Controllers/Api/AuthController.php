@@ -92,7 +92,7 @@ class AuthController extends Controller
         $album->slug = "$user->full_name $randomNumber";
         $album->is_verified = 0;
         $album->visibility = 'public';
-        $album->logo = 'albums/rUSWa6xIDbTvpdf3sJcxCdWx0q02jyqyp8VAdXVj.jpg';
+        $album->cover = 'albums/rUSWa6xIDbTvpdf3sJcxCdWx0q02jyqyp8VAdXVj.jpg';
         $album->save();
         return response()->json([
             'status' => 'success',
