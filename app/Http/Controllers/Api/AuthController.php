@@ -10,6 +10,7 @@ use App\Models\Activity;
 use App\Models\Artboard;
 use Illuminate\Http\Request;
 use App\Jobs\RegistrationJob;
+use App\Jobs\LoginActivityJob;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -27,17 +28,11 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        // Attempt to authenticate
         if (!Auth::attempt($request->only('email', 'password'))) {
             $user = User::where('email', $request->email)->first();
             if ($user) {
-                $activity = new Activity();
-                $activity->title = 'Login Failed';
-                $activity->description = 'Failed login attempt due to incorrect password.';
-                $activity->source = 'Authentication';
-                $activity->user_id = $user->id; // Log this against the existing user if email exists
-                $activity->status = false;
-                $activity->save();
+                // Dispatch the login failed activity to the queue
+                LoginActivityJob::dispatch($user, false, 'Failed login attempt due to incorrect password.', 'Login Failed');
             }
             return response()->json(['message' => 'Unauthorized'], 401);
         }
@@ -48,13 +43,7 @@ class AuthController extends Controller
         // Create a token for the user
         $token = $user->createToken('authToken');
 
-        $activity = new Activity();
-        $activity->title = 'Login Successful';
-        $activity->description = 'You successfully logged into your account';
-        $activity->source = 'Authentication';
-        $activity->user_id = Auth::id();
-        $activity->status = true;
-        $activity->save();
+        LoginActivityJob::dispatch($user, true, 'You successfully logged into your account', 'Login Successful');
 
         // Return the token and user details
         return response()->json([
