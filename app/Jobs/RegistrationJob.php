@@ -34,10 +34,8 @@ class RegistrationJob implements ShouldQueue
         $album->user_id = $this->user->id;
         $album->type = "general";
         $album->status = 'active';
-        $album->slug = "{$this->user->name} $randomNumber";
         $album->is_verified = 0;
         $album->visibility = 'public';
-        $album->cover = 'albums/rUSWa6xIDbTvpdf3sJcxCdWx0q02jyqyp8VAdXVj.jpg';
         $album->save();
 
         $activity = new Activity();
