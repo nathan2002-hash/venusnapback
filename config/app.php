@@ -28,6 +28,8 @@ return [
 
     'env' => env('APP_ENV', 'production'),
 
+    'default_cover_url' => 'https://venusnaplondon.s3.eu-west-2.amazonaws.com/uploads/profiles/compressed/profile/defaultcover.jpg',
+
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode
