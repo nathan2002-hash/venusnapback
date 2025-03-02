@@ -16,6 +16,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Passport\Client as PassportClient;
 
@@ -46,12 +47,13 @@ class AuthController extends Controller
         $token = $user->createToken('authToken');
 
         LoginActivityJob::dispatch($user, true, 'You successfully logged into your account', 'Login Successful', $userAgent);
-
+        $profileUrl = $user->profile_compressed ? Storage::disk('s3')->url($user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
         // Return the token and user details
         return response()->json([
-            'username' => $user->name,
+            'username' => $user->username,
+            'full_name' => $user->name,
             'token' => $token->accessToken,
-            'profile' => "https://ui-avatars.com/api/?name=" . urlencode($user->name) . "&color=7F9CF5&background=EBF4FF",
+            'profile' => $profileUrl,
         ]);
     }
 
