@@ -121,7 +121,7 @@ public function index(Request $request)
             ->values(); // Reindex the collection
 
             foreach ($sequenceOrders as $media) {
-                $path = $media['file']->store('uploads/posts', 's3');  // Store the original file
+                $path = $media['file']->store('uploads/posts/originals', 's3');  // Store the original file
 
                 $postMedia = PostMedia::create([
                     'post_id' => $post->id,
