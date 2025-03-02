@@ -18,6 +18,7 @@ Route::post('/google/login', 'Api\AuthController@googleLogin');
 
 Route::get('/posts', 'Api\PostController@index');
 Route::middleware('auth:api')->get('/user/profile', 'Api\ProfileController@index');
+Route::middleware('auth:api')->get('/user/profile/change', 'Api\ProfileController@changeprofile');
 Route::middleware('auth:api')->get('/post/comments/{postMediaId}', 'Api\PostController@getCommentsAndReplies');
 Route::middleware('auth:api')->post('/user/profile/update', 'Api\ProfileController@update');
 Route::middleware('auth:api')->post('/post/store', 'Api\PostController@store');

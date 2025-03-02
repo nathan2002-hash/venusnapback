@@ -109,6 +109,31 @@ class ProfileController extends Controller
                 'error' => 'Unauthenticated user'
             ], 401);
         }
+
+        $profileUrl = $user->profile_photo_path ? Storage::disk('s3')->url($user->profile_photo_path) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
+        // Return the user profile data
+        return response()->json([
+            'user' => [
+                'fullname' => $user->name,
+                'username' => $user->username,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'country' => $user->country,
+                'profile' => $profileUrl,
+                'cover' => $profileUrl,
+            ]
+        ]);
+    }
+
+    public function changeprofsile(Request $request)
+    {
+        // Get the currently authenticated user
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'error' => 'Unauthenticated user'
+            ], 401);
+        }
         $artboard = $user->artboard;
 
         $profileUrl = $user->profile_photo_path ? Storage::disk('s3')->url($user->profile_photo_path) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
