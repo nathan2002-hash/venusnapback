@@ -7,6 +7,7 @@ use App\Models\Artboard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Jobs\ProfileUpdate;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -42,54 +43,52 @@ class ProfileController extends Controller
     }
 
     public function update(Request $request)
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    if (!$user) {
+        if (!$user) {
+            return response()->json([
+                'error' => 'Unauthenticated user'
+            ], 401);
+        }
+
+        // Validate the request
+        $request->validate([
+            'username' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . Auth::id(),
+            'full_name' => 'required|string|max:255',
+            'country' => 'required|string|max:500',
+            'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'cover_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $user = User::find($user->id);
+        // Update user data
+        $user->username = $request->username;
+        $user->email = $request->email;
+        $user->phone = $request->phone;
+        $user->name = $request->full_name;
+        $user->country = $request->country;
+
+        // Save profile image
+        if ($request->hasFile('profile')) {
+            $profilePath = $request->file('profile')->store('uploads/profiles/originals/profile', 's3');
+            $user->profile_original = $profilePath;
+        }
+
+        if ($request->hasFile('cover_photo')) {
+            $coverPath = $request->file('cover_photo')->store('uploads/profiles/originals/cover', 's3');
+            $user->cover_original = $coverPath;
+        }
+
+        $user->save();
+
+        ProfileUpdate::dispatch($user);
+
         return response()->json([
-            'error' => 'Unauthenticated user'
-        ], 401);
+            'message' => 'Updated Successfully'
+        ], 200);
     }
-
-    // Validate the request
-    $request->validate([
-        'username' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-        'artboard' => 'required|string|max:255',
-        'artboarddescription' => 'required|string|max:500',
-        'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        'artboard_profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-    ]);
-
-    // Update user data
-    $user->name = $request->username;
-    $user->email = $request->email;
-
-    // Save profile image
-    if ($request->hasFile('profile')) {
-        $profilePath = $request->file('profile')->store('profiles', 's3');
-        $user->profile_photo_path = $profilePath;
-    }
-
-    $user->save();
-
-    // Update artboard data
-    $artboard = Artboard::find($user->artboard->id);
-    $artboard->name = $request->artboard;
-    $artboard->description = $request->artboarddescription;
-
-    // Save artboard logo
-    if ($request->hasFile('artboard_profile')) {
-        $artboardLogoPath = $request->file('artboard_profile')->store('artboards/logos/', 's3');
-        $artboard->logo = $artboardLogoPath;
-    }
-
-    $artboard->save();
-
-    return response()->json([
-        'message' => 'Updated Successfully'
-    ], 200);
-}
 
     private function formatNumber($number) {
         if ($number >= 1000000) {
