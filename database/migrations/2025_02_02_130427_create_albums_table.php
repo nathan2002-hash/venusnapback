@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id'); // ONE Artboard per user
             $table->string('name')->unique(); // Artboard name (e.g., "John's Artboard")
-            $table->string('slug')->unique(); // URL-friendly name
             $table->text('description')->nullable(); // Short bio or description
-            $table->string('type'); // Artboard category
+            $table->string('type');
             $table->string('is_verified')->default(0); // Verification status
             $table->string('visibility')->default('public'); // public, private, followers-only
-            $table->string('cover')->nullable(); // Artboard logo
+            $table->string('original_cover')->nullable(); // Artboard logo
+            $table->string('compressed_cover')->nullable(); // Artboard logo
             $table->string('status')->default('active'); // Artboard logo
             $table->timestamps();
         });
