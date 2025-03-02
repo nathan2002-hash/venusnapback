@@ -94,4 +94,8 @@ class User extends Authenticatable
     public function recommendations(){
         return $this->hasMany(Recommendation::class, 'user_id');
     }
+
+    public function admires(){
+        return $this->hasMany(Admire::class);
+    }
 }
