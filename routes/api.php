@@ -26,6 +26,7 @@ Route::middleware('auth:api')->post('/supporter/subscribe', 'Api\SupportControll
 Route::middleware('auth:api')->post('/change/password', 'Api\AuthController@changePassword');
 Route::middleware('auth:api')->get('/password/activities', 'Api\AuthController@fetchPasswordActivities');
 Route::middleware('auth:api')->get('/albums', 'Api\AlbumController@getUserAlbums');
+Route::middleware('auth:api')->get('/album/store', 'Api\AlbumController@store');
 
 Route::middleware('auth:api')->get('/categories', function () {
     return response()->json(Category::all());
