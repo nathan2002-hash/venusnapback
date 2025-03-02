@@ -128,7 +128,7 @@ class AuthController extends Controller
             return [
                 'time' => $activity->created_at->format('M d, Y - h:m a'),
                 'status' => $activity->status ? 'changed' : 'failed', // Assuming 'status' is boolean (true for successful, false for failed)
-                'action' => 'Password Updated',  // Assuming the activity title is "Password Updated"
+                'action' => $activity->title,  // Assuming the activity title is "Password Updated"
             ];
         });
 
