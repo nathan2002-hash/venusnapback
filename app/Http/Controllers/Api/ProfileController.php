@@ -109,7 +109,8 @@ class ProfileController extends Controller
             ], 401);
         }
 
-        $profileUrl = $user->profile_photo_path ? Storage::disk('s3')->url($user->profile_photo_path) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
+        $profileUrl = $user->profile_compressed ? Storage::disk('s3')->url($user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
+        $coverUrl = $user->cover_compressed ? Storage::disk('s3')->url($user->cover_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
         // Return the user profile data
         return response()->json([
             'user' => [
@@ -119,7 +120,7 @@ class ProfileController extends Controller
                 'phone' => $user->phone,
                 'country' => $user->country,
                 'profile' => $profileUrl,
-                'cover' => $profileUrl,
+                'cover_photo' => $coverUrl,
             ]
         ]);
     }
