@@ -24,9 +24,11 @@ class ProfileController extends Controller
                 'error' => 'Unauthenticated user'
             ], 401);
         }
-        $artboard = $user->artboard;
 
-        $profileUrl = $user->profile_photo_path ? Storage::disk('s3')->url($user->profile_photo_path) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
+        $coverUrl = $user->cover_compressed
+        ? Storage::disk('s3')->url($user->cover_compressed)
+        : config('app.default_cover_url');
+        $profileUrl = $user->profile_compressed ? Storage::disk('s3')->url($user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
         // Return the user profile data
         return response()->json([
             'user' => [
@@ -34,6 +36,7 @@ class ProfileController extends Controller
                 'username' => $user->username,
                 'email' => $user->email,
                 'profile' => $profileUrl,
+                'cover' => $coverUrl,
                 'date_joined' => $user->created_at->format('j F, Y'),
                 'total_posts' => (string) $user->posts->count(),
                 'total_albums' => (string) $user->albums->count(),
