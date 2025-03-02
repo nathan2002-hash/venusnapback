@@ -15,4 +15,13 @@ class CategoryController extends Controller
            'categories' => $categories,
         ]);
     }
+
+    public function store(Request $request)
+    {
+        $category = new Category();
+        $category->name = $request->name;
+        $category->description = $request->description;
+        $category->save();
+        return redirect()->back();
+    }
 }

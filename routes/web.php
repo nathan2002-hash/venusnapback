@@ -33,5 +33,6 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
 
     //category routes
     Route::get('/categories', 'Admin\CategoryController@index');
+    Route::post('/category/store', 'Admin\CategoryController@store');
     Route::get('/category/{id}', 'Admin\CategoryController@show');
 });
