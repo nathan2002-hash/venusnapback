@@ -26,9 +26,6 @@ class ProfileController extends Controller
         $artboard = $user->artboard;
 
         $profileUrl = $user->profile_photo_path ? Storage::disk('s3')->url($user->profile_photo_path) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
-
-    // Check if artboard logo exists, otherwise use default 100x100 avatar
-    $logoUrl = $artboard && $artboard->logo ? Storage::disk('s3')->url($artboard->logo) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
         // Return the user profile data
         return response()->json([
             'user' => [
@@ -37,22 +34,9 @@ class ProfileController extends Controller
                 'email' => $user->email,
                 'profile' => $profileUrl,
                 'date_joined' => $user->created_at->format('j F, Y'),
-                'total_posts' => (string) $user->posts->count(), // Count user's posts
-                'total_admires' => (string) $this->formatNumber(
-                        $user->posts->sum(fn($post) =>
-                            $post->postmedias->sum(fn($media) => $media->admires->count())
-                        )
-                    ),
-                'artboard' => $artboard ? [
-                    'name' => $artboard->name,
-                    'slug' => $artboard->slug,
-                    'description' => $artboard->description,
-                    'type' => $artboard->type,
-                    'supporters' => $artboard->supporters->count(),
-                    'is_verified' => (bool) $artboard->is_verified,
-                    'visibility' => $artboard->visibility,
-                    'logo' => $logoUrl,
-                ] : null
+                'total_posts' => (string) $user->posts->count(),
+                'total_albums' => (string) $user->albums->count(),
+                'supporters' => "45",
             ]
         ]);
     }
@@ -114,6 +98,49 @@ class ProfileController extends Controller
             return round($number / 1000, 1) . 'K';
         }
         return $number; // If less than 1000, return as is
+    }
+
+    public function changeprofile(Request $request)
+    {
+        // Get the currently authenticated user
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'error' => 'Unauthenticated user'
+            ], 401);
+        }
+        $artboard = $user->artboard;
+
+        $profileUrl = $user->profile_photo_path ? Storage::disk('s3')->url($user->profile_photo_path) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
+
+    // Check if artboard logo exists, otherwise use default 100x100 avatar
+    $logoUrl = $artboard && $artboard->logo ? Storage::disk('s3')->url($artboard->logo) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
+        // Return the user profile data
+        return response()->json([
+            'user' => [
+                'fullname' => $user->name,
+                'username' => $user->username,
+                'email' => $user->email,
+                'profile' => $profileUrl,
+                'date_joined' => $user->created_at->format('j F, Y'),
+                'total_posts' => (string) $user->posts->count(), // Count user's posts
+                'total_admires' => (string) $this->formatNumber(
+                        $user->posts->sum(fn($post) =>
+                            $post->postmedias->sum(fn($media) => $media->admires->count())
+                        )
+                    ),
+                'artboard' => $artboard ? [
+                    'name' => $artboard->name,
+                    'slug' => $artboard->slug,
+                    'description' => $artboard->description,
+                    'type' => $artboard->type,
+                    'supporters' => $artboard->supporters->count(),
+                    'is_verified' => (bool) $artboard->is_verified,
+                    'visibility' => $artboard->visibility,
+                    'logo' => $logoUrl,
+                ] : null
+            ]
+        ]);
     }
 
 
