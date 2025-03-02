@@ -148,8 +148,8 @@
                         <span key="t-contacts">Categories</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="#" key="t-user-grid">Categories</a></li>
-                        <li><a href="#" key="t-user-list">Add Category</a></li>
+                        <li><a href="/restricted/categories" key="t-user-grid">Categories</a></li>
+                        <li><a href="/restricted/category/add" key="t-user-list">Add Category</a></li>
                     </ul>
                 </li>
 
