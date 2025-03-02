@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
-class ArtboardController extends Controller
+class AlbumController extends Controller
 {
     public function getUserAlbums()
     {
