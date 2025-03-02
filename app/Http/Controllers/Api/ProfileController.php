@@ -32,7 +32,8 @@ class ProfileController extends Controller
         // Return the user profile data
         return response()->json([
             'user' => [
-                'name' => $user->name,
+                'fullname' => $user->name,
+                'username' => $user->username,
                 'email' => $user->email,
                 'profile' => $profileUrl,
                 'date_joined' => $user->created_at->format('j F, Y'),
