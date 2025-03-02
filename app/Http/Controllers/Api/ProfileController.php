@@ -66,7 +66,7 @@ class ProfileController extends Controller
         // Update user data
         $user->username = $request->username;
         $user->email = $request->email;
-        $user->phone = $request->phone;
+        $user->phone = $request->phone_number;
         $user->name = $request->full_name;
         $user->country = $request->country;
 
