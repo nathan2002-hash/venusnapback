@@ -33,6 +33,7 @@ class TemplateController extends Controller
             'description' => 'nullable|string',
             'type' => 'required|in:free,premium',
             'tempfile' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'author' => 'required|string|max:255',
         ]);
         $user = Auth::user();
 

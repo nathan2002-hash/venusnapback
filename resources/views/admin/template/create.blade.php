@@ -78,7 +78,7 @@
                                         <div class="col-md-4">
                                             <div class="mb-3">
                                                 <label for="validationCustom05" class="form-label">Template File</label>
-                                                <input type="file" name="template" class="form-control" id="tempfile"
+                                                <input type="file" name="tempfile" class="form-control" id="tempfile"
                                                     placeholder="tempfile" required>
                                                 <div class="invalid-feedback">
                                                     Please provide a valid Template File.
