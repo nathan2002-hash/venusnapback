@@ -29,7 +29,7 @@ class TemplateCreate implements ShouldQueue
     public function handle()
     {
         $template = Template::find($this->templateId);
-        if (!$template || !$template->original_template) return; // Handle edge cases gracefully
+        //if (!$template || !$template->original_template) return; // Handle edge cases gracefully
 
         $path = $template->original_template;
         $originalImage = Storage::disk('s3')->get($path);
