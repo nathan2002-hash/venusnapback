@@ -209,8 +209,8 @@
                         <span key="t-tables">Templates</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="#" key="t-basic-tables">Add Template</a></li>
-                        <li><a href="#" key="t-data-tables">Templates</a></li>
+                        <li><a href="/restricted/template/create" key="t-basic-tables">Add Template</a></li>
+                        <li><a href="/restricted/templates" key="t-data-tables">Templates</a></li>
                     </ul>
                 </li>
             </ul>

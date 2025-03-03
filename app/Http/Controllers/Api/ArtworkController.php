@@ -23,21 +23,6 @@ class ArtworkController extends Controller
         $artwork->content_color = $request->color_text;
         $artwork->background_color = $request->color_background;
         $artwork->user_id = '1';
-
-        // if ($request-> hasfile('background_image')){
-        //     $filenamewithext = $request->file('background_image')->getClientOriginalName();
-        //     $filename = pathinfo($filenamewithext,PATHINFO_FILENAME);
-        //     $extension = $request->file('background_image')->getClientOriginalExtension();
-        //     $filenametostore = $filename.'_'.time().'.'.$extension;
-        //     $artwork->background_image = $request->file_path->storeAs('/artworks/background_image', $filenametostore, 'public');
-        // }
-        // if ($request-> hasfile('thumbnail')){
-        //     $filenamewithext = $request->file('thumbnail')->getClientOriginalName();
-        //     $filename = pathinfo($filenamewithext,PATHINFO_FILENAME);
-        //     $extension = $request->file('thumbnail')->getClientOriginalExtension();
-        //     $filenametostore = $filename.'_'.time().'.'.$extension;
-        //     $artwork->thumbnail = $request->thumbnail->storeAs('/artworks/thumbnail', $filenametostore, 'public');
-        // }
         if ($request-> hasfile('file_path')){
             $filenamewithext = $request->file('file_path')->getClientOriginalName();
             $filename = pathinfo($filenamewithext,PATHINFO_FILENAME);

@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('type');
+            $table->string('author');
             $table->string('user_id');
             $table->longText('description');
-            $table->string('file_path');
+            $table->string('original_template')->nullable();
+            $table->string('compressed_template')->nullable();
             $table->timestamps();
         });
     }
