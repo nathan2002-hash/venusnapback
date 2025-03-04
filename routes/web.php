@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use Arispati\LaravelLogS3\Facades\Log;
+use Illuminate\Support\Facades\Log;
 
 Route::get('/', function () {
     return view('user.welcome');
