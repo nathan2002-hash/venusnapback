@@ -3,7 +3,6 @@
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
-use Illuminate\Support\Facades\Storage;
 use Monolog\Processor\PsrLogMessageProcessor;
 
 return [
@@ -59,22 +58,12 @@ return [
             'ignore_exceptions' => false,
         ],
 
-        's3_log_channel' => [
-            'driver' => 'custom',
-            'via' => \Monolog\Handler\StreamHandler::class,
-            'with' => [
-                'stream' => 's3://s3_logs/app.log', // Use the 's3_logs' disk and specify the log file path
-            ],
-            'level' => env('LOG_LEVEL', 'debug'),
-        ],
-
         's3' => [
             'driver' => 's3',
             'level' => 'debug', // or any level you want (info, error, etc.)
             'path' => 'logs/laravel.log', // Path to save logs in S3
             'disk' => 's3',
         ],
-
 
         'single' => [
             'driver' => 'single',
