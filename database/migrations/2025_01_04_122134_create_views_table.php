@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('ip_address');
             $table->string('duration');
             $table->string('post_media_id');
+            $table->longText('user_agent');
             $table->timestamps();
         });
     }
