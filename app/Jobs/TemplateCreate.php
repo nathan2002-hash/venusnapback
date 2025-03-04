@@ -30,17 +30,20 @@ class TemplateCreate implements ShouldQueue
     public function handle()
     {
         $template = Template::find($this->templateId);
-        //if (!$template || !$template->original_template) return; // Handle edge cases gracefully
+        if (!$template || !$template->original_template) {
+            return; // Handle edge cases gracefully
+        }
 
         $path = $template->original_template;
-        $originalImage = Storage::disk('s3')->get($path);
 
+        // Get the stream from S3
         $stream = Storage::disk('s3')->readStream($path);
 
         $manager = new ImageManager(new GdDriver());
-        $image = $manager->read(fopen($originalImage, 'r'));
 
-        //$image = $manager->read($stream);
+        // Use the stream directly
+        $image = $manager->read($stream);
+
         $compressedImage = $image->encode(new WebpEncoder(quality: 75));
 
         $compressedPath = 'uploads/templates/compressed/' . basename($path);
@@ -48,4 +51,5 @@ class TemplateCreate implements ShouldQueue
 
         $template->update(['compressed_template' => $compressedPath]);
     }
+
 }
