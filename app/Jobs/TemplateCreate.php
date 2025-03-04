@@ -35,11 +35,13 @@ class TemplateCreate implements ShouldQueue
         $path = $template->original_template;
         $originalImage = Storage::disk('s3')->get($path);
 
+        $stream = Storage::disk('s3')->readStream($path);
+
         $manager = new ImageManager(new GdDriver());
-        $image = $manager->read($originalImage);
+        $image = $manager->read($stream);
         $compressedImage = $image->encode(new WebpEncoder(quality: 75));
 
-        $compressedPath = 'uploads/templates/originals/' . basename($path);
+        $compressedPath = 'uploads/templates/compressed/' . basename($path);
         Storage::disk('s3')->put($compressedPath, (string) $compressedImage);
 
         $template->update(['compressed_template' => $compressedPath]);
