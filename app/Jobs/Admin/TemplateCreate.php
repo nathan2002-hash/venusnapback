@@ -2,13 +2,15 @@
 
 namespace App\Jobs\Admin;
 
+use Exception;
 use App\Models\Template;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
-use Intervention\Image\Drivers\Gd\Driver as GdDriver;
+use Illuminate\Support\Facades\Log;
 use Intervention\Image\ImageManager;
-use Intervention\Image\Encoders\WebpEncoder;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Intervention\Image\Encoders\WebpEncoder;
+use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 
 class TemplateCreate implements ShouldQueue
 {
@@ -28,19 +30,44 @@ class TemplateCreate implements ShouldQueue
      */
     public function handle()
     {
-        $template = Template::find($this->templateId);
-        //if (!$template || !$template->original_template) return; // Handle edge cases gracefully
+        try {
+            // Find the template
+            $template = Template::find($this->templateId);
+            if (!$template) {
+                Log::error("Template not found for ID: {$this->templateId}");
+                return;
+            }
 
-        $path = $template->original_template;
-        $originalImage = Storage::disk('s3')->get($path);
+            // Check if the original template path exists
+            $path = $template->original_template;
+            if (!$path || !Storage::disk('s3')->exists($path)) {
+                Log::error("Original template path is missing or file does not exist in S3: {$path}");
+                return;
+            }
 
-        $manager = new ImageManager(new GdDriver());
+            // Read the original image from S3
+            $originalImage = Storage::disk('s3')->get($path);
+            if (!$originalImage) {
+                Log::error("Failed to read original image from S3: {$path}");
+                return;
+            }
+
+            // Compress the image
+            $manager = new ImageManager(new GdDriver());
         $image = $manager->read($originalImage);
         $compressedImage = $image->encode(new WebpEncoder(quality: 75));
 
-        $compressedPath = 'uploads/templates/compressed/' . basename($path);
-        Storage::disk('s3')->put($compressedPath, (string) $compressedImage);
+            // Save the compressed image to S3
+            $compressedPath = 'uploads/templates/compressed/' . basename($path);
+            Storage::disk('s3')->put($compressedPath, (string) $compressedImage);
 
-        $template->update(['compressed_template' => $compressedPath]);
+            // Update the template with the compressed path
+            $template->update(['compressed_template' => $compressedPath]);
+
+            Log::info("Successfully compressed and saved template ID: {$this->templateId} to {$compressedPath}");
+        } catch (Exception $e) {
+            Log::error("Error processing template ID: {$this->templateId}. Error: " . $e->getMessage());
+            throw $e; // Re-throw the exception to let Laravel handle the retry logic
+        }
     }
 }
