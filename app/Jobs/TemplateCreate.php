@@ -38,7 +38,7 @@ class TemplateCreate implements ShouldQueue
         $stream = Storage::disk('s3')->readStream($path);
 
         $manager = new ImageManager(new GdDriver());
-        $image = $manager->read(fopen($path, 'r'));
+        $image = $manager->read(fopen($originalImage, 'r'));
 
         //$image = $manager->read($stream);
         $compressedImage = $image->encode(new WebpEncoder(quality: 75));
