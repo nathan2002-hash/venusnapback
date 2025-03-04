@@ -21,7 +21,14 @@ Route::middleware([
 
 Route::get('/test-backblaze-connection', 'Api\PostController@testConnection');
 
+Route::get('/create-log', function () {
+    // Log a message
+    Log::info('This log was created when visiting the /create-log route.');
 
+    return response()->json([
+        'message' => 'Log created successfully! Check your logs.',
+    ]);
+});
 
 
 Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
