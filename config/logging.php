@@ -59,26 +59,22 @@ return [
             'ignore_exceptions' => false,
         ],
 
-        // 's3' => [
-        //     'driver' => 's3',
-        //     'level' => 'debug', // or any level you want (info, error, etc.)
-        //     'path' => 'logs/laravel.log', // Path to save logs in S3
-        //     'disk' => 's3',
-        // ],
+        's3_log_channel' => [
+            'driver' => 'custom',
+            'via' => \Monolog\Handler\StreamHandler::class,
+            'with' => [
+                'stream' => 's3://s3_logs/app.log', // Use the 's3_logs' disk and specify the log file path
+            ],
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
 
         's3' => [
             'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET'),
-            'url' => env('AWS_URL'),
-            'level' => 'debug',
-            'path' => 'logs/laravel.log',
-            'endpoint' => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'throw' => false,
+            'level' => 'debug', // or any level you want (info, error, etc.)
+            'path' => 'logs/laravel.log', // Path to save logs in S3
+            'disk' => 's3',
         ],
+
 
         'single' => [
             'driver' => 'single',
