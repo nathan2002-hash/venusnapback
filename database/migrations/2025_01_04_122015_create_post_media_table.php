@@ -18,6 +18,9 @@ return new class extends Migration
             $table->string('file_path_compress')->nullable();
             $table->string('sequence_order');
             $table->string('status')->default('original');
+            $table->string('type')->nullable();
+            $table->string('object')->nullable();
+            $table->longText('description')->nullable();
             $table->timestamps();
         });
     }

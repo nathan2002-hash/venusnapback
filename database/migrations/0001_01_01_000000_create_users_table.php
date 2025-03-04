@@ -22,6 +22,8 @@ return new class extends Migration
             $table->enum('role', ['user', 'admin'])->default('user');
             $table->string('country')->nullable();
             $table->string('phone')->nullable();
+            $table->string('dob')->nullable();
+            $table->string('gender')->nullable();
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
