@@ -4,8 +4,54 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "70e7828b15921f913238a00ba13e96bc",
+    "content-hash": "6802778583cd47119bedf12e45c44122",
     "packages": [
+        {
+            "name": "arispati/laravel-log-s3",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/arispati/laravel-log-s3.git",
+                "reference": "18cda4a1545ca61bc0f41c1445733abe49394651"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/arispati/laravel-log-s3/zipball/18cda4a1545ca61bc0f41c1445733abe49394651",
+                "reference": "18cda4a1545ca61bc0f41c1445733abe49394651",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": ">=5.6",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "orchestra/testbench": ">=3.6",
+                "phpunit/phpunit": "^8.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Arispati\\LaravelLogS3\\": "src/",
+                    "Arispati\\LaravelLogS3\\Tests\\": "tests"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Muhamad Aris",
+                    "email": "masarispati@gmail.com"
+                }
+            ],
+            "description": "Laravel library for logging and store it to s3",
+            "support": {
+                "issues": "https://github.com/arispati/laravel-log-s3/issues",
+                "source": "https://github.com/arispati/laravel-log-s3/tree/v0.1.0"
+            },
+            "time": "2022-03-18T07:53:40+00:00"
+        },
         {
             "name": "aws/aws-crt-php",
             "version": "v1.2.7",
