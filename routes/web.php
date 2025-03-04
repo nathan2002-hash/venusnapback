@@ -21,22 +21,6 @@ Route::middleware([
 
 Route::get('/test-backblaze-connection', 'Api\PostController@testConnection');
 
-Route::get('/create-log', function () {
-    // Create a new log file
-    Log::new('test-log.log');
-
-    // Log a message
-    Log::info('This log was created when visiting the /create-log route.');
-
-    // Write the logs to S3
-    Log::write();
-
-    return response()->json([
-        'message' => 'Log created successfully! Check your S3 bucket.',
-    ]);
-});
-
-
 Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     Route::get('/welcome', 'Admin\WelcomeController@index');
 

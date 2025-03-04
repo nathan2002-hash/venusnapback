@@ -72,6 +72,8 @@ class ProfileController extends Controller
         $user->phone = $request->phone_number;
         $user->name = $request->full_name;
         $user->country = $request->country;
+        $user->dob = $request->dob;
+        $user->gender = $request->gender;
 
         // Save profile image
         if ($request->hasFile('profile')) {
@@ -124,6 +126,8 @@ class ProfileController extends Controller
                 'country' => $user->country,
                 'profile' => $profileUrl,
                 'cover_photo' => $coverUrl,
+                'gender' => $user->gender,
+                'dob' => $user->dob,
             ]
         ]);
     }
