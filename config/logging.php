@@ -62,18 +62,9 @@ return [
         's3' => [
             'driver' => 's3',
             'level' => 'debug', // or any level you want (info, error, etc.)
-            'path' => Storage::disk('s3')->url('logs/laravel.log'), // Path to save logs in S3
+            'path' => 'logs/laravel.log', // Path to save logs in S3
             'disk' => 's3',
         ],
-
-        // 's3' => [
-        //     'driver' => 'monolog',
-        //     'handler' => StreamHandler::class,
-        //     'handler_with' => [
-        //         'stream' => Storage::disk('s3')->url('logs/laravel.log'), // Path to the log file in S3
-        //     ],
-        //     'level' => 'debug',
-        // ],
 
         'single' => [
             'driver' => 'single',
