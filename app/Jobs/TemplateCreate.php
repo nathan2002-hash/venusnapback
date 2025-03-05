@@ -27,7 +27,7 @@ class TemplateCreate implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle()
+    public function handle(): void
     {
         $template = Template::find($this->templateId);
         if (!$template || !$template->original_template) {
