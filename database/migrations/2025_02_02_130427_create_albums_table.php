@@ -13,17 +13,42 @@ return new class extends Migration
     {
         Schema::create('albums', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id'); // ONE Artboard per user
-            $table->string('name')->unique(); // Artboard name (e.g., "John's Artboard")
-            $table->text('description')->nullable(); // Short bio or description
-            $table->string('type');
-            $table->string('is_verified')->default(0); // Verification status
-            $table->string('visibility')->default('public'); // public, private, followers-only
-            $table->string('original_cover')->nullable(); // Artboard logo
-            $table->string('compressed_cover')->nullable(); // Artboard logo
-            $table->string('status')->default('active'); // Artboard logo
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Owner of album
+            $table->enum('type', ['personal', 'creator', 'business']);
+
+            // Common fields for all albums
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->enum('visibility', ['private', 'public', 'exclusive'])->default('private');
+            $table->string('thumbnail_original')->nullable(); // Path to thumbnail (Personal & Creator use this)
+            $table->string('thumbnail_compressed')->nullable(); // Path to thumbnail (Personal & Creator use this)
+
+            // Personal-specific (nothing extra in your case)
+
+            // Creator-specific fields
+            $table->date('release_date')->nullable();
+            $table->string('content_type')->nullable(); // E.g., photo, video, audio
+            $table->json('tags')->nullable(); // Store tags as JSON array
+            $table->boolean('allow_comments')->default(true);
+            $table->boolean('enable_rating')->default(true);
+
+            // Business-specific fields
+            $table->string('business_category')->nullable();
+            $table->boolean('is_paid_access')->default(false);
+            $table->decimal('price', 10, 2)->nullable(); // If paid access
+            $table->string('phone')->nullable();
+            $table->string('email')->nullable();
+            $table->string('location')->nullable();
+            $table->string('website')->nullable();
+            $table->string('facebook')->nullable();
+            $table->string('linkedin')->nullable();
+            $table->string('business_logo_original')->nullable(); // Path to logo (for business)
+            $table->string('cover_image_original')->nullable(); // Path to cover image (for business)
+            $table->string('business_logo_compressed')->nullable(); // Path to logo (for business)
+            $table->string('cover_image_compressed')->nullable(); // Path to cover image (for business)
             $table->timestamps();
         });
+
     }
 
     /**

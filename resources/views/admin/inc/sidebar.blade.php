@@ -34,10 +34,10 @@
                 <li>
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
                         <i class="bx bx-store"></i>
-                        <span key="t-ecommerce">Artboards</span>
+                        <span key="t-ecommerce">Albums</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="#" key="t-products">Artboards</a></li>
+                        <li><a href="/restricted/albums" key="t-products">Albums</a></li>
                         <li><a href="#" key="t-product-detail">Demographic</a></li>
                     </ul>
                 </li>

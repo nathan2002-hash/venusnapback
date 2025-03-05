@@ -29,19 +29,43 @@ class AlbumCreate implements ShouldQueue
     public function handle()
     {
         $album = Album::find($this->albumId);
-        if (!$album || !$album->original_cover) return; // Handle edge cases gracefully
 
-        $path = $album->original_cover;
-        $originalImage = Storage::disk('s3')->get($path);
+        if (!$album) return; // Album not found
 
         $manager = new ImageManager(new GdDriver());
+
+        if ($album->type === 'personal' || $album->type === 'creator') {
+            if (!$album->thumbnail_original) return;
+
+            $this->compressAndStore($album, 'thumbnail_original', 'thumbnail_compressed', $manager);
+        }
+
+        if ($album->type === 'business') {
+            // Process business logo
+            if ($album->business_logo_original) {
+                $this->compressAndStore($album, 'business_logo_original', 'business_logo_compressed', $manager);
+            }
+
+            // Process cover image
+            if ($album->cover_image_original) {
+                $this->compressAndStore($album, 'cover_image_original', 'cover_image_compressed', $manager);
+            }
+        }
+    }
+
+    protected function compressAndStore(Album $album, string $originalKey, string $compressedKey, ImageManager $manager)
+    {
+        $path = $album->{$originalKey};
+
+        $originalImage = Storage::disk('s3')->get($path);
         $image = $manager->read($originalImage);
+
         $compressedImage = $image->encode(new WebpEncoder(quality: 75));
 
         $compressedPath = 'uploads/albums/compressed/' . basename($path);
         Storage::disk('s3')->put($compressedPath, (string) $compressedImage);
 
-        $album->update(['compressed_cover' => $compressedPath]);
+        $album->update([$compressedKey => $compressedPath]);
     }
 
 }

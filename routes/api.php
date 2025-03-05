@@ -26,8 +26,13 @@ Route::middleware('auth:api')->post('/post/admire', 'Api\PostController@admire')
 Route::middleware('auth:api')->post('/supporter/subscribe', 'Api\SupportController@support');
 Route::middleware('auth:api')->post('/change/password', 'Api\AuthController@changePassword');
 Route::middleware('auth:api')->get('/password/activities', 'Api\AuthController@fetchPasswordActivities');
+
+//album routes
 Route::middleware('auth:api')->get('/albums', 'Api\AlbumController@getUserAlbums');
 Route::middleware('auth:api')->post('/album/store', 'Api\AlbumController@store');
+Route::middleware('auth:api')->post('/album/personal/store', 'Api\AlbumController@personalstore');
+Route::middleware('auth:api')->post('/album/creator/store', 'Api\AlbumController@creatorstore');
+Route::middleware('auth:api')->post('/album/business/store', 'Api\AlbumController@businessstore');
 Route::middleware('auth:api')->get('/templates', 'Api\TemplateController@index');
 
 Route::middleware('auth:api')->get('/categories', function () {

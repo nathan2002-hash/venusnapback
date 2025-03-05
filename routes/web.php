@@ -37,4 +37,9 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     Route::get('/templates', 'Admin\TemplateController@index');
     Route::get('/template/create', 'Admin\TemplateController@create');
     Route::post('/template/store', 'Admin\TemplateController@store');
+
+    //albums routes
+    Route::get('/albums', 'Admin\AlbumController@index');
+    Route::get('/album/create', 'Admin\AlbumController@create');
+    Route::post('/album/store', 'Admin\AlbumController@store');
 });
