@@ -31,6 +31,7 @@ public function index(Request $request)
 
     // Eager load only the necessary relationships to avoid overhead
     $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'user.supporters'])
+        ->where('status', 'active') // <-- Add this line to filter only active posts
         ->paginate($limit, ['*'], 'page', $page);
 
     $postsData = $posts->map(function ($post) {

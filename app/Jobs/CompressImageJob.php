@@ -32,23 +32,27 @@ class CompressImageJob implements ShouldQueue
         $path = $this->postMedia->file_path;
         $originalImage = Storage::disk('s3')->get($path);
 
-        // Create image manager using GD driver
         $manager = new ImageManager(new GdDriver());
-
-        // Read the image from binary string (v3 uses `read()`, not `make()`)
         $image = $manager->read($originalImage);
-
-        // Encode to WebP using new encoder class
         $compressedImage = $image->encode(new WebpEncoder(quality: 75));
 
-        // Store compressed image
         $compressedPath = 'uploads/posts/compressed/' . basename($path);
         Storage::disk('s3')->put($compressedPath, (string) $compressedImage);
 
-        // Update database record
+        // Update this media record
         $this->postMedia->update([
             'status' => 'compressed',
             'file_path_compress' => $compressedPath,
         ]);
+
+        // Check if all media for the post are now compressed
+        $post = $this->postMedia->post; // Assuming there's a relationship like: PostMedia belongsTo Post
+
+        $allCompressed = $post->media()->where('status', '!=', 'compressed')->doesntExist();
+
+        if ($allCompressed) {
+            $post->update(['status' => 'active']);
+        }
     }
+
 }

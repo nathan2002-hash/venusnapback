@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('album_id');
             $table->string('type');
             $table->string('ag_type');
+            $table->string('status');
             $table->longText('ag_description');
             $table->string('visibility');
             $table->timestamps();
