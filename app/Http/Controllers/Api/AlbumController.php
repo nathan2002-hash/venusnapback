@@ -114,13 +114,14 @@ class AlbumController extends Controller
         $album->content_type = $request->content_type;
         $album->allow_comments = $request->allow_comments;
         $album->enable_rating = $request->enable_rating;
+        $album->tags = $request->tags;
 
         if ($request->hasFile('thumbnail')) {
             $album->thumbnail = $request->file('thumbnail')->store('thumbnails');
         }
 
         // Convert comma-separated tags into array if needed
-        $album->tags = explode(',', $request->input('tags'));
+        //$album->tags = explode(',', $request->input('tags'));
 
         $album->save();
 
