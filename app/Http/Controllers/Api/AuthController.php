@@ -51,7 +51,7 @@ class AuthController extends Controller
         // Return the token and user details
         return response()->json([
             'username' => $user->username,
-            'full_name' => $user->name,
+            'fullname' => $user->name,
             'token' => $token->accessToken,
             'profile' => $profileUrl,
         ]);
