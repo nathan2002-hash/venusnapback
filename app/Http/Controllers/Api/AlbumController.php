@@ -137,7 +137,7 @@ class AlbumController extends Controller
         $album->enable_rating = 0;
        }
 
-       $album->tags = explode(',', $request->tags); // Convert back to array
+       $album->tags = json_decode($request->tags, true);
 
         if ($request->hasFile('thumbnail')) {
             $album->thumbnail_original = $request->file('thumbnail')->store('thumbnails');
