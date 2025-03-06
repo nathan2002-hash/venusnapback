@@ -104,7 +104,7 @@ class AlbumController extends Controller
         //     'thumbnail' => 'nullable|image|max:2048',
         // ]);
 
-        $album = new Album($validated);
+        $album = new Album();
         $album->user_id = Auth::user()->id;
         $album->type = 'creator';
         $album->name = $request->name;
