@@ -33,6 +33,9 @@ Route::middleware('auth:api')->post('/album/store', 'Api\AlbumController@store')
 Route::middleware('auth:api')->post('/album/personal/store', 'Api\AlbumController@personalstore');
 Route::middleware('auth:api')->post('/album/creator/store', 'Api\AlbumController@creatorstore');
 Route::middleware('auth:api')->post('/album/business/store', 'Api\AlbumController@businessstore');
+Route::middleware('auth:api')->get('/album/content/types', 'Api\AlbumController@albumcategory');
+
+//template routes
 Route::middleware('auth:api')->get('/templates', 'Api\TemplateController@index');
 
 Route::middleware('auth:api')->get('/categories', function () {

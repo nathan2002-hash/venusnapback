@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Album;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Jobs\AlbumCreate;
+use Illuminate\Http\Request;
+use App\Models\AlbumCategory;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class AlbumController extends Controller
@@ -214,4 +215,17 @@ class AlbumController extends Controller
             'album' => $album
         ]);
     }
+
+    public function albumcategory()
+    {
+        $categories = AlbumCategory::select('id', 'name')
+                        ->where('type', 'creator') // Filter only "creator" categories
+                        ->get();
+
+        return response()->json([
+            'success' => true,
+            'categories' => $categories
+        ]);
+    }
+
 }
