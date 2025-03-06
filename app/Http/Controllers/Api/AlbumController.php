@@ -90,8 +90,9 @@ class AlbumController extends Controller
         $album->visibility = $request->visibility;
 
         if ($request->hasFile('thumbnail')) {
-            $album->thumbnail_original = $request->file('thumbnail')->store('thumbnails');
+            $path = $request->file('thumbnail')->store('uploads/albums/originals', 's3');
         }
+        $album->thumbnail_original = $path;
 
         $album->save();
 
@@ -140,8 +141,9 @@ class AlbumController extends Controller
        $album->tags = json_decode($request->tags, true);
 
         if ($request->hasFile('thumbnail')) {
-            $album->thumbnail_original = $request->file('thumbnail')->store('thumbnails');
+            $path = $request->file('thumbnail')->store('uploads/albums/originals', 's3');
         }
+        $album->thumbnail_original = $path;
 
         // Convert comma-separated tags into array if needed
         //$album->tags = explode(',', $request->input('tags'));
@@ -195,12 +197,13 @@ class AlbumController extends Controller
         $album->linkedin = $request->linkedin;
 
         if ($request->hasFile('business_logo')) {
-            $album->business_logo_original = $request->file('business_logo')->store('logos');
+            $bpath = $request->file('business_logo')->store('uploads/albums/originals', 's3');
         }
-
         if ($request->hasFile('cover_image')) {
-            $album->cover_image_original = $request->file('cover_image')->store('covers');
+            $cpath = $request->file('cover_image')->store('uploads/albums/originals', 's3');
         }
+        $album->business_logo_original = $bpath;
+        $album->cover_image_original = $cpath;
 
         $album->save();
 
