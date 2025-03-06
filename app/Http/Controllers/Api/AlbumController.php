@@ -216,10 +216,22 @@ class AlbumController extends Controller
         ]);
     }
 
-    public function albumcategory()
+    public function albumcategorycreator()
     {
         $categories = AlbumCategory::select('id', 'name')
                         ->where('type', 'creator') // Filter only "creator" categories
+                        ->get();
+
+        return response()->json([
+            'success' => true,
+            'categories' => $categories
+        ]);
+    }
+
+    public function albumcategorybusiness()
+    {
+        $categories = AlbumCategory::select('id', 'name')
+                        ->where('type', 'business') // Filter only "creator" categories
                         ->get();
 
         return response()->json([
