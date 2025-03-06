@@ -48,7 +48,7 @@ class CompressImageJob implements ShouldQueue
         // Check if all media for the post are now compressed
         $post = $this->postMedia->post; // Assuming there's a relationship like: PostMedia belongsTo Post
 
-        $allCompressed = $post->media()->where('status', '!=', 'compressed')->doesntExist();
+        $allCompressed = $post->postmedias()->where('status', '!=', 'compressed')->doesntExist();
 
         if ($allCompressed) {
             $post->update(['status' => 'active']);
