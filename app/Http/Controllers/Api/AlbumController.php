@@ -46,26 +46,23 @@ class AlbumController extends Controller
 
     public function getUserAlbums()
     {
+        // Get the authenticated user
         $user = Auth::user();
 
-        $albums = Album::where('user_id', $user->id)->get();
+        // Fetch albums associated with the user
+        $albums = Album::where('user_id', $user->id)
+            ->select('id', 'name') // Only fetch necessary fields
+            ->get();
 
-        // Reshape the albums into the exact format Flutter expects
-        $formattedAlbums = [];
+            return response()->json([
+                'success' => true,
+                'data' => $albums->map(fn($album) => [
+                    'id' => $album->id,
+                    'album_name' => $album->name
+                ]),
+            ]);
 
-        foreach ($albums as $album) {
-            $formattedAlbums[] = [
-                'id' => $album->id,
-                'album_name' => $album->name, // Rename 'name' to 'album_name'
-            ];
-        }
-
-        return response()->json([
-            'success' => true,
-            'albums' => (string) $formattedAlbums,  // Directly return the formatted array
-        ]);
     }
-
 
     public function personalstore(Request $request)
     {
