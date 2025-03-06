@@ -51,17 +51,26 @@ class AlbumController extends Controller
 
         // Fetch albums associated with the user
         $albums = Album::where('user_id', $user->id)
-            ->select('id', 'name') // Only fetch necessary fields
+            ->select('id', 'name', 'type') // Only fetch necessary fields
             ->get();
 
-            return response()->json([
-                'success' => true,
-                'data' => $albums->map(fn($album) => [
-                    'id' => $album->id,
-                    'album_name' => $album->name
-                ]),
-            ]);
+        return response()->json([
+            'success' => true,
+            'data' => $albums->map(function ($album) {
+                if ($album->type == 'personal') {
+                    $albumName = "{$album->name} (Personal Album)";
+                } elseif ($album->type == 'creator') {
+                    $albumName = "{$album->name} (Creator Album)";
+                } else {
+                    $albumName = "{$album->name} (Business Album)";
+                }
 
+                return [
+                    'id' => $album->id,
+                    'album_name' => $albumName,
+                ];
+            }),
+        ]);
     }
 
     public function personalstore(Request $request)
