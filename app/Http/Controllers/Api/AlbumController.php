@@ -62,7 +62,7 @@ class AlbumController extends Controller
 
         return response()->json([
             'success' => true,
-            'albums' => $formattedAlbums,  // Directly return the formatted array
+            'albums' => (string) $formattedAlbums,  // Directly return the formatted array
         ]);
     }
 
