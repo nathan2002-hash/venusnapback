@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Jobs\AlbumCreate;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class AlbumController extends Controller
 {
@@ -92,24 +91,37 @@ class AlbumController extends Controller
     }
 
     public function creatorstore(Request $request)
-{
-    try {
+    {
+        // $validated = $request->validate([
+        //     'name' => 'required|string|max:255',
+        //     'description' => 'nullable|string',
+        //     'visibility' => 'required|in:private,public,exclusive',
+        //     'release_date' => 'nullable|date',
+        //     'content_type' => 'nullable|string|max:50',
+        //     'tags' => 'nullable|string',
+        //     'allow_comments' => 'required|boolean',
+        //     'enable_rating' => 'required|boolean',
+        //     'thumbnail' => 'nullable|image|max:2048',
+        // ]);
+
         $album = new Album();
-        $album->user_id = Auth::id();
+        $album->user_id = Auth::user()->id;
         $album->type = 'creator';
         $album->name = $request->name;
         $album->description = $request->description;
         $album->visibility = $request->visibility;
         $album->release_date = $request->release_date;
         $album->content_type = $request->content_type;
-        $album->allow_comments = filter_var($request->allow_comments, FILTER_VALIDATE_BOOLEAN);
-        $album->enable_rating = filter_var($request->enable_rating, FILTER_VALIDATE_BOOLEAN);
+        $album->allow_comments = $request->allow_comments;
+        $album->enable_rating = $request->enable_rating;
         $album->tags = $request->tags;
 
         if ($request->hasFile('thumbnail')) {
-            $path = $request->file('thumbnail')->store('thumbnails', 's3');  // If using S3
-            $album->thumbnail_original = $path;  // Use new column name if you updated it
+            $album->thumbnail_original = $request->file('thumbnail')->store('thumbnails');
         }
+
+        // Convert comma-separated tags into array if needed
+        //$album->tags = explode(',', $request->input('tags'));
 
         $album->save();
 
@@ -118,20 +130,8 @@ class AlbumController extends Controller
         return response()->json([
             'message' => 'Creator album created successfully!',
             'album' => $album
-        ], 201);
-    } catch (\Exception $e) {
-        Log::error('Error creating album: ' . $e->getMessage(), [
-            'trace' => $e->getTraceAsString(),
-            'input' => $request->all()
         ]);
-
-        return response()->json([
-            'message' => 'Failed to create album',
-            'error' => $e->getMessage()
-        ], 500);
     }
-}
-
 
     public function businessstore(Request $request)
     {
