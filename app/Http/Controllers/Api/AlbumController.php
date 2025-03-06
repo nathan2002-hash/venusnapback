@@ -92,17 +92,17 @@ class AlbumController extends Controller
 
     public function creatorstore(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'visibility' => 'required|in:private,public,exclusive',
-            'release_date' => 'nullable|date',
-            'content_type' => 'nullable|string|max:50',
-            'tags' => 'nullable|string',
-            'allow_comments' => 'required|boolean',
-            'enable_rating' => 'required|boolean',
-            'thumbnail' => 'nullable|image|max:2048',
-        ]);
+        // $validated = $request->validate([
+        //     'name' => 'required|string|max:255',
+        //     'description' => 'nullable|string',
+        //     'visibility' => 'required|in:private,public,exclusive',
+        //     'release_date' => 'nullable|date',
+        //     'content_type' => 'nullable|string|max:50',
+        //     'tags' => 'nullable|string',
+        //     'allow_comments' => 'required|boolean',
+        //     'enable_rating' => 'required|boolean',
+        //     'thumbnail' => 'nullable|image|max:2048',
+        // ]);
 
         $album = new Album($validated);
         $album->user_id = Auth::user()->id;
