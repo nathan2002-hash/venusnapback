@@ -112,8 +112,18 @@ class AlbumController extends Controller
         $album->visibility = $request->visibility;
         $album->release_date = $request->release_date;
         $album->content_type = $request->content_type;
-        $album->allow_comments = $request->allow_comments;
-        $album->enable_rating = $request->enable_rating;
+        if ($album->allow_comments) {
+            $album->allow_comments = 1;
+        } else {
+            $album->allow_comments = 0;
+        }
+
+       if ($album->enable_rating) {
+        $album->enable_rating = 1;
+       } else {
+        $album->enable_rating = 0;
+       }
+
         $album->tags = $request->tags;
 
         if ($request->hasFile('thumbnail')) {
@@ -135,30 +145,35 @@ class AlbumController extends Controller
 
     public function businessstore(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'visibility' => 'required|in:private,public',
-            'business_category' => 'required|string|max:100',
-            'is_paid_access' => 'required|boolean',
-            'price' => 'nullable|numeric|min:0',
-            'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email',
-            'location' => 'nullable|string|max:255',
-            'website' => 'nullable|url',
-            'facebook' => 'nullable|url',
-            'linkedin' => 'nullable|url',
-            'business_logo' => 'nullable|image|max:2048',
-            'cover_image' => 'nullable|image|max:4096',
-        ]);
+        // $validated = $request->validate([
+        //     'name' => 'required|string|max:255',
+        //     'description' => 'nullable|string',
+        //     'visibility' => 'required|in:private,public',
+        //     'business_category' => 'required|string|max:100',
+        //     'is_paid_access' => 'required',
+        //     'price' => 'nullable|numeric|min:0',
+        //     'phone' => 'nullable|string|max:20',
+        //     'email' => 'nullable|email',
+        //     'location' => 'nullable|string|max:255',
+        //     'website' => 'nullable|url',
+        //     'facebook' => 'nullable|url',
+        //     'linkedin' => 'nullable|url',
+        //     'business_logo' => 'nullable|image|max:2048',
+        //     'cover_image' => 'nullable|image|max:4096',
+        // ]);
 
-        $album = new Album($validated);
+        $album = new Album();
         $album->user_id = Auth::user()->id;
         $album->type = 'business';
         $album->name = $request->name;
         $album->description = $request->description;
         $album->business_category = $request->business_category;
-        $album->is_paid_access = $request->is_paid_access;
+        if ($album->is_paid_access) {
+            $album->is_paid_access = 1;
+        } else {
+            $album->is_paid_access = 0;
+        }
+
         $album->phone = $request->phone;
         $album->email = $request->email;
         $album->location = $request->location;
@@ -167,11 +182,11 @@ class AlbumController extends Controller
         $album->linkedin = $request->linkedin;
 
         if ($request->hasFile('business_logo')) {
-            $album->business_logo = $request->file('business_logo')->store('logos');
+            $album->business_logo_original = $request->file('business_logo')->store('logos');
         }
 
         if ($request->hasFile('cover_image')) {
-            $album->cover_image = $request->file('cover_image')->store('covers');
+            $album->cover_image_original = $request->file('cover_image')->store('covers');
         }
 
         $album->save();
