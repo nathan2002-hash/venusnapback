@@ -35,4 +35,13 @@ class ArtworkController extends Controller
             'artwork' => $artwork
         ]);
     }
+
+    public function getUserImages(Request $request)
+    {
+        // Fetch the images for the logged-in user
+        $artworks = Artwork::where('user_id', Auth::user()->id)->get(['thumbnail', 'created_at']);
+
+        // Return the image URLs and creation dates in the response
+        return response()->json($artworks);
+    }
 }
