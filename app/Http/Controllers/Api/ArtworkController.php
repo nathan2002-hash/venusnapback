@@ -8,6 +8,7 @@ use App\Jobs\ArtworkStore;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ArtworkController extends Controller
 {
@@ -50,9 +51,12 @@ class ArtworkController extends Controller
 
         // Format data before sending it to Flutter
         $formattedArtworks = $artworks->map(function ($artwork) {
+            // Generate the S3 URL for the thumbnail image
+            $thumbnailUrl = Storage::disk('s3')->url($artwork->thumbnail); // Adjust 's3' if your disk is named differently in config/filesystems.php
+
             return [
                 'id' => $artwork->id,
-                'thumbnail' => $artwork->thumbnail, // Assuming 'thumbnail' is the URL
+                'thumbnail' => $thumbnailUrl,  // Use the S3 URL for the thumbnail
                 'created_at' => Carbon::parse($artwork->created_at)->format('d M Y H:i'),  // Format the date
             ];
         });
