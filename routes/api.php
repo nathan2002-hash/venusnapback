@@ -37,7 +37,7 @@ Route::middleware('auth:api')->get('/album/content/types/creator', 'Api\AlbumCon
 Route::middleware('auth:api')->get('/album/business/categories', 'Api\AlbumController@albumcategorybusiness');
 
 //artwork routes
-Route::middleware('auth:api')->get('/artwork/save', 'Api\ArtworkController@store');
+Route::middleware('auth:api')->post('/artwork/save', 'Api\ArtworkController@store');
 
 //template routes
 Route::middleware('auth:api')->get('/templates', 'Api\TemplateController@index');
