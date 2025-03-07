@@ -27,6 +27,7 @@ class ArtworkController extends Controller
             $path = $request->file('artwork')->store('uploads/artworks/originals', 's3');
             $artwork->file_path = $path;
         }
+        $artwork->status = 'pending';
         $artwork->save();
 
         ArtworkStore::dispatch($artwork->id);
@@ -43,6 +44,7 @@ class ArtworkController extends Controller
 
         // Paginate the artwork (e.g., 10 per page)
         $artworks = Artwork::where('user_id', $user->id)
+            ->where('status', 'active')
             ->orderBy('created_at', 'desc')
             ->paginate(10);  // Adjust the number per page as necessary
 

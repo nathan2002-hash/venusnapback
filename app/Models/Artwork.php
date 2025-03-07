@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Artwork extends Model
 {
-    protected $fillable = ['user_id', 'thumbnail'];
+    protected $fillable = ['user_id', 'status', 'thumbnail'];
 
     public function user(){
         return $this->belongsTo(User::class);

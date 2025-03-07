@@ -48,6 +48,6 @@ class ArtworkStore implements ShouldQueue
         $compressedPath = 'uploads/artworks/compressed/' . basename($path);
         Storage::disk('s3')->put($compressedPath, (string) $compressedImage);
 
-        $artwork->update(['thumbnail' => $compressedPath]);
+        $artwork->update(['thumbnail' => $compressedPath, 'status' => 'active']);
     }
 }

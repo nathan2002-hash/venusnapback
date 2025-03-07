@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('content_color')->nullable();
             $table->string('thumbnail')->nullable();
             $table->string('file_path')->nullable();
+            $table->string('status')->nullable();
             $table->timestamps();
         });
     }
