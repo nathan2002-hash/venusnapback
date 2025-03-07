@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('user_id');
             $table->string('background_image')->nullable();
             $table->string('background_color')->nullable();
-            $table->string('content');
-            $table->string('content_color');
-            $table->string('thumbnail');
-            $table->string('file_path');
+            $table->string('content')->nullable();
+            $table->string('content_color')->nullable();
+            $table->string('thumbnail')->nullable();
+            $table->string('file_path')->nullable();
             $table->timestamps();
         });
     }
