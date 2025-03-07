@@ -28,15 +28,15 @@ class RegistrationJob implements ShouldQueue
     {
         $randomNumber = mt_rand(1000, 9999);
 
-        $album = new Album();
-        $album->name = $this->user->name . $randomNumber;
-        $album->description = "This is " . $this->user->name . "'s Album";
-        $album->user_id = $this->user->id;
-        $album->type = "general";
-        $album->status = 'active';
-        $album->is_verified = 0;
-        $album->visibility = 'public';
-        $album->save();
+        // $album = new Album();
+        // $album->name = $this->user->name . $randomNumber;
+        // $album->description = "This is " . $this->user->name . "'s Album";
+        // $album->user_id = $this->user->id;
+        // $album->type = "general";
+        // $album->status = 'active';
+        // $album->is_verified = 0;
+        // $album->visibility = 'public';
+        // $album->save();
 
         $activity = new Activity();
         $activity->title = 'Account Created';
