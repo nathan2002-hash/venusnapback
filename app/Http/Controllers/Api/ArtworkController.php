@@ -22,10 +22,10 @@ class ArtworkController extends Controller
     {
         $artwork = new Artwork();
         $artwork->user_id = Auth::user()->id;
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('uploads/artworks/originals', 's3');
+        if ($request->hasFile('artwork')) {
+            $path = $request->file('artwork')->store('uploads/artworks/originals', 's3');
+            $artwork->file_path = $path;
         }
-        $artwork->file_path = $path;
         $artwork->save();
 
         ArtworkStore::dispatch($artwork->id);
