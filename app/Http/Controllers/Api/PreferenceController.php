@@ -19,7 +19,7 @@ class PreferenceController extends Controller
     public function storeUserPreferences(Request $request)
     {
         $request->validate([
-            'category_ids' => 'required|array|min:4',
+            'category_ids' => 'required|array|min:2',
             'category_ids.*' => 'exists:categories,id',
         ]);
 
