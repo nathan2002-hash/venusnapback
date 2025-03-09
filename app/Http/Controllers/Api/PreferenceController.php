@@ -24,6 +24,7 @@ class PreferenceController extends Controller
         ]);
 
         $user = Auth::user();
+        $userAgent = $request->header('User-Agent');
 
         // Mark all existing preferences as inactive instead of deleting
         UserPreference::where('user_id', $user->id)->update(['status' => 'inactive']);
@@ -32,7 +33,7 @@ class PreferenceController extends Controller
         foreach ($request->category_ids as $categoryId) {
             UserPreference::updateOrCreate(
                 ['user_id' => $user->id, 'category_id' => $categoryId],
-                ['status' => 'active']
+                ['status' => 'active', 'user_agent' => "$request->ip()/$userAgent"]
             );
         }
 
