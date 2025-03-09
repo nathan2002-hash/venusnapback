@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('user_id');
             $table->string('category_id');
             $table->string('user_agent')->nullable();
+            $table->string('status');
             $table->timestamps();
         });
     }

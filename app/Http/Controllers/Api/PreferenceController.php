@@ -23,15 +23,19 @@ class PreferenceController extends Controller
         ]);
 
         $user = Auth::user();
-        UserPreference::where('user_id', $user->id)->delete();
 
+        // Mark all existing preferences as inactive instead of deleting
+        UserPreference::where('user_id', $user->id)->update(['status' => 'inactive']);
+
+        // Save new preferences as active
         foreach ($request->category_ids as $categoryId) {
-            UserPreference::create([
-                'user_id' => $user->id,
-                'category_id' => $categoryId,
-            ]);
+            UserPreference::updateOrCreate(
+                ['user_id' => $user->id, 'category_id' => $categoryId],
+                ['status' => 'active']
+            );
         }
 
-        return response()->json(['message' => 'Preferences saved successfully.']);
+        return response()->json(['message' => 'Preferences updated successfully.']);
     }
+
 }
