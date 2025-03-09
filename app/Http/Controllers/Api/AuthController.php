@@ -52,7 +52,7 @@ class AuthController extends Controller
         $preference = ($user->preference === null || $user->preference == 1) ? 1 : 0;
         // Return the token and user details
         return response()->json([
-            'username' => $user->username,
+            'username' => (string) $user->username,
             'fullname' => $user->name,
             'token' => $token->accessToken,
             'preference' => $preference,
