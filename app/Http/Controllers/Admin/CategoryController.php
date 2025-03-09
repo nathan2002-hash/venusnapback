@@ -20,6 +20,7 @@ class CategoryController extends Controller
     {
         $category = new Category();
         $category->name = $request->name;
+        $category->status = 'active';
         $category->description = $request->description;
         $category->save();
         return redirect()->back();

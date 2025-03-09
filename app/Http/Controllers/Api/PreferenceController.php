@@ -12,8 +12,9 @@ class PreferenceController extends Controller
 {
     public function index()
     {
-        return response()->json(Category::all());
+        return response()->json(Category::where('status', 'active')->get());
     }
+
 
     public function storeUserPreferences(Request $request)
     {
