@@ -44,6 +44,7 @@ Route::middleware('auth:api')->get('/user/artwork', 'Api\ArtworkController@fetch
 Route::middleware('auth:api')->get('/templates', 'Api\TemplateController@index');
 
 Route::middleware('auth:api')->get('/preference/categories', 'Api\PreferenceController@index');
+Route::middleware('auth:api')->get('/user/preferences', 'Api\PreferenceController@storeUserPreferences');
 
 Route::middleware('auth:api')->get('/categories', function () {
     return response()->json(Category::all());

@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('user_preferences', function (Blueprint $table) {
             $table->id();
+            $table->string('user_id');
+            $table->string('category_id');
+            $table->string('user_agent')->nullable();
             $table->timestamps();
         });
     }
