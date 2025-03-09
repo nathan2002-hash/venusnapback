@@ -35,7 +35,9 @@ class PreferenceController extends Controller
             );
         }
 
+         // Update user's preference column to 0
+        $user->update(['preference' => 0]);
+
         return response()->json(['message' => 'Preferences updated successfully.']);
     }
-
 }
