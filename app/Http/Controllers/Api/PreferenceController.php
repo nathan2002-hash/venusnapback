@@ -33,7 +33,7 @@ class PreferenceController extends Controller
         foreach ($request->category_ids as $categoryId) {
             UserPreference::updateOrCreate(
                 ['user_id' => $user->id, 'category_id' => $categoryId],
-                ['status' => 'active', 'user_agent' => "$request->ip()/$userAgent"]
+                ['status' => 'active']
             );
         }
 
