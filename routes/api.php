@@ -22,6 +22,7 @@ Route::middleware('auth:api')->get('/user/profile/change', 'Api\ProfileControlle
 Route::middleware('auth:api')->get('/post/comments/{postMediaId}', 'Api\PostController@getCommentsAndReplies');
 Route::middleware('auth:api')->post('/user/profile/update', 'Api\ProfileController@update');
 Route::middleware('auth:api')->post('/post/store', 'Api\PostController@store');
+Route::middleware('auth:api')->post('/post/store/cloud', 'Api\PostController@storecloud');
 Route::middleware('auth:api')->post('/post/admire', 'Api\PostController@admire');
 Route::middleware('auth:api')->post('/supporter/subscribe', 'Api\SupportController@support');
 Route::middleware('auth:api')->post('/change/password', 'Api\AuthController@changePassword');

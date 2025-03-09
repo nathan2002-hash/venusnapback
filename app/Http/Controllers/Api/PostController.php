@@ -138,6 +138,57 @@ public function index(Request $request)
         return response()->json(['message' => 'Post created successfully', 'post' => $post], 200);
     }
 
+    public function storecloud(Request $request)
+    {
+        $user = Auth::user(); // Get authenticated user
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'description' => 'required|string|max:200',
+            'type' => 'required',
+            'visibility' => 'required|string|in:Public,Private,Friends Only',
+            'post_medias' => 'required|array',
+            'post_medias.*.file_path' => 'required|string',  // Expecting the file path (e.g., S3 URL)
+            'post_medias.*.sequence_order' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Create the post
+        $post = new Post();
+        $post->user_id = Auth::user()->id; // Assign authenticated user's ID
+        $post->description = $request->description;
+        $post->type = $request->type;
+        $post->album_id = $request->album_id;
+        $post->visibility = $request->visibility;
+        $post->save();
+
+        $sequenceOrders = collect($request->post_medias)
+            ->sortBy('sequence_order') // Ensure images are sorted by their sequence order
+            ->values(); // Reindex the collection
+
+        foreach ($sequenceOrders as $media) {
+            // Use the 'file_path' that is provided in the request (this will be the S3 path)
+            $path = $media['file_path']; // No need to store the image again in S3
+
+            // Create PostMedia without uploading a new file, just save the file path
+            PostMedia::create([
+                'post_id' => $post->id,
+                'file_path' => $path,
+                'file_path_compress' => $path,
+                'sequence_order' => $media['sequence_order'],
+                'status' => 'compressed',
+            ]);
+        }
+
+        return response()->json(['message' => 'Post created successfully', 'post' => $post], 200);
+    }
+
+
 
     public function save(Request $request, $id)
     {
