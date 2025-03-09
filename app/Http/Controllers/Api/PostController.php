@@ -95,18 +95,18 @@ public function index(Request $request)
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $validator = Validator::make($request->all(), [
-            'description' => 'required|string|max:200',
-            'type' => 'required',
-            'visibility' => 'required|string|in:Public,Private,Friends Only',
-            'post_medias' => 'required|array',
-            'post_medias.*.file' => 'required|file|mimes:jpeg,png,jpg,webp|max:2048',
-            'post_medias.*.sequence_order' => 'required|integer',
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'description' => 'required|string|max:200',
+        //     'type' => 'required',
+        //     'visibility' => 'required|string|in:Public,Private,Friends Only',
+        //     'post_medias' => 'required|array',
+        //     'post_medias.*.file' => 'required|file|mimes:jpeg,png,jpg,webp|max:2048',
+        //     'post_medias.*.sequence_order' => 'required|integer',
+        // ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        // if ($validator->fails()) {
+        //     return response()->json(['errors' => $validator->errors()], 422);
+        // }
 
         // Create the post
         $post = new Post();
