@@ -48,12 +48,14 @@ class AuthController extends Controller
 
         LoginActivityJob::dispatch($user, true, 'You successfully logged into your account', 'Login Successful', $userAgent);
         $profileUrl = $user->profile_compressed ? Storage::disk('s3')->url($user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
+
+        $preference = ($user->preference === null || $user->preference == 1) ? 1 : 0;
         // Return the token and user details
         return response()->json([
             'username' => $user->username,
             'fullname' => $user->name,
             'token' => $token->accessToken,
-            'preference' => $user->preference,
+            'preference' => $preference,
             'profile' => $profileUrl,
         ]);
     }
@@ -72,6 +74,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'username' => $request->full_name,
             'country' => $request->country,
+            'preference' => '1',
             'password' => Hash::make($request->password),
         ]);
 
