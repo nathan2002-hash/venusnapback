@@ -53,6 +53,7 @@ class AuthController extends Controller
             'username' => $user->username,
             'fullname' => $user->name,
             'token' => $token->accessToken,
+            'preference' => $user->preference,
             'profile' => $profileUrl,
         ]);
     }
