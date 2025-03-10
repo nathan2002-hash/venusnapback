@@ -50,7 +50,7 @@ Route::middleware('auth:api')->post('/user/preferences', 'Api\PreferenceControll
 
 //settings route
 Route::middleware('auth:api')->get('/user/settings', 'Api\SettingController@getUserSettings');
-Route::middleware('auth:api')->patch('/user/update/setting', 'Api\SettingController@getUserSettings');
+Route::middleware('auth:api')->patch('/user/update/setting', 'Api\SettingController@updateUserSetting');
 
 Route::middleware('auth:api')->get('/categories', function () {
     return response()->json(Category::all());
