@@ -99,4 +99,8 @@ class User extends Authenticatable
     public function admires(){
         return $this->hasMany(Admire::class);
     }
+
+    public function usersetting(){
+        return $this->hasOne(UserSetting::class);
+    }
 }

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('user_settings', function (Blueprint $table) {
             $table->id();
+            $table->string('user_id');
             $table->string('sms_alert')->default(0);
             $table->string('email_notifications')->default(1);
             $table->string('tfa')->default(0);

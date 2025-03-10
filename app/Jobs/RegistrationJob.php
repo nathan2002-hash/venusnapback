@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\User;
 use App\Models\Album;
 use App\Models\Activity;
+use App\Models\UserSetting;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -46,5 +47,9 @@ class RegistrationJob implements ShouldQueue
         $activity->status = true;
         $activity->user_agent = $this->userAgent;
         $activity->save();
+
+        $usersetting = new UserSetting();
+        $usersetting->user_id = $this->user->id;
+        $usersetting->save();
     }
 }
