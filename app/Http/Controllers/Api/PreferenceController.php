@@ -57,7 +57,6 @@ class PreferenceController extends Controller
         ]);
 
         $user = Auth::user();
-        $userAgent = $request->header('User-Agent');
 
         // Mark all existing preferences as inactive instead of deleting
         UserPreference::where('user_id', $user->id)->update(['status' => 'inactive']);
@@ -75,4 +74,33 @@ class PreferenceController extends Controller
 
         return response()->json(['message' => 'Preferences updated successfully.']);
     }
+
+    public function storeUserContentPreferences(Request $request)
+    {
+        $request->validate([
+            'category_ids' => 'required|array|min:2',
+            'category_ids.*' => 'exists:categories,id',
+        ]);
+
+        $user = Auth::user();
+
+        // Step 1: Mark all previously selected preferences as inactive (even if they were previously selected)
+        UserPreference::where('user_id', $user->id)
+                    ->whereNotIn('category_id', $request->category_ids)
+                    ->update(['status' => 'inactive']);
+
+        // Step 2: Save new preferences and mark them as active
+        foreach ($request->category_ids as $categoryId) {
+            UserPreference::updateOrCreate(
+                ['user_id' => $user->id, 'category_id' => $categoryId],
+                ['status' => 'active']
+            );
+        }
+
+        // Step 3: Optionally, you can update the user's preference column
+        $user->update(['preference' => 0]);
+
+        return response()->json(['message' => 'Preferences updated successfully.']);
+    }
+
 }
