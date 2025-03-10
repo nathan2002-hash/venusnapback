@@ -15,6 +15,19 @@ class PreferenceController extends Controller
         return response()->json(Category::where('status', 'active')->get());
     }
 
+    public function getUserPreferences(Request $request)
+    {
+        // Assuming the user is authenticated and we can access user id from the request
+        $userId = $request->user()->id;
+
+        // Retrieve the category IDs that the user has selected
+        $userPreferences = UserPreference::where('user_id', $userId)
+                                        ->where('status', 'active') // or any status that indicates preference
+                                        ->pluck('category_id');
+
+        return response()->json($userPreferences);
+    }
+
 
     public function storeUserPreferences(Request $request)
     {

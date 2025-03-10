@@ -47,6 +47,7 @@ Route::middleware('auth:api')->get('/templates', 'Api\TemplateController@index')
 //preference routes
 Route::middleware('auth:api')->get('/preference/categories', 'Api\PreferenceController@index');
 Route::middleware('auth:api')->post('/user/preferences', 'Api\PreferenceController@storeUserPreferences');
+Route::middleware('auth:api')->get('/user/preferences/retrieve', 'Api\PreferenceController@getUserPreferences');
 
 //settings route
 Route::middleware('auth:api')->get('/user/settings', 'Api\SettingController@getUserSettings');
