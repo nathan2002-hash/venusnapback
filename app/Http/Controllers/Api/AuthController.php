@@ -30,12 +30,14 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
         $userAgent = $request->header('User-Agent');
+        $deviceinfo = $request->header('Device-Info');
+        $ipaddress = $request->ip();
 
         if (!Auth::attempt($request->only('email', 'password'))) {
             $user = User::where('email', $request->email)->first();
             if ($user) {
                 // Dispatch the login failed activity to the queue
-                LoginActivityJob::dispatch($user, false, 'Failed login attempt due to incorrect password.', 'Login Failed', $userAgent);
+                LoginActivityJob::dispatch($user, false, 'Failed login attempt due to incorrect password.', 'Login Failed', $userAgent, $ipaddress, $deviceinfo);
             }
             return response()->json(['message' => 'Unauthorized'], 401);
         }
@@ -68,6 +70,8 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
         $userAgent = $request->header('User-Agent');
+        $deviceinfo = $request->header('Device-Info');
+        $ipaddress = $request->ip();
 
         $user = User::create([
             'name' => $request->full_name,
@@ -78,7 +82,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        RegistrationJob::dispatch($user, $userAgent);
+        RegistrationJob::dispatch($user, $userAgent, $deviceinfo, $ipaddress);
 
         return response()->json([
             'status' => 'success',
@@ -96,6 +100,8 @@ class AuthController extends Controller
 
         $user = Auth::user();
         $userAgent = $request->header('User-Agent');
+        $deviceinfo = $request->header('Device-Info');
+        $ipaddress = $request->ip();
 
         if (!Hash::check($request->current_password, $user->password)) {
             ChangePasswordJob::dispatch($user, $request->current_password, $request->new_password, $userAgent);
@@ -104,7 +110,7 @@ class AuthController extends Controller
                 'success' => false,
             ], 422);
         }
-        ChangePasswordJob::dispatch($user, $request->current_password, $request->new_password, $userAgent);
+        ChangePasswordJob::dispatch($user, $request->current_password, $request->new_password, $userAgent, $deviceinfo, $ipaddress);
         return response()->json([
             'message' => 'Password updated successfully',
             'success' => true,

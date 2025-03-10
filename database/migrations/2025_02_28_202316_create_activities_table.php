@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('status');
             $table->string('user_id');
             $table->longText('user_agent');
+            $table->longText('device_info')->nullable();
+            $table->longText('ipaddress')->nullable();
             $table->timestamps();
         });
     }

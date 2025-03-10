@@ -15,11 +15,15 @@ class RegistrationJob implements ShouldQueue
 
     protected $user;
     protected $userAgent;
+    protected $ipaddress;
+    protected $deviceinfo;
 
-    public function __construct(User $user, $userAgent)
+    public function __construct(User $user, $userAgent, $deviceinfo, $ipaddress)
     {
         $this->user = $user;
         $this->userAgent = $userAgent;
+        $this->ipaddress = $ipaddress;
+        $this->deviceinfo = $deviceinfo;
     }
 
     /**
@@ -46,6 +50,8 @@ class RegistrationJob implements ShouldQueue
         $activity->user_id = $this->user->id;
         $activity->status = true;
         $activity->user_agent = $this->userAgent;
+        $activity->device_info = $this->deviceinfo;
+        $activity->ipaddress = $this->ipaddress;
         $activity->save();
 
         $usersetting = new UserSetting();
