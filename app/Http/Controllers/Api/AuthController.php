@@ -48,7 +48,7 @@ class AuthController extends Controller
         // Create a token for the user
         $token = $user->createToken('authToken');
 
-        LoginActivityJob::dispatch($user, true, 'You successfully logged into your account', 'Login Successful', $userAgent);
+        LoginActivityJob::dispatch($user, true, 'You successfully logged into your account', 'Login Successful', $userAgent, $ipaddress, $deviceinfo);
         $profileUrl = $user->profile_compressed ? Storage::disk('s3')->url($user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
 
         $preference = ($user->preference === null || $user->preference == 1) ? 1 : 0;
@@ -104,7 +104,7 @@ class AuthController extends Controller
         $ipaddress = $request->ip();
 
         if (!Hash::check($request->current_password, $user->password)) {
-            ChangePasswordJob::dispatch($user, $request->current_password, $request->new_password, $userAgent);
+            ChangePasswordJob::dispatch($user, $request->current_password, $request->new_password, $userAgent, $ipaddress, $deviceinfo);
             return response()->json([
                 'message' => 'Current password is incorrect',
                 'success' => false,
