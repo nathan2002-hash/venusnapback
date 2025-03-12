@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\AlbumCategory;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class AlbumController extends Controller
 {
@@ -238,6 +239,47 @@ class AlbumController extends Controller
             'success' => true,
             'categories' => $categories
         ]);
+    }
+
+    public function getAlbums(Request $request)
+    {
+        // Fetch albums for the logged-in user
+        $albums = Album::where('user_id', $request->user()->id)
+            ->select('id', 'name', 'description', 'thumbnail_original', 'thumbnail_compressed', 'type', 'created_at')
+            ->get();
+
+        // Modify each album to include the proper S3 URL for thumbnails
+        $albums = $albums->map(function ($album) {
+            // Get the appropriate thumbnail based on the album type
+            $thumbnailUrl = null;
+
+            if ($album->type == 'personal' || $album->type == 'creator') {
+                // For personal and creator, use the compressed thumbnail if it exists, otherwise use the original
+                $thumbnailUrl = $album->thumbnail_compressed
+                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                    : ($album->thumbnail_original
+                        ? Storage::disk('s3')->url($album->thumbnail_original)
+                        : null);
+            } elseif ($album->type == 'business') {
+                // For business albums, you may want to use the business logo thumbnail if available
+                $thumbnailUrl = $album->business_logo_compressed
+                    ? Storage::disk('s3')->url($album->business_logo_compressed)
+                    : ($album->business_logo_original
+                        ? Storage::disk('s3')->url($album->business_logo_original)
+                        : null);
+            }
+
+            return [
+                'id' => $album->id,
+                'name' => $album->name,
+                'description' => $album->description,
+                'type' => $album->type,
+                'thumbnail_url' => $thumbnailUrl, // Include the S3 URL for the thumbnail
+                'created_at' => $album->created_at->format('l, d F Y at h:i A'), // Format the date nicely
+            ];
+        });
+
+        return response()->json(['albums' => $albums]);
     }
 
 }

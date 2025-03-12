@@ -41,6 +41,8 @@ Route::middleware('auth:api')->post('/album/business/store', 'Api\AlbumControlle
 Route::middleware('auth:api')->get('/album/content/types/creator', 'Api\AlbumController@albumcategorycreator');
 Route::middleware('auth:api')->get('/album/business/categories', 'Api\AlbumController@albumcategorybusiness');
 
+Route::middleware('auth:api')->get('/user/albums', 'Api\AlbumController@getAlbums');
+
 //artwork routes
 Route::middleware('auth:api')->post('/artwork/save', 'Api\ArtworkController@store');
 Route::middleware('auth:api')->get('/user/artwork', 'Api\ArtworkController@fetchArtworks');
