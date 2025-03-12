@@ -331,4 +331,27 @@ public function index(Request $request)
             'created_at' => Carbon::parse($reply->created_at)->diffForHumans(),
         ], 201);
     }
+
+    public function getRecentPosts(Request $request) {
+        $user = $request->user();
+        $posts = $user->posts()->with('postMedia')->latest()->take(6)->get();
+        return response()->json(['posts' => $posts]);
+    }
+
+    // Example Laravel endpoint to fetch paginated posts
+    public function getPosts(Request $request) {
+        $user = $request->user();
+        $perPage = 6; // Number of posts per page
+        $page = $request->query('page', 1); // Get the current page from the query
+
+        $posts = $user->posts()
+            ->with('postMedia')
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'posts' => $posts->items(),
+            'has_more' => $posts->hasMorePages(),
+        ]);
+    }
 }

@@ -28,6 +28,10 @@ Route::middleware('auth:api')->post('/supporter/subscribe', 'Api\SupportControll
 Route::middleware('auth:api')->post('/change/password', 'Api\AuthController@changePassword');
 Route::middleware('auth:api')->get('/password/activities', 'Api\AuthController@fetchPasswordActivities');
 
+//user posts route
+Route::middleware('auth:api')->get('/user/recent/posts', 'Api\PostController@getRecentPosts');
+Route::middleware('auth:api')->get('/user/all/posts', 'Api\PostController@getPosts');
+
 //album routes
 Route::middleware('auth:api')->get('/albums', 'Api\AlbumController@getUserAlbums');
 Route::middleware('auth:api')->post('/album/store', 'Api\AlbumController@store');
