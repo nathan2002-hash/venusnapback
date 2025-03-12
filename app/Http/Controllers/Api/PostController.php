@@ -345,7 +345,7 @@ public function index(Request $request)
         $page = $request->query('page', 1); // Get the current page from the query
 
         $posts = $user->posts()
-            ->with('postMedias')
+            ->with('postmedias')
             ->orderBy('created_at', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
