@@ -339,19 +339,50 @@ public function index(Request $request)
     }
 
     // Example Laravel endpoint to fetch paginated posts
+    // public function getPosts(Request $request) {
+    //     $user = $request->user();
+    //     $perPage = 6; // Number of posts per page
+    //     $page = $request->query('page', 1); // Get the current page from the query
+
+    //     $posts = $user->posts()
+    //         ->with('postmedias')
+    //         ->orderBy('created_at', 'desc')
+    //         ->paginate($perPage, ['*'], 'page', $page);
+
+    //     return response()->json([
+    //         'posts' => $posts->items(),
+    //         'has_more' => $posts->hasMorePages(),
+    //     ]);
+    // }
+
     public function getPosts(Request $request) {
         $user = $request->user();
-        $perPage = 6; // Number of posts per page
-        $page = $request->query('page', 1); // Get the current page from the query
+        $perPage = 6;
+        $page = $request->query('page', 1);
 
         $posts = $user->posts()
-            ->with('postmedias')
+            ->with('postMedias') // Ensure postMedias is eager loaded
             ->orderBy('created_at', 'desc')
-            ->paginate($perPage, ['*'], 'page', $page);
+            ->paginate($perPage);
 
         return response()->json([
-            'posts' => $posts->items(),
+            'posts' => $posts->map(function ($post) {
+                return [
+                    'id' => $post->id,
+                    'description' => $post->description,
+                    'created_at' => $post->created_at,
+                    'postMedias' => $post->postMedias->map(function ($media) {
+                        return [
+                            'id' => $media->id,
+                            'media_url' => asset($media->file_path),
+                            'media_url_compress' => asset($media->file_path_compress),
+                            'sequence_order' => $media->sequence_order,
+                        ];
+                    }),
+                ];
+            }),
             'has_more' => $posts->hasMorePages(),
         ]);
     }
+
 }
