@@ -374,8 +374,8 @@ public function index(Request $request)
                     'postMedias' => $post->postMedias->map(function ($media) {
                         return [
                             'id' => $media->id,
-                            'media_url' => asset($media->file_path),
-                            'media_url_compress' => asset($media->file_path_compress),
+                            'media_url' => Storage::disk('s3')->url($media->file_path),
+                            'media_url_compress' => Storage::disk('s3')->url($media->file_path_compress),
                             'sequence_order' => $media->sequence_order,
                         ];
                     }),
