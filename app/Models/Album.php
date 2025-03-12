@@ -16,8 +16,8 @@ class Album extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function post(){
-        return $this->belongsTo(Post::class);
+    public function posts(){
+        return $this->hasMany(Post::class);
     }
 
     public function supporters(){
