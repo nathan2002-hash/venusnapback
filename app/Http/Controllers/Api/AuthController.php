@@ -152,38 +152,32 @@ class AuthController extends Controller
     }
 
     public function getLoginActivities(Request $request)
-{
-    $userId = auth()->id(); // Get the logged-in user ID
-    $activities = Activity::where('title', 'authentication')
-        ->where('user_id', $userId)
-        ->orderBy('created_at', 'desc')
-        ->limit(20)
-        ->get();
+    {
+        // Fetch activities where type is 'authentication'
+        $activities = Activity::where('type', 'authentication')
+            ->where('user_id', $request->user()->id) // Fetch activities for the logged-in user
+            ->select('device_info', 'ipaddress', 'created_at')
+            ->get();
 
-    $formattedActivities = $activities->map(function ($activity) {
-        // Format date
-        $formattedTime = \Carbon\Carbon::parse($activity->created_at)
-            ->format('l, d F Y at h:i A');
+        // Add location to each activity
+        $activities->transform(function ($activity) {
+            $ip = $activity->ipaddress;
+            $location = $this->getLocationFromIP($ip); // Get location from IP
+            $activity->location = $location;
+            return $activity;
+        });
 
-        // Get device info
-        $deviceName = json_decode($activity->device_info, true)['device'] ?? 'Unknown Device';
+        return response()->json(['activities' => $activities]);
+    }
 
-        // Fetch location from IP
-        $location = 'Unknown Location';
-        if (!empty($activity->ipaddress)) {
-            $locationData = Http::get("https://ipinfo.io/{$activity->ipaddress}/json")->json();
-            if (!empty($locationData['city']) && !empty($locationData['country'])) {
-                $location = "{$locationData['city']}, {$locationData['country']}";
-            }
+    // Helper function to get location from IP
+    private function getLocationFromIP($ip)
+    {
+        $response = Http::get("http://ipinfo.io/{$ip}/json");
+        if ($response->successful()) {
+            $data = $response->json();
+            return $data['city'] . ', ' . $data['country'];
         }
-
-        return [
-            'device' => $deviceName,
-            'location' => $location,
-            'time' => $formattedTime,
-        ];
-    });
-
-    return response()->json($formattedActivities);
-}
+        return 'Unknown Location';
+    }
 }
