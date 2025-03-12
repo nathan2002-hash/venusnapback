@@ -370,6 +370,7 @@ public function index(Request $request)
                 return [
                     'id' => $post->id,
                     'description' => $post->description,
+                    'album' => $post->album->name,
                     'created_at' => $post->created_at->format('d M Y, h:i A'),
                     'postMedias' => $post->postMedias->map(function ($media) {
                         return [

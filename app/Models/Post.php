@@ -16,6 +16,10 @@ class Post extends Model
         return $this->hasMany(Saved::class);
     }
 
+    public function albums(){
+        return $this->hasMany(Album::class);
+    }
+
     public function user(){
         return $this->belongsTo(User::class);
     }
