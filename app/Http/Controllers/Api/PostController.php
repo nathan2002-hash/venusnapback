@@ -334,7 +334,7 @@ public function index(Request $request)
 
     public function getRecentPosts(Request $request) {
         $user = $request->user();
-        $posts = $user->posts()->with('postMedia')->latest()->take(6)->get();
+        $posts = $user->posts()->with('postMedias')->latest()->take(6)->get();
         return response()->json(['posts' => $posts]);
     }
 
@@ -345,7 +345,7 @@ public function index(Request $request)
         $page = $request->query('page', 1); // Get the current page from the query
 
         $posts = $user->posts()
-            ->with('postMedia')
+            ->with('postMedias')
             ->orderBy('created_at', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
