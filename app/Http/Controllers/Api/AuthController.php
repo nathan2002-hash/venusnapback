@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Jobs\RegistrationJob;
 use App\Jobs\LoginActivityJob;
 use App\Jobs\ChangePasswordJob;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -117,67 +118,42 @@ class AuthController extends Controller
         ]);
     }
 
-    public function fetchPasswordActivities()
-    {
-        // Get the current authenticated user
-        $user = Auth::user();
-
-        // Fetch password-related activities for the user (e.g., password change attempts)
-        $activities = Activity::where('user_id', $user->id)
-                            ->where('source', 'Authentication') // Filter activities related to authentication
-                            ->orderBy('created_at', 'desc')   // Order by most recent first
-                            ->get();
-
-        // Check if activities exist
-        if ($activities->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No password-related activities found.',
-            ], 404);
-        }
-
-        $formattedActivities = $activities->map(function ($activity) {
-            return [
-                'time' => $activity->created_at->format('M d, Y - h:m a'),
-                'status' => $activity->status ? 'changed' : 'failed', // Assuming 'status' is boolean (true for successful, false for failed)
-                'action' => $activity->title,  // Assuming the activity title is "Password Updated"
-            ];
-        });
-
-        // Return activities
-        return response()->json([
-            'success' => true,
-            'data' => $formattedActivities,
-        ], 200);
-    }
-
     public function getLoginActivities(Request $request)
-    {
-        // Fetch activities where type is 'authentication'
-        $activities = Activity::where('type', 'authentication')
-            ->where('user_id', $request->user()->id) // Fetch activities for the logged-in user
-            ->select('device_info', 'ipaddress', 'created_at')
-            ->get();
+{
+    // Fetch activities where type is 'authentication'
+    $activities = Activity::where('type', 'authentication')
+        ->where('user_id', $request->user()->id) // Fetch activities for the logged-in user
+        ->select('device_info', 'ipaddress', 'created_at')
+        ->get();
 
-        // Add location to each activity
-        $activities->transform(function ($activity) {
-            $ip = $activity->ipaddress;
+    // Add location to each activity
+    $activities->transform(function ($activity) {
+        $ip = $activity->ipaddress;
+        if ($ip) {
             $location = $this->getLocationFromIP($ip); // Get location from IP
             $activity->location = $location;
-            return $activity;
-        });
+        } else {
+            $activity->location = 'Unknown Location'; // Handle missing IP address
+        }
+        return $activity;
+    });
 
-        return response()->json(['activities' => $activities]);
-    }
+    return response()->json(['activities' => $activities]);
+}
 
-    // Helper function to get location from IP
-    private function getLocationFromIP($ip)
-    {
+// Helper function to get location from IP
+private function getLocationFromIP($ip)
+{
+    try {
         $response = Http::get("http://ipinfo.io/{$ip}/json");
         if ($response->successful()) {
             $data = $response->json();
             return $data['city'] . ', ' . $data['country'];
         }
-        return 'Unknown Location';
+    } catch (\Exception $e) {
+        // Log the error (optional)
+        Log::error("Failed to resolve location for IP {$ip}: " . $e->getMessage());
     }
+    return 'Unknown Location';
+}
 }
