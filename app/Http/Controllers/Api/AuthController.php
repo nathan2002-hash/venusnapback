@@ -121,7 +121,7 @@ class AuthController extends Controller
     public function getLoginActivities(Request $request)
 {
     // Fetch activities where type is 'authentication'
-    $activities = Activity::where('type', 'authentication')
+    $activities = Activity::where('source', 'authentication')
         ->where('user_id', $request->user()->id) // Fetch activities for the logged-in user
         ->select('device_info', 'ipaddress', 'created_at')
         ->get();
