@@ -57,6 +57,7 @@ Route::middleware('auth:api')->post('/user/content/preferences', 'Api\Preference
 //settings route
 Route::middleware('auth:api')->get('/user/settings', 'Api\SettingController@getUserSettings');
 Route::middleware('auth:api')->patch('/user/update/setting', 'Api\SettingController@updateUserSetting');
+Route::middleware('auth:api')->get('/user/login/activities', 'Api\AuthController@getLoginActivities');
 
 Route::middleware('auth:api')->get('/categories', function () {
     return response()->json(Category::all());

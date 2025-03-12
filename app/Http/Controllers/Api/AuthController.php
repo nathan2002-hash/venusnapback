@@ -150,4 +150,40 @@ class AuthController extends Controller
             'data' => $formattedActivities,
         ], 200);
     }
+
+    public function getLoginActivities(Request $request)
+{
+    $userId = auth()->id(); // Get the logged-in user ID
+    $activities = Activity::where('title', 'authentication')
+        ->where('user_id', $userId)
+        ->orderBy('created_at', 'desc')
+        ->limit(20)
+        ->get();
+
+    $formattedActivities = $activities->map(function ($activity) {
+        // Format date
+        $formattedTime = \Carbon\Carbon::parse($activity->created_at)
+            ->format('l, d F Y at h:i A');
+
+        // Get device info
+        $deviceName = json_decode($activity->device_info, true)['device'] ?? 'Unknown Device';
+
+        // Fetch location from IP
+        $location = 'Unknown Location';
+        if (!empty($activity->ipaddress)) {
+            $locationData = Http::get("https://ipinfo.io/{$activity->ipaddress}/json")->json();
+            if (!empty($locationData['city']) && !empty($locationData['country'])) {
+                $location = "{$locationData['city']}, {$locationData['country']}";
+            }
+        }
+
+        return [
+            'device' => $deviceName,
+            'location' => $location,
+            'time' => $formattedTime,
+        ];
+    });
+
+    return response()->json($formattedActivities);
+}
 }
