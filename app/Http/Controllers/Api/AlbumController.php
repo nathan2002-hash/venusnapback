@@ -335,6 +335,7 @@ class AlbumController extends Controller
                 'type' => $album->type,
                 'thumbnail_url' => $thumbnailUrl,
                 'bg_thumbnail_url' => $bgthumbnailUrl,
+                'supporters' => $album->supporters->count(),
                 'posts' => $posts,
             ]
         ], 200);
