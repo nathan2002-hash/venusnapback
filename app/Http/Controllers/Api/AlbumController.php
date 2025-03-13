@@ -286,8 +286,7 @@ class AlbumController extends Controller
 
     public function show($albumId)
     {
-        // Fetch the album by ID with posts
-        $album = Album::with(['posts'])->find($albumId);
+        $album = Album::with(['posts.postmedias'])->find($albumId);
 
         if (!$album) {
             return response()->json([
@@ -295,7 +294,7 @@ class AlbumController extends Controller
             ], 404);
         }
 
-        // Determine the correct thumbnail based on album type
+        // Determine the album's thumbnail
         if ($album->type == 'personal' || $album->type == 'creator') {
             $thumbnailUrl = $album->thumbnail_compressed
                 ? Storage::disk('s3')->url($album->thumbnail_compressed)
@@ -309,9 +308,19 @@ class AlbumController extends Controller
                     ? Storage::disk('s3')->url($album->business_logo_original)
                     : null);
         } else {
-            // Fallback default thumbnail
             $thumbnailUrl = 'https://example.com/default-thumbnail.jpg';
         }
+
+        // Attach post thumbnail from postmedias
+        $posts = $album->posts->map(function ($post) {
+            $postThumbnail = $post->postmedias->first() ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress) : null;
+            return [
+                'id' => $post->id,
+                'title' => $post->title,
+                'thumbnail_url' => $postThumbnail,
+                'image_count' => $post->postmedias->count(),
+            ];
+        });
 
         return response()->json([
             'album' => [
@@ -319,9 +328,10 @@ class AlbumController extends Controller
                 'name' => $album->name,
                 'type' => $album->type,
                 'thumbnail_url' => $thumbnailUrl,
-                'posts' => $album->posts,
+                'posts' => $posts,
             ]
         ], 200);
     }
+
 
 }
