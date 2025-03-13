@@ -286,7 +286,7 @@ class AlbumController extends Controller
 
     public function show($albumId)
     {
-        // Fetch the album by ID
+        // Fetch the album by ID with posts
         $album = Album::with(['posts'])->find($albumId);
 
         if (!$album) {
@@ -295,8 +295,32 @@ class AlbumController extends Controller
             ], 404);
         }
 
+        // Determine the correct thumbnail based on album type
+        if ($album->type == 'personal' || $album->type == 'creator') {
+            $thumbnailUrl = $album->thumbnail_compressed
+                ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                : ($album->thumbnail_original
+                    ? Storage::disk('s3')->url($album->thumbnail_original)
+                    : null);
+        } elseif ($album->type == 'business') {
+            $thumbnailUrl = $album->business_logo_compressed
+                ? Storage::disk('s3')->url($album->business_logo_compressed)
+                : ($album->business_logo_original
+                    ? Storage::disk('s3')->url($album->business_logo_original)
+                    : null);
+        } else {
+            // Fallback default thumbnail
+            $thumbnailUrl = 'https://example.com/default-thumbnail.jpg';
+        }
+
         return response()->json([
-            'album' => $album
+            'album' => [
+                'id' => $album->id,
+                'name' => $album->name,
+                'type' => $album->type,
+                'thumbnail_url' => $thumbnailUrl,
+                'posts' => $album->posts,
+            ]
         ], 200);
     }
 
