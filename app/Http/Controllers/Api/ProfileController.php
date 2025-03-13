@@ -30,6 +30,11 @@ class ProfileController extends Controller
         : config('app.default_cover_url');
         $profileUrl = $user->profile_compressed ? Storage::disk('s3')->url($user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
         // Return the user profile data
+
+        $totalSupporters = $user->albums->reduce(function ($carry, $album) {
+            return $carry + $album->supporters()->count(); // assuming 'supporters' is a relationship on the Album model
+        }, 0);
+
         return response()->json([
             'user' => [
                 'fullname' => $user->name,
@@ -40,7 +45,7 @@ class ProfileController extends Controller
                 'date_joined' => $user->created_at->format('j F, Y'),
                 'total_posts' => (string) $user->posts->count(),
                 'total_albums' => (string) $user->albums->count(),
-                'supporters' => "45",
+                'supporters' => (string) $totalSupporters,
             ]
         ]);
     }
