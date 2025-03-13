@@ -311,6 +311,12 @@ class AlbumController extends Controller
             $thumbnailUrl = 'https://example.com/default-thumbnail.jpg';
         }
 
+        $bgthumbnailUrl = $album->cover_image_compressed
+                ? Storage::disk('s3')->url($album->cover_image_compressed)
+                : ($album->cover_image_original
+                    ? Storage::disk('s3')->url($album->cover_image_original)
+                    : null);
+
         // Attach post thumbnail from postmedias
         $posts = $album->posts->map(function ($post) {
             $postThumbnail = $post->postmedias->first() ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress) : null;
@@ -328,6 +334,7 @@ class AlbumController extends Controller
                 'name' => $album->name,
                 'type' => $album->type,
                 'thumbnail_url' => $thumbnailUrl,
+                'bg_thumbnail_url' => $bgthumbnailUrl,
                 'posts' => $posts,
             ]
         ], 200);
