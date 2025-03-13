@@ -361,16 +361,39 @@ public function index(Request $request)
         $page = $request->query('page', 1);
 
         $posts = $user->posts()
-            ->with('postMedias') // Ensure postMedias is eager loaded
+            ->with(['postMedias', 'album']) // Load album details
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
         return response()->json([
             'posts' => $posts->map(function ($post) {
+                $album = $post->album;
+                $thumbnailUrl = null;
+
+                if ($album) {
+                    if ($album->type == 'personal' || $album->type == 'creator') {
+                        // For personal and creator albums
+                        $thumbnailUrl = $album->thumbnail_compressed
+                            ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                            : ($album->thumbnail_original
+                                ? Storage::disk('s3')->url($album->thumbnail_original)
+                                : null);
+                    } elseif ($album->type == 'business') {
+                        // For business albums, use business logo thumbnail if available
+                        $thumbnailUrl = $album->business_logo_compressed
+                            ? Storage::disk('s3')->url($album->business_logo_compressed)
+                            : ($album->business_logo_original
+                                ? Storage::disk('s3')->url($album->business_logo_original)
+                                : null);
+                    }
+                }
+
                 return [
                     'id' => $post->id,
                     'description' => $post->description,
-                    'album' => $post->album->name,
+                    'album' => $album ? $album->name : null,
+                    'album_type' => $album ? $album->type : null,
+                    'album_thumbnail' => $thumbnailUrl,
                     'created_at' => $post->created_at->format('d M Y, h:i A'),
                     'postMedias' => $post->postMedias->map(function ($media) {
                         return [
@@ -385,5 +408,6 @@ public function index(Request $request)
             'has_more' => $posts->hasMorePages(),
         ]);
     }
+
 
 }

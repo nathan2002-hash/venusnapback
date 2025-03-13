@@ -274,6 +274,8 @@ class AlbumController extends Controller
                 'name' => $album->name,
                 'description' => $album->description,
                 'type' => $album->type,
+                'supporters' => $album->supporters->count(),
+                'posts' => $album->posts->count(),
                 'thumbnail_url' => $thumbnailUrl, // Include the S3 URL for the thumbnail
                 'created_at' => $album->created_at->format('l, d F Y at h:i A'), // Format the date nicely
             ];
