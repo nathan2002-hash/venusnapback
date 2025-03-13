@@ -284,4 +284,20 @@ class AlbumController extends Controller
         return response()->json(['albums' => $albums]);
     }
 
+    public function show($albumId)
+    {
+        // Fetch the album by ID
+        $album = Album::with(['posts'])->find($albumId);
+
+        if (!$album) {
+            return response()->json([
+                'message' => 'Album not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'album' => $album
+        ], 200);
+    }
+
 }
