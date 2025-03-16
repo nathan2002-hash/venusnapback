@@ -40,10 +40,10 @@ class PostController extends Controller
             if ($album) {
                 if ($album->type == 'personal' || $album->type == 'creator') {
                     // Personal and Creator albums
-                    $profileUrl = $album->profile_compressed
-                        ? Storage::disk('s3')->url($album->profile_compressed)
-                        : ($album->profile_original
-                            ? Storage::disk('s3')->url($album->profile_original)
+                    $profileUrl = $album->thumbnail_compressed
+                        ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                        : ($album->thumbnail_original
+                            ? Storage::disk('s3')->url($album->thumbnail_original)
                             : asset('default/profile.png'));
                 } elseif ($album->type == 'business') {
                     // Business albums use business logo
