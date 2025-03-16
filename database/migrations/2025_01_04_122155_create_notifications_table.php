@@ -14,9 +14,12 @@ return new class extends Migration
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
             $table->string('user_id');
-            $table->string('type');
-            $table->string('data');
-            $table->string('read_at');
+            $table->string('action');
+            $table->string('notifiable_id');
+            $table->longText('notifiable_type');
+            $table->json('data');
+            $table->boolean('is_read')->default(false);
+            $table->integer('group_count')->default(0); // Tracks the number of users involved in the grouped notification
             $table->timestamps();
         });
     }

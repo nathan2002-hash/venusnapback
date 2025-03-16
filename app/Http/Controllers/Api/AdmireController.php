@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Admire;
 use Illuminate\Http\Request;
+use App\Jobs\CreateNotificationJob;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,6 +23,9 @@ class AdmireController extends Controller
             return response()->json(['message' => 'Unliked']);
         } else {
             Admire::create(['user_id' => $user->id, 'post_media_id' => $postMediaId]);
+
+             // Dispatch the notification creation job
+            CreateNotificationJob::dispatch($user, $postMediaId);
             return response()->json(['message' => 'Liked']);
         }
     }
