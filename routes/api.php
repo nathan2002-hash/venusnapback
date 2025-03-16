@@ -27,7 +27,7 @@ Route::middleware('auth:api')->post('/post/admire', 'Api\PostController@admire')
 
 
 Route::middleware('auth:api')->post('/supporter/subscribe', 'Api\SupportController@support');
-Route::middleware('auth:api')->post('/supporter/check-support', 'Api\SupportController@checkSupport');
+Route::middleware('auth:api')->get('/supporter/check-support', 'Api\SupportController@checkSupport');
 
 
 Route::middleware('auth:api')->post('/change/password', 'Api\AuthController@changePassword');
