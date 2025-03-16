@@ -69,7 +69,6 @@ class SupportController extends Controller
             'album_id' => $album_id,
             'post_id' => $post->id,
             'user_id' => $user_id,
-            'postmedia_id' => $postMedia->id,
         ]);
 
         // Return success response
