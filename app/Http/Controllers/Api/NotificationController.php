@@ -79,29 +79,28 @@ class NotificationController extends Controller
     {
         $request->validate([
             'post_media_id' => 'required|integer',
+            'action' => 'required|string', // Add action to the request validation
         ]);
 
         // Get the authenticated user
         $user = $request->user();
 
-        // Find the notification by post_media_id and user_id
-        $notification = Notification::where('notifiable_id', $request->post_media_id)
+        // Mark all notifications as read for the given post_media_id, user_id, and action
+        $updated = Notification::where('notifiable_id', $request->post_media_id)
             ->where('user_id', $user->id)
-            ->first();
+            ->where('action', $request->action) // Filter by action
+            ->update(['is_read' => true]); // Update all matching notifications
 
-        if ($notification) {
-            // Mark the notification as read
-            $notification->update(['is_read' => true]);
-
+        if ($updated > 0) {
             return response()->json([
                 'status' => 'success',
-                'message' => 'Notification marked as read',
+                'message' => 'Notifications marked as read',
             ]);
         }
 
         return response()->json([
             'status' => 'error',
-            'message' => 'Notification not found',
+            'message' => 'No notifications found',
         ], 404);
     }
 }
