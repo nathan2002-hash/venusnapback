@@ -23,7 +23,10 @@ Route::middleware('auth:api')->get('/post/comments/{postMediaId}', 'Api\PostCont
 Route::middleware('auth:api')->post('/user/profile/update', 'Api\ProfileController@update');
 Route::middleware('auth:api')->post('/post/store', 'Api\PostController@store');
 Route::middleware('auth:api')->post('/post/store/cloud', 'Api\PostController@storecloud');
-Route::middleware('auth:api')->post('/post/admire', 'Api\PostController@admire');
+
+
+Route::middleware('auth:api')->post('/post/admire', 'Api\AdmireController@admire');
+Route::middleware('auth:api')->post('/post/check-like', 'Api\AdmireController@checkLike');
 
 
 Route::middleware('auth:api')->post('/supporter/subscribe', 'Api\SupportController@support');

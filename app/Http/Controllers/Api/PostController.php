@@ -198,21 +198,6 @@ class PostController extends Controller
         $save->save();
     }
 
-    public function admire(Request $request)
-    {
-        $postMediaId = $request->post_media_id;
-        $user =  $user = Auth::user();
-
-        $admire = Admire::where('user_id', $user->id)->where('post_media_id', $postMediaId)->first();
-
-        if ($admire) {
-            $admire->delete();
-            return response()->json(['message' => 'Unliked']);
-        } else {
-            Admire::create(['user_id' => $user->id, 'post_media_id' => $postMediaId]);
-            return response()->json(['message' => 'Liked']);
-        }
-    }
 
     public function report(Request $request, $id)
     {
