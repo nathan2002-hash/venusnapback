@@ -83,4 +83,54 @@ class SupportController extends Controller
         ], 201);
     }
 
+    public function checkSupport(Request $request)
+    {
+        // Get the authenticated user's ID
+        $user_id = Auth::id();
+
+        $postMedia = PostMedia::find($request->postmedia);
+
+        if (!$postMedia) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Post media not found',
+            ], 404);
+        }
+
+        // Find the associated post
+        $post = Post::find($postMedia->post_id);
+
+        if (!$post) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Post not found',
+            ], 404);
+        }
+
+        // Get the album_id from the post
+        $album_id = $post->album_id;
+
+        // Check if the user has already supported this post
+        $existingSupport = Supporter::where('user_id', $user_id)
+            ->where('album_id', $album_id)
+            ->first();
+
+        if ($existingSupport) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User has supported this post',
+                'data' => [
+                    'supported' => true,
+                ],
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User has not supported this post',
+                'data' => [
+                    'supported' => false,
+                ],
+            ], 200);
+        }
+    }
 }
