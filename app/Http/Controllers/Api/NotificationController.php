@@ -12,27 +12,50 @@ class NotificationController extends Controller
 {
     public function index(Request $request)
 {
-    $user = Auth::user();
+    $user = $request->user();
 
+    // Fetch all notifications for the user
     $notifications = Notification::where('user_id', $user->id)
         ->orderBy('created_at', 'desc')
         ->get()
-        ->map(function ($notification) {
+        ->groupBy(function ($notification) {
+            // Group by action and notifiable_id (e.g., post ID)
+            return $notification->action . '-' . $notification->notifiable_id;
+        })
+        ->map(function ($group) {
+            // Get the first notification in the group for metadata
+            $firstNotification = $group->first();
+
+            // Count the number of users in the group
+            $userCount = $group->count();
+
+            // Get the usernames of the first 3 users
+            $usernames = $group->take(3)->map(function ($notification) {
+                return json_decode($notification->data, true)['username'];
+            });
+
+            // Build the grouped notification
             return [
-                'id' => $notification->id,
-                'user_id' => $notification->user_id,
-                'action' => $notification->action,
-                'notifiable_type' => $notification->notifiable_type,
-                'notifiable_id' => $notification->notifiable_id,
-                'data' => json_decode($notification->data, true), // Ensure 'data' is decoded
-                'group_count' => $notification->group_count,
-                'is_read' => $notification->is_read,
-                'created_at' => $notification->created_at,
-                'formatted_date' => Carbon::parse($notification->created_at)->format('M d, Y - h:i A'),
-                'title' => ucfirst($notification->action),
-                'icon' => $this->getNotificationIcon($notification->action),
+                'id' => $firstNotification->id,
+                'user_id' => $firstNotification->user_id,
+                'action' => $firstNotification->action,
+                'notifiable_type' => $firstNotification->notifiable_type,
+                'notifiable_id' => $firstNotification->notifiable_id,
+                'data' => [
+                    'usernames' => $usernames,
+                    'user_count' => $userCount,
+                ],
+                'group_count' => $userCount,
+                'is_read' => $group->every(function ($notification) {
+                    return $notification->is_read;
+                }),
+                'created_at' => $firstNotification->created_at,
+                'formatted_date' => Carbon::parse($firstNotification->created_at)->format('M d, Y - h:i A'),
+                'title' => ucfirst($firstNotification->action),
+                'icon' => $this->getNotificationIcon($firstNotification->action),
             ];
-        });
+        })
+        ->values(); // Reset keys to 0, 1, 2, ...
 
     return response()->json($notifications);
 }
