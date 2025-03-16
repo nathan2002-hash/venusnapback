@@ -71,9 +71,10 @@ public function index(Request $request)
             'title' => $post->title,
             'user' => $post->user->name,
             'supporters' => (string) $post->user->supporters->count(),
-            'profile' => $post->user->profile_photo_path
-                ? asset('storage/' . $post->user->profile_photo_path)
+            'profile' => $post->user->profile_compressed
+                ? Storage::disk('s3')->url($post->user->profile_compressed)
                 : asset('default/profile.png'),
+            'description' => $post->description ?: 'No description available provided by the creator',
             'post_media' => $postMediaData,
         ];
     });
