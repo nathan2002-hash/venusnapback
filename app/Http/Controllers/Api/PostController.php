@@ -21,71 +21,70 @@ use Illuminate\Support\Facades\Validator;
 class PostController extends Controller
 {
 
-public function index(Request $request)
-{
-    // Get the page number from the request (default to 1 if not provided)
-    $page = $request->query('page', 1);
+    public function index(Request $request)
+    {
+        // Get the page number from the request (default to 1 if not provided)
+        $page = $request->query('page', 1);
 
-    // Get the limit (number of posts per page) from the request (default to 5 if not provided)
-    $limit = $request->query('limit', 5);
+        // Get the limit (number of posts per page) from the request (default to 5 if not provided)
+        $limit = $request->query('limit', 5);
 
-    // Eager load only the necessary relationships to avoid overhead
-    $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'user.supporters'])
-        ->where('status', 'active') // <-- Add this line to filter only active posts
-        ->paginate($limit, ['*'], 'page', $page);
+        // Eager load necessary relationships
+        $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
+            ->where('status', 'active') // Filter only active posts
+            ->paginate($limit, ['*'], 'page', $page);
 
-    $postsData = $posts->map(function ($post) {
-        // Transform post media data
-        $postMediaData = $post->postMedias->map(function ($media) {
+        $postsData = $posts->map(function ($post) {
+            $album = $post->album;
+            $profileUrl = asset('default/profile.png'); // Default profile
+
+            if ($album) {
+                if ($album->type == 'personal' || $album->type == 'creator') {
+                    // Personal and Creator albums
+                    $profileUrl = $album->profile_compressed
+                        ? Storage::disk('s3')->url($album->profile_compressed)
+                        : ($album->profile_original
+                            ? Storage::disk('s3')->url($album->profile_original)
+                            : asset('default/profile.png'));
+                } elseif ($album->type == 'business') {
+                    // Business albums use business logo
+                    $profileUrl = $album->business_logo_compressed
+                        ? Storage::disk('s3')->url($album->business_logo_compressed)
+                        : ($album->business_logo_original
+                            ? Storage::disk('s3')->url($album->business_logo_original)
+                            : asset('default/profile.png'));
+                }
+            }
+
+            // Transform post media data
+            $postMediaData = $post->postMedias->map(function ($media) {
+                return [
+                    'id' => $media->id,
+                    'filepath' => Storage::disk('s3')->url($media->file_path_compress),
+                    'sequence_order' => $media->sequence_order,
+                    'comments_count' => $media->comments->count(),
+                    'likes_count' => $media->admires->count(),
+                ];
+            })->toArray();
+
             return [
-                'id' => $media->id,
-                'filepath' => Storage::disk('s3')->url($media->file_path_compress),
-                'sequence_order' => $media->sequence_order,
-                'comments_count' => $media->comments->count(),
-                'likes_count' => $media->admires->count(),
-                'comments' => $media->comments->map(function ($comment) {
-                    return [
-                        'id' => $comment->id,
-                        'user' => $comment->user->name,
-                        'user_profile' => $comment->user->profile_photo_path
-                            ? asset('storage/' . $comment->user->profile_photo_path)
-                            : asset('default/profile.png'),
-                        'comment' => $comment->comment,
-                        'commentreplies' => $comment->commentreplies->map(function ($reply) {
-                            return [
-                                'id' => $reply->id,
-                                'user' => $reply->user->name,
-                                'user_profile' => $reply->user->profile_photo_path
-                                    ? asset('storage/' . $reply->user->profile_photo_path)
-                                    : asset('default/profile.png'),
-                                'reply' => $reply->reply,
-                            ];
-                        })->toArray(),
-                    ];
-                })->toArray(),
+                'id' => $post->id,
+                'user' => $album ? $album->name : 'Unknown Album',
+                'supporters' => (string) ($album ? $album->supporters->count() : 0),
+                'profile' => $profileUrl, // Profile based on album type
+                'description' => $post->description ?: 'No description available provided by the creator',
+                'post_media' => $postMediaData,
             ];
-        })->toArray();
+        });
 
-        return [
-            'id' => $post->id,
-            'title' => $post->title,
-            'user' => $post->user->name,
-            'supporters' => (string) $post->user->supporters->count(),
-            'profile' => $post->user->profile_compressed
-                ? Storage::disk('s3')->url($post->user->profile_compressed)
-                : asset('default/profile.png'),
-            'description' => $post->description ?: 'No description available provided by the creator',
-            'post_media' => $postMediaData,
-        ];
-    });
+        return response()->json([
+            'posts' => $postsData,
+            'current_page' => $posts->currentPage(),
+            'last_page' => $posts->lastPage(),
+            'total' => $posts->total(),
+        ], 200);
+    }
 
-    return response()->json([
-        'posts' => $postsData,
-        'current_page' => $posts->currentPage(),
-        'last_page' => $posts->lastPage(),
-        'total' => $posts->total(),
-    ], 200);
-}
 
 
 
