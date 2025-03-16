@@ -86,6 +86,59 @@ class PostController extends Controller
     }
 
 
+    public function show($id)
+    {
+        $post = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
+            ->where('id', $id)
+            ->where('status', 'active')
+            ->first();
+
+        if (!$post) {
+            return response()->json(['error' => 'Post not found'], 404);
+        }
+
+        $album = $post->album;
+
+        if ($album) {
+            if ($album->type == 'personal' || $album->type == 'creator') {
+                // Personal and Creator albums
+                $profileUrl = $album->thumbnail_compressed
+                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                    : ($album->thumbnail_original
+                        ? Storage::disk('s3')->url($album->thumbnail_original)
+                        : asset('default/profile.png'));
+            } elseif ($album->type == 'business') {
+                // Business albums use business logo
+                $profileUrl = $album->business_logo_compressed
+                    ? Storage::disk('s3')->url($album->business_logo_compressed)
+                    : ($album->business_logo_original
+                        ? Storage::disk('s3')->url($album->business_logo_original)
+                        : asset('default/profile.png'));
+            }
+        }
+
+        // Transform post media data
+        $postMediaData = $post->postMedias->map(function ($media) {
+            return [
+                'id' => $media->id,
+                'filepath' => Storage::disk('s3')->url($media->file_path_compress),
+                'sequence_order' => $media->sequence_order,
+                'comments_count' => $media->comments->count(),
+                'likes_count' => $media->admires->count(),
+            ];
+        })->toArray();
+
+        return response()->json([
+            'id' => $post->id,
+            'user' => $album ? $album->name : 'Unknown Album',
+            'supporters' => (string) ($album ? $album->supporters->count() : 0),
+            'profile' => $profileUrl, // Profile based on album type
+            'description' => $post->description ?: 'No description available provided by the creator',
+            'post_media' => $postMediaData,
+            'is_verified' => $album ? ($album->is_verified == 1) : false,
+        ], 200);
+    }
+
 
 
     public function store(Request $request)
