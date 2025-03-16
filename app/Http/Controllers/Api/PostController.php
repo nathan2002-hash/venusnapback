@@ -36,7 +36,6 @@ class PostController extends Controller
 
         $postsData = $posts->map(function ($post) {
             $album = $post->album;
-            $profileUrl = asset('default/profile.png'); // Default profile
 
             if ($album) {
                 if ($album->type == 'personal' || $album->type == 'creator') {
