@@ -245,13 +245,13 @@ class AlbumController extends Controller
     {
         // Fetch albums for the logged-in user
         $albums = Album::where('user_id', $request->user()->id)
-            ->select('id', 'name', 'description', 'thumbnail_original', 'thumbnail_compressed', 'type', 'created_at')
+            ->select('id', 'name', 'description', 'thumbnail_original', 'business_logo_original', 'business_logo_compressed', 'thumbnail_compressed', 'type', 'created_at')
             ->get();
 
         // Modify each album to include the proper S3 URL for thumbnails
         $albums = $albums->map(function ($album) {
             // Get the appropriate thumbnail based on the album type
-            //$thumbnailUrl = null;
+            $thumbnailUrl = null;
 
             if ($album->type == 'personal' || $album->type == 'creator') {
                 // For personal and creator, use the compressed thumbnail if it exists, otherwise use the original
