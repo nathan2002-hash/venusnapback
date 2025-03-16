@@ -289,7 +289,7 @@ class PostController extends Controller
         $comment->save();
 
         $comment->load('user');
-        $profileUrl = $comment->user->profile_photo_path ? Storage::disk('s3')->url($comment->user->profile_photo_path) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp';
+        $profileUrl = $comment->user->profile_compressed ? Storage::disk('s3')->url($comment->user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp';
 
         return response()->json([
             'id' => $comment->id,
@@ -317,7 +317,7 @@ class PostController extends Controller
         $reply->save();
 
         $reply->load('user');
-        $profileUrl = $reply->user->profile_photo_path ? Storage::disk('s3')->url($reply->user->profile_photo_path) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($reply->user->email))) . '?s=100&d=mp';
+        $profileUrl = $reply->user->profile_compressed ? Storage::disk('s3')->url($reply->user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($reply->user->email))) . '?s=100&d=mp';
 
         return response()->json([
             'id' => $reply->id,
