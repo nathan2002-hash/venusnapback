@@ -16,18 +16,18 @@ class SupportController extends Controller
     public function support(Request $request)
     {
         // Validate the request
-        $validator = Validator::make($request->all(), [
-            'postmedia' => 'required|exists:post_media,id', // Ensure postmedia exists in the post_media table
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'postmedia' => 'required|exists:post_media,id', // Ensure postmedia exists in the post_media table
+        // ]);
 
-        // If validation fails, return error response
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
+        // // If validation fails, return error response
+        // if ($validator->fails()) {
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => 'Validation failed',
+        //         'errors' => $validator->errors(),
+        //     ], 422);
+        // }
 
         // Get the authenticated user's ID
         $user_id = Auth::id();
