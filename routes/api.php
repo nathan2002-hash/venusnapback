@@ -19,7 +19,9 @@ Route::post('/google/login', 'Api\AuthController@googleLogin');
 Route::get('/posts', 'Api\PostController@index');
 Route::middleware('auth:api')->get('/user/profile', 'Api\ProfileController@index');
 Route::middleware('auth:api')->get('/user/profile/change', 'Api\ProfileController@changeprofile');
-Route::middleware('auth:api')->get('/post/comments/{postMediaId}', 'Api\PostController@getCommentsAndReplies');
+
+
+Route::middleware('auth:api')->get('/post/comments/{postMediaId}', 'Api\CommentController@getCommentsAndReplies');
 Route::middleware('auth:api')->post('/user/profile/update', 'Api\ProfileController@update');
 Route::middleware('auth:api')->post('/post/store', 'Api\PostController@store');
 Route::middleware('auth:api')->post('/post/store/cloud', 'Api\PostController@storecloud');
@@ -78,8 +80,8 @@ Route::middleware('auth:api')->get('/categories', function () {
 });
 
 Route::middleware('auth:api')->post('/post/view', 'Api\ViewController@view');
-Route::middleware('auth:api')->post('/post/comment/{id}', 'Api\PostController@storeComment');
-Route::middleware('auth:api')->post('/post/comment/reply/{id}', 'Api\PostController@storeReply');
+Route::middleware('auth:api')->post('/post/comment/{id}', 'Api\CommentController@storeComment');
+Route::middleware('auth:api')->post('/post/comment/reply/{id}', 'Api\CommentController@storeReply');
 
 Route::middleware('auth:api')->post('/logout', function (Request $request) {
     $request->user()->token()->revoke();
