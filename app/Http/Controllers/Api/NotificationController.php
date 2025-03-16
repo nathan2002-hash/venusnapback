@@ -74,4 +74,34 @@ class NotificationController extends Controller
                 return 'notifications';
         }
     }
+
+    public function markAsRead(Request $request)
+    {
+        $request->validate([
+            'post_media_id' => 'required|integer',
+        ]);
+
+        // Get the authenticated user
+        $user = $request->user();
+
+        // Find the notification by post_media_id and user_id
+        $notification = Notification::where('notifiable_id', $request->post_media_id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if ($notification) {
+            // Mark the notification as read
+            $notification->update(['is_read' => true]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Notification marked as read',
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Notification not found',
+        ], 404);
+    }
 }
