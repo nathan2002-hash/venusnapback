@@ -55,8 +55,6 @@ class PostController extends Controller
                 }
             }
 
-            $isVerified = (bool) ($album ? $album->is_verified : false);
-
             // Transform post media data
             $postMediaData = $post->postMedias->map(function ($media) {
                 return [
@@ -75,7 +73,7 @@ class PostController extends Controller
                 'profile' => $profileUrl, // Profile based on album type
                 'description' => $post->description ?: 'No description available provided by the creator',
                 'post_media' => $postMediaData,
-                'is_verified' => $isVerified,
+                'is_verified' => $album ? ($album->is_verified == 1) : false,
             ];
         });
 
