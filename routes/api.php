@@ -32,6 +32,8 @@ Route::middleware('auth:api')->get('/post/check-like', 'Api\AdmireController@che
 Route::middleware('auth:api')->post('/supporter/subscribe', 'Api\SupportController@support');
 Route::middleware('auth:api')->get('/supporter/check-support', 'Api\SupportController@checkSupport');
 
+Route::middleware('auth:api')->get('/notifications', 'Api\NotificationController@index');
+
 
 Route::middleware('auth:api')->post('/change/password', 'Api\AuthController@changePassword');
 Route::middleware('auth:api')->get('/password/activities', 'Api\AuthController@fetchPasswordActivities');
