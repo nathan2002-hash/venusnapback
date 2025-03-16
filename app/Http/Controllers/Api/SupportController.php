@@ -57,7 +57,7 @@ class SupportController extends Controller
 
         // Check if the user has already supported this post
         $existingSupport = Supporter::where('user_id', $user_id)
-            ->where('post_id', $post->id)
+            ->where('album_id', $album_id)
             ->first();
 
         if ($existingSupport) {
