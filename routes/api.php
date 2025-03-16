@@ -26,7 +26,7 @@ Route::middleware('auth:api')->post('/post/store/cloud', 'Api\PostController@sto
 
 
 Route::middleware('auth:api')->post('/post/admire', 'Api\AdmireController@admire');
-Route::middleware('auth:api')->post('/post/check-like', 'Api\AdmireController@checkLike');
+Route::middleware('auth:api')->get('/post/check-like', 'Api\AdmireController@checkLike');
 
 
 Route::middleware('auth:api')->post('/supporter/subscribe', 'Api\SupportController@support');
