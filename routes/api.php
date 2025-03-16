@@ -33,7 +33,7 @@ Route::middleware('auth:api')->post('/supporter/subscribe', 'Api\SupportControll
 Route::middleware('auth:api')->get('/supporter/check-support', 'Api\SupportController@checkSupport');
 
 Route::middleware('auth:api')->get('/notifications', 'Api\NotificationController@index');
-Route::middleware('auth:api')->get('/notifications/mark-as-read', 'Api\NotificationController@markAsRead');
+Route::middleware('auth:api')->post('/notifications/mark-as-read', 'Api\NotificationController@markAsRead');
 
 
 Route::middleware('auth:api')->post('/change/password', 'Api\AuthController@changePassword');
