@@ -226,10 +226,10 @@
                                             {{ $user->created_at->format('d M, Y') }}
                                         </td>
                                         <td>
-                                            <span class="badge-soft-success font-size-11">Active</span>
+                                            <span class="badge-soft-success font-size-11">{{ $user->status }}</span>
                                         </td>
                                         <td>
-                                            Zambia
+                                            {{ $user->country }}
                                         </td>
                                         <td>
                                             <!-- Button trigger modal -->

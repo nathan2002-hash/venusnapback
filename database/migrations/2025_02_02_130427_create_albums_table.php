@@ -22,6 +22,7 @@ return new class extends Migration
             $table->enum('visibility', ['private', 'public', 'exclusive'])->default('private');
             $table->string('thumbnail_original')->nullable(); // Path to thumbnail (Personal & Creator use this)
             $table->string('thumbnail_compressed')->nullable(); // Path to thumbnail (Personal & Creator use this)
+            $table->string('is_verified')->default(0);
 
             // Personal-specific (nothing extra in your case)
 
