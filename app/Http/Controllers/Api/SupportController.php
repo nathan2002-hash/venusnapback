@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Auth;
 
 class SupportController extends Controller
 {
-    public function subscribe(Request $request)
+
+    public function support(Request $request)
     {
         // Validate the request
         $validator = Validator::make($request->all(), [
