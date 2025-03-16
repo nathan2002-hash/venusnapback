@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Supporter extends Model
 {
-    protected $fillable = ['post_id', 'album_id', 'user_id'];
+    protected $fillable = ['post_id', 'album_id', 'user_id', 'status'];
 
     public function users(){
         return $this->hasMany(Supporter::class);
