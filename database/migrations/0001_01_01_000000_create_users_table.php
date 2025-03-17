@@ -25,6 +25,8 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('dob')->nullable();
             $table->string('gender')->nullable();
+            $table->string('tfa_code')->nullable();
+            $table->string('tfa_expires_at')->nullable();
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();

@@ -12,11 +12,14 @@ use Illuminate\Http\Request;
 use App\Jobs\RegistrationJob;
 use App\Jobs\LoginActivityJob;
 use App\Jobs\ChangePasswordJob;
+use App\Mail\TwoFactorCodeMail;
+use App\Jobs\SendTwoFactorCodeJob;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Passport\Client as PassportClient;
@@ -54,6 +57,17 @@ class AuthController extends Controller
 
         $preference = ($user->preference === null || $user->preference == 1) ? 1 : 0;
         $authe = ($user->usersetting->tfa === null || $user->usersetting->tfa == 1) ? 1 : 0;
+
+         // If 2FA is enabled, generate and send a code
+         if ($authe == 1) {
+            $code = rand(100000, 999999); // Generate a 6-digit code
+            $user->tfa_code = Hash::make($code); // Store the hashed code
+            $user->tfa_expires_at = now()->addMinutes(10); // Set expiration time
+            $user->save();
+
+            // Dispatch the email job
+            SendTwoFactorCodeJob::dispatch($user, $code);
+        }
         // Return the token and user details
         return response()->json([
             'username' => (string) $user->username,
