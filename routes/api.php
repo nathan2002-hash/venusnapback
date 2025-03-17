@@ -12,8 +12,8 @@ Route::get('/user', function (Request $request) {
 Route::post('/register', 'Api\AuthController@register');
 Route::post('/login', 'Api\AuthController@login');
 
-Route::middleware('auth:api')->get('/verify-2fa', 'Api\AuthController@verify2FA');
-Route::middleware('auth:api')->get('/resend-2fa', 'Api\AuthController@resend2FA');
+Route::middleware('auth:api')->post('/verify-2fa', 'Api\AuthController@verify2FA');
+Route::middleware('auth:api')->post('/resend-2fa', 'Api\AuthController@resend2FA');
 
 //profile routes
 //Route::get('/user/profile', 'Api\ProfileController@index');
