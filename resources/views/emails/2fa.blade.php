@@ -3,7 +3,7 @@
 
 Your Two-Factor Authentication (2FA) code is:
 
-<center># **{{ $code }}**</center>
+# **{{ $code }}**
 
 This code is valid for 10 minutes. If you did not request this, please secure your account.
 
