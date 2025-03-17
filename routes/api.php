@@ -11,13 +11,16 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/register', 'Api\AuthController@register');
 Route::post('/login', 'Api\AuthController@login');
-Route::post('/google/login', 'Api\AuthController@googleLogin');
+
+Route::middleware('auth:api')->get('/verify-2fa', 'Api\AuthController@verify2FA');
+Route::middleware('auth:api')->get('/resend-2fa', 'Api\AuthController@resend2FA');
 
 //profile routes
 //Route::get('/user/profile', 'Api\ProfileController@index');
 
 Route::get('/posts', 'Api\PostController@index');
 Route::get('/posts/{id}', 'Api\PostController@show');
+
 Route::middleware('auth:api')->get('/user/profile', 'Api\ProfileController@index');
 Route::middleware('auth:api')->get('/user/profile/change', 'Api\ProfileController@changeprofile');
 

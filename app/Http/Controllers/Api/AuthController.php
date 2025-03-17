@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Album;
 use GuzzleHttp\Client;
@@ -135,41 +136,94 @@ class AuthController extends Controller
     }
 
     public function getLoginActivities(Request $request)
-{
-    // Fetch activities where type is 'authentication'
-    $activities = Activity::where('source', 'authentication')
-        ->where('user_id', $request->user()->id) // Fetch activities for the logged-in user
-        ->select('device_info', 'ipaddress', 'created_at')
-        ->get();
+    {
+        // Fetch activities where type is 'authentication'
+        $activities = Activity::where('source', 'authentication')
+            ->where('user_id', $request->user()->id) // Fetch activities for the logged-in user
+            ->select('device_info', 'ipaddress', 'created_at')
+            ->get();
 
-    // Add location to each activity
-    $activities->transform(function ($activity) {
-        $ip = $activity->ipaddress;
-        if ($ip) {
-            $location = $this->getLocationFromIP($ip); // Get location from IP
-            $activity->location = $location;
-        } else {
-            $activity->location = 'Unknown Location'; // Handle missing IP address
-        }
-        return $activity;
-    });
+        // Add location to each activity
+        $activities->transform(function ($activity) {
+            $ip = $activity->ipaddress;
+            if ($ip) {
+                $location = $this->getLocationFromIP($ip); // Get location from IP
+                $activity->location = $location;
+            } else {
+                $activity->location = 'Unknown Location'; // Handle missing IP address
+            }
+            return $activity;
+        });
 
-    return response()->json(['activities' => $activities]);
-}
-
-// Helper function to get location from IP
-private function getLocationFromIP($ip)
-{
-    try {
-        $response = Http::get("http://ipinfo.io/{$ip}/json");
-        if ($response->successful()) {
-            $data = $response->json();
-            return $data['city'] . ', ' . $data['country'];
-        }
-    } catch (\Exception $e) {
-        // Log the error (optional)
-        Log::error("Failed to resolve location for IP {$ip}: " . $e->getMessage());
+        return response()->json(['activities' => $activities]);
     }
-    return 'Unknown Location';
-}
+
+    // Helper function to get location from IP
+    private function getLocationFromIP($ip)
+    {
+        try {
+            $response = Http::get("http://ipinfo.io/{$ip}/json");
+            if ($response->successful()) {
+                $data = $response->json();
+                return $data['city'] . ', ' . $data['country'];
+            }
+        } catch (\Exception $e) {
+            // Log the error (optional)
+            Log::error("Failed to resolve location for IP {$ip}: " . $e->getMessage());
+        }
+        return 'Unknown Location';
+    }
+
+    public function verify2FA(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|digits:6',
+        ]);
+
+        $user = Auth::user(); // Get authenticated user
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        if (!$user->tfa_code || !$user->tfa_expires_at) {
+            return response()->json(['error' => 'No 2FA code found'], 400);
+        }
+
+        // Check if the code matches and hasn't expired
+        if (Hash::check($request->code, $user->tfa_code) && Carbon::now()->lt($user->tfa_expires_at)) {
+            // Disable 2FA for this session
+            $user->tfa_code = null;
+            $user->tfa_expires_at = null;
+            $user->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => '2FA verification successful.',
+            ]);
+        }
+
+        return response()->json(['error' => 'Invalid or expired 2FA code'], 400);
+    }
+
+    public function resend2FA(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $code = rand(100000, 999999); // Generate new 6-digit code
+
+        $user->tfa_code = Hash::make($code);
+        $user->tfa_expires_at = now()->addMinutes(10);
+        $user->save();
+
+        SendTwoFactorCodeJob::dispatch($user, $code);
+        return response()->json([
+            'success' => true,
+            'message' => 'A new 2FA code has been sent to your email.',
+        ]);
+    }
 }
