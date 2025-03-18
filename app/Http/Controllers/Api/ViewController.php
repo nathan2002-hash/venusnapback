@@ -39,15 +39,21 @@ class ViewController extends Controller
         $userId = Auth::user()->id;
 
         // Fetch the post ID associated with the post_media_id
-        $postMedia = PostMedia::find($postMediaId);
-        if ($postMedia) {
-            $postId = $postMedia->post_id;
+        $postmedia = PostMedia::find($postMediaId);
+        if (!$postmedia) {
+            return response()->json(['error' => 'Post media not found'], 404);
+        }
 
-            // Update the recommendation status
-            Recommendation::where('user_id', $userId)
-                ->where('post_id', $postId)
-                ->where('status', 'active') // Only update active recommendations
-                ->update(['status' => 'seen']);
+        $postId = $postmedia->post_id;
+
+        // Update the recommendation status
+        $updated = Recommendation::where('user_id', $userId)
+            ->where('post_id', $postId)
+            ->where('status', 'active') // Only update active recommendations
+            ->update(['status' => 'seen']);
+
+        if ($updated === 0) {
+            //Log::info("No active recommendations found for user $userId and post $postId");
         }
 
         return response()->json(['message' => 'View duration tracked and recommendation marked as seen']);
