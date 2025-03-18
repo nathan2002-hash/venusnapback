@@ -43,4 +43,33 @@ class ViewController extends Controller
 
         return response()->json(['message' => 'View duration tracked and recommendation marked as seen']);
     }
+
+    public function viewpost(Request $request)
+    {
+        // Track the view duration
+        $view = new View();
+        $view->user_id = Auth::user()->id; // Authenticated user ID
+        $view->ip_address = $request->ip();
+        $view->post_media_id = $request->input('post_media_id');
+        $view->duration = $request->input('duration');
+        $view->user_agent = $request->header('User-Agent');
+        $view->save();
+
+        // Update the recommendation status to "seen"
+        $userId = Auth::user()->id;
+
+        $postId = $request->input('post_id');
+
+        // Update the recommendation status
+        $updated = Recommendation::where('user_id', $userId)
+            ->where('post_id', $postId)
+            ->where('status', 'active') // Only update active recommendations
+            ->update(['status' => 'seen']);
+
+        if ($updated === 0) {
+            //Log::info("No active recommendations found for user $userId and post $postId");
+        }
+
+        return response()->json(['message' => 'View duration tracked and recommendation marked as seen']);
+    }
 }

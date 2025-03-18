@@ -84,6 +84,9 @@ Route::middleware('auth:api')->get('/categories', function () {
 });
 
 Route::middleware('auth:api')->post('/post/view', 'Api\ViewController@view');
+Route::middleware('auth:api')->post('/post/marking/view/batch', 'Api\ViewController@viewpost');
+
+
 Route::middleware('auth:api')->post('/post/comment/{id}', 'Api\CommentController@storeComment');
 Route::middleware('auth:api')->post('/post/comment/reply/{id}', 'Api\CommentController@storeReply');
 
