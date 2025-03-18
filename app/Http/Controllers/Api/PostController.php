@@ -23,82 +23,82 @@ class PostController extends Controller
 {
 
     public function index(Request $request)
-{
-    // Get the authenticated user's ID
-    $userId = Auth::user()->id;
+    {
+        // Get the authenticated user's ID
+        $userId = Auth::user()->id;
 
-    // Get the page number from the request (default to 1 if not provided)
-    $page = $request->query('page', 1);
+        // Get the page number from the request (default to 1 if not provided)
+        $page = $request->query('page', 1);
 
-    // Get the limit (number of posts per page) from the request (default to 5 if not provided)
-    $limit = $request->query('limit', 5);
+        // Get the limit (number of posts per page) from the request (default to 5 if not provided)
+        $limit = $request->query('limit', 5);
 
-    // Fetch recommendations for the authenticated user
-    $recommendations = Recommendation::where('user_id', $userId)
-        ->where('status', 'active') // Filter only active recommendations
-        ->orderBy('score', 'desc') // Order by recommendation score (highest first)
-        ->paginate($limit, ['*'], 'page', $page);
+        // Fetch recommendations for the authenticated user
+        $recommendations = Recommendation::where('user_id', $userId)
+            ->where('status', 'active') // Filter only active recommendations
+            ->orderBy('score', 'desc') // Order by recommendation score (highest first)
+            ->paginate($limit, ['*'], 'page', $page);
 
-    // Extract post IDs from the recommendations
-    $postIds = $recommendations->pluck('post_id');
+        // Extract post IDs from the recommendations
+        $postIds = $recommendations->pluck('post_id');
 
-    // Fetch posts based on the recommended post IDs
-    $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
-        ->whereIn('id', $postIds) // Filter posts by the recommended post IDs
-        ->where('status', 'active') // Filter only active posts
-        ->get();
+        // Fetch posts based on the recommended post IDs
+        $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
+            ->whereIn('id', $postIds) // Filter posts by the recommended post IDs
+            ->where('status', 'active') // Filter only active posts
+            ->get();
 
-    // Map posts to the required format
-    $postsData = $posts->map(function ($post) {
-        $album = $post->album;
+        // Map posts to the required format
+        $postsData = $posts->map(function ($post) {
+            $album = $post->album;
 
-        if ($album) {
-            if ($album->type == 'personal' || $album->type == 'creator') {
-                // Personal and Creator albums
-                $profileUrl = $album->thumbnail_compressed
-                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
-                    : ($album->thumbnail_original
-                        ? Storage::disk('s3')->url($album->thumbnail_original)
-                        : asset('default/profile.png'));
-            } elseif ($album->type == 'business') {
-                // Business albums use business logo
-                $profileUrl = $album->business_logo_compressed
-                    ? Storage::disk('s3')->url($album->business_logo_compressed)
-                    : ($album->business_logo_original
-                        ? Storage::disk('s3')->url($album->business_logo_original)
-                        : asset('default/profile.png'));
+            if ($album) {
+                if ($album->type == 'personal' || $album->type == 'creator') {
+                    // Personal and Creator albums
+                    $profileUrl = $album->thumbnail_compressed
+                        ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                        : ($album->thumbnail_original
+                            ? Storage::disk('s3')->url($album->thumbnail_original)
+                            : asset('default/profile.png'));
+                } elseif ($album->type == 'business') {
+                    // Business albums use business logo
+                    $profileUrl = $album->business_logo_compressed
+                        ? Storage::disk('s3')->url($album->business_logo_compressed)
+                        : ($album->business_logo_original
+                            ? Storage::disk('s3')->url($album->business_logo_original)
+                            : asset('default/profile.png'));
+                }
             }
-        }
 
-        // Transform post media data
-        $postMediaData = $post->postMedias->map(function ($media) {
+            // Transform post media data
+            $postMediaData = $post->postMedias->map(function ($media) {
+                return [
+                    'id' => $media->id,
+                    'filepath' => Storage::disk('s3')->url($media->file_path_compress),
+                    'sequence_order' => $media->sequence_order,
+                    'comments_count' => $media->comments->count(),
+                    'likes_count' => $media->admires->count(),
+                ];
+            })->toArray();
+
             return [
-                'id' => $media->id,
-                'filepath' => Storage::disk('s3')->url($media->file_path_compress),
-                'sequence_order' => $media->sequence_order,
-                'comments_count' => $media->comments->count(),
-                'likes_count' => $media->admires->count(),
+                'id' => $post->id,
+                'user' => $album ? $album->name : 'Unknown Album',
+                'supporters' => (string) ($album ? $album->supporters->count() : 0),
+                'profile' => $profileUrl, // Profile based on album type
+                'description' => $post->description ?: 'No description available provided by the creator',
+                'post_media' => $postMediaData,
+                'is_verified' => $album ? ($album->is_verified == 1) : false,
             ];
-        })->toArray();
+        });
 
-        return [
-            'id' => $post->id,
-            'user' => $album ? $album->name : 'Unknown Album',
-            'supporters' => (string) ($album ? $album->supporters->count() : 0),
-            'profile' => $profileUrl, // Profile based on album type
-            'description' => $post->description ?: 'No description available provided by the creator',
-            'post_media' => $postMediaData,
-            'is_verified' => $album ? ($album->is_verified == 1) : false,
-        ];
-    });
-
-    return response()->json([
-        'posts' => $postsData,
-        'current_page' => $recommendations->currentPage(),
-        'last_page' => $recommendations->lastPage(),
-        'total' => $recommendations->total(),
-    ], 200);
-}
+        return response()->json([
+            'posts' => $postsData,
+            'current_page' => $recommendations->currentPage(),
+            'last_page' => $recommendations->lastPage(),
+            'total' => $recommendations->total(),
+        ], 200);
+    }
 
 
     public function show($id)
@@ -283,22 +283,6 @@ class PostController extends Controller
         return response()->json(['posts' => $posts]);
     }
 
-    // Example Laravel endpoint to fetch paginated posts
-    // public function getPosts(Request $request) {
-    //     $user = $request->user();
-    //     $perPage = 6; // Number of posts per page
-    //     $page = $request->query('page', 1); // Get the current page from the query
-
-    //     $posts = $user->posts()
-    //         ->with('postmedias')
-    //         ->orderBy('created_at', 'desc')
-    //         ->paginate($perPage, ['*'], 'page', $page);
-
-    //     return response()->json([
-    //         'posts' => $posts->items(),
-    //         'has_more' => $posts->hasMorePages(),
-    //     ]);
-    // }
 
     public function getPosts(Request $request) {
         $user = $request->user();
