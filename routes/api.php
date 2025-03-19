@@ -4,6 +4,7 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -29,6 +30,21 @@ Route::middleware('auth:api')->get('/post/comments/{postMediaId}', 'Api\CommentC
 Route::middleware('auth:api')->post('/user/profile/update', 'Api\ProfileController@update');
 Route::middleware('auth:api')->post('/post/store', 'Api\PostController@store');
 Route::middleware('auth:api')->post('/post/store/cloud', 'Api\PostController@storecloud');
+
+Route::middleware('auth:api')->get('/post/media/state', function (Request $request) {
+    $mediaId = $request->query('media_id');
+    $userId = auth()->id();
+
+    $isAdmired = DB::table('admires')->where('post_media_id', $mediaId)->where('user_id', $userId)->exists();
+    $isSaved = DB::table('saved')->where('post_media_id', $mediaId)->where('user_id', $userId)->exists();
+    $isReported = DB::table('reported')->where('post_media_id', $mediaId)->where('user_id', $userId)->exists();
+
+    return response()->json([
+        'isAdmired' => $isAdmired,
+        'isSaved' => $isSaved,
+        'isReported' => $isReported,
+    ]);
+});
 
 Route::middleware('auth:api')->get('/post/media/state', 'Api\PostController@mediastate');
 
