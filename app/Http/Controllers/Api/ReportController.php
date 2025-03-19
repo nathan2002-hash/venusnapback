@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Models\Report;
+use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
 {
@@ -14,4 +16,22 @@ class ReportController extends Controller
            //
         ]);
     }
+
+    public function report(Request $request)
+    {
+        // Get the authenticated user's ID
+        $user_id = Auth::id();
+
+        $report = new Report();
+        $report->user_id = $user_id;
+        $report->post_media_id = $request->media_id;
+        $report->status = 'active';
+        $report->reason = 'default reporting';
+        $report->save();
+        // Return the simplified response
+        return response()->json([
+            'status' => 'success',
+        ], 200);
+    }
+
 }
