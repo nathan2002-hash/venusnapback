@@ -31,22 +31,7 @@ Route::middleware('auth:api')->post('/user/profile/update', 'Api\ProfileControll
 Route::middleware('auth:api')->post('/post/store', 'Api\PostController@store');
 Route::middleware('auth:api')->post('/post/store/cloud', 'Api\PostController@storecloud');
 
-Route::middleware('auth:api')->get('/post/media/state', function (Request $request) {
-    $mediaId = $request->query('media_id');
-    $userId = auth()->id();
-
-    $isAdmired = DB::table('admires')->where('post_media_id', $mediaId)->where('user_id', $userId)->exists();
-    $isSaved = DB::table('saveds')->where('post_id', $mediaId)->where('user_id', $userId)->exists();
-    $isReported = DB::table('reports')->where('post_media_id', $mediaId)->where('user_id', $userId)->exists();
-
-    return response()->json([
-        'isAdmired' => $isAdmired,
-        'isSaved' => $isSaved,
-        'isReported' => $isReported,
-    ]);
-});
-
-Route::middleware('auth:api')->get('/post/media/state', 'Api\PostController@mediastate');
+Route::middleware('auth:api')->get('/post/media/state', 'Api\ViewController@more');
 
 
 Route::middleware('auth:api')->post('/post/admire', 'Api\AdmireController@admire');

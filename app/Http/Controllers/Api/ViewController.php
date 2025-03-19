@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\View;
+use App\Models\Saved;
+use App\Models\Admire;
+use App\Models\Report;
 use App\Models\PostMedia;
 use Illuminate\Http\Request;
 use App\Models\Recommendation;
@@ -71,5 +74,21 @@ class ViewController extends Controller
         }
 
         return response()->json(['message' => 'View duration tracked and recommendation marked as seen']);
+    }
+
+    public function more(Request $request)
+    {
+        $mediaId = $request->query('media_id');
+        $userId = Auth::user()->id;
+
+        $isAdmired = Admire::where('post_media_id', $mediaId)->where('user_id', $userId)->exists();
+        $isSaved = Saved::where('post_id', $mediaId)->where('user_id', $userId)->exists();
+        $isReported = Report::where('post_media_id', $mediaId)->where('user_id', $userId)->exists();
+
+        return response()->json([
+            'isAdmired' => $isAdmired,
+            'isSaved' => $isSaved,
+            'isReported' => $isReported,
+        ]);
     }
 }
