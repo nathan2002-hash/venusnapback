@@ -30,6 +30,8 @@ Route::middleware('auth:api')->post('/user/profile/update', 'Api\ProfileControll
 Route::middleware('auth:api')->post('/post/store', 'Api\PostController@store');
 Route::middleware('auth:api')->post('/post/store/cloud', 'Api\PostController@storecloud');
 
+Route::middleware('auth:api')->get('/post/media/state', 'Api\PostController@mediastate');
+
 
 Route::middleware('auth:api')->post('/post/admire', 'Api\AdmireController@admire');
 Route::middleware('auth:api')->get('/post/check-like', 'Api\AdmireController@checkLike');
