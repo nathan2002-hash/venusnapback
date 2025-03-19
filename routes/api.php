@@ -36,7 +36,7 @@ Route::middleware('auth:api')->get('/post/media/state', function (Request $reque
     $userId = auth()->id();
 
     $isAdmired = DB::table('admires')->where('post_media_id', $mediaId)->where('user_id', $userId)->exists();
-    $isSaved = DB::table('saveds')->where('post_media_id', $mediaId)->where('user_id', $userId)->exists();
+    $isSaved = DB::table('saveds')->where('post_id', $mediaId)->where('user_id', $userId)->exists();
     $isReported = DB::table('reports')->where('post_media_id', $mediaId)->where('user_id', $userId)->exists();
 
     return response()->json([
