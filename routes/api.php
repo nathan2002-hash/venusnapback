@@ -90,7 +90,7 @@ Route::middleware('auth:api')->post('/post/marking/view/batch', 'Api\ViewControl
 Route::middleware('auth:api')->post('/post/comment/{id}', 'Api\CommentController@storeComment');
 Route::middleware('auth:api')->post('/post/comment/reply/{id}', 'Api\CommentController@storeReply');
 
-Route::middleware('auth:api')->post('/api/post/report', 'Api\ReportController@report');
+Route::middleware('auth:api')->post('/post/media/report', 'Api\ReportController@report');
 
 Route::middleware('auth:api')->post('/logout', function (Request $request) {
     $request->user()->token()->revoke();
