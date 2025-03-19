@@ -81,8 +81,11 @@ class ViewController extends Controller
         $mediaId = $request->query('media_id');
         $userId = Auth::user()->id;
 
+        $postmedia = PostMedia::find($mediaId);
+        $post_id = $postmedia->post_id;
+
         $isAdmired = Admire::where('post_media_id', $mediaId)->where('user_id', $userId)->exists();
-        $isSaved = Saved::where('post_id', $mediaId)->where('user_id', $userId)->exists();
+        $isSaved = Saved::where('post_id', $post_id)->where('user_id', $userId)->exists();
         $isReported = Report::where('post_media_id', $mediaId)->where('user_id', $userId)->exists();
 
         return response()->json([
