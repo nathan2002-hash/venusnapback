@@ -19,15 +19,6 @@ class PostExploreController extends Controller
     // Get pagination parameters
     $page = $request->query('page', 1);
     $limit = $request->query('limit', 5);
-
-    // Fetch recommended post IDs
-    $recommendations = Recommendation::where('user_id', $userId)
-        ->where('status', 'active')
-        ->orderBy('score', 'desc')
-        ->paginate($limit, ['*'], 'page', $page);
-
-    $postIds = $recommendations->pluck('post_id');
-
     // Fetch posts with their media, album, and engagement data
     $posts = Post::with([
         'postmedias' => function ($query) {
@@ -37,7 +28,6 @@ class PostExploreController extends Controller
         'postmedias.admires.user',
         'album.supporters',
     ])
-    ->whereIn('id', $postIds)
     ->where('status', 'active')
     ->get();
 
@@ -89,9 +79,6 @@ class PostExploreController extends Controller
 
     return response()->json([
         'posts' => $postsData,
-        'current_page' => $recommendations->currentPage(),
-        'last_page' => $recommendations->lastPage(),
-        'total' => $recommendations->total(),
     ], 200);
 }
 
