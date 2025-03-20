@@ -18,7 +18,7 @@ class SearchController extends Controller
         $query = $request->query('q'); // Get the search query from the request
 
         // Fetch trending categories (define your own trending logic)
-        $trendingCategories = Category::orderByDesc('tag') // Assuming 'tag' tracks trends (modify as needed)
+        $trendingCategories = Category::all() // Assuming 'tag' tracks trends (modify as needed)
             ->limit(3)
             ->get()
             ->map(function ($category) {
@@ -32,51 +32,54 @@ class SearchController extends Controller
                 ];
             });
 
-            $suggestions = Post::with(['category', 'album'])
-            ->where('description', 'like', "%$query%")
-            ->orWhereHas('category', function ($q) use ($query) {
-                $q->where('name', 'like', "%$query%");
-            })
-            ->orWhereHas('album', function ($q) use ($query) {
-                $q->where('name', 'like', "%$query%");
-            })
-            ->limit(10)
-            ->get()
-            ->map(function ($post) {
-                // Determine the album's thumbnail URL based on album type
-                $thumbnailUrl = null;
-                if ($post->album) {
-                    if ($post->album->type == 'personal' || $post->album->type == 'creator') {
-                        $thumbnailUrl = $post->album->thumbnail_compressed
-                            ? Storage::disk('s3')->url($post->album->thumbnail_compressed)
-                            : ($post->album->thumbnail_original
-                                ? Storage::disk('s3')->url($post->album->thumbnail_original)
-                                : null);
-                    } elseif ($post->album->type == 'business') {
-                        $thumbnailUrl = $post->album->business_logo_compressed
-                            ? Storage::disk('s3')->url($post->album->business_logo_compressed)
-                            : ($post->album->business_logo_original
-                                ? Storage::disk('s3')->url($post->album->business_logo_original)
-                                : null);
-                    } else {
-                        $thumbnailUrl = 'https://example.com/default-thumbnail.jpg'; // Default image URL
-                    }
-                }
+            $suggestions = Post::with(['album']) // No need to load category here
+    ->where('description', 'like', "%$query%")
+    ->orWhereHas('album', function ($q) use ($query) {
+        $q->where('name', 'like', "%$query%");
+    })
+    ->limit(10)
+    ->get()
+    ->map(function ($post) {
+        // Determine the album's thumbnail URL based on album type
+        $thumbnailUrl = null;
+        if ($post->album) {
+            if ($post->album->type == 'personal' || $post->album->type == 'creator') {
+                $thumbnailUrl = $post->album->thumbnail_compressed
+                    ? Storage::disk('s3')->url($post->album->thumbnail_compressed)
+                    : ($post->album->thumbnail_original
+                        ? Storage::disk('s3')->url($post->album->thumbnail_original)
+                        : null);
+            } elseif ($post->album->type == 'business') {
+                $thumbnailUrl = $post->album->business_logo_compressed
+                    ? Storage::disk('s3')->url($post->album->business_logo_compressed)
+                    : ($post->album->business_logo_original
+                        ? Storage::disk('s3')->url($post->album->business_logo_original)
+                        : null);
+            } else {
+                $thumbnailUrl = 'https://example.com/default-thumbnail.jpg'; // Default image URL
+            }
+        }
 
-                return [
-                    'id' => $post->id,
-                    'description' => $post->description,
-                    'category' => $post->category->name ?? null,
-                    'album' => $post->album->name ?? null,
-                    'image_url' => $thumbnailUrl, // Use the dynamically determined thumbnail URL
-                    'is_trending' => false, // Not trending
-                ];
-            });
+        // Determine the category based on the album type (or post type)
+        $categoryName = null;
+        if ($post->type) { // Assuming 'type' is the category_id
+            $categoryName = Category::find($post->type)->name ?? null;
+        }
 
-        // Merge results and trending categories
-        $mergedResults = $trendingCategories->merge($suggestions);
+        return [
+            'id' => $post->id,
+            'description' => $post->description,
+            'category' => $categoryName, // Dynamically fetched category name
+            'album' => $post->album->name ?? null,
+            'image_url' => $thumbnailUrl, // Use the dynamically determined thumbnail URL
+            'is_trending' => false, // Not trending
+        ];
+    });
 
-        return response()->json($mergedResults);
+    // Merge results and trending categories
+    $mergedResults = $trendingCategories->merge($suggestions);
+
+    return response()->json($mergedResults);
     }
 
     public function logSearch(Request $request)
