@@ -97,6 +97,8 @@ Route::middleware('auth:api')->post('/post/comment/reply/{id}', 'Api\CommentCont
 Route::middleware('auth:api')->post('/post/media/report', 'Api\ReportController@report');
 Route::middleware('auth:api')->post('/post/save', 'Api\SavedController@save');
 
+Route::middleware('auth:api')->get('/search', 'Api\SearchController@search');
+
 Route::middleware('auth:api')->post('/logout', function (Request $request) {
     $request->user()->token()->revoke();
     return response()->json([
