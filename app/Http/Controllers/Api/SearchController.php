@@ -18,11 +18,6 @@ class SearchController extends Controller
     {
         $query = $request->query('q'); // Get the search query from the request
 
-        // Only log search when the query has 3 or more characters
-        if (strlen($query) >= 3) {
-            $this->logSearch($request, $query); // Call the logSearch method to log the search
-        }
-
         // Fetch trending categories (limit the query before calling get)
         $trendingCategories = Category::limit(3)
             ->get()
@@ -87,24 +82,26 @@ class SearchController extends Controller
 
         // Shuffle the merged results to randomize the order each time
         $mergedResults = $mergedResults->shuffle();
+        $resultsCount = $suggestions->count();
 
-        return response()->json($mergedResults);
+         // Only log search when the query has 3 or more characters
+         if (strlen($query) >= 3) {
+            $this->logSearch($request, $query, $resultsCount); // Call the logSearch method to log the search
+        }
+
+        return response()->json([
+            'search_query' => $query,
+            'results_count' => $resultsCount, // Include the count of results
+            'results' => $mergedResults
+        ]);
     }
 
-    public function logSearch(Request $request, $query)
+    public function logSearch(Request $request, $query, $resultsCount)
     {
         // Only log if the query length is at least 3 characters
         if (strlen($query) < 3) {
             return response()->json(['message' => 'Query must be at least 3 characters'], 400);
         }
-
-        // Dynamically track the number of results as the user types
-        $resultsCount = DB::table('posts')
-            ->where('description', 'like', "%$query%")
-            ->orWhere('type', 'like', "%$query%")
-            ->orWhere('album_id', 'like', "%$query%")
-            ->count();
-
         // Log the search with the current query and the count of results
         Search::create([
             'user_id' => Auth::check() ? Auth::id() : null, // Store user ID if logged in
