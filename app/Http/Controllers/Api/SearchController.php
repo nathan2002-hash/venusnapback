@@ -17,11 +17,13 @@ class SearchController extends Controller
     {
         $query = $request->query('q'); // Get the search query from the request
 
-        // Log the search query with the current results count
-        $this->logSearch($request); // Call the logSearch method to log the search
+        // Only log search when the query has 3 or more characters
+        if (strlen($query) >= 3) {
+            $this->logSearch($request, $query); // Call the logSearch method to log the search
+        }
 
         // Fetch trending categories (limit the query before calling get)
-        $trendingCategories = Category::limit(3) // Apply limit to the query
+        $trendingCategories = Category::limit(3)
             ->get()
             ->map(function ($category) {
                 return [
@@ -35,7 +37,7 @@ class SearchController extends Controller
             });
 
         // Search posts based on the query
-        $suggestions = Post::with(['album']) // No need to load category here
+        $suggestions = Post::with(['album'])
             ->where('description', 'like', "%$query%")
             ->orWhereHas('album', function ($q) use ($query) {
                 $q->where('name', 'like', "%$query%");
@@ -88,12 +90,11 @@ class SearchController extends Controller
         return response()->json($mergedResults);
     }
 
-    public function logSearch(Request $request)
+    public function logSearch(Request $request, $query)
     {
-        $query = $request->input('query');
-
-        if (!$query) {
-            return response()->json(['message' => 'No query provided'], 400);
+        // Only log if the query length is at least 3 characters
+        if (strlen($query) < 3) {
+            return response()->json(['message' => 'Query must be at least 3 characters'], 400);
         }
 
         // Dynamically track the number of results as the user types
@@ -113,4 +114,5 @@ class SearchController extends Controller
 
         return response()->json(['message' => 'Search logged']);
     }
+
 }
