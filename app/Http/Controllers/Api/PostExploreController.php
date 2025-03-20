@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Post;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\Recommendation;
 use App\Http\Controllers\Controller;
@@ -55,6 +56,8 @@ class PostExploreController extends Controller
             }
         }
 
+        $category = Category::find($album->type);
+
         // Transform post media
         $postMediaData = $post->postmedias->map(function ($media) {
             return [
@@ -71,7 +74,7 @@ class PostExploreController extends Controller
             'album_name' => $album ? $album->name : 'Unknown Album',
             'supporters_count' => (string) ($album ? $album->supporters->count() : 0),
             'profile' => $profileUrl,
-            'description' => $post->description ?: 'No description provided',
+            'category' => $category->name,
             'post_media' => $postMediaData,
             'is_verified' => $album ? ($album->is_verified == 1) : false,
         ];
