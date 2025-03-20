@@ -92,6 +92,7 @@ class ViewController extends Controller
             'isAdmired' => $isAdmired,
             'isSaved' => $isSaved,
             'isReported' => $isReported,
+            'url' => "https://app.venusnap.com/post/$post_id",
         ]);
     }
 }
