@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Search;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class SearchController extends Controller
 {
@@ -40,4 +42,28 @@ class SearchController extends Controller
 
         return response()->json($suggestions);
     }
+
+    public function logSearch(Request $request)
+    {
+        $query = $request->input('query');
+
+        if (!$query) {
+            return response()->json(['message' => 'No query provided'], 400);
+        }
+
+        // Save the search using Eloquent
+        Search::create([
+            'user_id' => Auth::check() ? Auth::id() : null, // Store user ID if logged in
+            'query' => $query,
+            'results_count' => DB::table('posts')
+                ->where('description', 'like', "%$query%")
+                ->orWhere('type', 'like', "%$query%")
+                ->orWhere('album_id', 'like', "%$query%")
+                ->count(),
+            'ip_address' => $request->ip(),
+        ]);
+
+        return response()->json(['message' => 'Search logged']);
+    }
+
 }
