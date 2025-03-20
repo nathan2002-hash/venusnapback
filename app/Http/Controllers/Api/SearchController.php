@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Post;
 use App\Models\Search;
 use App\Models\Category;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -73,7 +74,7 @@ class SearchController extends Controller
 
                 return [
                     'id' => $post->id,
-                    'description' => $post->description,
+                    'description' => Str::limit($post->description, 50),
                     'category' => $categoryName, // Dynamically fetched category name
                     'album' => $post->album->name ?? null,
                     'image_url' => $thumbnailUrl, // Use the dynamically determined thumbnail URL
