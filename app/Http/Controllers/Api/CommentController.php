@@ -129,21 +129,67 @@ class CommentController extends Controller
 
     public function commentdelete($id)
     {
+        // Find the comment by ID
         $comment = Comment::find($id);
-        $comment->status = 'delete';
+
+        // Check if the comment exists
+        if (!$comment) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Comment not found.'
+            ], 404);
+        }
+
+        // Check if the authenticated user is the owner of the comment
+        if (Auth::id() !== $comment->user_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to delete this comment.'
+            ], 403);
+        }
+
+        // Mark the comment as deleted
+        $comment->status = 'deleted';
         $comment->save();
+
+        // Also delete all associated replies for this comment
+        $comment->commentreplies()->update(['status' => 'deleted']);
+
         return response()->json([
             'status' => 'success',
+            'message' => 'Comment and associated replies deleted successfully.'
         ], 200);
     }
 
     public function commentreplydelete($id)
     {
+        // Find the comment reply by ID
         $commentreply = CommentReply::find($id);
-        $commentreply->status = 'delete';
+
+        // Check if the reply exists
+        if (!$commentreply) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Comment reply not found.'
+            ], 404);
+        }
+
+        // Check if the authenticated user is the owner of the reply
+        if (Auth::id() !== $commentreply->user_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to delete this reply.'
+            ], 403);
+        }
+
+        // Mark the reply as deleted
+        $commentreply->status = 'deleted';
         $commentreply->save();
+
         return response()->json([
             'status' => 'success',
+            'message' => 'Comment reply deleted successfully.'
         ], 200);
     }
+
 }
