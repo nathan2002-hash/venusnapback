@@ -130,13 +130,14 @@ class PostExploreController extends Controller
                 'supporters_count' => '0',  // Ads won't have supporters count
                 'profile' => $ad['image'],  // Treat the image as the profile URL
                 'category' => 'Advertisement',  // Category for ads
-                'post_media' => $ad['media'],  // Ad media
-                'is_verified' => false,  // Ads are not verified
                 'is_ad' => true,  // Indicating this is an ad
                 'cta_name' => $ad['cta_name'],
                 'cta_link' => $ad['cta_link'],
                 'background_color' => $ad['background_color'],
                 'tag' => $ad['tag'],
+                'post_media' => $ad['media'],  // Ad media
+                'is_verified' => false,  // Ads are not verified
+
             ];
         });
 
