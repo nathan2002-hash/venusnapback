@@ -37,19 +37,38 @@ class PostExploreController extends Controller
     $ads = [
         [
             'id' => 1,
-            'image' => 'https://venusnaplondon.s3.eu-west-2.amazonaws.com/uploads/ads/ad1.webp',  // Replace with actual image URL
+            'image' => 'https://venusnaplondon.s3.eu-west-2.amazonaws.com/uploads/ads/digitalocean.webp',  // Replace with actual image URL
             'cta_name' => 'Shop Now',
             'cta_link' => 'https://example.com/shop',
             'background_color' => '#FFD700',  // Unique background color for the ad card
             'tag' => 'ad',  // Mark this post as an ad
+            'media' => [  // Ads can have multiple media
+                [
+                    'id' => 101,
+                    'filepath' => 'https://venusnaplondon.s3.eu-west-2.amazonaws.com/uploads/ads/ad1.webp',
+                    'sequence_order' => 1
+                ],
+                [
+                    'id' => 102,
+                    'filepath' => 'https://venusnaplondon.s3.eu-west-2.amazonaws.com/uploads/ads/ad1.webp',
+                    'sequence_order' => 2
+                ]
+            ]
         ],
         [
             'id' => 2,
-            'image' => 'https://venusnaplondon.s3.eu-west-2.amazonaws.com/uploads/ads/ad2.jpeg',  // Replace with actual image URL
+            'image' => 'https://venusnaplondon.s3.eu-west-2.amazonaws.com/uploads/ads/shoprite.png',  // Replace with actual image URL
             'cta_name' => 'Learn More',
             'cta_link' => 'https://example.com/learn-more',
             'background_color' => '#FF6347',  // Unique background color for the ad card
             'tag' => 'ad',  // Mark this post as an ad
+            'media' => [  // Ads can have multiple media
+                [
+                    'id' => 201,
+                    'filepath' => 'https://venusnaplondon.s3.eu-west-2.amazonaws.com/uploads/ads/ad2.jpeg',
+                    'sequence_order' => 1
+                ]
+            ]
         ]
     ];
 
@@ -95,9 +114,18 @@ class PostExploreController extends Controller
             return $ad['id'] == $post->id;
         });
 
-        // If it's an ad, we will include the ad details
+        // If it's an ad, include ad media along with post media
         if (!empty($isAd)) {
             $ad = reset($isAd);  // Get the first ad (since IDs are unique)
+
+            // Transform ad media
+            $adMediaData = array_map(function ($media) {
+                return [
+                    'id' => $media['id'],
+                    'filepath' => $media['filepath'],
+                    'sequence_order' => $media['sequence_order'],
+                ];
+            }, $ad['media']);
 
             return [
                 'id' => $post->id,
@@ -105,7 +133,7 @@ class PostExploreController extends Controller
                 'supporters_count' => (string) ($album ? $album->supporters->count() : 0),
                 'profile' => $profileUrl,
                 'category' => $category->name,
-                'post_media' => $postMediaData,
+                'post_media' => array_merge($postMediaData, $adMediaData),  // Combine post media with ad media
                 'is_verified' => $album ? ($album->is_verified == 1) : false,
                 'is_ad' => true,
                 'cta_name' => $ad['cta_name'],
@@ -132,5 +160,6 @@ class PostExploreController extends Controller
         'posts' => $postsData,
     ], 200);
 }
+
 
 }
