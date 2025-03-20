@@ -75,6 +75,7 @@ class CommentController extends Controller
         $comment->user_id = $user->id;
         $comment->post_media_id = $id;
         $comment->comment = $request->comment;
+        $comment->status = 'active';
         $comment->save();
 
         $comment->load('user');
@@ -103,6 +104,7 @@ class CommentController extends Controller
         $reply->user_id = Auth::user()->id;
         $reply->comment_id = $id;
         $reply->reply = $request->reply;
+        $reply->status = 'active';
         $reply->save();
 
         $reply->load('user');
@@ -118,5 +120,25 @@ class CommentController extends Controller
 
             'created_at' => Carbon::parse($reply->created_at)->diffForHumans(),
         ], 201);
+    }
+
+    public function commentdelete($id)
+    {
+        $comment = Comment::find($id);
+        $comment->status = 'delete';
+        $comment->save();
+        return response()->json([
+            'status' => 'success',
+        ], 200);
+    }
+
+    public function commentreplydelete($id)
+    {
+        $commentreply = CommentReply::find($id);
+        $commentreply->status = 'delete';
+        $commentreply->save();
+        return response()->json([
+            'status' => 'success',
+        ], 200);
     }
 }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('user_id');
             $table->string('comment_id');
             $table->string('reply');
+            $table->string('status')->default('active');
             $table->timestamps();
         });
     }

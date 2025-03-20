@@ -91,8 +91,11 @@ Route::middleware('auth:api')->post('/post/view', 'Api\ViewController@view');
 Route::middleware('auth:api')->post('/post/marking/view/batch', 'Api\ViewController@viewpost');
 
 
-Route::middleware('auth:api')->post('/post/comment/{id}', 'Api\CommentController@storeComment');
-Route::middleware('auth:api')->post('/post/comment/reply/{id}', 'Api\CommentController@storeReply');
+Route::middleware('auth:api')->post('/post/delete/comment/{id}', 'Api\CommentController@storeComment');
+Route::middleware('auth:api')->post('/post/delete/comment/reply/{id}', 'Api\CommentController@storeReply');
+
+Route::middleware('auth:api')->post('/post/comment/{id}', 'Api\CommentController@commentdelete');
+Route::middleware('auth:api')->post('/post/comment/reply/{id}', 'Api\CommentController@commentreplydelete');
 
 Route::middleware('auth:api')->post('/post/media/report', 'Api\ReportController@report');
 Route::middleware('auth:api')->post('/post/save', 'Api\SavedController@save');

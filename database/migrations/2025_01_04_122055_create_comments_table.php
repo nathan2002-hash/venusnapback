@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('user_id');
             $table->string('post_media_id');
             $table->string('comment');
+            $table->string('status')->default('active');
             $table->timestamps();
         });
     }
