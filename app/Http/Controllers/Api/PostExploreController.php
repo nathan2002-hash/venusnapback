@@ -56,7 +56,7 @@ class PostExploreController extends Controller
             }
         }
 
-        $category = Category::find($album->type);
+        $category = Category::find($post->type);
 
         // Transform post media
         $postMediaData = $post->postmedias->map(function ($media) {
