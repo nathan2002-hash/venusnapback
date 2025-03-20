@@ -18,19 +18,18 @@ class SearchController extends Controller
         $query = $request->query('q'); // Get the search query from the request
 
         // Fetch trending categories (define your own trending logic)
-        $trendingCategories = Category::all() // Assuming 'tag' tracks trends (modify as needed)
-            ->limit(3)
-            ->get()
-            ->map(function ($category) {
-                return [
-                    'id' => $category->id,
-                    'description' => $category->name,
-                    'category' => $category->name,
-                    'album' => null, // No album for categories
-                    'image_url' => null, // No image for categories
-                    'is_trending' => true, // Mark as trending
-                ];
-            });
+        $trendingCategories = Category::limit(3) // Apply limit to the query
+        ->get()
+        ->map(function ($category) {
+            return [
+                'id' => $category->id,
+                'description' => $category->name,
+                'category' => $category->name,
+                'album' => null, // No album for categories
+                'image_url' => null, // No image for categories
+                'is_trending' => true, // Mark as trending
+            ];
+        });
 
             $suggestions = Post::with(['album']) // No need to load category here
     ->where('description', 'like', "%$query%")
