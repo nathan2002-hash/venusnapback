@@ -18,9 +18,12 @@ class CommentController extends Controller
         $commentPage = $request->query('comment_page', 1); // Default to page 1
         $commentLimit = $request->query('comment_limit', 10); // Default to 10 comments per page
 
-        // Fetch comments with replies, ordered by creation date (newest first)
-        $comments = Comment::with(['commentreplies.user', 'user'])
+        // Fetch comments with replies that are active, ordered by creation date (newest first)
+        $comments = Comment::with(['commentreplies' => function ($query) {
+                $query->where('status', 'active'); // Only get active replies
+            }, 'commentreplies.user', 'user'])
             ->where('post_media_id', $postMediaId)
+            ->where('status', 'active') // Only get active comments
             ->orderBy('created_at', 'desc')
             ->paginate($commentLimit, ['*'], 'comment_page', $commentPage);
 
@@ -32,6 +35,7 @@ class CommentController extends Controller
 
             // Fetch replies for the current comment with pagination
             $replies = $comment->commentreplies()
+                ->where('status', 'active') // Only get active replies
                 ->with('user')
                 ->orderBy('created_at', 'desc')
                 ->paginate($replyLimit, ['*'], 'reply_page', $replyPage);
@@ -43,7 +47,7 @@ class CommentController extends Controller
                 'profile_picture_url' => $comment->user->profile_compressed ? Storage::disk('s3')->url($comment->user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp',
                 'comment' => $comment->comment,
                 'created_at' => Carbon::parse($comment->created_at)->diffForHumans(), // Format the timestamp
-                'total_replies' => $comment->commentreplies()->count(), // Total number of replies
+                'total_replies' => $comment->commentreplies()->where('status', 'active')->count(), // Total number of active replies
                 'commentreplies' => $replies->map(function ($commentreply) {
                     return [
                         'id' => $commentreply->id,
@@ -63,6 +67,7 @@ class CommentController extends Controller
             'comments_next_page' => $comments->hasMorePages() ? $commentPage + 1 : null, // Next page for comments
         ]);
     }
+
 
     public function storeComment(Request $request, $id)
     {
