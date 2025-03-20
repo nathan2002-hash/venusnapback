@@ -20,6 +20,11 @@ Route::middleware('auth:api')->post('/resend-2fa', 'Api\AuthController@resend2FA
 //Route::get('/user/profile', 'Api\ProfileController@index');
 
 Route::middleware('auth:api')->get('/posts', 'Api\PostController@index');
+
+
+Route::middleware('auth:api')->get('/explore', 'Api\PostExploreController@index');
+
+
 Route::get('/posts/{id}', 'Api\PostController@show');
 
 Route::middleware('auth:api')->get('/user/profile', 'Api\ProfileController@index');
