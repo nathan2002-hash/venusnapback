@@ -41,6 +41,7 @@ Route::middleware('auth:api')->get('/post/check-like', 'Api\AdmireController@che
 Route::middleware('auth:api')->post('/supporter/subscribe', 'Api\SupportController@support');
 Route::middleware('auth:api')->get('/supporter/check-support', 'Api\SupportController@checkSupport');
 
+Route::middleware('auth:api')->get('/notifications/count', 'Api\NotificationController@notificationscount');
 Route::middleware('auth:api')->get('/notifications', 'Api\NotificationController@index');
 Route::middleware('auth:api')->post('/notifications/mark-as-read', 'Api\NotificationController@markAsRead');
 
