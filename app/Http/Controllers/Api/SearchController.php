@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Post;
 use App\Models\Search;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class SearchController extends Controller
 {
@@ -14,33 +17,66 @@ class SearchController extends Controller
     {
         $query = $request->query('q'); // Get the search query from the request
 
-        // Fetch suggestions from the posts table
-        $suggestions = DB::table('posts')
-            ->join('categories', 'posts.type', '=', 'categories.id') // Join categories
-            ->join('albums', 'posts.album_id', '=', 'albums.id') // Join albums
-            ->where('posts.description', 'like', "%$query%") // Search in descriptions
-            ->orWhere('categories.name', 'like', "%$query%") // Search in categories
-            ->orWhere('albums.name', 'like', "%$query%") // Search in albums
-            ->select(
-                'posts.id',
-                'posts.description',
-                'categories.name as category_name',
-                'albums.name as album_name'
-            )
-            ->limit(10) // Limit the number of suggestions
-            ->get();
+        // Fetch trending categories (define your own trending logic)
+        $trendingCategories = Category::orderByDesc('tag') // Assuming 'tag' tracks trends (modify as needed)
+            ->limit(3)
+            ->get()
+            ->map(function ($category) {
+                return [
+                    'id' => $category->id,
+                    'description' => $category->name,
+                    'category' => $category->name,
+                    'album' => null, // No album for categories
+                    'image_url' => null, // No image for categories
+                    'is_trending' => true, // Mark as trending
+                ];
+            });
 
-        // Format the suggestions
-        $suggestions = $suggestions->map(function ($post) {
-            return [
-                'id' => $post->id,
-                'description' => $post->description,
-                'category' => $post->category_name,
-                'album' => $post->album_name,
-            ];
-        });
+            $suggestions = Post::with(['category', 'album'])
+            ->where('description', 'like', "%$query%")
+            ->orWhereHas('category', function ($q) use ($query) {
+                $q->where('name', 'like', "%$query%");
+            })
+            ->orWhereHas('album', function ($q) use ($query) {
+                $q->where('name', 'like', "%$query%");
+            })
+            ->limit(10)
+            ->get()
+            ->map(function ($post) {
+                // Determine the album's thumbnail URL based on album type
+                $thumbnailUrl = null;
+                if ($post->album) {
+                    if ($post->album->type == 'personal' || $post->album->type == 'creator') {
+                        $thumbnailUrl = $post->album->thumbnail_compressed
+                            ? Storage::disk('s3')->url($post->album->thumbnail_compressed)
+                            : ($post->album->thumbnail_original
+                                ? Storage::disk('s3')->url($post->album->thumbnail_original)
+                                : null);
+                    } elseif ($post->album->type == 'business') {
+                        $thumbnailUrl = $post->album->business_logo_compressed
+                            ? Storage::disk('s3')->url($post->album->business_logo_compressed)
+                            : ($post->album->business_logo_original
+                                ? Storage::disk('s3')->url($post->album->business_logo_original)
+                                : null);
+                    } else {
+                        $thumbnailUrl = 'https://example.com/default-thumbnail.jpg'; // Default image URL
+                    }
+                }
 
-        return response()->json($suggestions);
+                return [
+                    'id' => $post->id,
+                    'description' => $post->description,
+                    'category' => $post->category->name ?? null,
+                    'album' => $post->album->name ?? null,
+                    'image_url' => $thumbnailUrl, // Use the dynamically determined thumbnail URL
+                    'is_trending' => false, // Not trending
+                ];
+            });
+
+        // Merge results and trending categories
+        $mergedResults = $trendingCategories->merge($suggestions);
+
+        return response()->json($mergedResults);
     }
 
     public function logSearch(Request $request)

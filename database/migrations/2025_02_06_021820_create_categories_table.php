@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('status')->default('active');
             $table->longText('description')->nullable();
+            $table->string('tag')->default('notpopular');
             $table->timestamps();
         });
     }
