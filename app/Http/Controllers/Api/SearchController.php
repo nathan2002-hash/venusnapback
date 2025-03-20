@@ -89,11 +89,7 @@ class SearchController extends Controller
             $this->logSearch($request, $query, $resultsCount); // Call the logSearch method to log the search
         }
 
-        return response()->json([
-            'search_query' => $query,
-            'results_count' => $resultsCount, // Include the count of results
-            'results' => $mergedResults
-        ]);
+        return response()->json($mergedResults);
     }
 
     public function logSearch(Request $request, $query, $resultsCount)
