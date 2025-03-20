@@ -103,4 +103,16 @@ class NotificationController extends Controller
             'message' => 'No notifications found',
         ], 404);
     }
+
+    public function notificationscount()
+    {
+        $user = Auth::user();
+
+        // Fetch the count of unread notifications for the user
+        $unreadCount = Notification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->count();
+
+        return response()->json(['count' => $unreadCount]);
+    }
 }
