@@ -42,7 +42,8 @@ class PostExploreController extends Controller
                 'cta_link' => 'https://example.com/shop',
                 'background_color' => '#FFD700',  // Unique background color for the ad card
                 'tag' => 'ad',  // Mark this post as an ad
-                'album_name' => 'Ad Album 1',  // Album name for the ad
+                'album_name' => 'DigitalOcean',  // Album name for the ad
+                'is_verified' => true,
                 'media' => [  // Ads can have multiple media
                     [
                         'id' => 101,
@@ -63,7 +64,8 @@ class PostExploreController extends Controller
                 'cta_link' => 'https://example.com/learn-more',
                 'background_color' => '#FF6347',  // Unique background color for the ad card
                 'tag' => 'ad',  // Mark this post as an ad
-                'album_name' => 'Ad Album 2',  // Album name for the ad
+                'album_name' => 'Shoprite',  // Album name for the ad
+                'is_verified' => true,  // Album name for the ad
                 'media' => [  // Ads can have multiple media
                     [
                         'id' => 201,
