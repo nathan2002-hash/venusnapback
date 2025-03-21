@@ -118,7 +118,7 @@ class PostExploreController extends Controller
                 'category' => $category->name,
                 'post_media' => $postMediaData,
                 'is_verified' => $album ? ($album->is_verified == 1) : false,
-                'is_ad' => false,  // Indicating this is not an ad
+                'is_ad' => true,  // Indicating this is not an ad
             ];
         });
 
