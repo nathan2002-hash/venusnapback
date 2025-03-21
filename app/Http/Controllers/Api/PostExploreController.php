@@ -136,7 +136,7 @@ class PostExploreController extends Controller
                 'background_color' => $ad['background_color'],
                 'tag' => $ad['tag'],
                 'post_media' => $ad['media'],  // Ad media
-                'is_verified' => true,  // Ads are not verified
+                'is_verified' => false,  // Ads are not verified
 
             ];
         });
