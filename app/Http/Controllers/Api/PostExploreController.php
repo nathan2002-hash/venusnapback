@@ -43,7 +43,6 @@ class PostExploreController extends Controller
                 'background_color' => '#FFD700',  // Unique background color for the ad card
                 'tag' => 'ad',  // Mark this post as an ad
                 'album_name' => 'DigitalOcean',  // Album name for the ad
-                'is_verified' => true,
                 'media' => [  // Ads can have multiple media
                     [
                         'id' => 101,
@@ -65,7 +64,6 @@ class PostExploreController extends Controller
                 'background_color' => '#FF6347',  // Unique background color for the ad card
                 'tag' => 'ad',  // Mark this post as an ad
                 'album_name' => 'Shoprite',  // Album name for the ad
-                'is_verified' => true,  // Album name for the ad
                 'media' => [  // Ads can have multiple media
                     [
                         'id' => 201,
@@ -138,7 +136,7 @@ class PostExploreController extends Controller
                 'background_color' => $ad['background_color'],
                 'tag' => $ad['tag'],
                 'post_media' => $ad['media'],  // Ad media
-                'is_verified' => false,  // Ads are not verified
+                'is_verified' => true,  // Ads are not verified
 
             ];
         });
