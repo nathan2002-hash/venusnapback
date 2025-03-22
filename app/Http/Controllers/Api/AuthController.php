@@ -168,14 +168,18 @@ class AuthController extends Controller
             ->where('source', 'Authentication')
             ->orderBy('created_at', 'desc')
             ->take(5)
-            ->get(['title', 'status', 'created_at']);
+            ->get(['title', 'status', 'created_at', 'ipaddress']); // Include 'ipaddress'
 
         // Format the activities
         $formattedActivities = $activities->map(function ($activity) {
+            $ip = $activity->ipaddress;
+            $location = $ip ? $this->getLocationFromIP($ip) : 'Unknown Location'; // Get location from IP
+
             return [
                 'action' => $activity->title,
                 'time' => $activity->created_at->format('Y-m-d H:i:s'),
                 'status' => $activity->status,
+                'location' => $location, // Add location to the response
             ];
         });
 
@@ -184,7 +188,6 @@ class AuthController extends Controller
             'data' => $formattedActivities,
         ]);
     }
-
 
     // Helper function to get location from IP
     private function getLocationFromIP($ip)
