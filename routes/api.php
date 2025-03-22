@@ -108,6 +108,8 @@ Route::middleware('auth:api')->post('/post/save', 'Api\SavedController@save');
 Route::middleware('auth:api')->get('/search', 'Api\SearchController@search');
 Route::middleware('auth:api')->post('/log-search', 'Api\SearchController@logSearch');
 
+Route::middleware('auth:api')->get('/post/history', 'Api\HistoryController@getUserHistory');
+
 Route::middleware('auth:api')->post('/logout', function (Request $request) {
     $request->user()->token()->revoke();
     return response()->json([
