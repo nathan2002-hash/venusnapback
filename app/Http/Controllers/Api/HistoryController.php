@@ -53,7 +53,7 @@ class HistoryController extends Controller
                     'albumLogo' => $profileUrl,
                     'latest_view_date' => $firstView->created_at->format('Y-m-d H:i:s'),
                     'viewed_images' => $views->map(fn($view) => [
-                        'image_url' => $view->postMedia->media_url ?? '',
+                        'image_url' => Storage::disk('s3')->url($view->postMedia->file_path_compress) ?? '',
                         'view_date' => $view->created_at->format('Y-m-d H:i:s'),
                     ])->toArray(),
                 ];
