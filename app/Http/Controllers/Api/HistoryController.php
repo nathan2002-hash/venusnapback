@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\View;
+use App\Models\Admire;
+use App\Models\Comment;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +19,7 @@ class HistoryController extends Controller
         $history = View::where('user_id', $userId)
             ->where('created_at', '>=', now()->subHours(24)) // Last 24 hours
             ->whereHas('postMedia') // Exclude views without postMedia
-            ->with(['postMedia.post.album']) // Eager load relationships
+            ->with(['postMedia.post.album', 'postMedia.post.postmedias']) // Load all related post media
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -27,6 +29,14 @@ class HistoryController extends Controller
                 $firstView = $views->first();
                 $post = $firstView->postMedia->post ?? null;
                 $album = $post->album ?? null;
+
+                // Count total admires and comments from all postmedias in the post
+                $totalAdmireCount = Admire::whereIn('post_media_id', $post->postmedias->pluck('id'))->count();
+                $totalCommentsCount = Comment::whereIn('post_media_id', $post->postmedias->pluck('id'))->count();
+                $totalMediaCount = $post->postmedias->count();
+
+                // Check if album is verified
+                $albumVerified = $album && $album->is_verified == 1;
 
                 // Determine the album profile image
                 $profileUrl = asset('default/profile.png'); // Default profile
@@ -51,9 +61,13 @@ class HistoryController extends Controller
                     'post_description' => $post->description ?? 'No description',
                     'albumName' => $album->name ?? 'Unknown',
                     'albumLogo' => $profileUrl,
+                    'album_verified' => $albumVerified,
+                    'admire_count' => $totalAdmireCount,
+                    'comments_count' => $totalCommentsCount,
+                    'media_count' => $totalMediaCount,
                     'latest_view_date' => $firstView->created_at->format('Y-m-d H:i:s'),
                     'viewed_images' => $views->map(fn($view) => [
-                        'image_url' => Storage::disk('s3')->url($view->postMedia->file_path_compress) ?? '',
+                        'image_url' => $view->postMedia->media_url ?? '',
                         'view_date' => $view->created_at->format('Y-m-d H:i:s'),
                     ])->toArray(),
                 ];
@@ -61,6 +75,7 @@ class HistoryController extends Controller
 
         return response()->json($groupedHistory);
     }
+
 
 
 }
