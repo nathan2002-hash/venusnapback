@@ -165,15 +165,15 @@ class AuthController extends Controller
 
         // Fetch the last 5 password update activities
         $activities = Activity::where('user_id', $user->id)
-            ->where('source', 'password_change')
+            ->where('source', 'Authentication')
             ->orderBy('created_at', 'desc')
             ->take(5)
-            ->get(['action', 'status', 'created_at']);
+            ->get(['title', 'status', 'created_at']);
 
         // Format the activities
         $formattedActivities = $activities->map(function ($activity) {
             return [
-                'action' => $activity->action,
+                'action' => $activity->title,
                 'time' => $activity->created_at->format('Y-m-d H:i:s'),
                 'status' => $activity->status,
             ];
