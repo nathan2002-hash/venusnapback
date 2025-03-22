@@ -103,4 +103,8 @@ class User extends Authenticatable
     public function usersetting(){
         return $this->hasOne(UserSetting::class);
     }
+
+    public function views(){
+        return $this->hasMany(View::class);
+    }
 }

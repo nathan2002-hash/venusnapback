@@ -19,4 +19,8 @@ class PostMedia extends Model
     public function admires(){
         return $this->hasMany(Admire::class);
     }
+
+    public function views(){
+        return $this->hasMany(View::class);
+    }
 }
