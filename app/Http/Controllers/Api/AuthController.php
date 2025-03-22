@@ -158,6 +158,34 @@ class AuthController extends Controller
         return response()->json(['activities' => $activities]);
     }
 
+    public function fetchPasswordActivities(Request $request)
+    {
+        // Get the authenticated user
+        $user = Auth::user();
+
+        // Fetch the last 5 password update activities
+        $activities = Activity::where('user_id', $user->id)
+            ->where('source', 'password_change')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get(['action', 'status', 'created_at']);
+
+        // Format the activities
+        $formattedActivities = $activities->map(function ($activity) {
+            return [
+                'action' => $activity->action,
+                'time' => $activity->created_at->format('Y-m-d H:i:s'),
+                'status' => $activity->status,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $formattedActivities,
+        ]);
+    }
+
+
     // Helper function to get location from IP
     private function getLocationFromIP($ip)
     {
