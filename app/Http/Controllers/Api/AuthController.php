@@ -138,10 +138,11 @@ class AuthController extends Controller
     public function getLoginActivities(Request $request)
     {
         // Fetch activities where type is 'authentication'
-        $activities = Activity::where('source', 'authentication')
+        $activities = Activity::where('source', 'Authentication')
             ->where('user_id', $request->user()->id) // Fetch activities for the logged-in user
-            ->select('device_info', 'ipaddress', 'created_at')
-            ->get();
+            ->select('device_info', 'ipaddress', 'created_at', 'title')
+            ->orderBy('created_at', 'desc') // Order by latest activities
+            ->paginate(10); // Paginate with 10 items per page
 
         // Add location to each activity
         $activities->transform(function ($activity) {
@@ -155,7 +156,7 @@ class AuthController extends Controller
             return $activity;
         });
 
-        return response()->json(['activities' => $activities]);
+        return response()->json(['activities' => $activities->items()]);
     }
 
     public function fetchPasswordActivities(Request $request)
