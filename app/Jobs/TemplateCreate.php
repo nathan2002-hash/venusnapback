@@ -34,10 +34,22 @@ class TemplateCreate implements ShouldQueue
             return; // Handle edge cases gracefully
         }
 
-        $path = $template->original_template;
-
+        $path = "https://venusnaplondon.s3.eu-west-2.amazonaws.com/uploads/templates/originals/9bTG1hcmS4u6FCH5FhJ6OH01K3FPZ9tPHf4qKXPY.jpg";
+        $context = stream_context_create([
+            "ssl" => [
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ],
+        ]);
         // Direct binary content
-        $originalImage = Storage::disk('s3')->get($path);
+        $originalImage = file_get_contents($path, false, $context);
+        //$originalImage = file_get_contents($path);
+
+        if (!$originalImage) {
+            // Log or handle the error if the image is not found or cannot be fetched
+            Log::error("Unable to fetch the image from the URL: {$path}");
+            return;
+        }
 
         $manager = new ImageManager(new GdDriver());
 

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Template;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Jobs\TemplateCreate;
+use App\Jobs\Admin\TemplateCreate;
 use Illuminate\Support\Facades\Auth;
 
 class TemplateController extends Controller
