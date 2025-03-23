@@ -44,7 +44,7 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     Route::post('/album/store', 'Admin\AlbumController@store');
 
      //recommendations routes
-     Route::get('/recommendations', 'Admin\AlbumController@index');
+     Route::get('/recommendations', 'Admin\RecommendationController@index');
      Route::get('/album/create', 'Admin\AlbumController@create');
      Route::post('/album/store', 'Admin\AlbumController@store');
 });

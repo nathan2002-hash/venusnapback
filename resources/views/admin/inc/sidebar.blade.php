@@ -115,7 +115,7 @@
                         <span key="t-blog">Recommendations</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="#" key="t-blog-list">Recommendations</a></li>
+                        <li><a href="/restricted/recommendations" key="t-blog-list">Recommendations</a></li>
                         <li><a href="#" key="t-blog-grid">Demographic</a></li>
                     </ul>
                 </li>
