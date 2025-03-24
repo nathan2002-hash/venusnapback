@@ -10,6 +10,14 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:api');
 
+Route::middleware('auth:api')->post('/logout', function (Request $request) {
+    $request->user()->token()->revoke();
+    return response()->json([
+        'message' => 'Successfully logged out'
+    ]);
+});
+
+
 Route::post('/register', 'Api\AuthController@register');
 Route::post('/login', 'Api\AuthController@login');
 
@@ -110,15 +118,10 @@ Route::middleware('auth:api')->post('/log-search', 'Api\SearchController@logSear
 
 Route::middleware('auth:api')->get('/post/history', 'Api\HistoryController@getUserHistory');
 
-Route::middleware('auth:api')->post('/logout', function (Request $request) {
-    $request->user()->token()->revoke();
-    return response()->json([
-        'message' => 'Successfully logged out'
-    ]);
-});
-
-
-
+Route::middleware('auth:api')->post('/adboard/store', 'Api\AdController@adboard');
+Route::middleware('auth:api')->post('/ad/store', 'Api\AdController@ad');
+Route::middleware('auth:api')->post('/ad/publish', 'Api\AdController@publish');
+Route::middleware('auth:api')->get('/user/ad/albums', 'Api\AdController@getUserAlbums');
 
 
 
