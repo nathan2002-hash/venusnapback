@@ -27,6 +27,7 @@ class AdController extends Controller
         $adboard->status = 'active';
         $adboard->points = $request->points;
         $adboard->description = $request->description;
+        $adboard->name = $request->name;
         $adboard->save();
         return response()->json([
             'message' => 'Adboard created successfully!',
