@@ -9,6 +9,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta content="Venusnap" name="description" />
         <meta content="Venusnap" name="author" />
+        <meta name='impact-site-verification' value='2b1b4d43-f43c-45f4-b467-812f368e9756'>
         <!-- App favicon -->
         <link rel="shortcut icon" href="assets/images/favicon.ico">
 
