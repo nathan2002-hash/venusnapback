@@ -32,7 +32,7 @@ class AdController extends Controller
         return response()->json([
             'message' => 'Adboard created successfully!',
             'adboard' => $adboard
-        ]);
+        ], 201);
     }
 
 }
