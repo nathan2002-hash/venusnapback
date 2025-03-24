@@ -31,7 +31,8 @@ class AdController extends Controller
         $adboard->save();
         return response()->json([
             'message' => 'Adboard created successfully!',
-            'adboard' => $adboard
+            'adboard' => $adboard,
+            'id' => $adboard->id
         ], 201);
     }
 
