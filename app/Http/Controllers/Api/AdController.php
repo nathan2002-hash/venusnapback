@@ -69,7 +69,7 @@ class AdController extends Controller
 
             // Process media files
             foreach ($request->media as $media) {
-                $path = $media['file']->store('ads/media', 's3');
+                $path = $media['file']->store('ads/media/original', 's3');
 
                 $media = AdMedia::create([
                     'ad_id' => $ad->id,

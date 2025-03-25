@@ -47,7 +47,7 @@ class CompressImageJob implements ShouldQueue
         $compressedImage = $image->encode(new WebpEncoder(quality: 60)); // Reduce quality for smaller file size
 
         // Store compressed image
-        $compressedPath = 'uploads/posts/compressed/' . basename($path);
+        $compressedPath = 'ads/media/compressed/' . basename($path);
         Storage::disk('s3')->put($compressedPath, (string) $compressedImage);
 
         // Update media record
