@@ -31,12 +31,11 @@ class PostExploreController extends Controller
             'postmedias.admires.user',
             'album.supporters',
         ])
-        ->where('status', 'published')
+        ->where('status', 'active')
         ->get();
 
         // Fetch ads from the database
-        $ads = Ad::with(['media', 'adboard.album'])
-            ->where('status', 'active')
+        $ads = Ad::where('status', 'published')
             ->get();
 
         // Transform posts
@@ -61,7 +60,10 @@ class PostExploreController extends Controller
                 }
             }
 
-            $category = Category::find($post->type);
+            $category = isset($post->type) ? Category::find($post->type) : null;
+            $categoryName = $category ? $category->name : 'Unknown Category';
+
+
 
             // Transform post media
             $postMediaData = $post->postmedias->map(function ($media) {
@@ -80,7 +82,7 @@ class PostExploreController extends Controller
                 'album_name' => $album ? $album->name : 'Unknown Album',
                 'supporters_count' => (string) ($album ? $album->supporters->count() : 0),
                 'profile' => $profileUrl,
-                'category' => $category->name,
+                'category' => $categoryName,
                 'post_media' => $postMediaData,
                 'is_verified' => $album ? ($album->is_verified == 1) : false,
                 'is_ad' => false,  // Indicating this is not an ad
