@@ -234,7 +234,7 @@ class AdController extends Controller
                 }),
             ];
 
-            return response()->json($response);
+            return response()->json($response, 200);
 
         } catch (\Exception $e) {
             return response()->json([
