@@ -162,7 +162,7 @@ class PostExploreController extends Controller
 
         // Get creator details
         $creator = $ad->creator;
-        $album = $creator->album ?? null;
+        $album = $ad->adboard->album ?? null;
 
         // Determine profile image
         $defaultProfile = asset('default/profile.png');
@@ -188,7 +188,7 @@ class PostExploreController extends Controller
         return response()->json([
             'media_urls' => $mediaUrls,
             'creator' => [
-                'name' => $creator->name,
+                'name' => $album->name,
                 'profile_image' => $profileImage,
                 'is_verified' => (bool) ($album ? $album->is_verified : false),
             ],
