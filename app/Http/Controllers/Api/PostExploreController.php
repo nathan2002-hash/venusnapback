@@ -143,6 +143,56 @@ class PostExploreController extends Controller
         ], 200);
     }
 
+    public function getAdById($id)
+    {
+        // Fetch the ad from the database
+        $ad = Ad::find($id);
 
+        // Check if ad exists
+        if (!$ad) {
+            return response()->json(['error' => 'Ad not found'], 404);
+        }
 
+        // Prepare media URLs
+        $mediaUrls = $ad->media->map(function ($media) {
+            return Storage::disk('s3')->url($media->file_path);
+        });
+
+        // Get creator details
+        $creator = $ad->creator;
+        $album = $creator->album ?? null;
+
+        // Determine profile image
+        $defaultProfile = asset('default/profile.png');
+        $profileImage = $defaultProfile;
+
+        if ($album) {
+            if ($album->type == 'personal' || $album->type == 'creator') {
+                $profileImage = $album->thumbnail_compressed
+                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                    : ($album->thumbnail_original
+                        ? Storage::disk('s3')->url($album->thumbnail_original)
+                        : $defaultProfile);
+            } elseif ($album->type == 'business') {
+                $profileImage = $album->business_logo_compressed
+                    ? Storage::disk('s3')->url($album->business_logo_compressed)
+                    : ($album->business_logo_original
+                        ? Storage::disk('s3')->url($album->business_logo_original)
+                        : $defaultProfile);
+            }
+        }
+
+        // Construct response
+        return response()->json([
+            'media_urls' => $mediaUrls,
+            'creator' => [
+                'name' => $creator->name,
+                'profile_image' => $profileImage,
+                'is_verified' => (bool) ($album ? $album->is_verified : false),
+            ],
+            'supporters' => $album ? $album->supporters->count() : 0,
+            'cta_name' => $ad->cta_name,
+            'cta_link' => $ad->cta_link,
+        ], 200);
+    }
 }
