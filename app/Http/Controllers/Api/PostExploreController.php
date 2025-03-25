@@ -20,7 +20,7 @@ class PostExploreController extends Controller
 
         // Get pagination parameters
         $page = $request->query('page', 1);
-        $limit = $request->query('limit', 5);
+        $limit = $request->query('limit', 12);
 
         // Fetch posts with their media, album, and engagement data
         $posts = Post::with([
