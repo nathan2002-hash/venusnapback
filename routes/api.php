@@ -119,9 +119,10 @@ Route::middleware('auth:api')->post('/log-search', 'Api\SearchController@logSear
 Route::middleware('auth:api')->get('/post/history', 'Api\HistoryController@getUserHistory');
 
 Route::middleware('auth:api')->post('/adboard/store', 'Api\AdController@adboard');
-Route::middleware('auth:api')->post('/ad/store', 'Api\AdController@ad');
+Route::middleware('auth:api')->post('/ad/store', 'Api\AdController@adstore');
 Route::middleware('auth:api')->post('/ad/publish', 'Api\AdController@publish');
 Route::middleware('auth:api')->get('/user/ad/albums', 'Api\AdController@getUserAlbums');
+Route::middleware('auth:api')->get('/ads/{id}', 'Api\AdController@show');
 
 
 

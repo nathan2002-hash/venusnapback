@@ -23,4 +23,8 @@ class Album extends Model
     public function supporters(){
         return $this->hasMany(Supporter::class);
     }
+
+    public function adboards(){
+        return $this->hasMany(Adboard::class);
+    }
 }

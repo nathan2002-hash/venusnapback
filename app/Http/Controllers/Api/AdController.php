@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use App\Models\Ad;
 use App\Models\Adboard;
+use App\Models\AdMedia;
 use Illuminate\Http\Request;
+use App\Jobs\CompressImageJob;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 
 class AdController extends Controller
 {
@@ -35,5 +41,208 @@ class AdController extends Controller
             'id' => $adboard->id
         ], 201);
     }
+
+    public function adstore(Request $request)
+    {
+
+        DB::beginTransaction();
+        try {
+            // Decode JSON fields
+            $categories = json_decode($request->categories, true);
+            $targetData = json_decode($request->target_data, true);
+
+            // Create ad
+            $ad = Ad::create([
+                'adboard_id' => $request->adboard_id,
+                'cta_name' => $request->cta_name,
+                'cta_link' => $request->cta_link,
+                'description' => $request->description,
+                'status' => 'active',
+                'target' => 'all_region',
+            ]);
+
+            // Attach categories
+            $ad->categories()->attach($categories);
+
+            // Process target data
+            $this->processTargetData($ad, $targetData);
+
+            // Process media files
+            foreach ($request->media as $media) {
+                $path = $media['file']->store('ads/media', 's3');
+
+                AdMedia::create([
+                    'ad_id' => $ad->id,
+                    'file_path' => $path,
+                    'file_path_compress' => $path,
+                    'sequence_order' => $media['sequence_order'],
+                    'status' => 'active',
+                    'type' => 'active',
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json(['id' => $ad->id], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
+    protected function processTargetData(Ad $ad, array $targetData)
+    {
+        Log::debug('Processing target data', ['target_type' => $targetData['target'] ?? 'none']);
+
+        if ($targetData['target'] === 'all_region') {
+            Log::debug('Creating all-region target');
+            $target = $ad->targets()->create([
+                'continent' => null,
+                'country' => null,
+                'status' => 'active',
+            ]);
+            Log::info('All-region target created', ['target_id' => $target->id]);
+        } else {
+            if (!empty($targetData['continents'])) {
+                Log::debug('Processing continent targets', ['count' => count($targetData['continents'])]);
+                foreach ($targetData['continents'] as $continent) {
+                    $target = $ad->targets()->create([
+                        'continent' => $continent,
+                        'country' => null,
+                        'status' => 'active',
+                    ]);
+                    Log::debug('Continent target created', [
+                        'target_id' => $target->id,
+                        'continent' => $continent
+                    ]);
+                }
+            }
+
+            if (!empty($targetData['countries'])) {
+                Log::debug('Processing country targets', ['count' => count($targetData['countries'])]);
+                foreach ($targetData['countries'] as $country) {
+                    $continent = $this->getContinentForCountry($country);
+                    $target = $ad->targets()->create([
+                        'country' => $country,
+                        'continent' => $continent,
+                        'status' => 'active',
+                    ]);
+                    Log::debug('Country target created', [
+                        'target_id' => $target->id,
+                        'country' => $country,
+                        'continent' => $continent
+                    ]);
+                }
+            }
+        }
+        Log::info('Target data processing completed');
+    }
+
+    protected function getContinentForCountry(string $country): ?string
+    {
+        $continentMap = [
+            'Nigeria' => 'Africa',
+            'Kenya' => 'Africa',
+            'South Africa' => 'Africa',
+            'India' => 'Asia',
+            'China' => 'Asia',
+            'Japan' => 'Asia',
+            'Germany' => 'Europe',
+            'France' => 'Europe',
+            'UK' => 'Europe',
+            'USA' => 'North America',
+            'Canada' => 'North America',
+            'Mexico' => 'North America',
+            'Brazil' => 'South America',
+            'Argentina' => 'South America',
+            'Chile' => 'South America',
+        ];
+
+        $continent = $continentMap[$country] ?? null;
+
+        if (!$continent) {
+            Log::warning('Continent not found for country', ['country' => $country]);
+        }
+
+        return $continent;
+    }
+
+    public function show($id)
+    {
+        try {
+            $ad = Ad::with(['media', 'adboard.album', 'categories', 'targets'])
+                ->findOrFail($id);
+
+            // Get the album details via adboard
+            $album = $ad->adboard->album ?? null;
+
+            // Get the number of supporters for the album
+            $supportersCount = $album ? $album->supporters()->count() : 0;
+
+            // Default profile image
+            $defaultProfile = asset('images/default-profile.png');
+
+            // Determine the profile image based on album type
+            $profileUrl = $defaultProfile;
+
+            if ($album) {
+                if (in_array($album->type, ['personal', 'creator'])) {
+                    $profileUrl = $album->thumbnail_compressed
+                        ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                        : ($album->thumbnail_original
+                            ? Storage::disk('s3')->url($album->thumbnail_original)
+                            : $defaultProfile);
+                } elseif ($album->type === 'business') {
+                    $profileUrl = $album->business_logo_compressed
+                        ? Storage::disk('s3')->url($album->business_logo_compressed)
+                        : ($album->business_logo_original
+                            ? Storage::disk('s3')->url($album->business_logo_original)
+                            : $defaultProfile);
+                }
+            }
+
+            // Format the response data
+            $response = [
+                'id' => $ad->id,
+                'title' => $ad->name ?? 'No Title',
+                'description' => $ad->description,
+                'cta_name' => $ad->cta_name,
+                'cta_link' => $ad->cta_link,
+                'status' => $ad->status,
+                'created_at' => $ad->created_at->toDateTimeString(),
+                'creator' => [
+                    'name' => $album->name ?? 'Unknown Album',
+                    'is_verified' => $album->is_verified ?? false,
+                    'profile_image' => $profileUrl,
+                ],
+                'media_urls' => $ad->media->map(function ($media) {
+                    return [
+                        'url' => $media->file_path ? Storage::disk('s3')->url($media->file_path) : null,
+                        'type' => $media->type,
+                        'sequence_order' => $media->sequence_order,
+                    ];
+                })->sortBy('sequence_order')->pluck('url'),
+                'supporters' => $supportersCount,
+                'categories' => $ad->categories->pluck('name'),
+                'target_data' => $ad->targets->map(function ($target) {
+                    return [
+                        'continent' => $target->continent,
+                        'country' => $target->country,
+                    ];
+                }),
+            ];
+
+            return response()->json($response);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Ad not found',
+                'message' => $e->getMessage()
+            ], 404);
+        }
+    }
+
 
 }

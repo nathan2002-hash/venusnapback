@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('ads', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('adboard_id');
-            $table->string('category');
-            $table->string('ag_type');
+            $table->string('adboard_id');
+            $table->string('category')->nullable();
+            $table->string('ag_type')->nullable();
             $table->string('cta_name');
             $table->string('cta_link');
             $table->string('status');
             $table->text('ag_description')->nullable();
             $table->text('description')->nullable();
-            $table->enum('target', ['all_region', 'specify']);
+            $table->enum('target', ['all_region', 'specify'])->nullable();
             $table->timestamps();
         });
     }

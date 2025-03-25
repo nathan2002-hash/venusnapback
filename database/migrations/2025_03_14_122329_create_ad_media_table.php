@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('ad_id');
             $table->string('file_path');
-            $table->string('file_path_compress');
+            $table->string('file_path_compress')->nullable();
+            $table->string('sequence_order');
             $table->string('status');
             $table->string('type');
             $table->text('object')->nullable();
