@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Ad;
 use App\Models\Post;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class PostExploreController extends Controller
 {
-    public function index(Request $request)
+    public function indexd(Request $request)
     {
         // Get authenticated user's ID
         $userId = Auth::id();
@@ -138,6 +139,135 @@ class PostExploreController extends Controller
                 'post_media' => $ad['media'],  // Ad media
                 'is_verified' => false,  // Ads are not verified
 
+            ];
+        });
+
+        // Merge posts and ads together and shuffle them
+        $combined = $combined->merge($adsData)->shuffle();
+
+        // Paginate the results if needed
+        $paginatedResults = $combined->forPage($page, $limit);
+
+        return response()->json([
+            'posts' => $paginatedResults,
+        ], 200);
+    }
+    public function index(Request $request)
+    {
+        // Get authenticated user's ID
+        $userId = Auth::id();
+
+        // Get pagination parameters
+        $page = $request->query('page', 1);
+        $limit = $request->query('limit', 5);
+
+        // Fetch posts with their media, album, and engagement data
+        $posts = Post::with([
+            'postmedias' => function ($query) {
+                $query->orderBy('sequence_order', 'asc');
+            },
+            'postmedias.comments.user',
+            'postmedias.admires.user',
+            'album.supporters',
+        ])
+        ->where('status', 'active')
+        ->get();
+
+        // Fetch ads from the database
+        $ads = Ad::with(['media', 'adboard.album'])
+            ->where('status', 'active')
+            ->get();
+
+        // Transform posts
+        $combined = $posts->map(function ($post) {
+            $album = $post->album;
+            $defaultProfile = asset('default/profile.png');
+            $profileUrl = $defaultProfile;
+
+            if ($album) {
+                if (in_array($album->type, ['personal', 'creator'])) {
+                    $profileUrl = $album->thumbnail_compressed
+                        ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                        : ($album->thumbnail_original
+                            ? Storage::disk('s3')->url($album->thumbnail_original)
+                            : $defaultProfile);
+                } elseif ($album->type === 'business') {
+                    $profileUrl = $album->business_logo_compressed
+                        ? Storage::disk('s3')->url($album->business_logo_compressed)
+                        : ($album->business_logo_original
+                            ? Storage::disk('s3')->url($album->business_logo_original)
+                            : $defaultProfile);
+                }
+            }
+
+            $category = Category::find($post->type);
+
+            // Transform post media
+            $postMediaData = $post->postmedias->map(function ($media) {
+                return [
+                    'id' => $media->id,
+                    'filepath' => Storage::disk('s3')->url($media->file_path_compress),
+                    'sequence_order' => $media->sequence_order,
+                    'comments_count' => $media->comments->count(),
+                    'likes_count' => $media->admires->count(),
+                ];
+            })->toArray();
+
+            // Return the post data
+            return [
+                'id' => $post->id,
+                'album_name' => $album ? $album->name : 'Unknown Album',
+                'supporters_count' => (string) ($album ? $album->supporters->count() : 0),
+                'profile' => $profileUrl,
+                'category' => $category->name,
+                'post_media' => $postMediaData,
+                'is_verified' => $album ? ($album->is_verified == 1) : false,
+                'is_ad' => false,  // Indicating this is not an ad
+            ];
+        });
+
+        // Transform ads from the database
+        $adsData = $ads->map(function ($ad) {
+            $album = $ad->adboard->album ?? null;
+            $defaultProfile = asset('default/profile.png');
+
+            $profileUrl = $defaultProfile;
+
+            if ($album) {
+                if (in_array($album->type, ['personal', 'creator'])) {
+                    $profileUrl = $album->thumbnail_compressed
+                        ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                        : ($album->thumbnail_original
+                            ? Storage::disk('s3')->url($album->thumbnail_original)
+                            : $defaultProfile);
+                } elseif ($album->type === 'business') {
+                    $profileUrl = $album->business_logo_compressed
+                        ? Storage::disk('s3')->url($album->business_logo_compressed)
+                        : ($album->business_logo_original
+                            ? Storage::disk('s3')->url($album->business_logo_original)
+                            : $defaultProfile);
+                }
+            }
+
+            return [
+                'id' => $ad->id,
+                'album_name' => $album ? $album->name : 'Unknown Album',
+                'supporters_count' => '0',  // Ads won't have supporters count
+                'profile' => $profileUrl,
+                'category' => 'Advertisement',  // Category for ads
+                'is_ad' => true,  // Indicating this is an ad
+                'cta_name' => $ad->cta_name,
+                'cta_link' => $ad->cta_link,
+                'background_color' => '#FFD700', // Default ad background color
+                'tag' => 'ad',
+                'post_media' => $ad->media->map(function ($media) {
+                    return [
+                        'id' => $media->id,
+                        'filepath' => Storage::disk('s3')->url($media->file_path),
+                        'sequence_order' => $media->sequence_order,
+                    ];
+                })->toArray(),
+                'is_verified' => false,  // Ads are not verified
             ];
         });
 
