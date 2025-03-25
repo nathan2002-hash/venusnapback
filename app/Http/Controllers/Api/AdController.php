@@ -6,7 +6,7 @@ use App\Models\Ad;
 use App\Models\Adboard;
 use App\Models\AdMedia;
 use Illuminate\Http\Request;
-use App\Jobs\CompressImageJob;
+use App\Jobs\AdImageCompress;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -71,14 +71,14 @@ class AdController extends Controller
             foreach ($request->media as $media) {
                 $path = $media['file']->store('ads/media', 's3');
 
-                AdMedia::create([
+                $media = AdMedia::create([
                     'ad_id' => $ad->id,
                     'file_path' => $path,
-                    'file_path_compress' => $path,
                     'sequence_order' => $media['sequence_order'],
                     'status' => 'active',
                     'type' => 'active',
                 ]);
+                AdImageCompress::dispatch($media->fresh());
             }
 
             DB::commit();

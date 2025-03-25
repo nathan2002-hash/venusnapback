@@ -2,26 +2,25 @@
 
 namespace App\Jobs;
 
-use App\Models\PostMedia;
-use Intervention\Image\Image;
-use Intervention\Image\Drivers\Gd\Driver as GdDriver;
-use Intervention\Image\ImageManager;
+use App\Models\AdMedia;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Intervention\Image\Encoders\WebpEncoder;
+use Intervention\Image\Drivers\Gd\Driver as GdDriver;
+use Intervention\Image\ImageManager;
 
-class CompressImageJob implements ShouldQueue
+class AdImageCompress implements ShouldQueue
 {
     use Queueable;
-    public $postMedia;
+    public $media;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(PostMedia $postMedia)
+    public function __construct(AdMedia $media)
     {
-        $this->postMedia = $postMedia;
+        $this->media = $media;
     }
 
     /**
@@ -29,7 +28,7 @@ class CompressImageJob implements ShouldQueue
      */
     public function handle()
     {
-        $path = $this->postMedia->file_path;
+        $path = $this->media->file_path;
         $originalImage = Storage::disk('s3')->get($path);
 
         $manager = new ImageManager(new GdDriver());
@@ -44,25 +43,25 @@ class CompressImageJob implements ShouldQueue
         }
 
         // Compress to WebP with a lower quality for better performance
-        $compressedImage = $image->encode(new WebpEncoder(quality: 60)); // Reduce quality for smaller file size
+        $compressedImage = $image->encode(new WebpEncoder(quality: 75)); // Reduce quality for smaller file size
 
         // Store compressed image
-        $compressedPath = 'uploads/posts/compressed/' . basename($path);
+        $compressedPath = 'uploads/ads/compressed/' . basename($path);
         Storage::disk('s3')->put($compressedPath, (string) $compressedImage);
 
         // Update media record
-        $this->postMedia->update([
+        $this->media->update([
             'status' => 'compressed',
             'file_path_compress' => $compressedPath,
         ]);
 
         // Check if all media for the post are compressed
-        $post = $this->postMedia->post; // Assuming PostMedia belongsTo Post
+        $ad = $this->media->post; // Assuming PostMedia belongsTo Post
 
-        $allCompressed = $post->postmedias()->where('status', '!=', 'compressed')->doesntExist();
+        $allCompressed = $ad->media()->where('status', '!=', 'compressed')->doesntExist();
 
         if ($allCompressed) {
-            $post->update(['status' => 'active']);
+            $ad->update(['status' => 'active']);
         }
     }
 }
