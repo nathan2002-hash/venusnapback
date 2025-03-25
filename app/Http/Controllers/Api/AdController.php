@@ -244,5 +244,15 @@ class AdController extends Controller
         }
     }
 
-
+    public function publish(Request $request)
+    {
+        $ad = Ad::find($request->ad_id);
+        $ad->status = 'published';
+        $ad->save();
+        return response()->json([
+            'message' => 'Adboard created successfully!',
+            'ad' => $ad,
+            'id' => $ad->id
+        ], 200);
+    }
 }
