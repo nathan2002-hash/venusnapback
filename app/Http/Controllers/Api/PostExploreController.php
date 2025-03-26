@@ -8,6 +8,8 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\Recommendation;
 use App\Http\Controllers\Controller;
+use App\Models\AdImpression;
+use App\Models\AdSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -196,5 +198,27 @@ class PostExploreController extends Controller
             'cta_name' => $ad->cta_name,
             'cta_link' => $ad->cta_link,
         ], 200);
+    }
+
+    public function sendAdSeenRequest(Request $request)
+    {
+        $ad = Ad::find($request->ad_id);
+
+        //session
+        $session = new AdSession();
+        $session->ip_address = $request->ip();
+        $session->user_id = Auth::user()->id;
+        $session->device_info = $request->header('Device-Info');
+        $session->user_agent = $request->header('User-Agent');
+        $session->save();
+
+        //impressions
+        $impression = new AdImpression();
+        $impression->ad_id = $ad->id;
+        $impression->user_id = Auth::user()->id;
+        $impression->ad_session_id = $session->id;
+        $impression->points_used = 1;
+        $impression->save();
+        return response()->json(200);
     }
 }

@@ -125,6 +125,7 @@ Route::middleware('auth:api')->post('/ad/publish', 'Api\AdController@publish');
 Route::middleware('auth:api')->get('/user/ad/albums', 'Api\AdController@getUserAlbums');
 Route::middleware('auth:api')->get('/ads/{id}', 'Api\AdController@show');
 
+Route::middleware('auth:api')->post('/ad/seen', 'Api\PostExploreController@sendAdSeenRequest');
 
 
 

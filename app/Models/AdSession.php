@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class AdSession extends Model
 {
-    //
+    protected $fillable = ['ip_address', 'user_id', 'device_info', 'user_agent'];
 }
