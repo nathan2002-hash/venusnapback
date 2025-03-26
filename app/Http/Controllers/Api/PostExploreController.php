@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Ad;
 use App\Models\Post;
+use App\Models\Adboard;
 use App\Models\Category;
+use App\Models\AdSession;
+use App\Models\AdImpression;
 use Illuminate\Http\Request;
 use App\Models\Recommendation;
 use App\Http\Controllers\Controller;
-use App\Models\AdImpression;
-use App\Models\AdSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -204,6 +205,10 @@ class PostExploreController extends Controller
     {
         $ad = Ad::find($request->ad_id);
 
+        $adboard = Adboard::find($ad->aboard_id);
+
+        $adboard->decrement('points', 1);
+
         //session
         $session = new AdSession();
         $session->ip_address = $request->ip();
@@ -219,6 +224,6 @@ class PostExploreController extends Controller
         $impression->ad_session_id = $session->id;
         $impression->points_used = 1;
         $impression->save();
-        return response()->json(200);
+        return response()->json(['message' => 'Ad'], 200);
     }
 }
