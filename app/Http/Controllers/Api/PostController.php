@@ -138,7 +138,7 @@ class PostController extends Controller
             $request->ip(),
             $request->header('User-Agent'),
             $request->header('Device-Info'),
-            0 // Initial duration, can be updated later
+            6 // Initial duration, can be updated later
         );
         // Transform post media data
         $postMediaData = $post->postMedias->map(function ($media) {
