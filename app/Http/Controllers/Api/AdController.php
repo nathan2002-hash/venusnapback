@@ -173,7 +173,6 @@ class AdController extends Controller
 
     public function show($id)
     {
-        $user = Auth::user();
         try {
             $ad = Ad::with(['media', 'adboard.album', 'categories', 'targets'])
                 ->findOrFail($id);
@@ -206,16 +205,6 @@ class AdController extends Controller
                 }
             }
 
-            $existingSupport = Supporter::where('user_id', $user->id)
-            ->where('album_id', $album->id)
-            ->first();
-
-            if ($existingSupport) {
-                $supportstatus = true;
-            } else {
-                $supportstatus = false;
-            }
-
             // Format the response data
             $response = [
                 'id' => $ad->id,
@@ -238,7 +227,6 @@ class AdController extends Controller
                     ];
                 })->sortBy('sequence_order')->pluck('url'),
                 'supporters' => $supportersCount,
-                'support' => $supportstatus,
                 'categories' => $ad->categories->pluck('name'),
                 'target_data' => $ad->targets->map(function ($target) {
                     return [

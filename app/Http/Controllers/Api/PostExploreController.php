@@ -8,11 +8,12 @@ use App\Models\Adboard;
 use App\Jobs\AdClickJob;
 use App\Models\Category;
 use App\Models\AdSession;
+use App\Models\Supporter;
+use App\Models\AdCtaClick;
 use App\Models\AdImpression;
 use Illuminate\Http\Request;
 use App\Models\Recommendation;
 use App\Http\Controllers\Controller;
-use App\Models\AdCtaClick;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -158,6 +159,8 @@ class PostExploreController extends Controller
         // Fetch the ad from the database
         $ad = Ad::find($id);
 
+        $user = Auth::user();
+
         // Check if ad exists
         if (!$ad) {
             return response()->json(['error' => 'Ad not found'], 404);
@@ -169,6 +172,16 @@ class PostExploreController extends Controller
         });
 
         $album = $ad->adboard->album ?? null;
+
+        $existingSupport = Supporter::where('user_id', $user->id)
+            ->where('album_id', $album->id)
+            ->first();
+
+            if ($existingSupport) {
+                $supportstatus = true;
+            } else {
+                $supportstatus = false;
+            }
 
         // Determine profile image
         $defaultProfile = asset('default/profile.png');
@@ -207,6 +220,7 @@ class PostExploreController extends Controller
                 'is_verified' => (bool) ($album ? $album->is_verified : false),
             ],
             'supporters' => $album ? $album->supporters->count() : 0,
+            'support' => $supportstatus,
             'cta_name' => $ad->cta_name,
             'cta_link' => $ad->cta_link,
         ], 200);
