@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('duration');
             $table->string('post_media_id');
             $table->longText('user_agent');
+            $table->longText('device_info')->nullable();
             $table->timestamps();
         });
     }

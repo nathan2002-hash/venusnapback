@@ -12,6 +12,7 @@ use App\Models\PostMedia;
 use App\Models\CommentReply;
 use Illuminate\Http\Request;
 use App\Jobs\CompressImageJob;
+use App\Jobs\LogPostMediaView;
 use App\Models\Recommendation;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -101,7 +102,7 @@ class PostController extends Controller
     }
 
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $post = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
             ->where('id', $id)
@@ -131,7 +132,14 @@ class PostController extends Controller
                         : asset('default/profile.png'));
             }
         }
-
+        LogPostMediaView::dispatch(
+            $id,
+            Auth::user()->id,
+            $request->ip(),
+            $request->header('User-Agent'),
+            $request->header('Device-Info'),
+            0 // Initial duration, can be updated later
+        );
         // Transform post media data
         $postMediaData = $post->postMedias->map(function ($media) {
             return [

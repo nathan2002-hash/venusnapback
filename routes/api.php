@@ -33,7 +33,7 @@ Route::middleware('auth:api')->get('/posts', 'Api\PostController@index');
 Route::middleware('auth:api')->get('/explore', 'Api\PostExploreController@index');
 
 
-Route::get('/posts/{id}', 'Api\PostController@show');
+Route::middleware('auth:api')->get('/posts/{id}', 'Api\PostController@show');
 
 Route::middleware('auth:api')->get('/user/profile', 'Api\ProfileController@index');
 Route::middleware('auth:api')->get('/user/profile/change', 'Api\ProfileController@changeprofile');
