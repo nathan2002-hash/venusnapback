@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Ad;
 use App\Models\Post;
 use App\Models\Adboard;
+use App\Jobs\AdClickJob;
 use App\Models\Category;
 use App\Models\AdSession;
 use App\Models\AdImpression;
@@ -151,7 +152,7 @@ class PostExploreController extends Controller
         ], 200);
     }
 
-    public function getAdById($id)
+    public function getAdById(Request $request, $id)
     {
         // Fetch the ad from the database
         $ad = Ad::find($id);
@@ -166,8 +167,6 @@ class PostExploreController extends Controller
             return Storage::disk('s3')->url($media->file_path);
         });
 
-        // Get creator details
-        $creator = $ad->creator;
         $album = $ad->adboard->album ?? null;
 
         // Determine profile image
@@ -189,6 +188,14 @@ class PostExploreController extends Controller
                         : $defaultProfile);
             }
         }
+
+        AdClickJob::dispatch(
+            $ad->id,
+            $request->ip(),
+            $request->header('Device-Info'),
+            $request->header('User-Agent'),
+            Auth::user()->id
+        );
 
         // Construct response
         return response()->json([
