@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Models\Ad;
 use App\Models\Adboard;
 use App\Models\AdMedia;
+use App\Models\Supporter;
 use Illuminate\Http\Request;
 use App\Jobs\AdImageCompress;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class AdController extends Controller
@@ -171,6 +173,7 @@ class AdController extends Controller
 
     public function show($id)
     {
+        $user = Auth::user();
         try {
             $ad = Ad::with(['media', 'adboard.album', 'categories', 'targets'])
                 ->findOrFail($id);
@@ -203,6 +206,16 @@ class AdController extends Controller
                 }
             }
 
+            $existingSupport = Supporter::where('user_id', $user->id)
+            ->where('album_id', $album->id)
+            ->first();
+
+            if ($existingSupport) {
+                $supportstatus = true;
+            } else {
+                $supportstatus = false;
+            }
+
             // Format the response data
             $response = [
                 'id' => $ad->id,
@@ -225,6 +238,7 @@ class AdController extends Controller
                     ];
                 })->sortBy('sequence_order')->pluck('url'),
                 'supporters' => $supportersCount,
+                'support' => $supportstatus,
                 'categories' => $ad->categories->pluck('name'),
                 'target_data' => $ad->targets->map(function ($target) {
                     return [
