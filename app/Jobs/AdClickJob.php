@@ -41,7 +41,7 @@ class AdClickJob implements ShouldQueue
         if (!$adboard || $adboard->points <= 0) {
             return response()->json(['error' => 'Adboard not found or insufficient points'], 400);
         }
-        $adboard->decrement('points', 1);
+        $adboard->decrement('points', 2);
 
         //session
         $session = new AdSession();
