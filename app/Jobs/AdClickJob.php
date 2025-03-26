@@ -56,7 +56,7 @@ class AdClickJob implements ShouldQueue
         $adclick->ad_id = $this->ad_id;
         $adclick->user_id = $this->user_id;
         $adclick->ad_session_id = $session->id;
-        $adclick->points_used = 1;
+        $adclick->points_used = 2;
         $adclick->save();
     }
 }
