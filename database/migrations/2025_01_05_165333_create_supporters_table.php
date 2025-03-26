@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('album_id');
             $table->string('post_id')->nullable();
+            $table->string('ad_id')->nullable();
+            $table->string('board_id')->nullable();
             $table->string('user_id');
             $table->string('status');
             $table->timestamps();

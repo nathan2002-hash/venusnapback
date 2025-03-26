@@ -12,6 +12,7 @@ use App\Models\AdImpression;
 use Illuminate\Http\Request;
 use App\Models\Recommendation;
 use App\Http\Controllers\Controller;
+use App\Models\AdCtaClick;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -238,5 +239,34 @@ class PostExploreController extends Controller
         $impression->points_used = 1;
         $impression->save();
         return response()->json(['message' => 'Ad'], 200);
+    }
+
+    public function sendAdCtaClick(Request $request, $id)
+    {
+        $ad = Ad::find($id);
+
+        $adboard = Adboard::find($ad->adboard_id);
+        if (!$adboard || $adboard->points <= 0) {
+            return response()->json(['error' => 'Adboard not found or insufficient points'], 400);
+        }
+
+        $adboard->decrement('points', 2);
+
+        //session
+        $session = new AdSession();
+        $session->ip_address = $request->ip();
+        $session->user_id = Auth::user()->id;
+        $session->device_info = $request->header('Device-Info');
+        $session->user_agent = $request->header('User-Agent');
+        $session->save();
+
+        //impressions
+        $adcta = new AdCtaClick();
+        $adcta->ad_id = $ad->id;
+        $adcta->user_id = Auth::user()->id;
+        $adcta->ad_session_id = $session->id;
+        $adcta->points_used = 2;
+        $adcta->save();
+        return response()->json(['message' => 'Ad Cta'], 200);
     }
 }

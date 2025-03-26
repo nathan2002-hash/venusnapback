@@ -52,7 +52,8 @@ Route::middleware('auth:api')->post('/post/admire', 'Api\AdmireController@admire
 Route::middleware('auth:api')->get('/post/check-like', 'Api\AdmireController@checkLike');
 
 
-Route::middleware('auth:api')->post('/supporter/subscribe', 'Api\SupportController@support');
+Route::middleware('auth:api')->post('/supporter/subscribe', 'Api\SupportController@supportpost');
+Route::middleware('auth:api')->post('/supporter/subscribe/ad/{id}', 'Api\SupportController@supportad');
 Route::middleware('auth:api')->get('/supporter/check-support', 'Api\SupportController@checkSupport');
 
 Route::middleware('auth:api')->get('/notifications/count', 'Api\NotificationController@notificationscount');
@@ -126,6 +127,7 @@ Route::middleware('auth:api')->get('/user/ad/albums', 'Api\AdController@getUserA
 Route::middleware('auth:api')->get('/ads/{id}', 'Api\AdController@show');
 
 Route::middleware('auth:api')->post('/ad/seen', 'Api\PostExploreController@sendAdSeenRequest');
+Route::middleware('auth:api')->post('/ad/cta/click/{id}', 'Api\PostExploreController@sendAdCtaClick');
 
 
 
