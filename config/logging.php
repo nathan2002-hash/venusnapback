@@ -58,11 +58,20 @@ return [
             'ignore_exceptions' => false,
         ],
 
+        // 's3' => [
+        //     'driver' => 's3',
+        //     'level' => 'debug', // or any level you want (info, error, etc.)
+        //     'path' => 'logs/laravel.log', // Path to save logs in S3
+        //     'disk' => 's3',
+        // ],
         's3' => [
             'driver' => 's3',
-            'level' => 'debug', // or any level you want (info, error, etc.)
-            'path' => 'logs/laravel.log', // Path to save logs in S3
-            'disk' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('AWS_BUCKET'),
+            'path' => 'logs/laravel.log',
+            'level' => 'error',  // Only errors
         ],
 
         'single' => [
