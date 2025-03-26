@@ -39,7 +39,10 @@ class PostExploreController extends Controller
 
         // Fetch ads from the database
         $ads = Ad::where('status', 'published')
-            ->get();
+        ->whereHas('adboard', function ($query) {
+            $query->where('points', '>', 0);
+        })
+        ->get();
 
         // Transform posts
         $combined = $posts->map(function ($post) {
