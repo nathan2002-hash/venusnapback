@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends Controller
 {
-    public function createPaymentIntent(Request $request)
+    public function payment(Request $request)
     {
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
