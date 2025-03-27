@@ -129,7 +129,8 @@ Route::middleware('auth:api')->get('/ads/{id}', 'Api\AdController@show');
 Route::middleware('auth:api')->post('/ad/seen', 'Api\PostExploreController@sendAdSeenRequest');
 Route::middleware('auth:api')->post('/ad/cta/click/{id}', 'Api\PostExploreController@sendAdCtaClick');
 
-
+Route::middleware('auth:api')->post('/create/payment/intent', 'Api\PaymentController@payment');
+Route::middleware('auth:api')->post('/confirm/payment', 'Api\PaymentController@confirmPayment');
 
 Route::get('/welcome', 'Api\WelcomeController@index');
 
