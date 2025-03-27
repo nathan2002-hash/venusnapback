@@ -132,6 +132,8 @@ Route::middleware('auth:api')->post('/ad/cta/click/{id}', 'Api\PostExploreContro
 Route::middleware('auth:api')->post('/create/payment/intent', 'Api\PaymentController@payment');
 Route::middleware('auth:api')->post('/payment/confirm', 'Api\PaymentController@confirmPayment');
 
+Route::middleware('auth:api')->get('/payments', 'Api\PaymentController@fetchUserPayments');
+
 Route::get('/welcome', 'Api\WelcomeController@index');
 
 //posts routes
