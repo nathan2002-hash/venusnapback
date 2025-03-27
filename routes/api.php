@@ -134,6 +134,8 @@ Route::middleware('auth:api')->post('/payment/confirm', 'Api\PaymentController@c
 
 Route::middleware('auth:api')->get('/payments', 'Api\PaymentController@fetchUserPayments');
 
+Route::middleware('auth:api')->get('/points', 'Api\PointController@getPoints');
+
 Route::get('/welcome', 'Api\WelcomeController@index');
 
 //posts routes
