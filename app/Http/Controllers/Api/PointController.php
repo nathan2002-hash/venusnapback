@@ -22,7 +22,7 @@ class PointController extends Controller
 
         return response()->json([
             'packages' => $packages,
-            'min_points' => config('points.min_points', 1000)
+            'min_points' => "1000"
         ]);
     }
 }
