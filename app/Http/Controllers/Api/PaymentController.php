@@ -7,6 +7,7 @@ use App\Models\Payment;
 use Stripe\PaymentIntent;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\PaymentSession;
 use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends Controller
@@ -22,6 +23,13 @@ class PaymentController extends Controller
             'payment_method_types' => ['card'],
         ]);
 
+        $paymentsession = PaymentSession::create([
+            'user_id'        => Auth::user()->id,
+            'ip_address'         => $request->ip(),
+            'device_info' => $request->header('Device-Info'),
+            'user_agent'       => $request->header('User-Agent'),
+        ]);
+
         // Save the pending payment in DB
         $payment = Payment::create([
             'user_id'        => Auth::user()->id,
@@ -31,6 +39,7 @@ class PaymentController extends Controller
             'processor'      => 'Stripe',
             'payment_no'     => $paymentIntent->id, // Store Stripe Payment ID
             'status'         => 'pending',
+            'payment_session_id'         => $paymentsession->id,
             'purpose'        => $request->purpose,
             'description'    => $request->description,
         ]);

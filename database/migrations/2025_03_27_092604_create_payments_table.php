@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('processor');
             $table->string('payment_no')->nullable();
             $table->string('status');
+            $table->string('payment_session_id');
             $table->string('purpose');
             $table->longText('description');
             $table->timestamps();
