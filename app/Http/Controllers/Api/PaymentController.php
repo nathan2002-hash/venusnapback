@@ -51,12 +51,24 @@ class PaymentController extends Controller
     }
 
     public function confirmPayment(Request $request)
-    {
-        // Get Payment Intent ID
-        $paymentIntentId = $request->payment_intent_id;
+{
+    // Get Payment Intent ID from the request
+    $paymentIntentId = $request->payment_intent_id;
 
-        // Retrieve Payment Intent from Stripe
-        Stripe::setApiKey(env('STRIPE_SECRET'));
+    // If payment failed, update the status in the database
+    if ($paymentIntentId == 'failed') {
+        // Update DB: Payment failed
+        Payment::where('payment_no', $paymentIntentId)->update([
+            'status' => 'failed',
+            'status_reason' => $request->status_reason, // Reason for failure
+        ]);
+
+        return response()->json(['message' => 'Payment failed', 'status_reason' => $request->status_reason], 400);
+    }
+
+    // For successful payment, you can retrieve and process the payment
+    Stripe::setApiKey(env('STRIPE_SECRET'));
+    try {
         $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
 
         if ($paymentIntent->status == 'succeeded') {
@@ -70,10 +82,16 @@ class PaymentController extends Controller
             // Update DB: Payment failed
             Payment::where('payment_no', $paymentIntentId)->update([
                 'status' => 'failed',
+                'status_reason' => $request->status_reason,
             ]);
 
             return response()->json(['message' => 'Payment failed'], 400);
         }
+    } catch (\Exception $e) {
+        // Handle any errors from Stripe API
+        return response()->json(['message' => 'Error: ' . $e->getMessage()], 400);
     }
+}
+
 
 }
