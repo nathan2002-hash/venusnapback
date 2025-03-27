@@ -18,11 +18,17 @@ class PointController extends Controller
 
         $packages = Point::where('country', strtoupper($country))
             ->orderBy('points')
-            ->get(['points', 'price']);
+            ->get(['points', 'price'])
+            ->map(function ($package) {
+                return [
+                    'points' => (int) $package->points,
+                    'price'  => (int) $package->price, // Ensuring price is also an integer
+                ];
+            });
 
         return response()->json([
-            'packages' => $packages,
-            'min_points' => "1000"
+            'packages'   => $packages,
+            'min_points' => (int) config('points.min_points', 1000),
         ]);
     }
 }
