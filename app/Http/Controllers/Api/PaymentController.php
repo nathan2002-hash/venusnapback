@@ -35,7 +35,7 @@ class PaymentController extends Controller
             'user_id'        => Auth::user()->id,
             'amount'         => $request->amount,
             'payment_method' => 'Card Payment',
-            'currency'       => 'usd',
+            'currency'       => '$',
             'processor'      => 'Stripe',
             'payment_no'     => $paymentIntent->id, // Store Stripe Payment ID
             'status'         => 'pending',
