@@ -96,6 +96,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'username' => $request->full_name,
             'country' => $request->country,
+            'points' => '300',
             'preference' => '1',
             'password' => Hash::make($request->password),
         ]);
