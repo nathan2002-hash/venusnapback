@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('payment_session_id');
             $table->string('purpose');
             $table->longText('description');
+            $table->longText('status_reason')->nullable();
             $table->timestamps();
         });
     }
