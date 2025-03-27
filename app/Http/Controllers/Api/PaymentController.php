@@ -121,7 +121,7 @@ class PaymentController extends Controller
                     'amount'         => (float) $payment->amount,
                     'created_at'     => $payment->created_at->toISOString(),
                     'payment_method' => $payment->payment_method,
-                    'currency' => $payment->payment_method,
+                    'currency' => $payment->currency,
                     'status'         => $payment->status,
                     'description'    => $payment->description,
                 ];
