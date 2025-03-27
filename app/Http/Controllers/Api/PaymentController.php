@@ -58,7 +58,7 @@ class PaymentController extends Controller
     // If payment failed, update the status in the database
     if ($paymentIntentId == 'failed') {
         // Update DB: Payment failed
-        Payment::where('payment_no', $paymentIntentId)->update([
+        Payment::where('id', $paymentIntentId)->update([
             'status' => 'failed',
             'status_reason' => $request->status_reason, // Reason for failure
         ]);
