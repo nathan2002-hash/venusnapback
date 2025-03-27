@@ -35,7 +35,7 @@ class PaymentController extends Controller
             'user_id'        => Auth::user()->id,
             'amount'         => $request->amount,
             'payment_method' => 'Card Payment',
-            'currency'       => '$',
+            'currency'       => 'USD',
             'processor'      => 'Stripe',
             'payment_no'     => $paymentIntent->id, // Store Stripe Payment ID
             'status'         => 'pending',
@@ -109,27 +109,38 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
+        // Define currency symbols
+        $currencySymbols = [
+            'USD' => '$',
+            'EUR' => '€',
+            'GBP' => '£',
+            'ZMW' => 'ZK',
+            'NGN' => '₦',
+            'JPY' => '¥',
+            'INR' => '₹',
+        ];
+
         // Retrieve payments for the authenticated user
         $payments = Payment::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->get();
 
         return response()->json([
-            'data' => $payments->map(function ($payment) {
+            'data' => $payments->map(function ($payment) use ($currencySymbols) {
+                $currencyCode = strtoupper($payment->currency); // Ensure case consistency
+                $currencySymbol = $currencySymbols[$currencyCode] ?? $currencyCode; // Default to currency code if symbol not found
+
                 return [
                     'type'           => 'payment',
-                    'amount'         => (float) $payment->amount,
+                    'amount'         => $currencySymbol . ' ' . number_format((float) $payment->amount, 2),
                     'created_at'     => $payment->created_at->toISOString(),
                     'payment_method' => $payment->payment_method,
-                    'currency' => $payment->currency,
+                    'currency'       => $currencyCode, // Still keeping currency code
                     'status'         => $payment->status,
                     'description'    => $payment->description,
                 ];
             }),
         ]);
     }
-
-
-
 
 }
