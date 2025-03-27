@@ -52,35 +52,42 @@ class PaymentController extends Controller
 
     public function confirmPayment(Request $request)
 {
-    // Get Payment Intent ID from the request
-    $paymentIntentId = $request->payment_intent_id;
+    // Get Payment ID (payment_intent_id from Flutter)
+    $paymentId = $request->payment_intent_id;
 
-    // If payment failed, update the status in the database
-    if ($paymentIntentId == 'failed') {
-        // Update DB: Payment failed
-        Payment::where('id', $paymentIntentId)->update([
-            'status' => 'failed',
-            'status_reason' => $request->status_reason, // Reason for failure
-        ]);
+    // Find the payment record using the payment_id (which is actually payment_intent_id)
+    $payment = Payment::find($paymentId);
 
-        return response()->json(['message' => 'Payment failed', 'status_reason' => $request->status_reason], 400);
+    if (!$payment) {
+        return response()->json(['message' => 'Payment not found'], 404);
     }
 
-    // For successful payment, you can retrieve and process the payment
+    // Now we get the Stripe Payment Intent ID (payment_no) from the payment record
+    $paymentIntentId = $payment->payment_no;
+
+    // Check if the paymentIntentId exists
+    if (!$paymentIntentId) {
+        return response()->json(['message' => 'Payment Intent ID not found in payment record'], 400);
+    }
+
+    // Set Stripe API Key
     Stripe::setApiKey(env('STRIPE_SECRET'));
+
     try {
+        // Retrieve the payment intent from Stripe using the stored paymentIntentId
         $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
 
+        // Check if the payment was successful
         if ($paymentIntent->status == 'succeeded') {
             // Update DB: Payment successful
-            Payment::where('payment_no', $paymentIntentId)->update([
+            $payment->update([
                 'status' => 'success',
             ]);
 
             return response()->json(['message' => 'Payment successful']);
         } else {
             // Update DB: Payment failed
-            Payment::where('payment_no', $paymentIntentId)->update([
+            $payment->update([
                 'status' => 'failed',
                 'status_reason' => $request->status_reason,
             ]);
@@ -92,6 +99,7 @@ class PaymentController extends Controller
         return response()->json(['message' => 'Error: ' . $e->getMessage()], 400);
     }
 }
+
 
 
 }
