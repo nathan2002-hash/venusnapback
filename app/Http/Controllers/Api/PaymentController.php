@@ -84,6 +84,11 @@ class PaymentController extends Controller
                     'status' => 'success',
                 ]);
 
+                $amountPaid = $payment->amount; // Assuming 'value' is the amount in USD
+                $pointsEarned = ($amountPaid / 1) * 1000; // 1 USD = 1000 points
+
+                $payment->user->increment('points', $pointsEarned);
+
                 return response()->json(['message' => 'Payment successful']);
             } else {
                 // Update DB: Payment failed

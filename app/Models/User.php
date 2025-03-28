@@ -31,7 +31,8 @@ class User extends Authenticatable
         'country',
         'email',
         'password',
-        'preference'
+        'preference',
+        'points'
     ];
 
     /**
@@ -106,5 +107,9 @@ class User extends Authenticatable
 
     public function views(){
         return $this->hasMany(View::class);
+    }
+
+    public function payments(){
+        return $this->hasMany(Payment::class);
     }
 }
