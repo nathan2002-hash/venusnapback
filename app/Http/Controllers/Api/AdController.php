@@ -27,22 +27,34 @@ class AdController extends Controller
         ]);
     }
 
-
     public function adboard(Request $request)
     {
+        $user = Auth::user(); // Get authenticated user
+
+        // Ensure the user has enough points (just a check, no deduction)
+        if ($user->points < $request->points) {
+            return response()->json([
+                'message' => 'Insufficient points. Please purchase more points to create an adboard.'
+            ], 400);
+        }
+
+        // Create the Adboard without deducting points
         $adboard = new Adboard();
         $adboard->album_id = $request->album_id;
-        $adboard->status = 'active';
+        $adboard->status = 'draft'; // Change status to 'draft' (not active yet)
         $adboard->points = $request->points;
         $adboard->description = $request->description;
         $adboard->name = $request->name;
         $adboard->save();
+
         return response()->json([
-            'message' => 'Adboard created successfully!',
+            'message' => 'Adboard created successfully! (Not published yet)',
             'adboard' => $adboard,
-            'id' => $adboard->id
+            'id' => $adboard->id,
+            'remaining_points' => $user->points // Return points without deduction
         ], 201);
     }
+
 
     public function adstore(Request $request)
     {
@@ -248,13 +260,42 @@ class AdController extends Controller
 
     public function publish(Request $request)
     {
-        $ad = Ad::find($request->ad_id);
-        $ad->status = 'published';
-        $ad->save();
-        return response()->json([
-            'message' => 'Adboard created successfully!',
-            'ad' => $ad,
-            'id' => $ad->id
-        ], 200);
+        DB::beginTransaction(); // Start transaction
+
+        try {
+            $user = Auth::user(); // Get the authenticated user
+            $ad = Ad::findOrFail($request->ad_id);
+            $adboard = $ad->adboard;
+
+            // Ensure the user has enough points to publish the ad
+            if ($user->points < $adboard->points) {
+                return response()->json([
+                    'message' => 'Insufficient points. Please purchase more points to publish this ad.'
+                ], 400);
+            }
+
+            // Deduct points from the user
+            $user->decrement('points', $adboard->points);
+
+            // Update ad status to published
+            $ad->status = 'published';
+            $ad->save();
+
+            DB::commit(); // Commit transaction
+
+            return response()->json([
+                'message' => 'Ad published successfully!',
+                'ad' => $ad,
+                'id' => $ad->id,
+                'remaining_points' => $user->points // Show remaining points
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack(); // Rollback transaction if error occurs
+            return response()->json([
+                'error' => 'Failed to publish ad',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
+
 }
