@@ -64,7 +64,7 @@ class MonetizationController extends Controller
         $response = [
             'total_earnings' => $account->account_balance, // Total earnings
             'available_balance' => $account->available_balance, // Available balance
-            'albums' => $albums->count(), // List of user's albums
+            'albums' => (string) $albums->count(), // List of user's albums
             'latest_payouts' => $latestPayouts, // Latest 5 payouts
             'current_month_earning' => number_format($currentMonthEarnings, 2), // Current month earnings
             'last_month_earning' => number_format($lastMonthEarnings, 2), // Last month earnings
