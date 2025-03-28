@@ -17,6 +17,24 @@ return new class extends Migration
             $table->decimal('account_balance', 13,2);
             $table->decimal('available_balance', 13,2);
             $table->string('monetization_status')->default(0);
+            $table->string('payout_method');
+            $table->string('currency');
+
+            // PayPal-specific field
+            $table->string('paypal_email')->nullable();
+
+            // Mobile Money field
+            $table->string('phone_no')->nullable();
+            $table->string('account_name')->nullable();
+            $table->string('network')->nullable();
+
+            // Bank transfer fields
+            $table->string('account_holder_name')->nullable();  // Bank account holder's name
+            $table->string('account_number')->nullable();  // Bank account number
+            $table->string('bank_name')->nullable();  // Bank name
+            $table->string('bank_branch')->nullable();  // Bank branch (optional)
+            $table->string('swift_code')->nullable();  // SWIFT/BIC code for international transfers
+            $table->string('iban')->nullable();  // IBAN for international bank transfers
             $table->timestamps();
         });
     }
