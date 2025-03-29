@@ -137,6 +137,7 @@ Route::middleware('auth:api')->get('/payments', 'Api\PaymentController@fetchUser
 Route::middleware('auth:api')->get('/points', 'Api\PointController@getPoints');
 
 Route::middleware('auth:api')->get('/user/monetization/dashboard', 'Api\MonetizationController@getUserDashboardData');
+Route::middleware('auth:api')->get('/payout/details', 'Api\MonetizationController@getPayoutDetails');
 
 Route::get('/welcome', 'Api\WelcomeController@index');
 
