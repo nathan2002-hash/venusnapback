@@ -75,39 +75,39 @@ class MonetizationController extends Controller
     }
 
     public function getPayoutDetails(Request $request)
-{
-    // Get the authenticated user
-    $user = Auth::user();
+    {
+        // Get the authenticated user
+        $user = Auth::user();
 
-    // Retrieve the user's account
-    $account = Account::where('user_id', $user->id)->first();
+        // Retrieve the user's account
+        $account = Account::where('user_id', $user->id)->first();
 
-    // Check if account exists
-    if (!$account) {
-        return response()->json([
-            'message' => 'Account not found.',
-        ], 404);
+        // Check if account exists
+        if (!$account) {
+            return response()->json([
+                'message' => 'Account not found.',
+            ], 404);
+        }
+
+        // Define the minimum payout amount (can be dynamic if needed)
+        $minimumPayout = 10.00;
+
+        // Define the payout fee percentage
+        $payoutFeePercentage = 2.4; // Example: 2.4%
+
+        // Get the payout email (assuming PayPal is used)
+        $payoutEmail = $account->paypal_email ?? null;
+
+        // Prepare the response
+        $response = [
+            'available_balance' => number_format($account->available_balance, 2),
+            'minimum_payout' => number_format($minimumPayout, 2),
+            'payout_email' => $payoutEmail,
+            'payout_fee_percentage' => number_format($payoutFeePercentage, 2)
+        ];
+
+        return response()->json($response, 200);
     }
-
-    // Define the minimum payout amount (can be dynamic if needed)
-    $minimumPayout = 50.00;
-
-    // Define the payout fee percentage
-    $payoutFeePercentage = 2.4; // Example: 2.4%
-
-    // Get the payout email (assuming PayPal is used)
-    $payoutEmail = $account->paypal_email ?? null;
-
-    // Prepare the response
-    $response = [
-        'available_balance' => number_format($account->available_balance, 2),
-        'minimum_payout' => number_format($minimumPayout, 2),
-        'payout_email' => $payoutEmail,
-        'payout_fee_percentage' => number_format($payoutFeePercentage, 2)
-    ];
-
-    return response()->json($response, 200);
-}
 
 
 }
