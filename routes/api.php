@@ -140,24 +140,7 @@ Route::middleware('auth:api')->get('/user/monetization/dashboard', 'Api\Monetiza
 Route::middleware('auth:api')->get('/payout/details', 'Api\MonetizationController@getPayoutDetails');
 Route::middleware('auth:api')->post('/payout/request', 'Api\PayoutController@requestPayout');
 
-Route::get('/welcome', 'Api\WelcomeController@index');
-
-//posts routes
-Route::post('/post/save/{id}', 'Api\PostController@save');
-//Route::post('/post/comment/{id}', 'Api\PostController@comment');
-//Route::post('/post/comment/reply/{id}', 'Api\PostController@commentreply');
-Route::post('/post/admire/{id}', 'Api\PostController@admire');
-Route::post('/post/report/{id}', 'Api\PostController@report');
-
-//artwork routs
-Route::get('/artworks', 'Api\ArtworkController@index');
-Route::post('/artwork/store', 'Api\ArtworkController@store');
-
-//reports routes
-Route::get('/reports', 'Api\ReportController@index');
-
-//saved routes
-Route::get('/saved', 'Api\SavedController@index');
-
-//account routes
-Route::get('/account', 'Api\AccountController@index');
+//album access
+Route::middleware('auth:api')->get('/user/album/{id}/access', 'Api\AlbumAccessController@accesslist');
+Route::middleware('auth:api')->get('/user/album/{id}', 'Api\AlbumAccessController@albums');
+Route::middleware('auth:api')->put('/user/album/update/{id}', 'Api\AlbumAccessController@albumupdate');
