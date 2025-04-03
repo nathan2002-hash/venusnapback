@@ -27,28 +27,60 @@ class AlbumAccessController extends Controller
 
     public function albums($id)
     {
-        $album = Auth::user()->albums()->with('posts')->findOrFail($id);
+        $album = Auth::user()->albums()->findOrFail($id);
         return response()->json(['album' => $album]);
     }
 
     public function albumupdate(Request $request, $id)
     {
+        // Find the album and ensure the logged-in user owns it
         $album = Auth::user()->albums()->findOrFail($id);
 
+        // Validate the request data
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'category' => 'required|string',
+            'business_category' => 'required|string',
             'shared_with' => 'array',
-            'shared_with.*' => 'email|exists:users,email'
+            'shared_with.*' => 'email|exists:users,email',
         ]);
 
-        $album->update($validated);
+        // Update the album details (name, description, business_category)
+        $album->update([
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'business_category' => $validated['business_category'],
+        ]);
 
-        // Sync shared users
-        $userIds = User::whereIn('email', $request->shared_with)->pluck('id');
-        $album->sharedWith()->sync($userIds);
+        // Process the shared_with emails
+        foreach ($request->shared_with as $email) {
+            // Find the user by email
+            $user = User::where('email', $email)->first();
 
-        return response()->json(['message' => 'Album updated']);
+            if ($user) {
+                // Check if the user is already in the album_access table
+                $albumAccess = $album->sharedWith()->where('user_id', $user->id)->first();
+
+                if ($albumAccess) {
+                    // If the access record exists, update it
+                    // $albumAccess->update([
+                    //     'status' => 'pending' // You can set the status to "updated" or any other value
+                    // ]);
+                } else {
+                    // If no access record exists, create a new one
+                    $album->sharedWith()->create([
+                        'user_id' => $user->id,
+                        'album_id' => $album->id,
+                        'granted_by' => Auth::user()->id,
+                        'status' => 'pending', // Set a default status for new access
+                        'role' => 'editor', // Set a default status for new access
+                    ]);
+                }
+            }
+        }
+
+        // Return success response
+        return response()->json(['message' => 'Album updated successfully']);
     }
+
 }
