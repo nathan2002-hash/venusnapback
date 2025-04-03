@@ -141,6 +141,6 @@ Route::middleware('auth:api')->get('/payout/details', 'Api\MonetizationControlle
 Route::middleware('auth:api')->post('/payout/request', 'Api\PayoutController@requestPayout');
 
 //album access
-Route::middleware('auth:api')->get('/user/album/{id}/access', 'Api\AlbumAccessController@accesslist');
-Route::middleware('auth:api')->get('/user/album/{id}', 'Api\AlbumAccessController@albums');
-Route::middleware('auth:api')->put('/user/album/update/{id}', 'Api\AlbumAccessController@albumupdate');
+Route::middleware('auth:api')->get('/manage/album/{id}/access', 'Api\AlbumAccessController@accesslist');
+Route::middleware('auth:api')->get('/manage/album/{id}', 'Api\AlbumAccessController@albums');
+Route::middleware('auth:api')->put('/manage/album/update/{id}', 'Api\AlbumAccessController@albumupdate');
