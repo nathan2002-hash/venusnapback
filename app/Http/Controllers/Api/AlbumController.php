@@ -341,5 +341,35 @@ class AlbumController extends Controller
         ], 200);
     }
 
+    public function album_update(Request $request, $id)
+    {
+        $album = Auth::user()->albums()->findOrFail($id);
+    
+        $request->validate([
+            'image_type' => 'required|in:profile,cover',
+            'image' => 'required|image|max:2048',
+        ]);
 
+        $imageType = $request->image_type;
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('uploads/albums/originals', 's3');
+        }
+        // Update the appropriate field based on image type
+        if ($album->type == 'business') {
+            if ($imageType === 'profile') {
+                $album->update(['business_logo_original' => $path]);
+            } else {
+                $album->update(['cover_image_original' => $path]);
+            }
+        } else {
+            if ($imageType === 'profile') {
+                $album->update(['thumbnail_original' => $path]);
+            } else {
+                $album->update(['cover_image_original' => $path]);
+            }
+        }
+        
+        return response()->json(['message' => 'Image updated successfully']);
+    }
 }
