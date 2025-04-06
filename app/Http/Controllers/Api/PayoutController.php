@@ -134,18 +134,18 @@ class PayoutController extends Controller
             ->get();
 
         return response()->json([
-            'data' => $payouts->map(function ($payment) use ($currencySymbols) {
-                $currencyCode = strtoupper($payment->currency); // Ensure case consistency
+            'data' => $payouts->map(function ($payout) use ($currencySymbols) {
+                $currencyCode = strtoupper($payout->currency); // Ensure case consistency
                 $currencySymbol = $currencySymbols[$currencyCode] ?? $currencyCode; // Default to currency code if symbol not found
 
                 return [
                     'type'           => 'payout',
-                    'amount'         => $currencySymbol . '' . number_format((float) $payment->amount, 2),
-                    'created_at'     => $payment->created_at->toISOString(),
-                    'payment_method' => $payment->payment_method,
+                    'amount'         => $currencySymbol . '' . number_format((float) $payout->amount, 2),
+                    'created_at'     => $payout->created_at->toISOString(),
+                    'payment_method' => $payout->payout_method,
                     'currency'       => $currencyCode, // Still keeping currency code
-                    'status'         => $payment->status,
-                    'description'    => $payment->description,
+                    'status'         => $payout->status,
+                    'description'    => $payout->description,
                 ];
             }),
         ]);
