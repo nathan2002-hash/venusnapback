@@ -16,7 +16,8 @@
         "laravel/tinker": "^2.9",
         "league/flysystem-aws-s3-v3": "*",
         "livewire/livewire": "^3.0",
-        "stripe/stripe-php": "^16.6"
+        "stripe/stripe-php": "^16.6",
+        "ext-gd": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
