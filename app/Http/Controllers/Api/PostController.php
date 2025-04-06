@@ -221,18 +221,18 @@ class PostController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $validator = Validator::make($request->all(), [
-            'description' => 'required|string|max:200',
-            'type' => 'required',
-            'visibility' => 'required|string|in:Public,Private,Friends Only',
-            'post_medias' => 'required|array',
-            'post_medias.*.file_path' => 'required|string',  // Expecting the file path (e.g., S3 URL)
-            'post_medias.*.sequence_order' => 'required|integer',
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'description' => 'required|string|max:200',
+        //     'type' => 'required',
+        //     'visibility' => 'required|string|in:Public,Private,Friends Only',
+        //     'post_medias' => 'required|array',
+        //     'post_medias.*.file_path' => 'required|string',  // Expecting the file path (e.g., S3 URL)
+        //     'post_medias.*.sequence_order' => 'required|integer',
+        // ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+        // if ($validator->fails()) {
+        //     return response()->json(['errors' => $validator->errors()], 422);
+        // }
 
         // Create the post
         $post = new Post();
