@@ -137,7 +137,7 @@ class PaymentController extends Controller
 
                 return [
                     'type'           => 'payment',
-                    'amount'         => $currencySymbol . ' ' . number_format((float) $payment->amount, 2),
+                    'amount'         => $currencySymbol . '' . number_format((float) $payment->amount, 2),
                     'created_at'     => $payment->created_at->toISOString(),
                     'payment_method' => $payment->payment_method,
                     'currency'       => $currencyCode, // Still keeping currency code

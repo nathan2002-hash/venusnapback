@@ -108,4 +108,47 @@ class PayoutController extends Controller
         }
     }
 
+    public function fetchUserPayouts(Request $request)
+    {
+        // Get the authenticated user
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        // Define currency symbols
+        $currencySymbols = [
+            'USD' => '$',
+            'EUR' => '€',
+            'GBP' => '£',
+            'ZMW' => 'ZK',
+            'NGN' => '₦',
+            'JPY' => '¥',
+            'INR' => '₹',
+        ];
+
+        // Retrieve payments for the authenticated user
+        $payouts = Payout::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'data' => $payouts->map(function ($payment) use ($currencySymbols) {
+                $currencyCode = strtoupper($payment->currency); // Ensure case consistency
+                $currencySymbol = $currencySymbols[$currencyCode] ?? $currencyCode; // Default to currency code if symbol not found
+
+                return [
+                    'type'           => 'payout',
+                    'amount'         => $currencySymbol . '' . number_format((float) $payment->amount, 2),
+                    'created_at'     => $payment->created_at->toISOString(),
+                    'payment_method' => $payment->payment_method,
+                    'currency'       => $currencyCode, // Still keeping currency code
+                    'status'         => $payment->status,
+                    'description'    => $payment->description,
+                ];
+            }),
+        ]);
+    }
+
 }

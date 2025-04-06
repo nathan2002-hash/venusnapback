@@ -134,6 +134,7 @@ Route::middleware('auth:api')->post('/create/payment/intent', 'Api\PaymentContro
 Route::middleware('auth:api')->post('/payment/confirm', 'Api\PaymentController@confirmPayment');
 
 Route::middleware('auth:api')->get('/payments', 'Api\PaymentController@fetchUserPayments');
+Route::middleware('auth:api')->get('/payouts', 'Api\PayoutController@fetchUserPayouts');
 
 Route::middleware('auth:api')->get('/points', 'Api\PointController@getPoints');
 
