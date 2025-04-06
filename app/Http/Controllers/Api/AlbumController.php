@@ -369,6 +369,8 @@ class AlbumController extends Controller
                 $album->update(['cover_image_original' => $path]);
             }
         }
+
+        AlbumCreate::dispatch($album->id);
         
         return response()->json(['message' => 'Image updated successfully']);
     }
