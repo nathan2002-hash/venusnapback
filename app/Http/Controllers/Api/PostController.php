@@ -230,6 +230,7 @@ class PostController extends Controller
         $post->user_id = $user->id;
         $post->description = $request->description;
         $post->type = $request->type;
+        $post->status = 'active';
         $post->album_id = $request->album_id;
         $post->visibility = $request->visibility;
         $post->save();
