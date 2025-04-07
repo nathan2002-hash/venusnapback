@@ -19,6 +19,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use App\Models\Artwork;
 
 class PostController extends Controller
 {
@@ -215,54 +217,62 @@ class PostController extends Controller
     }
 
     public function storecloud(Request $request)
-    {
-        $user = Auth::user(); // Get authenticated user
-        if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
+{
+    $user = Auth::user();
+    if (!$user) {
+        return response()->json(['message' => 'Unauthorized'], 401);
+    }
 
-        // $validator = Validator::make($request->all(), [
-        //     'description' => 'required|string|max:200',
-        //     'type' => 'required',
-        //     'visibility' => 'required|string|in:Public,Private,Friends Only',
-        //     'post_medias' => 'required|array',
-        //     'post_medias.*.file_path' => 'required|string',  // Expecting the file path (e.g., S3 URL)
-        //     'post_medias.*.sequence_order' => 'required|integer',
-        // ]);
-
-        // if ($validator->fails()) {
-        //     return response()->json(['errors' => $validator->errors()], 422);
-        // }
-
+    DB::beginTransaction();
+    try {
         // Create the post
         $post = new Post();
-        $post->user_id = Auth::user()->id; // Assign authenticated user's ID
+        $post->user_id = $user->id;
         $post->description = $request->description;
         $post->type = $request->type;
         $post->album_id = $request->album_id;
         $post->visibility = $request->visibility;
         $post->save();
 
-        $sequenceOrders = collect($request->post_medias)
-            ->sortBy('sequence_order') // Ensure images are sorted by their sequence order
-            ->values(); // Reindex the collection
+        // Get all artwork IDs from the request
+        $artworkIds = collect($request->post_medias)->pluck('artwork_id');
 
-        foreach ($sequenceOrders as $media) {
-            // Use the 'file_path' that is provided in the request (this will be the S3 path)
-            $path = $media['file_path']; // No need to store the image again in S3
+        // Fetch all artworks at once for efficiency
+        $artworks = Artwork::whereIn('id', $artworkIds)
+            ->where('user_id', $user->id)
+            ->get()
+            ->keyBy('id');
 
-            // Create PostMedia without uploading a new file, just save the file path
+        // Create post media entries in the order specified by Flutter
+        foreach ($request->post_medias as $media) {
+            $artwork = $artworks->get($media['artwork_id']);
+
+            if (!$artwork) {
+                throw new \Exception("Artwork not found or doesn't belong to user");
+            }
+
             PostMedia::create([
                 'post_id' => $post->id,
-                'file_path' => $path,
-                'file_path_compress' => $path,
-                'sequence_order' => $media['sequence_order'],
+                'file_path' => $artwork->file_path,
+                'file_path_compress' => $artwork->thumbnail,
+                'sequence_order' => $media['sequence_order'], // Use the sequence from Flutter
                 'status' => 'compressed',
             ]);
         }
 
-        return response()->json(['message' => 'Post created successfully', 'post' => $post], 200);
+        DB::commit();
+
+        return response()->json([
+            'message' => 'Post created successfully',
+            'post' => $post,
+        ], 200);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Post creation failed: ' . $e->getMessage());
+        return response()->json(['message' => 'Post creation failed: ' . $e->getMessage()], 500);
     }
+}
 
 
 
