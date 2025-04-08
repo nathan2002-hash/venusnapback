@@ -315,13 +315,13 @@ class AdController extends Controller
             return [
                 'id' => 'AD-' . str_pad($ad->id, 3, '0', STR_PAD_LEFT),
                 'name' => $ad->adboard->name ?? 'Unknown',
-                'status' => ucfirst($ad->status),
+                'status' => ucfirst($ad->adboard->status),
                 'budget' => $ad->adboard->budget ?? 0,
                 'impressions' => (String) $impressions,
                 'clicks' => (String) $clicks,
                 'ctr' => $ctr,
                 'start_date' => $ad->created_at->toDateString(),
-                'end_date' => $ad->created_at->copy()->addDays(30)->toDateString(), // adjust if you have real end date
+                'end_date' => 'Until Budget is done', // adjust if you have real end date
             ];
         });
 
