@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Ad;
+use Carbon\Carbon;
 use App\Models\Adboard;
 use App\Models\AdClick;
 use App\Models\AdMedia;
@@ -314,6 +315,7 @@ class AdController extends Controller
 
             return [
                 'id' => 'AD-' . str_pad($ad->id, 3, '0', STR_PAD_LEFT),
+                'adid' => $ad->id,
                 'name' => $ad->adboard->name ?? 'Unknown',
                 'status' => ucfirst($ad->adboard->status),
                 'budget' => $ad->adboard->budget ?? 0,
@@ -330,4 +332,81 @@ class AdController extends Controller
         ]);
     }
 
+    public function getAdPerformance($adId)
+{
+    $ad = Ad::findOrFail($adId);
+
+    $start = Carbon::parse($ad->created_at)->startOfDay();
+    $end = Carbon::today();
+
+    $dailyData = [];
+
+    while ($start->lte($end)) {
+        $date = $start->toDateString(); // Get date as "Y-m-d"
+
+        // Get daily clicks and points used
+        $clicks = DB::table('ad_clicks')
+            ->where('ad_id', $adId)
+            ->whereDate('created_at', $date)
+            ->count();
+
+        $totalClickPoints = DB::table('ad_clicks')
+            ->where('ad_id', $adId)
+            ->whereDate('created_at', $date)
+            ->sum('points_used'); // Assuming points_used is a field in the ad_clicks table
+
+        // Get daily impressions and points used
+        $impressions = DB::table('ad_impressions')
+            ->where('ad_id', $adId)
+            ->whereDate('created_at', $date)
+            ->count();
+
+        $totalImpressionPoints = DB::table('ad_impressions')
+            ->where('ad_id', $adId)
+            ->whereDate('created_at', $date)
+            ->sum('points_used'); // Assuming points_used is a field in the ad_impressions table
+
+        // Calculate cost using points (you can adjust the cost-per-point logic)
+        $cost = ($totalClickPoints + $totalImpressionPoints) * 0.01; // Example: $0.01 per point, adjust as needed
+
+        // Calculate CTR (Click-Through Rate) for the day
+        $ctr = ($impressions > 0) ? ($clicks / $impressions) * 100 : 0;
+
+        // Format the date as "Jun, 21"
+        $formattedDate = $start->format('M, d');
+
+        // Add the daily data to the array
+        $dailyData[] = [
+            'date' => $formattedDate,
+            'clicks' => (String) $clicks,
+            'impressions' => (String) $impressions,
+            'cost' => number_format($cost, 2), // Round the cost to 2 decimal places
+            'ctr' => number_format($ctr, 2),  // Round the CTR to 2 decimal places
+        ];
+
+        $start->addDay(); // Move to the next day
+    }
+
+    // General metrics (overall CTR, cost-per-click, conversion rate)
+    $ctr = ($ad->impressions > 0) ? ($ad->clicks / $ad->impressions) * 100 : 0;
+    $costPerClick = ($ad->clicks > 0) ? ($ad->total_spent / $ad->clicks) : 0;
+    $conversionRate = ($ad->clicks > 0) ? ($ad->conversions / $ad->clicks) * 100 : 0;
+
+    return response()->json([
+        'ad_id' => $ad->id,
+        'ad_name' => $ad->adboard->name,
+        'status' => $ad->adboard->status,
+        'budget' => $ad->adboard->budget,
+        'total_spent' => $ad->adboard->budget,
+        'start_date' => $ad->created_at,
+        'end_date' => $ad->end_date,
+        'impressions' => (String) $impressions,
+        'clicks' => (String) $clicks,
+        'conversions' => $ad->conversions,
+        'ctr' => number_format($ctr, 2),
+        'cost_per_click' => '2',
+        'conversion_rate' => number_format($conversionRate, 2),
+        'daily_performance' => $dailyData, // This contains all the days from start to today
+    ]);
+}
 }

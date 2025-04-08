@@ -128,6 +128,7 @@ Route::middleware('auth:api')->get('/user/ad/albums', 'Api\AdController@getUserA
 Route::middleware('auth:api')->get('/ads/{id}', 'Api\AdController@show');
 
 Route::middleware('auth:api')->get('/ad/list', 'Api\AdController@getAds');
+Route::middleware('auth:api')->get('/ad/{id}/performance', 'Api\AdController@getAdPerformance');
 
 Route::middleware('auth:api')->post('/ad/seen', 'Api\PostExploreController@sendAdSeenRequest');
 Route::middleware('auth:api')->post('/ad/cta/click/{id}', 'Api\PostExploreController@sendAdCtaClick');
