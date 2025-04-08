@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Ad;
 use App\Models\Adboard;
+use App\Models\AdClick;
 use App\Models\AdMedia;
 use App\Models\Supporter;
+use App\Models\AdImpression;
 use Illuminate\Http\Request;
 use App\Jobs\AdImageCompress;
 use Illuminate\Support\Facades\DB;
@@ -43,6 +45,7 @@ class AdController extends Controller
         $adboard->album_id = $request->album_id;
         $adboard->status = 'draft'; // Change status to 'draft' (not active yet)
         $adboard->points = $request->points;
+        $adboard->budget = $request->points;
         $adboard->description = $request->description;
         $adboard->name = $request->name;
         $adboard->save();
@@ -296,6 +299,34 @@ class AdController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function getAds()
+    {
+        $ads = Ad::with('adboard') // assuming relationship exists
+            ->get();
+
+        $adsData = $ads->map(function ($ad) {
+            $impressions = AdImpression::where('ad_id', $ad->id)->count();
+            $clicks = AdClick::where('ad_id', $ad->id)->count();
+
+            $ctr = $impressions > 0 ? number_format(($clicks / $impressions) * 100, 1) : 0;
+
+            return [
+                'id' => 'AD-' . str_pad($ad->id, 3, '0', STR_PAD_LEFT),
+                'name' => $ad->adboard->name ?? 'Unknown',
+                'status' => ucfirst($ad->status),
+                'budget' => $ad->adboard->budget ?? 0,
+                'impressions' => $impressions,
+                'ctr' => $ctr,
+                'start_date' => $ad->created_at->toDateString(),
+                'end_date' => $ad->created_at->copy()->addDays(30)->toDateString(), // adjust if you have real end date
+            ];
+        });
+
+        return response()->json([
+            'ads' => $adsData
+        ]);
     }
 
 }

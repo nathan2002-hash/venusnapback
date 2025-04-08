@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('album_id');
             $table->string('status');
             $table->integer('points');
+            $table->integer('budget');
             $table->text('description')->nullable();
             $table->timestamps();
         });
