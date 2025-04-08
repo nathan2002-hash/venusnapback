@@ -38,6 +38,7 @@ class PostExploreController extends Controller
             'album.supporters',
         ])
         ->where('status', 'active')
+        ->where('visibility', 'public')
         ->get();
 
         // Fetch ads from the database
