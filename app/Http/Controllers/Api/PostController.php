@@ -82,7 +82,7 @@ class PostController extends Controller
                     'comments_count' => $media->comments->count(),
                     'likes_count' => $media->admires->count(),
                 ];
-            })->toArray();
+            })->shuffle()->values()->toArray();
 
             return [
                 'id' => $post->id,
