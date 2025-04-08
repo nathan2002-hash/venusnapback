@@ -317,7 +317,8 @@ class AdController extends Controller
                 'name' => $ad->adboard->name ?? 'Unknown',
                 'status' => ucfirst($ad->status),
                 'budget' => $ad->adboard->budget ?? 0,
-                'impressions' => $impressions,
+                'impressions' => (String) $impressions,
+                'clicks' => (String) $clicks,
                 'ctr' => $ctr,
                 'start_date' => $ad->created_at->toDateString(),
                 'end_date' => $ad->created_at->copy()->addDays(30)->toDateString(), // adjust if you have real end date
