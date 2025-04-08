@@ -315,7 +315,7 @@ class AdController extends Controller
 
             return [
                 'id' => 'AD-' . str_pad($ad->id, 3, '0', STR_PAD_LEFT),
-                'adid' => $ad->id,
+                'adid' => (String) $ad->id,
                 'name' => $ad->adboard->name ?? 'Unknown',
                 'status' => ucfirst($ad->adboard->status),
                 'budget' => $ad->adboard->budget ?? 0,
