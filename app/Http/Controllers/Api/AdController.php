@@ -392,16 +392,19 @@ class AdController extends Controller
     $costPerClick = ($ad->clicks > 0) ? ($ad->total_spent / $ad->clicks) : 0;
     $conversionRate = ($ad->clicks > 0) ? ($ad->conversions / $ad->clicks) * 100 : 0;
 
+    $impressionscount = AdImpression::where('ad_id', $ad->id)->count();
+    $clickscount = AdClick::where('ad_id', $ad->id)->count();
+
     return response()->json([
         'ad_id' => $ad->id,
         'ad_name' => $ad->adboard->name,
         'status' => $ad->adboard->status,
         'budget' => $ad->adboard->budget,
-        'total_spent' => $ad->adboard->budget,
+        'total_spent' => $ad->adboard->budget - $ad->adboard->points,
         'start_date' => $ad->created_at,
         'end_date' => $ad->end_date,
-        'impressions' => (String) $impressions,
-        'clicks' => (String) $clicks,
+        'impressions' => (String) $impressionscount,
+        'clicks' => (String) $clickscount,
         'conversions' => $ad->conversions,
         'ctr' => number_format($ctr, 2),
         'cost_per_click' => '2',
