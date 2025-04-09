@@ -397,7 +397,7 @@ class AdController extends Controller
     ->where('ad_id', $ad->id)
     ->count();
     
-    $conversionRate = ($clicks > 0) ? ($conversions / $clickscount) * 100 : 0;
+    $conversionRate = ($clickscount > 0) ? ($conversions / $clickscount) * 100 : 0;
     
     $total_spent = $ad->adboard->budget - $ad->adboard->points;
 
