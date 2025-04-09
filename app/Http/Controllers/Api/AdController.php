@@ -394,13 +394,14 @@ class AdController extends Controller
 
     $impressionscount = AdImpression::where('ad_id', $ad->id)->count();
     $clickscount = AdClick::where('ad_id', $ad->id)->count();
+    $total_spent = $ad->adboard->budget - $ad->adboard->points;
 
     return response()->json([
         'ad_id' => $ad->id,
         'ad_name' => $ad->adboard->name,
         'status' => $ad->adboard->status,
         'budget' => $ad->adboard->budget,
-        'total_spent' => (String) $ad->adboard->budget - $ad->adboard->points,
+        'total_spent' => (String) $total_spent,
         'start_date' => $ad->created_at,
         'end_date' => $ad->end_date,
         'impressions' => (String) $impressionscount,
