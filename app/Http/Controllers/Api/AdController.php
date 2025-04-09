@@ -387,13 +387,13 @@ class AdController extends Controller
         $start->addDay(); // Move to the next day
     }
 
-    // General metrics (overall CTR, cost-per-click, conversion rate)
-    $ctr = ($ad->impressions > 0) ? ($ad->clicks / $ad->impressions) * 100 : 0;
-    $costPerClick = ($ad->clicks > 0) ? ($ad->total_spent / $ad->clicks) : 0;
-    $conversionRate = ($ad->clicks > 0) ? ($ad->conversions / $ad->clicks) * 100 : 0;
-
     $impressionscount = AdImpression::where('ad_id', $ad->id)->count();
     $clickscount = AdClick::where('ad_id', $ad->id)->count();
+    // General metrics (overall CTR, cost-per-click, conversion rate)
+    $ctr = ($impressionscount > 0) ? ($clickscount / $impressionscount) * 100 : 0;
+    $costPerClick = ($ad->clicks > 0) ? ($ad->total_spent / $ad->clicks) : 0;
+    $conversionRate = ($ad->clicks > 0) ? ($ad->conversions / $ad->clicks) * 100 : 0;
+    
     $total_spent = $ad->adboard->budget - $ad->adboard->points;
 
     return response()->json([
