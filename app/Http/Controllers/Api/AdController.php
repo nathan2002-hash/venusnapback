@@ -285,6 +285,9 @@ class AdController extends Controller
             $ad->status = 'published';
             $ad->save();
 
+            $adboard->status = 'active';
+            $adboard->save();
+
             DB::commit(); // Commit transaction
 
             return response()->json([
