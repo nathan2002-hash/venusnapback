@@ -17,6 +17,15 @@ class MonetizationController extends Controller
         // Get the authenticated user
         $user = Auth::user();
 
+        $accounntcreate = Account::firstOrCreate(['user_id' => $user->id], [
+            'user_id' => $user->id,
+            'account_balance' => 0.00,
+            'available_balance' => 0.00,
+            'monetization_status' => 1,
+            'payout_method' => 'paypal',
+            'currency' => 'USD',
+            'paypal_email' => $user->email
+        ]);
         // Retrieve the user's account data (total earnings and available balance)
         $account = Account::where('user_id', $user->id)->first();
 
