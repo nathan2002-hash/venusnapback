@@ -367,7 +367,7 @@ class AdController extends Controller
             ->sum('points_used'); // Assuming points_used is a field in the ad_impressions table
 
         // Calculate cost using points (you can adjust the cost-per-point logic)
-        $cost = ($totalClickPoints + $totalImpressionPoints) * 0.01; // Example: $0.01 per point, adjust as needed
+        $cost = ($totalClickPoints + $totalImpressionPoints); // Example: $0.01 per point, adjust as needed
 
         // Calculate CTR (Click-Through Rate) for the day
         $ctr = ($impressions > 0) ? ($clicks / $impressions) * 100 : 0;
