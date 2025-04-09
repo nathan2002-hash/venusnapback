@@ -400,7 +400,7 @@ class AdController extends Controller
         'ad_name' => $ad->adboard->name,
         'status' => $ad->adboard->status,
         'budget' => $ad->adboard->budget,
-        'total_spent' => $ad->adboard->budget - $ad->adboard->points,
+        'total_spent' => (String) $ad->adboard->budget - $ad->adboard->points,
         'start_date' => $ad->created_at,
         'end_date' => $ad->end_date,
         'impressions' => (String) $impressionscount,
