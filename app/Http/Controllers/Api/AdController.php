@@ -392,7 +392,12 @@ class AdController extends Controller
     // General metrics (overall CTR, cost-per-click, conversion rate)
     $ctr = ($impressionscount > 0) ? ($clickscount / $impressionscount) * 100 : 0;
     $costPerClick = ($ad->clicks > 0) ? ($ad->total_spent / $ad->clicks) : 0;
-    $conversionRate = ($ad->clicks > 0) ? ($ad->conversions / $ad->clicks) * 100 : 0;
+
+    $conversions = DB::table('ad_cta_clicks')
+    ->where('ad_id', $ad->id)
+    ->count();
+    
+    $conversionRate = ($clicks > 0) ? ($conversions / $clicks) * 100 : 0;
     
     $total_spent = $ad->adboard->budget - $ad->adboard->points;
 
@@ -406,7 +411,7 @@ class AdController extends Controller
         'end_date' => $ad->end_date,
         'impressions' => (String) $impressionscount,
         'clicks' => (String) $clickscount,
-        'conversions' => $ad->conversions,
+        'conversions' => (String) $conversions,
         'ctr' => number_format($ctr, 2),
         'cost_per_click' => '2',
         'conversion_rate' => number_format($conversionRate, 2),
