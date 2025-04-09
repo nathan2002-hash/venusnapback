@@ -406,6 +406,7 @@ class AdController extends Controller
     $total_spent = $ad->adboard->budget - $ad->adboard->points;
 
     $album = $ad->adboard->album ?? null;
+    $defaultProfile = asset('images/default-profile.png');
 
      $profileUrl = $defaultProfile;
 
