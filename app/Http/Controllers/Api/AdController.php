@@ -405,10 +405,31 @@ class AdController extends Controller
     
     $total_spent = $ad->adboard->budget - $ad->adboard->points;
 
+    $album = $ad->adboard->album ?? null;
+
+     $profileUrl = $defaultProfile;
+
+            if ($album) {
+                if (in_array($album->type, ['personal', 'creator'])) {
+                    $profileUrl = $album->thumbnail_compressed
+                        ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                        : ($album->thumbnail_original
+                            ? Storage::disk('s3')->url($album->thumbnail_original)
+                            : $defaultProfile);
+                } elseif ($album->type === 'business') {
+                    $profileUrl = $album->business_logo_compressed
+                        ? Storage::disk('s3')->url($album->business_logo_compressed)
+                        : ($album->business_logo_original
+                            ? Storage::disk('s3')->url($album->business_logo_original)
+                            : $defaultProfile);
+                }
+            }
+
     return response()->json([
         'ad_id' => $ad->id,
         'ad_name' => $ad->adboard->name,
         'album_name' => $ad->adboard->album->name,
+        'album_logo_url' => $profileUrl,
         'status' => $ad->adboard->status,
         'budget' => $ad->adboard->budget,
         'total_spent' => (String) $total_spent,
