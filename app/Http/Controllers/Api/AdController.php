@@ -304,8 +304,12 @@ class AdController extends Controller
 
     public function getAds()
     {
-        $ads = Ad::with('adboard') // assuming relationship exists
-            ->get();
+        $userId = auth()->id();
+        $ads = Ad::whereHas('adboard.album', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+        ->with('adboard') // eager load adboard
+        ->get();
 
         $adsData = $ads->map(function ($ad) {
             $impressions = AdImpression::where('ad_id', $ad->id)->count();
@@ -323,7 +327,7 @@ class AdController extends Controller
                 'clicks' => (String) $clicks,
                 'ctr' => $ctr,
                 'start_date' => $ad->created_at->toDateString(),
-                'end_date' => 'Until Budget is done', // adjust if you have real end date
+                'end_date' => 'Ongoing', // adjust if you have real end date
             ];
         });
 
