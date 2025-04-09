@@ -408,6 +408,7 @@ class AdController extends Controller
     return response()->json([
         'ad_id' => $ad->id,
         'ad_name' => $ad->adboard->name,
+        'album_name' => $ad->adboard->album->name,
         'status' => $ad->adboard->status,
         'budget' => $ad->adboard->budget,
         'total_spent' => (String) $total_spent,
