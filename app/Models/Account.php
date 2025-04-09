@@ -6,7 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Account extends Model
 {
-    protected $fillable = ['account_balance', 'available_balance', 'monetization_status'];
+    protected $fillable = [
+        'user_id',
+        'account_balance',
+        'available_balance',
+        'monetization_status',
+        'payout_method',
+        'currency',
+        'paypal_email',
+    ];
 
     public function user(){
         return $this->belongsTo(User::class);
