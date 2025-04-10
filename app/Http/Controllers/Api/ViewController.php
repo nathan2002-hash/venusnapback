@@ -68,7 +68,7 @@ class ViewController extends Controller
         // Update the recommendation status
         $updated = Recommendation::where('user_id', $userId)
             ->where('post_id', $postId)
-            ->where('status', 'active') // Only update active recommendations
+            ->whereIn('status', ['active', 'fetched']) // Include both statuses
             ->update(['status' => 'seen']);
 
         if ($updated === 0) {
