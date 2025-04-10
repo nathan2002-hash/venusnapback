@@ -39,7 +39,7 @@ class PostController extends Controller
         // Fetch recommendations for the authenticated user
         $recommendations = Recommendation::where('user_id', $userId)
             ->where('status', 'active') // Filter only active recommendations
-            ->orderBy('score', 'desc') // Order by recommendation score (highest first)
+            ->inRandomOrder()
             ->paginate($limit, ['*'], 'page', $page);
 
         // Extract post IDs from the recommendations
