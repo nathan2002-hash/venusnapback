@@ -26,82 +26,77 @@ class PostController extends Controller
 {
 
     public function index(Request $request)
-    {
-        // Get the authenticated user's ID
-        $userId = Auth::user()->id;
+{
+    $userId = Auth::user()->id;
+    $page = $request->query('page', 1);
+    $limit = $request->query('limit', 5);
 
-        // Get the page number from the request (default to 1 if not provided)
-        $page = $request->query('page', 1);
+    // Fetch recommendations
+    $recommendations = Recommendation::where('user_id', $userId)
+        ->where('status', 'active')
+        ->inRandomOrder()
+        ->paginate($limit, ['*'], 'page', $page);
 
-        // Get the limit (number of posts per page) from the request (default to 5 if not provided)
-        $limit = $request->query('limit', 5);
+    // Extract the post IDs
+    $postIds = $recommendations->pluck('post_id');
+    $recommendationIds = $recommendations->pluck('id'); // Get recommendation IDs
 
-        // Fetch recommendations for the authenticated user
-        $recommendations = Recommendation::where('user_id', $userId)
-            ->where('status', 'active') // Filter only active recommendations
-            ->inRandomOrder()
-            ->paginate($limit, ['*'], 'page', $page);
+    // ✅ Mark them as fetched
+    Recommendation::whereIn('id', $recommendationIds)->update(['status' => 'fetched']);
 
-        // Extract post IDs from the recommendations
-        $postIds = $recommendations->pluck('post_id');
+    // Fetch corresponding posts
+    $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
+        ->whereIn('id', $postIds)
+        ->where('status', 'active')
+        ->get();
 
-        // Fetch posts based on the recommended post IDs
-        $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
-            ->whereIn('id', $postIds) // Filter posts by the recommended post IDs
-            ->where('status', 'active') // Filter only active posts
-            ->get();
+    $postsData = $posts->map(function ($post) {
+        $album = $post->album;
 
-        // Map posts to the required format
-        $postsData = $posts->map(function ($post) {
-            $album = $post->album;
-
-            if ($album) {
-                if ($album->type == 'personal' || $album->type == 'creator') {
-                    // Personal and Creator albums
-                    $profileUrl = $album->thumbnail_compressed
-                        ? Storage::disk('s3')->url($album->thumbnail_compressed)
-                        : ($album->thumbnail_original
-                            ? Storage::disk('s3')->url($album->thumbnail_original)
-                            : asset('default/profile.png'));
-                } elseif ($album->type == 'business') {
-                    // Business albums use business logo
-                    $profileUrl = $album->business_logo_compressed
-                        ? Storage::disk('s3')->url($album->business_logo_compressed)
-                        : ($album->business_logo_original
-                            ? Storage::disk('s3')->url($album->business_logo_original)
-                            : asset('default/profile.png'));
-                }
+        if ($album) {
+            if ($album->type == 'personal' || $album->type == 'creator') {
+                $profileUrl = $album->thumbnail_compressed
+                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                    : ($album->thumbnail_original
+                        ? Storage::disk('s3')->url($album->thumbnail_original)
+                        : asset('default/profile.png'));
+            } elseif ($album->type == 'business') {
+                $profileUrl = $album->business_logo_compressed
+                    ? Storage::disk('s3')->url($album->business_logo_compressed)
+                    : ($album->business_logo_original
+                        ? Storage::disk('s3')->url($album->business_logo_original)
+                        : asset('default/profile.png'));
             }
+        }
 
-            // Transform post media data
-            $postMediaData = $post->postMedias->map(function ($media) {
-                return [
-                    'id' => $media->id,
-                    'filepath' => Storage::disk('s3')->url($media->file_path_compress),
-                    'sequence_order' => $media->sequence_order,
-                    'comments_count' => $media->comments->count(),
-                    'likes_count' => $media->admires->count(),
-                ];
-            })->shuffle()->values()->toArray();
-
+        $postMediaData = $post->postMedias->map(function ($media) {
             return [
-                'id' => $post->id,
-                'user' => $album ? $album->name : 'Unknown Album',
-                'supporters' => (string) ($album ? $album->supporters->count() : 0),
-                'profile' => $profileUrl, // Profile based on album type
-                'description' => $post->description ?: 'No description available provided by the creator',
-                'post_media' => $postMediaData,
-                'is_verified' => $album ? ($album->is_verified == 1) : false,
+                'id' => $media->id,
+                'filepath' => Storage::disk('s3')->url($media->file_path_compress),
+                'sequence_order' => $media->sequence_order,
+                'comments_count' => $media->comments->count(),
+                'likes_count' => $media->admires->count(),
             ];
-        });
+        })->shuffle()->values()->toArray();
 
-        return response()->json([
-            'posts' => $postsData,
-            'current_page' => $recommendations->currentPage(),
-            'last_page' => $recommendations->lastPage(),
-            'total' => $recommendations->total(),
-        ], 200);
-    }
+        return [
+            'id' => $post->id,
+            'user' => $album ? $album->name : 'Unknown Album',
+            'supporters' => (string) ($album ? $album->supporters->count() : 0),
+            'profile' => $profileUrl,
+            'description' => $post->description ?: 'No description available provided by the creator',
+            'post_media' => $postMediaData,
+            'is_verified' => $album ? ($album->is_verified == 1) : false,
+        ];
+    });
+
+    return response()->json([
+        'posts' => $postsData,
+        'current_page' => $recommendations->currentPage(),
+        'last_page' => $recommendations->lastPage(),
+        'total' => $recommendations->total(),
+    ], 200);
+}
 
 
     public function show(Request $request, $id)
@@ -356,6 +351,4 @@ class PostController extends Controller
             'has_more' => $posts->hasMorePages(),
         ]);
     }
-
-
 }

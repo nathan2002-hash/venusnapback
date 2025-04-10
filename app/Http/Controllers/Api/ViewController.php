@@ -18,7 +18,7 @@ class ViewController extends Controller
     {
         // Track the view duration
         $view = new View();
-        $view->user_id = Auth::user()->id; // Authenticated user ID
+        $view->user_id = Auth::user()->id;
         $view->ip_address = $request->ip();
         $view->post_media_id = $request->input('post_media_id');
         $view->duration = $request->input('duration');
@@ -29,23 +29,25 @@ class ViewController extends Controller
         $postMediaId = $request->input('post_media_id');
         $userId = Auth::user()->id;
 
-        // Fetch the post ID associated with the post_media_id
         $postmedia = PostMedia::find($postMediaId);
+        if (!$postmedia) {
+            return response()->json(['message' => 'Post media not found'], 404);
+        }
 
         $postId = $postmedia->post_id;
 
-        // Update the recommendation status
+        // ✅ Update recommendations with 'active' or 'fetched' status to 'seen'
         $updated = Recommendation::where('user_id', $userId)
             ->where('post_id', $postId)
-            ->where('status', 'active') // Only update active recommendations
+            ->whereIn('status', ['active', 'fetched']) // Include both statuses
             ->update(['status' => 'seen']);
 
-        if ($updated === 0) {
-            //Log::info("No active recommendations found for user $userId and post $postId");
-        }
-
-        return response()->json(['message' => 'View duration tracked and recommendation marked as seen']);
+        return response()->json([
+            'message' => 'View duration tracked and recommendation marked as seen',
+            'updated_records' => $updated
+        ]);
     }
+
 
     public function viewpost(Request $request)
     {
