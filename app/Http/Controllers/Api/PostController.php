@@ -31,20 +31,46 @@ class PostController extends Controller
     $page = $request->query('page', 1);
     $limit = $request->query('limit', 5);
 
-    // Fetch recommendations
+    // First, get the total count of active recommendations
+    $totalRecommendations = Recommendation::where('user_id', $userId)
+        ->where('status', 'active')
+        ->count();
+
+    // Calculate the offset for manual pagination
+    $offset = ($page - 1) * $limit;
+    
+    // Get paginated recommendations with manual limit/offset
     $recommendations = Recommendation::where('user_id', $userId)
         ->where('status', 'active')
         ->inRandomOrder()
-        ->paginate($limit, ['*'], 'page', $page);
+        ->skip($offset)
+        ->take($limit)
+        ->get();
 
-    // Extract the post IDs
-    $postIds = $recommendations->pluck('post_id');
-    $recommendationIds = $recommendations->pluck('id'); // Get recommendation IDs
+    // If we got empty results but there are more, try resetting statuses
+    if ($recommendations->isEmpty() && $totalRecommendations > 0) {
+        // Reset some 'fetched' recommendations back to 'active'
+        Recommendation::where('user_id', $userId)
+            ->where('status', 'fetched')
+            ->orderBy('updated_at', 'asc')
+            ->limit($limit * 3) // Reset a batch
+            ->update(['status' => 'active']);
 
-    // ✅ Mark them as fetched
+        // Try fetching again
+        $recommendations = Recommendation::where('user_id', $userId)
+            ->where('status', 'active')
+            ->inRandomOrder()
+            ->skip($offset)
+            ->take($limit)
+            ->get();
+    }
+
+    // Mark fetched recommendations
+    $recommendationIds = $recommendations->pluck('id');
     Recommendation::whereIn('id', $recommendationIds)->update(['status' => 'fetched']);
 
     // Fetch corresponding posts
+    $postIds = $recommendations->pluck('post_id');
     $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
         ->whereIn('id', $postIds)
         ->where('status', 'active')
@@ -52,6 +78,7 @@ class PostController extends Controller
 
     $postsData = $posts->map(function ($post) {
         $album = $post->album;
+        $profileUrl = asset('default/profile.png');
 
         if ($album) {
             if ($album->type == 'personal' || $album->type == 'creator') {
@@ -59,13 +86,13 @@ class PostController extends Controller
                     ? Storage::disk('s3')->url($album->thumbnail_compressed)
                     : ($album->thumbnail_original
                         ? Storage::disk('s3')->url($album->thumbnail_original)
-                        : asset('default/profile.png'));
+                        : $profileUrl);
             } elseif ($album->type == 'business') {
                 $profileUrl = $album->business_logo_compressed
                     ? Storage::disk('s3')->url($album->business_logo_compressed)
                     : ($album->business_logo_original
                         ? Storage::disk('s3')->url($album->business_logo_original)
-                        : asset('default/profile.png'));
+                        : $profileUrl);
             }
         }
 
@@ -90,11 +117,14 @@ class PostController extends Controller
         ];
     });
 
+    // Calculate pagination metadata
+    $lastPage = ceil($totalRecommendations / $limit);
+
     return response()->json([
         'posts' => $postsData,
-        'current_page' => $recommendations->currentPage(),
-        'last_page' => $recommendations->lastPage(),
-        'total' => $recommendations->total(),
+        'current_page' => (int)$page,
+        'last_page' => $lastPage,
+        'total' => $totalRecommendations,
     ], 200);
 }
 
