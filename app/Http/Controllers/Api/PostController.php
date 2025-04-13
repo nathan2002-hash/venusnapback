@@ -25,31 +25,47 @@ use App\Models\Artwork;
 class PostController extends Controller
 {
 
-    public function index(Request $request)
+public function index(Request $request)
 {
     $userId = Auth::user()->id;
-    $page = $request->query('page', 1);
-    $limit = $request->query('limit', 5);
+    $limit = $request->query('limit', 3); // Default to 3 posts per fetch
 
-    // Fetch recommendations
+    // Get available active recommendations
     $recommendations = Recommendation::where('user_id', $userId)
         ->where('status', 'active')
         ->inRandomOrder()
-        ->paginate($limit, ['*'], 'page', $page);
-
-    // Extract the post IDs
-    $postIds = $recommendations->pluck('post_id');
-    $recommendationIds = $recommendations->pluck('id'); // Get recommendation IDs
-
-    // ✅ Mark them as fetched
-    Recommendation::whereIn('id', $recommendationIds)->update(['status' => 'fetched']);
-
-    // Fetch corresponding posts
-    $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
-        ->whereIn('id', $postIds)
-        ->where('status', 'active')
+        ->take($limit)
         ->get();
 
+    // If not enough active recommendations, recycle some fetched ones
+    if ($recommendations->count() < $limit) {
+        $needed = $limit - $recommendations->count();
+        
+        Recommendation::where('user_id', $userId)
+            ->where('status', 'fetched')
+            ->orderBy('updated_at', 'asc') // Oldest first
+            ->limit($needed)
+            ->update(['status' => 'active']);
+            
+        // Get the newly activated recommendations
+        $additionalRecs = Recommendation::where('user_id', $userId)
+            ->where('status', 'active')
+            ->inRandomOrder()
+            ->take($needed)
+            ->get();
+            
+        $recommendations = $recommendations->merge($additionalRecs);
+    }
+
+    // Mark these as fetched
+    Recommendation::whereIn('id', $recommendations->pluck('id'))
+        ->update(['status' => 'fetched']);
+
+    // Get the posts
+    $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
+        ->whereIn('id', $recommendations->pluck('post_id'))
+        ->where('status', 'active')
+        ->get();
     $postsData = $posts->map(function ($post) {
         $album = $post->album;
 
@@ -92,9 +108,7 @@ class PostController extends Controller
 
     return response()->json([
         'posts' => $postsData,
-        'current_page' => $recommendations->currentPage(),
-        'last_page' => $recommendations->lastPage(),
-        'total' => $recommendations->total(),
+        'total_available' => $postsData->count(),
     ], 200);
 }
 
