@@ -445,9 +445,9 @@ class AdController extends Controller
         'impressions' => (String) $impressionscount,
         'clicks' => (String) $clickscount,
         'conversions' => (String) $conversions,
-        'ctr' => number_format($ctr, 1),
+        'ctr' => number_format($ctr, 0),
         'cost_per_click' => '2',
-        'conversion_rate' => number_format($conversionRate, 1),
+        'conversion_rate' => number_format($conversionRate, 0),
         'daily_performance' => $dailyData, // This contains all the days from start to today
     ]);
 }
