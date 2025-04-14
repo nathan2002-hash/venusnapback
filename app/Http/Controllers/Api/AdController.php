@@ -391,7 +391,7 @@ class AdController extends Controller
             'clicks' => (String) $clicks,
             'impressions' => (String) $impressions,
             'cost' => (String) $cost, // Round the cost to 2 decimal places
-            'ctr' => number_format($ctr, 2),  // Round the CTR to 2 decimal places
+            'ctr' => number_format($ctr, 0),  // Round the CTR to 2 decimal places
         ];
 
         $start->addDay(); // Move to the next day
