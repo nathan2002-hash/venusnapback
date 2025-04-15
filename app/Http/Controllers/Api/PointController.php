@@ -54,7 +54,6 @@ class PointController extends Controller
         'points' => $request->points,
         'type' => 'ad_points_add',
         'status' => 'pending',
-        'metadata' => 'requesting',
         'description' => 'Attempt to add points to ad',
         'balance_before' => $user->points,
         'balance_after' => $user->points // Will be updated if successful

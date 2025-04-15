@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('points');
             $table->string('type');
             $table->string('status');
-            $table->json('metadata');
+            $table->json('metadata')->nullable();
             $table->integer('balance_after');
             $table->longText('description');
             $table->timestamps();
