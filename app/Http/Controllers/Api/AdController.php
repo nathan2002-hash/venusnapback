@@ -20,18 +20,29 @@ use Illuminate\Support\Facades\Storage;
 class AdController extends Controller
 {
     public function getUserAlbums(Request $request)
-{
-    // Get the authenticated user's albums, filtering for 'creator' and 'business' types only
-    $albums = $request->user()->albums()
-        ->whereIn('type', ['creator', 'business']) // Only 'creator' and 'business' albums
-        ->select('id', 'name', 'type')  // Include the 'type' column in case you want to display it
-        ->get();
+    {
+        // Get the authenticated user's albums, filtering for 'creator' and 'business' types only
+        $albums = $request->user()->albums()
+            ->whereIn('type', ['creator', 'business']) // Only 'creator' and 'business' albums
+            ->select('id', 'name', 'type')  // Include the 'type' column in case you want to display it
+            ->get();
+    
+        // Return response in JSON format
+        return response()->json([
+            'albums' => $albums
+        ]);
+    }
 
-    // Return response in JSON format
-    return response()->json([
-        'albums' => $albums
-    ]);
-}
+    public function getUserPoints(Request $request)
+    {
+        // Get the authenticated user's albums, filtering for 'creator' and 'business' types only
+        $available_points = Auth::user()->points;
+    
+        // Return response in JSON format
+        return response()->json([
+            'available_points' => $available_points
+        ]);
+    }
 
     public function adboard(Request $request)
     {
