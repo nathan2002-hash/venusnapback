@@ -17,6 +17,7 @@ class ContactSupportController extends Controller
         $support = new ContactSupport();
         $support->user_id = $user_id;
         $support->category = $request->category;
+        $support->topic = $request->topic;
         $support->priority = $request->priority;
         $support->description = $request->description;
         $support->status = "Open";
