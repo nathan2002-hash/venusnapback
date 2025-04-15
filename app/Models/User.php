@@ -120,4 +120,9 @@ class User extends Authenticatable
     public function account(){
         return $this->hasOne(Account::class);
     }
+
+    public function contactsupports()
+    {
+        return $this->hasMany(ContactSupport::class);
+    }
 }

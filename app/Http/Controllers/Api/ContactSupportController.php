@@ -19,10 +19,34 @@ class ContactSupportController extends Controller
         $support->category = $request->category;
         $support->priority = $request->priority;
         $support->description = $request->description;
+        $support->status = "Open";
         $support->save();
         // Return the simplified response
         return response()->json([
-            'status' => 'success',
-        ], 200);
+            'message' => 'Support ticket created successfully',
+            'ticket_id' => $support->id,
+        ], 201);
+    }
+
+    public function index(Request $request)
+    {
+        $tickets = ContactSupport::where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'data' => $tickets->map(function ($ticket) {
+                return [
+                    'id' => $ticket->id,
+                    'category' => $ticket->category,
+                    'topic' => $ticket->topic,
+                    'description' => $ticket->description,
+                    'priority' => $ticket->priority,
+                    'status' => $ticket->status,
+                    'created_at' => $ticket->created_at->toDateTimeString(),
+                    'updated_at' => $ticket->updated_at ? $ticket->updated_at->toDateTimeString() : null,
+                ];
+            })
+        ]);
     }
 }

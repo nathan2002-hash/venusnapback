@@ -153,3 +153,6 @@ Route::middleware('auth:api')->post('/user/monetization/apply', 'Api\Monetizatio
 Route::middleware('auth:api')->get('/manage/album/{id}/access', 'Api\AlbumAccessController@accesslist');
 Route::middleware('auth:api')->get('/manage/album/{id}', 'Api\AlbumAccessController@albums');
 Route::middleware('auth:api')->put('/manage/album/update/{id}', 'Api\AlbumAccessController@albumupdate');
+
+Route::middleware('auth:api')->post('/support/ticket/submit', 'Api\ContactSupportController@store');
+Route::middleware('auth:api')->get('/support/tickets', 'Api\ContactSupportController@index');
