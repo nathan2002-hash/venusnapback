@@ -127,6 +127,7 @@ Route::middleware('auth:api')->post('/ad/publish', 'Api\AdController@publish');
 Route::middleware('auth:api')->get('/user/points', 'Api\AdController@getUserPoints');
 Route::middleware('auth:api')->get('/user/ad/albums', 'Api\AdController@getUserAlbums');
 Route::middleware('auth:api')->get('/ads/{id}', 'Api\AdController@show');
+Route::middleware('auth:api')->post('/ad/add-points/{ad}', 'Api\PointController@addPoints');
 
 Route::middleware('auth:api')->get('/ad/list', 'Api\AdController@getAds');
 Route::middleware('auth:api')->get('/ad/{id}/performance', 'Api\AdController@getAdPerformance');
