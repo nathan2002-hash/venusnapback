@@ -39,7 +39,7 @@ class MonetizationController extends Controller
             'user_id' => $user->id,
             'account_balance' => 0.00,
             'available_balance' => 0.00,
-            'monetization_status' => 'active',
+            'monetization_status' => 'inactive',
             'payout_method' => 'paypal',
             'currency' => 'USD',
             'paypal_email' => $user->email
