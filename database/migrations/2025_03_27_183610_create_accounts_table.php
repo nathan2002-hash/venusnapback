@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('monetization_status')->default(0);
             $table->string('payout_method');
             $table->string('currency');
+            $table->string('country')->nullable();
 
             // PayPal-specific field
             $table->string('paypal_email')->nullable();
