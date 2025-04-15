@@ -141,6 +141,7 @@ Route::middleware('auth:api')->get('/payouts', 'Api\PayoutController@fetchUserPa
 
 Route::middleware('auth:api')->get('/points', 'Api\PointController@getPoints');
 
+Route::middleware('auth:api')->get('/user/monetization/status', 'Api\MonetizationController@getMonetizationStatus');
 Route::middleware('auth:api')->get('/user/monetization/dashboard', 'Api\MonetizationController@getUserDashboardData');
 Route::middleware('auth:api')->get('/payout/details', 'Api\MonetizationController@getPayoutDetails');
 Route::middleware('auth:api')->post('/payout/request', 'Api\PayoutController@requestPayout');
