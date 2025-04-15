@@ -30,7 +30,7 @@ class MonetizationController extends Controller
         ], 200);
     }
 
-    public function applyForMonetization(Request $request)
+  public function applyForMonetization(Request $request)
     {
         $user = Auth::user();
 
@@ -65,20 +65,18 @@ class MonetizationController extends Controller
                 'message' => 'Your account is already monetized'
             ], 400);
         }
-
-        // Update account with new application details
-        $account->update([
-            'payout_method' => $validated['payout_method'],
-            'paypal_email' => $validated['payout_method'] === 'paypal' ? $validated['paypal_email'] : null,
-            'account_number' => $validated['payout_method'] === 'bank_transfer' ? encrypt($validated['bank_account_number']) : null,
-            'swift_code' => $validated['payout_method'] === 'bank_transfer' ? encrypt($validated['bank_routing_number']) : null,
-            'bank_name' => $validated['payout_method'] === 'bank_transfer' ? $validated['bank_name'] : null,
-            'account_holder_name' => $validated['payout_method'] === 'bank_transfer' ? $validated['account_holder_name'] : null,
-            'country' => $validated['country'],
-            'monetization_status' => 'pending',
-            // Don't reset balances if they exist
-        ]);
-
+        $account->payout_method = $request->payout_method;
+        if ($request->payout_method === 'paypal') {
+            $account->paypal_email = $request->paypal_email;
+        } else {
+            $account->account_number = $request->bank_account_number;
+            $account->swift_code = $request->bank_routing_number;
+            $account->bank_name = $request->bank_name;
+            $account->account_holder_name = $request->account_holder_name;
+        }
+        $account->country = $request->country;
+        $account->monetization_status = 'pending';
+        $account->save();
         // Send notification to admin for review
         //$user->notify(new MonetizationApplicationSubmitted($account));
         // Or for admin: Notification::send($adminUsers, new NewMonetizationApplication($account));
