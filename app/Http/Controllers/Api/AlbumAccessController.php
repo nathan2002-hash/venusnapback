@@ -32,99 +32,102 @@ class AlbumAccessController extends Controller
     }
 
    public function albumupdate(Request $request, $id)
-    {
-        try {
-            // Check if user is authenticated
-            if (!Auth::check()) {
-                return response()->json([
-                    'message' => 'Authentication required',
-                    'error' => 'User not authenticated'
-                ], 401);
-            }
-
-            // Find the album
-            $album = Auth::user()->albums()->find($id);
-
-            // Check if album exists
-            if (!$album) {
-                return response()->json([
-                    'message' => 'Album not found or you don\'t have permission to edit it',
-                    'error' => 'Album not found'
-                ], 404);
-            }
-
-            // Validate the request data
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'business_category' => 'required|string',
-                'shared_with' => 'array',
-                'shared_with.*' => 'email|exists:users,email',
-            ]);
-
-            // Update the album details
-            $album->update([
-                'name' => $validated['name'],
-                'description' => $validated['description'],
-                'business_category' => $validated['business_category'],
-            ]);
-
-            // Process the shared_with emails
-            $sharedUsers = [];
-            $notFoundUsers = [];
-            foreach ($request->shared_with as $email) {
-                $user = User::where('email', $email)->first();
-
-                if (!$user) {
-                    $notFoundUsers[] = $email;
-                    continue;
-                }
-
-                $existingAccess = $album->sharedWith()
-                    ->where('user_id', $user->id)
-                    ->first();
-
-                if (!$existingAccess) {
-                    $album->sharedWith()->create([
-                        'user_id' => $user->id,
-                        'album_id' => $album->id,
-                        'granted_by' => Auth::id(),
-                        'status' => 'pending',
-                        'role' => 'editor',
-                    ]);
-                }
-
-                $sharedUsers[] = $user->email;
-            }
-
-            $response = [
-                'message' => 'Album updated successfully',
-                'data' => [
-                    'album' => $album->fresh(),
-                    'shared_with' => $sharedUsers
-                ]
-            ];
-
-            if (!empty($notFoundUsers)) {
-                $response['warnings'] = [
-                    'message' => 'Some users were not found',
-                    'not_found_users' => $notFoundUsers
-                ];
-            }
-            return response()->json($response);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
+{
+    try {
+        if (!Auth::check()) {
             return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to update album',
-                'error' => $e->getMessage()
-            ], 500);
+                'success' => false,
+                'message' => 'Authentication required',
+                'error' => 'User not authenticated'
+            ], 401);
         }
+
+        $album = Auth::user()->albums()->find($id);
+        if (!$album) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Album not found or you don\'t have permission to edit it',
+                'error' => 'Album not found'
+            ], 404);
+        }
+
+        // First validate email existence
+        $invalidEmails = [];
+        foreach ($request->shared_with ?? [] as $email) {
+            if (!User::where('email', $email)->exists()) {
+                $invalidEmails[] = $email;
+            }
+        }
+
+        // Validate other fields
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'business_category' => 'required|string',
+            'shared_with' => 'array',
+            'shared_with.*' => 'email', // Removed exists check since we handle it manually
+        ]);
+
+        // Update album
+        $album->update([
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'business_category' => $validated['business_category'],
+        ]);
+
+        // Process sharing only with valid emails
+        $sharedUsers = [];
+        foreach ($request->shared_with as $email) {
+            $user = User::where('email', $email)->first();
+            if (!$user) continue;
+
+            $existingAccess = $album->sharedWith()
+                ->where('user_id', $user->id)
+                ->first();
+
+            if (!$existingAccess) {
+                $album->sharedWith()->create([
+                    'user_id' => $user->id,
+                    'album_id' => $album->id,
+                    'granted_by' => Auth::id(),
+                    'status' => 'pending',
+                    'role' => 'editor',
+                ]);
+            }
+            $sharedUsers[] = $user->email;
+        }
+
+        $response = [
+            'success' => true,
+            'message' => 'Album updated successfully',
+            'data' => [
+                'album' => $album->fresh(),
+                'shared_with' => $sharedUsers
+            ]
+        ];
+
+        if (!empty($invalidEmails)) {
+            $response['warnings'] = [
+                'message' => 'Some users were not found',
+                'invalid_emails' => $invalidEmails
+            ];
+        }
+
+        return response()->json($response);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to update album',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
 }
