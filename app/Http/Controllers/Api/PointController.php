@@ -44,7 +44,6 @@ class PointController extends Controller
 
         $user = Auth::user();
         $ad = Ad::where('id', $id)
-                ->where('user_id', $user->id)
                 ->firstOrFail();
 
         // Check if user has enough points
