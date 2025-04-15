@@ -50,4 +50,29 @@ class ContactSupportController extends Controller
             })
         ]);
     }
+
+    // In Laravel controller
+    public function updateStatus(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:Open,In Progress,Resolved,Closed'
+        ]);
+
+        $ticket = ContactSupport::where('id', $id)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
+
+        $ticket->status = $validated['status'];
+
+        if ($validated['status'] === 'Resolved') {
+            $ticket->resolved_at = now();
+        }
+
+        $ticket->save();
+
+        return response()->json([
+            'message' => 'Ticket status updated',
+            'ticket' => $ticket
+        ]);
+    }
 }

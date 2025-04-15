@@ -19,6 +19,7 @@ return new class extends Migration
             $table->longText('description');
             $table->string('priority');
             $table->string('status');
+            $table->string('resolved_at');
             $table->timestamps();
         });
     }

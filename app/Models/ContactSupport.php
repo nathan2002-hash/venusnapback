@@ -13,6 +13,11 @@ class ContactSupport extends Model
         'description',
         'priority',
         'status',
+        'resolved_at',
+    ];
+
+    protected $casts = [
+        'resolved_at' => 'datetime',
     ];
 
     public function user()
