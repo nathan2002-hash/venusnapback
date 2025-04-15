@@ -34,15 +34,15 @@ class MonetizationController extends Controller
     {
         $user = Auth::user();
 
-        $validated = $request->validate([
-            'payout_method' => 'required|in:paypal,bank_transfer',
-            'paypal_email' => 'required_if:payout_method,paypal|email',
-            'bank_account_number' => 'required_if:payout_method,bank_transfer',
-            'bank_routing_number' => 'required_if:payout_method,bank_transfer',
-            'bank_name' => 'required_if:payout_method,bank_transfer',
-            'account_holder_name' => 'required_if:payout_method,bank_transfer',
-            'country' => 'required|string|max:100',
-        ]);
+        // $validated = $request->validate([
+        //     'payout_method' => 'required|in:paypal,bank_transfer',
+        //     'paypal_email' => 'required_if:payout_method,paypal|email',
+        //     'bank_account_number' => 'required_if:payout_method,bank_transfer',
+        //     'bank_routing_number' => 'required_if:payout_method,bank_transfer',
+        //     'bank_name' => 'required_if:payout_method,bank_transfer',
+        //     'account_holder_name' => 'required_if:payout_method,bank_transfer',
+        //     'country' => 'required|string|max:100',
+        // ]);
 
         // Find existing account
         $account = Account::where('user_id', $user->id)->first();
