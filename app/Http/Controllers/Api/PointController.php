@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\PointTransaction;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Adboard;
 use Illuminate\Support\Facades\Auth;
 
 class PointController extends Controller
@@ -37,65 +38,100 @@ class PointController extends Controller
     }
 
     public function addPoints(Request $request, $id)
-    {
-        $request->validate([
-            'points' => 'required|integer|min:1|max:100000' // Added max limit for security
+{
+    $request->validate([
+        'points' => 'required|integer|min:1|max:100000'
+    ]);
+
+    $user = Auth::user();
+    $ad = Ad::where('id', $id)->firstOrFail();
+    $adboard = Adboard::where('id', $ad->adboard_id)->firstOrFail();
+
+    // Record the transaction attempt immediately
+    $transaction = PointTransaction::create([
+        'user_id' => $user->id,
+        'resource_id' => $ad->id,
+        'points' => $request->points,
+        'type' => 'ad_points_add',
+        'status' => 'pending',
+        'description' => 'Attempt to add points to ad',
+        'balance_before' => $user->points,
+        'balance_after' => $user->points // Will be updated if successful
+    ]);
+
+    // Check if user has enough points
+    if ($user->points < $request->points) {
+        $transaction->update([
+            'status' => 'failed',
+            'description' => 'Insufficient points: attempted to add '.$request->points.' but only had '.$user->points,
+            'metadata' => json_encode([
+                'required_points' => $request->points,
+                'available_points' => $user->points
+            ])
         ]);
 
-        $user = Auth::user();
-        $ad = Ad::where('id', $id)
-                ->firstOrFail();
-
-        // Check if user has enough points
-        if ($user->points < $request->points) {
-            return response()->json([
-                'message' => 'Insufficient points',
-                'errors' => [
-                    'points' => ['You only have ' . $user->points . ' points available']
-                ]
-            ], 422);
-        }
-
-        // Start transaction for data consistency
-        DB::beginTransaction();
-
-        try {
-            // Deduct points from user
-            $user->points -= $request->points;
-            $user->save();
-
-            // Add points to ad
-            $ad->points += $request->points;
-            $ad->save();
-
-            // Record the transaction
-            PointTransaction::create([
-                'user_id' => $user->id,
-                'resource_id' => $ad->id,
-                'points' => $request->points,
-                'type' => 'ad_points_add',
-                'description' => 'adding points to an existing ad',
-                'balance_after' => $user->points
-            ]);
-
-            DB::commit();
-
-            return response()->json([
-                'message' => 'Points added successfully',
-                'data' => [
-                    'id' => $ad->id,
-                    'new_points' => $ad->points,
-                    'user_remaining_points' => $user->points,
-                    'updated_at' => $ad->updated_at
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'message' => 'Failed to add points',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'message' => 'Insufficient points',
+            'errors' => [
+                'points' => ['You only have ' . $user->points . ' points available']
+            ],
+            'transaction_id' => $transaction->id
+        ], 422);
     }
+
+    DB::beginTransaction();
+
+    try {
+        // Deduct points from user
+        $user->points -= $request->points;
+        $user->save();
+
+        // Add points to adboard
+        $adboard->points += $request->points;
+        $adboard->save();
+
+        // Update the transaction record
+        $transaction->update([
+            'status' => 'completed',
+            'description' => 'Successfully added points to ad',
+            'balance_after' => $user->points,
+            'metadata' => json_encode([
+                'adboard_id' => $adboard->id,
+                'adboard_points_before' => $adboard->points - $request->points,
+                'adboard_points_after' => $adboard->points
+            ])
+        ]);
+
+        DB::commit();
+
+        return response()->json([
+            'message' => 'Points added successfully',
+            'data' => [
+                'id' => $ad->id,
+                'new_points' => $adboard->points,
+                'user_remaining_points' => $user->points,
+                'updated_at' => $adboard->updated_at,
+                'transaction_id' => $transaction->id
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        $transaction->update([
+            'status' => 'failed',
+            'description' => 'System error: '.$e->getMessage(),
+            'metadata' => json_encode([
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ])
+        ]);
+
+        return response()->json([
+            'message' => 'Failed to add points',
+            'error' => $e->getMessage(),
+            'transaction_id' => $transaction->id
+        ], 500);
+    }
+}
 }

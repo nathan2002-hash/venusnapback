@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('resource_id');
             $table->integer('points');
             $table->string('type');
+            $table->string('status');
+            $table->json('metadata');
             $table->integer('balance_after');
             $table->longText('description');
             $table->timestamps();
