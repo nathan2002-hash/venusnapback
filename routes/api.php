@@ -146,6 +146,7 @@ Route::middleware('auth:api')->get('/user/monetization/status', 'Api\Monetizatio
 Route::middleware('auth:api')->get('/user/monetization/dashboard', 'Api\MonetizationController@getUserDashboardData');
 Route::middleware('auth:api')->get('/payout/details', 'Api\MonetizationController@getPayoutDetails');
 Route::middleware('auth:api')->post('/payout/request', 'Api\PayoutController@requestPayout');
+Route::middleware('auth:api')->post('/user/monetization/apply', 'Api\MonetizationController@applyForMonetization');
 
 //album access
 Route::middleware('auth:api')->get('/manage/album/{id}/access', 'Api\AlbumAccessController@accesslist');
