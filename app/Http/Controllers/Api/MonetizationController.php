@@ -29,6 +29,65 @@ class MonetizationController extends Controller
             'message' => $this->getStatusMessage($account->monetization_status)
         ], 200);
     }
+
+    public function applyForMonetization(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'payout_method' => 'required|in:paypal,bank_transfer',
+            'paypal_email' => 'required_if:payout_method,paypal|email',
+            'bank_account_number' => 'required_if:payout_method,bank_transfer',
+            'bank_routing_number' => 'required_if:payout_method,bank_transfer',
+            'bank_name' => 'required_if:payout_method,bank_transfer',
+            'account_holder_name' => 'required_if:payout_method,bank_transfer',
+            'country' => 'required|string|max:100',
+        ]);
+
+        // Find existing account
+        $account = Account::where('user_id', $user->id)->first();
+
+        if (!$account) {
+            return response()->json([
+                'message' => 'Account not found'
+            ], 404);
+        }
+
+        // Check if already pending or active
+        if ($account->monetization_status === 'pending') {
+            return response()->json([
+                'message' => 'You already have a pending monetization application'
+            ], 400);
+        }
+
+        if ($account->monetization_status === 'active') {
+            return response()->json([
+                'message' => 'Your account is already monetized'
+            ], 400);
+        }
+
+        // Update account with new application details
+        $account->update([
+            'payout_method' => $validated['payout_method'],
+            'paypal_email' => $validated['payout_method'] === 'paypal' ? $validated['paypal_email'] : null,
+            'account_number' => $validated['payout_method'] === 'bank_transfer' ? encrypt($validated['bank_account_number']) : null,
+            'swift_code' => $validated['payout_method'] === 'bank_transfer' ? encrypt($validated['bank_routing_number']) : null,
+            'bank_name' => $validated['payout_method'] === 'bank_transfer' ? $validated['bank_name'] : null,
+            'account_holder_name' => $validated['payout_method'] === 'bank_transfer' ? $validated['account_holder_name'] : null,
+            'country' => $validated['country'],
+            'monetization_status' => 'pending',
+            // Don't reset balances if they exist
+        ]);
+
+        // Send notification to admin for review
+        //$user->notify(new MonetizationApplicationSubmitted($account));
+        // Or for admin: Notification::send($adminUsers, new NewMonetizationApplication($account));
+
+        return response()->json([
+            'message' => 'Application submitted successfully',
+            'status' => 'pending'
+        ], 200);
+    }
     
     public function getUserDashboardData(Request $request)
     {
