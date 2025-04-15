@@ -12,6 +12,24 @@ use Illuminate\Support\Facades\Auth;
 
 class MonetizationController extends Controller
 {
+    public function getMonetizationStatus(Request $request)
+    {
+        $user = Auth::user();
+        $account = Account::where('user_id', $user->id)->first();
+    
+        if (!$account) {
+            return response()->json([
+                'status' => 'inactive',
+                'message' => 'Monetization not enabled'
+            ], 200);
+        }
+    
+        return response()->json([
+            'status' => $account->monetization_status ?? 'inactive',
+            'message' => $this->getStatusMessage($account->monetization_status)
+        ], 200);
+    }
+    
     public function getUserDashboardData(Request $request)
     {
         // Get the authenticated user
@@ -34,13 +52,6 @@ class MonetizationController extends Controller
             return response()->json([
                 'message' => 'Account not found.',
             ], 404);
-        }
-
-        if (!$account) {
-            return response()->json([
-                'status' => 'inactive',
-                'message' => 'Monetization not enabled'
-            ], 200);
         }
 
         // Get the user's albums (optional: paginate if there are many)
@@ -85,8 +96,6 @@ class MonetizationController extends Controller
             'current_month_earning' => number_format($currentMonthEarnings, 2), // Current month earnings
             'last_month_earning' => number_format($lastMonthEarnings, 2), // Last month earnings
             'change' => number_format($earningsChange, 2), // Earnings change
-            'status' => $account->monetization_status ?? 'inactive',
-            'message' => $this->getStatusMessage($account->monetization_status)
         ];
 
         return response()->json($response, 200);
