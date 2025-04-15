@@ -36,8 +36,9 @@ class AdController extends Controller
     public function getUserPoints(Request $request)
     {
         // Get the authenticated user's albums, filtering for 'creator' and 'business' types only
-        $available_points = Auth::user()->points;
-    
+        $available = Auth::user()->points;
+
+        $available_points = (int) $available;
         // Return response in JSON format
         return response()->json([
             'available_points' => $available_points
