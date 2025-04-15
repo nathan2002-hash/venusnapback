@@ -36,6 +36,13 @@ class MonetizationController extends Controller
             ], 404);
         }
 
+        if (!$account) {
+            return response()->json([
+                'status' => 'inactive',
+                'message' => 'Monetization not enabled'
+            ], 200);
+        }
+
         // Get the user's albums (optional: paginate if there are many)
         $albums = Album::where('user_id', $user->id)->get();
 
@@ -78,9 +85,25 @@ class MonetizationController extends Controller
             'current_month_earning' => number_format($currentMonthEarnings, 2), // Current month earnings
             'last_month_earning' => number_format($lastMonthEarnings, 2), // Last month earnings
             'change' => number_format($earningsChange, 2), // Earnings change
+            'status' => $account->monetization_status ?? 'inactive',
+            'message' => $this->getStatusMessage($account->monetization_status)
         ];
 
         return response()->json($response, 200);
+    }
+
+    private function getStatusMessage($status)
+    {
+        switch (strtolower($status)) {
+            case 'pending':
+                return 'Your monetization request is under review. Please wait for approval.';
+            case 'rejected':
+                return 'Your monetization request was rejected. Please contact support for more information.';
+            case 'suspended':
+                return 'Your monetization has been suspended due to policy violations.';
+            default:
+                return 'Monetization is not enabled for your account.';
+        }
     }
 
     public function getPayoutDetails(Request $request)
