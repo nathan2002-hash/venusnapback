@@ -13,5 +13,7 @@ class PointTransaction extends Model
         'type',
         'balance_after',
         'description',
+        'metadata',
+        'status'
     ];
 }
