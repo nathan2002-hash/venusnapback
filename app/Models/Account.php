@@ -13,6 +13,7 @@ class Account extends Model
         'monetization_status',
         'payout_method',
         'currency',
+        'country',
         'paypal_email',
     ];
 
