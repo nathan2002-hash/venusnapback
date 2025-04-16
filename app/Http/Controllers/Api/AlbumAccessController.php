@@ -210,7 +210,7 @@ class AlbumAccessController extends Controller
     }
 }
 
-    public function getRequests(Request $request)
+    public function getRequedsts(Request $request)
 {
     $user = $request->user();
 
@@ -242,14 +242,19 @@ class AlbumAccessController extends Controller
     return response()->json(['requests' => $requests]);
 }
 
-    public function getRequefsts(Request $request)
+public function getRequests(Request $request)
 {
     $userId = $request->user()->id;
 
     $requests = DB::table('album_accesses')
         ->join('albums', 'album_accesses.album_id', '=', 'albums.id')
-        ->leftJoin('users', 'album_accesses.granted_by', '=', 'users.id')
-        ->where('album_accesses.user_id', $userId)
+        ->leftJoin('users as requesters', 'album_accesses.user_id', '=', 'requesters.id')
+        ->leftJoin('users as granters', 'album_accesses.granted_by', '=', 'granters.id')
+        ->where(function($query) use ($userId) {
+            $query->where('album_accesses.granted_by', $userId)
+                  ->orWhere('album_accesses.user_id', $userId);
+        })
+        ->where('album_accesses.status', 'pending')
         ->select(
             'album_accesses.id',
             'album_accesses.role',
@@ -257,21 +262,26 @@ class AlbumAccessController extends Controller
             'album_accesses.created_at',
             'albums.id as album_id',
             'albums.name as album_name',
-            'users.id as granted_by_id',
-            'users.name as granted_by_name',
-            'users.email as granted_by_email',
-            'users.profile_compressed as granted_by_profile_compressed'
+            'requesters.id as requester_id',
+            'requesters.name as requester_name',
+            'requesters.email as requester_email',
+            'requesters.profile_compressed as requester_profile',
+            'granters.id as granter_id',
+            'granters.name as granter_name',
+            'granters.email as granter_email',
+            'granters.profile_compressed as granter_profile'
         )
         ->orderByDesc('album_accesses.created_at')
         ->get()
-        ->map(function ($access) {
-            $avatarUrl = null;
+        ->map(function ($access) use ($userId) {
+            // If I'm the requester
+            $isRequester = $access->requester_id == $userId;
 
-            if ($access->granted_by_profile_compressed) {
-                $avatarUrl = Storage::disk('s3')->url($access->granted_by_profile_compressed);
-            } elseif ($access->granted_by_email) {
-                $avatarUrl = 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($access->granted_by_email))) . '?s=100&d=mp';
-            }
+            $avatarEmail = $isRequester ? $access->granter_email : $access->requester_email;
+            $avatarProfile = $isRequester ? $access->granter_profile : $access->requester_profile;
+            $avatarUrl = $avatarProfile
+                ? Storage::disk('s3')->url($avatarProfile)
+                : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($avatarEmail))) . '?s=100&d=mp';
 
             return [
                 'id' => $access->id,
@@ -279,38 +289,19 @@ class AlbumAccessController extends Controller
                     'id' => $access->album_id,
                     'name' => $access->album_name,
                 ],
-                'granted_by' => $access->granted_by_id ? [
-                    'id' => $access->granted_by_id,
-                    'name' => $access->granted_by_name,
+                'requester' => [
+                    'id' => $isRequester ? $access->granter_id : $access->requester_id,
+                    'name' => $isRequester ? $access->granter_name : $access->requester_name,
                     'avatar' => $avatarUrl,
-                ] : null,
+                ],
                 'role' => $access->role,
                 'status' => $access->status,
-                'created_at' => \Carbon\Carbon::parse($access->created_at)->diffForHumans(),
+                'created_at' => Carbon::parse($access->created_at)->diffForHumans(),
             ];
         });
 
     return response()->json(['requests' => $requests]);
 }
 
-
-    public function respondToRequest(Request $request, $id)
-{
-    $validated = $request->validate([
-        'action' => 'required|in:approve,reject'
-    ]);
-
-    $albumAccess = AlbumAccess::findOrFail($id);
-
-    // Verify user has permission to respond
-    if ($albumAccess->granted_by != $request->user()->id) {
-        return response()->json(['message' => 'Unauthorized'], 403);
-    }
-
-    $albumAccess->status = $validated['action'] == 'approve' ? 'approved' : 'rejected';
-    $albumAccess->save();
-
-    return response()->json(['message' => 'Request updated']);
-}
 
 }
