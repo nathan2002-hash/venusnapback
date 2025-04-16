@@ -28,6 +28,10 @@ class Album extends Model
         return $this->hasMany(Adboard::class);
     }
 
+    public function access(){
+        return $this->hasMany(AlbumAccess::class);
+    }
+
     public function sharedWith()
     {
         return $this->hasMany(AlbumAccess::class, 'album_id');
