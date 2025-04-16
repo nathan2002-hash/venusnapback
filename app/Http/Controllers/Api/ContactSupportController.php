@@ -67,4 +67,30 @@ class ContactSupportController extends Controller
             'ticket' => $ticket
         ]);
     }
+
+public function getFaqs()
+{
+    $faqs = [
+        [
+            'question' => 'How do I request a payout?',
+            'answer' => 'Go to Monetization Settings → Payment Method and follow the instructions to set up your payout account.',
+            'category' => 'payments'
+        ],
+        [
+            'question' => 'Why is my account not monetized yet?',
+            'answer' => 'Monetization requires approval. Ensure you meet all platform guidelines and have completed verification.',
+            'category' => 'monetization'
+        ],
+        [
+            'question' => 'How are taxes handled?',
+            'answer' => 'For earnings over $600/year, we provide tax forms. Update your tax info in Settings.',
+            'category' => 'taxes'
+        ],
+        // Add more FAQs as needed
+    ];
+
+    return response()->json([
+        'data' => $faqs
+    ]);
+}
 }
