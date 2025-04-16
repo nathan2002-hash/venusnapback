@@ -125,4 +125,30 @@ class User extends Authenticatable
     {
         return $this->hasMany(ContactSupport::class);
     }
+
+     public function albumAccessRequests()
+    {
+        return $this->hasMany(AlbumAccess::class, 'user_id');
+    }
+
+    // Requests this user needs to approve (albums they own)
+    public function albumAccessToApprove()
+    {
+        return $this->hasMany(AlbumAccess::class, 'granted_by');
+    }
+
+    // Albums this user owns
+    public function ownedAlbums()
+    {
+        return $this->hasMany(Album::class, 'user_id');
+    }
+
+    // Albums this user has access to
+    public function accessibleAlbums()
+    {
+        return $this->belongsToMany(Album::class, 'album_accesses', 'user_id', 'album_id')
+            ->withPivot('status', 'role')
+            ->wherePivot('status', 'approved');
+    }
+
 }
