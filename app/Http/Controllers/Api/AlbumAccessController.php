@@ -8,10 +8,11 @@ use App\Models\AlbumAccess;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AlbumAccessController extends Controller
 {
-    public function accesslist($id)
+    public function accesdslist($id)
     {
         // Ensure the logged-in user owns this album
         $album = Auth::user()->albums()->findOrFail($id);
@@ -25,6 +26,40 @@ class AlbumAccessController extends Controller
             'access_list' => $accessList
         ]);
     }
+
+    public function accesslist($id)
+{
+    $user = Auth::user();
+
+    // Check if the user is the owner or has editor/owner access to the album
+    $hasAccess = Album::where('id', $id)
+        ->where(function ($query) use ($user) {
+            $query->where('user_id', $user->id) // Album owner
+                  ->orWhereIn('id', function ($subQuery) use ($user) {
+                      $subQuery->select('album_id')
+                          ->from('album_accesses')
+                          ->where('user_id', $user->id)
+                          ->where('status', 'approved')
+                          ->whereIn('role', ['editor', 'owner']); // Only allow editors or owners
+                  });
+        })
+        ->exists();
+
+    if (! $hasAccess) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
+    // Fetch the access list (including email)
+    $accessList = DB::table('album_accesses')
+        ->join('users', 'album_accesses.user_id', '=', 'users.id')
+        ->where('album_accesses.album_id', $id)
+        ->select('users.email', 'album_accesses.role', 'album_accesses.status', 'album_accesses.created_at')
+        ->get();
+
+    return response()->json([
+        'access_list' => $accessList
+    ]);
+}
 
 
     public function al($id)
