@@ -334,6 +334,7 @@ class AlbumController extends Controller
                 'name' => $album->name,
                 'type' => $album->type,
                 'thumbnail_url' => $thumbnailUrl,
+                'is_verified' => (bool)$album->is_verified,
                 'bg_thumbnail_url' => $bgthumbnailUrl,
                 'supporters' => $album->supporters->count(),
                 'posts' => $posts,
