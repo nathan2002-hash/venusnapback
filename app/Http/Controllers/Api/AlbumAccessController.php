@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\User;
 use App\Models\Album;
+use App\Models\AlbumAccess;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -170,6 +171,38 @@ class AlbumAccessController extends Controller
             'error' => $e->getMessage()
         ], 500);
     }
+}
+
+    public function getRequests(Request $request)
+{
+    $user = $request->user();
+    
+    $requests = AlbumAccess::with(['album', 'requester'])
+        ->where(function($query) use ($user) {
+            $query->where('granted_by', $user->id) // Requests you need to approve
+                ->orWhere('user_id', $user->id); // Requests you've made
+        })
+        ->where('status', 'pending')
+        ->get()
+        ->map(function ($access) {
+            return [
+                'id' => $access->id,
+                'album' => [
+                    'id' => $access->album->id,
+                    'name' => $access->album->name,
+                ],
+                'requester' => [
+                    'id' => $access->requester->id,
+                    'name' => $access->requester->name,
+                    'avatar' => $access->requester->avatar_url,
+                ],
+                'role' => $access->role,
+                'status' => $access->status,
+                'created_at' => $access->created_at->diffForHumans(),
+            ];
+        });
+
+    return response()->json(['requests' => $requests]);
 }
 
 }
