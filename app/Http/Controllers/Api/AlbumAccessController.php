@@ -52,7 +52,6 @@ class AlbumAccessController extends Controller
             'is_verified' => (bool)$album->is_verified,
             'is_owner' => auth()->id() === $album->user_id, // Add this line
             'supporters' => $album->supporters->count(),
-            'posts' => $posts,
             'email' => $album->email,
             'phone' => $album->phone,
             'facebook' => $album->facebook,
