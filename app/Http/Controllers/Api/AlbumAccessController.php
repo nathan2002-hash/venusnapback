@@ -31,16 +31,16 @@ class AlbumAccessController extends Controller
 {
     $user = Auth::user();
 
-    // Check if the user is the owner or has editor/owner access to the album
+    // Check if user is album owner or has editor/owner access
     $hasAccess = Album::where('id', $id)
         ->where(function ($query) use ($user) {
-            $query->where('user_id', $user->id) // Album owner
+            $query->where('user_id', $user->id)
                   ->orWhereIn('id', function ($subQuery) use ($user) {
                       $subQuery->select('album_id')
                           ->from('album_accesses')
                           ->where('user_id', $user->id)
                           ->where('status', 'approved')
-                          ->whereIn('role', ['editor', 'owner']); // Only allow editors or owners
+                          ->whereIn('role', ['editor', 'owner']);
                   });
         })
         ->exists();
@@ -49,17 +49,31 @@ class AlbumAccessController extends Controller
         return response()->json(['message' => 'Unauthorized'], 403);
     }
 
-    // Fetch the access list (including email)
+    // Fetch and format the access list
     $accessList = DB::table('album_accesses')
         ->join('users', 'album_accesses.user_id', '=', 'users.id')
         ->where('album_accesses.album_id', $id)
-        ->select('users.email', 'album_accesses.role', 'album_accesses.status', 'album_accesses.created_at')
-        ->get();
+        ->select(
+            'users.email',
+            'album_accesses.role',
+            'album_accesses.status',
+            'album_accesses.created_at'
+        )
+        ->get()
+        ->map(function ($item) {
+            return [
+                'email' => $item->email,
+                'role' => $item->role,
+                'status' => $item->status,
+                'created_at' => $item->created_at->format('Y-m-d H:i:s'),
+            ];
+        });
 
     return response()->json([
         'access_list' => $accessList
     ]);
 }
+
 
 
     public function al($id)
