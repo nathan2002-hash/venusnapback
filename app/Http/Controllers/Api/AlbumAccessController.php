@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AlbumAccessController extends Controller
 {
@@ -65,7 +66,7 @@ class AlbumAccessController extends Controller
                 'email' => $item->email,
                 'role' => $item->role,
                 'status' => $item->status,
-                'created_at' => $item->created_at->format('Y-m-d H:i:s'),
+                'created_at' => Carbon::parse($item->created_at)->format('Y-m-d H:i:s'),
             ];
         });
 
