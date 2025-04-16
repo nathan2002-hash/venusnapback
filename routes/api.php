@@ -79,6 +79,7 @@ Route::middleware('auth:api')->get('/album/business/categories', 'Api\AlbumContr
 
 Route::middleware('auth:api')->get('/user/albums', 'Api\AlbumController@getAlbums');
 Route::middleware('auth:api')->get('/user/album/{id}', 'Api\AlbumController@show');
+Route::middleware('auth:api')->get('/user/album/viewer/{albumId}', 'Api\AlbumController@showviewer');
 Route::middleware('auth:api')->post('/user/album/{id}/update-image', 'Api\AlbumController@album_update');
 
 //artwork routes
