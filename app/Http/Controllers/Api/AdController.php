@@ -9,6 +9,7 @@ use App\Models\AdClick;
 use App\Models\AdMedia;
 use App\Models\Supporter;
 use App\Models\AdImpression;
+use App\Models\Album;
 use Illuminate\Http\Request;
 use App\Jobs\AdImageCompress;
 use Illuminate\Support\Facades\DB;
@@ -38,16 +39,16 @@ class AdController extends Controller
             ->select('albums.id', 'albums.name', 'albums.type')
             ->get();
 
-        // Convert stdClass to objects with matching keys
+        // Convert shared albums to Album model instances
         $sharedAlbums = collect($sharedAlbumsRaw)->map(function ($album) {
-            return (object) [
+            return new Album([
                 'id' => $album->id,
                 'name' => $album->name,
                 'type' => $album->type,
-            ];
+            ]);
         });
 
-        // Merge both sets
+        // Merge owned and shared albums
         $albums = $ownedAlbums->merge($sharedAlbums);
 
         return response()->json([
