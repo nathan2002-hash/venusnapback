@@ -33,8 +33,7 @@ class AlbumAccessController extends Controller
 
     public function albums($id)
 {
-    $album = Auth::user()->albums()->findOrFail($id);
-
+    $album = Album::findOrFail($id);
     if (!$album) {
         return response()->json([
             'message' => 'Album not found'
