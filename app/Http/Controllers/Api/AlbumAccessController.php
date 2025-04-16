@@ -277,18 +277,29 @@ public function respondToRequest(Request $request, $id)
         'action' => 'required|in:approve,reject'
     ]);
 
-    $albumAccess = AlbumAccess::findOrFail($id);
+    $userId = $request->user()->id;
 
-    // Verify user has permission to respond
-    if ($albumAccess->granted_by != $request->user()->id) {
+    // Get the album access request
+    $albumAccess = DB::table('album_accesses')->where('id', $id)->first();
+
+    if (!$albumAccess) {
+        return response()->json(['message' => 'Request not found'], 404);
+    }
+
+    // Only the invited user (user_id) can respond
+    if ($albumAccess->user_id != $userId) {
         return response()->json(['message' => 'Unauthorized'], 403);
     }
 
-    $albumAccess->status = $validated['action'] == 'approve' ? 'approved' : 'rejected';
-    $albumAccess->save();
+    // Update the status
+    DB::table('album_accesses')->where('id', $id)->update([
+        'status' => $validated['action'] === 'approve' ? 'approved' : 'rejected',
+        'updated_at' => now(),
+    ]);
 
-    return response()->json(['message' => 'Request updated']);
+    return response()->json(['message' => 'Request ' . $validated['action'] . 'd']);
 }
+
 
 
 }
