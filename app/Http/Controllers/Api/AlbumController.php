@@ -60,11 +60,11 @@ class AlbumController extends Controller
             'success' => true,
             'data' => $albums->map(function ($album) {
                 if ($album->type == 'personal') {
-                    $albumName = "{$album->name} (Personal Album)";
+                    $albumName = "{$album->name} (Personal)";
                 } elseif ($album->type == 'creator') {
-                    $albumName = "{$album->name} (Creator Album)";
+                    $albumName = "{$album->name} (Creator)";
                 } else {
-                    $albumName = "{$album->name} (Business Album)";
+                    $albumName = "{$album->name} (Business)";
                 }
 
                 return [
