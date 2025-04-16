@@ -341,6 +341,87 @@ class AlbumController extends Controller
         ], 200);
     }
 
+    public function showviewer($albumId)
+{
+    $album = Album::with(['posts.postmedias', 'socialLinks'])
+        ->find($albumId);
+
+    if (!$album) {
+        return response()->json([
+            'message' => 'Album not found'
+        ], 404);
+    }
+
+    // Determine the album's thumbnail
+    if ($album->type == 'personal' || $album->type == 'creator') {
+        $thumbnailUrl = $album->thumbnail_compressed
+            ? Storage::disk('s3')->url($album->thumbnail_compressed)
+            : ($album->thumbnail_original
+                ? Storage::disk('s3')->url($album->thumbnail_original)
+                : null);
+    } elseif ($album->type == 'business') {
+        $thumbnailUrl = $album->business_logo_compressed
+            ? Storage::disk('s3')->url($album->business_logo_compressed)
+            : ($album->business_logo_original
+                ? Storage::disk('s3')->url($album->business_logo_original)
+                : null);
+    } else {
+        $thumbnailUrl = asset('defaults/album.png');
+    }
+
+    $bgthumbnailUrl = $album->cover_image_compressed
+        ? Storage::disk('s3')->url($album->cover_image_compressed)
+        : ($album->cover_image_original
+            ? Storage::disk('s3')->url($album->cover_image_original)
+            : null);
+
+    // Attach post thumbnail from postmedias
+    $posts = $album->posts->map(function ($post) {
+        $postThumbnail = $post->postmedias->first() 
+            ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress) 
+            : null;
+        return [
+            'id' => $post->id,
+            'title' => $post->title,
+            'thumbnail_url' => $postThumbnail,
+            'image_count' => $post->postmedias->count(),
+        ];
+    });
+
+    // Prepare social links
+    $socialLinks = [];
+    if ($album) {
+        $socialLinks = [
+            'website' => $album->website,
+            'facebook' => $album->facebook,
+            'linkedin' => $album->linkedin,
+            //'instagram' => $album->socialLinks->instagram,
+            //'twitter' => $album->socialLinks->twitter,
+        ];
+    }
+
+    return response()->json([
+        'album' => [
+            'id' => $album->id,
+            'name' => $album->name,
+            'type' => $album->type,
+            'description' => $album->description,
+            'is_verified' => (bool)$album->is_verified,
+            'thumbnail_url' => $thumbnailUrl,
+            'bg_thumbnail_url' => $bgthumbnailUrl,
+            'supporters' => $album->supporters->count(),
+            'posts' => $posts,
+            'email' => in_array($album->type, ['creator', 'business']) 
+                ? $album->email 
+                : null,
+            'phone' => in_array($album->type, ['creator', 'business']) 
+                ? $album->phone 
+                : null,
+            ...$socialLinks
+        ]
+    ], 200);
+}
+
     public function album_update(Request $request, $id)
     {
         $album = Auth::user()->albums()->findOrFail($id);
