@@ -28,12 +28,33 @@ class Album extends Model
         return $this->hasMany(Adboard::class);
     }
 
-    public function access(){
-        return $this->hasMany(AlbumAccess::class);
-    }
-
     public function sharedWith()
     {
         return $this->hasMany(AlbumAccess::class, 'album_id');
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // All access requests for this album
+    public function accessRequests()
+    {
+        return $this->hasMany(AlbumAccess::class);
+    }
+
+    // Approved access only
+    public function approvedAccess()
+    {
+        return $this->hasMany(AlbumAccess::class)
+            ->where('status', 'approved');
+    }
+
+    // Pending requests only
+    public function pendingAccess()
+    {
+        return $this->hasMany(AlbumAccess::class)
+            ->where('status', 'pending');
     }
 }
