@@ -136,42 +136,42 @@ class SearchController extends Controller
             ];
         });
 
-    // Search ads
-    $ads = Ad::with(['media', 'adboard.album'])
-        ->where('status', 'published')
-        ->where(function($q) use ($query) {
-            $q->where('title', 'like', "%$query%")
-              ->orWhere('description', 'like', "%$query%")
-              ->orWhereHas('adboard.album', function($q) use ($query) {
-                  $q->where('name', 'like', "%$query%");
-              });
-        })
-        ->whereHas('adboard', function($query) {
-            $query->where('points', '>', 0);
-        })
-        ->limit(10)
-        ->get()
-        ->map(function ($ad) {
-            // Get ad image (first media item or default)
-            $adImage = $ad->media->isNotEmpty() 
-                ? Storage::disk('s3')->url($ad->media->first()->path)
-                : asset('default/ad.png');
-            
-            // Get album image if available
-            $albumImage = $ad->adboard && $ad->adboard->album
-                ? $this->getProfileUrl($ad->adboard->album)
-                : null;
+   // Search ads
+$ads = Ad::with(['media', 'adboard.album'])
+    ->where('status', 'published')
+    ->whereHas('adboard', function($q) use ($query) {
+        $q->where('points', '>', 0)
+            ->where(function($subQuery) use ($query) {
+                $subQuery->where('name', 'like', "%$query%")
+                    ->orWhere('description', 'like', "%$query%")
+                    ->orWhereHas('album', function($q) use ($query) {
+                        $q->where('name', 'like', "%$query%");
+                    });
+            });
+    })
+    ->limit(10)
+    ->get()
+    ->map(function ($ad) {
+        // Get ad image (first media item or default)
+        $adImage = $ad->media->isNotEmpty() 
+            ? Storage::disk('s3')->url($ad->media->first()->path)
+            : asset('default/ad.png');
+        
+        // Get album image if available
+        $albumImage = $ad->adboard && $ad->adboard->album
+            ? $this->getProfileUrl($ad->adboard->album)
+            : null;
 
-            return [
-                'id' => $ad->id,
-                'title' => $ad->title,
-                'description' => Str::limit($ad->description, 50),
-                'image_url' => $albumImage ?? $adImage,
-                'is_album' => false,
-                'is_ad' => true,
-                'is_trending' => false,
-            ];
-        });
+        return [
+            'id' => $ad->id,
+            'title' => $ad->adboard->name ?? 'Ad', // Get title from adboard
+            'description' => Str::limit($ad->adboard->description ?? '', 50), // Get description from adboard
+            'image_url' => $albumImage ?? $adImage,
+            'is_album' => false,
+            'is_ad' => true,
+            'is_trending' => false,
+        ];
+    });
 
     // Merge all results
     $mergedResults = collect([])
