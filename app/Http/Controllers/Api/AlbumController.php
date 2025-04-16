@@ -47,42 +47,54 @@ class AlbumController extends Controller
     }
 
 
-public function getUserAlbums()
-{
-    $user = Auth::user();
+    public function getUserAlbums()
+    {
+        $user = Auth::user();
 
-    // Albums the user owns
-    $ownedAlbums = Album::where('user_id', $user->id)
-        ->select('id', 'name', 'type')
-        ->get();
+        // Albums the user owns
+        $ownedAlbums = Album::where('user_id', $user->id)
+            ->whereIn('type', ['creator', 'business'])
+            ->select('id', 'name', 'type')
+            ->get();
 
-    // Albums the user has been granted access to
-    $sharedAlbums = DB::table('album_accesses')
-        ->join('albums', 'album_accesses.album_id', '=', 'albums.id')
-        ->where('album_accesses.user_id', $user->id)
-        ->where('album_accesses.status', 'approved')
-        ->select('albums.id', 'albums.name', 'albums.type')
-        ->get();
+        // Albums the user has been granted access to
+        $sharedAlbumsRaw = DB::table('album_accesses')
+            ->join('albums', 'album_accesses.album_id', '=', 'albums.id')
+            ->where('album_accesses.user_id', $user->id)
+            ->where('album_accesses.status', 'approved')
+            ->whereIn('albums.type', ['creator', 'business'])
+            ->select('albums.id', 'albums.name', 'albums.type')
+            ->get();
 
-    // Merge both collections
-    $albums = $ownedAlbums->merge($sharedAlbums);
-
-    return response()->json([
-        'success' => true,
-        'data' => $albums->map(function ($album) {
-            $typeLabel = match($album->type) {
-                'personal' => 'Personal',
-                'creator' => 'Creator',
-                default => 'Business',
-            };
-
-            return [
+        // Convert shared albums from stdClass to Collection
+        $sharedAlbums = collect($sharedAlbumsRaw)->map(function ($album) {
+            return (object) [
                 'id' => $album->id,
-                'album_name' => "{$album->name} ($typeLabel)",
+                'name' => $album->name,
+                'type' => $album->type,
             ];
-        }),
-    ]);
-}
+        });
+
+        // Merge both collections
+        $albums = $ownedAlbums->merge($sharedAlbums);
+
+        return response()->json([
+            'success' => true,
+            'data' => $albums->map(function ($album) {
+                $typeLabel = match($album->type) {
+                    'personal' => 'Personal',
+                    'creator' => 'Creator',
+                    default => 'Business',
+                };
+
+                return [
+                    'id' => $album->id,
+                    'album_name' => "{$album->name} ($typeLabel)",
+                ];
+            }),
+        ]);
+    }
+
 
     public function personalstore(Request $request)
     {
