@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class AlbumAccessController extends Controller
 {
@@ -258,11 +259,20 @@ class AlbumAccessController extends Controller
             'albums.name as album_name',
             'users.id as granted_by_id',
             'users.name as granted_by_name',
-            'users.avatar_url as granted_by_avatar'
+            'users.email as granted_by_email',
+            'users.profile_compressed as granted_by_profile_compressed'
         )
         ->orderByDesc('album_accesses.created_at')
         ->get()
         ->map(function ($access) {
+            $avatarUrl = null;
+
+            if ($access->granted_by_profile_compressed) {
+                $avatarUrl = Storage::disk('s3')->url($access->granted_by_profile_compressed);
+            } elseif ($access->granted_by_email) {
+                $avatarUrl = 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($access->granted_by_email))) . '?s=100&d=mp';
+            }
+
             return [
                 'id' => $access->id,
                 'album' => [
@@ -272,7 +282,7 @@ class AlbumAccessController extends Controller
                 'granted_by' => $access->granted_by_id ? [
                     'id' => $access->granted_by_id,
                     'name' => $access->granted_by_name,
-                    'avatar' => $access->granted_by_avatar,
+                    'avatar' => $avatarUrl,
                 ] : null,
                 'role' => $access->role,
                 'status' => $access->status,
