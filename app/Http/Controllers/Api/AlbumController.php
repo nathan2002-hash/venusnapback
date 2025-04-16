@@ -341,10 +341,9 @@ class AlbumController extends Controller
         ], 200);
     }
 
-    public function showviewer($albumId)
+   public function showviewer($albumId)
 {
-    $album = Album::with(['posts.postmedias', 'socialLinks'])
-        ->find($albumId);
+    $album = Album::with(['posts.postmedias', 'supporters'])->find($albumId);
 
     if (!$album) {
         return response()->json([
@@ -377,8 +376,8 @@ class AlbumController extends Controller
 
     // Attach post thumbnail from postmedias
     $posts = $album->posts->map(function ($post) {
-        $postThumbnail = $post->postmedias->first() 
-            ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress) 
+        $postThumbnail = $post->postmedias->first()
+            ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress)
             : null;
         return [
             'id' => $post->id,
@@ -387,17 +386,6 @@ class AlbumController extends Controller
             'image_count' => $post->postmedias->count(),
         ];
     });
-
-    // Prepare social links
-    $socialLinks = [];
-    if ($album) {
-        $socialLinks = [
-            'website' => $album->website,
-            'facebook' => $album->facebook,
-            'linkedin' => $album->linkedin,
-            //'instagram' => $album->socialLinks->instagram,
-        ];
-    }
 
     return response()->json([
         'album' => [
@@ -410,16 +398,15 @@ class AlbumController extends Controller
             'bg_thumbnail_url' => $bgthumbnailUrl,
             'supporters' => $album->supporters->count(),
             'posts' => $posts,
-            'email' => in_array($album->type, ['creator', 'business']) 
-                ? $album->email 
-                : null,
-            'phone' => in_array($album->type, ['creator', 'business']) 
-                ? $album->phone 
-                : null,
-            ...$socialLinks
+            'email' => in_array($album->type, ['creator', 'business']) ? $album->email : null,
+            'phone' => in_array($album->type, ['creator', 'business']) ? $album->phone : null,
+            'website' => $album->website,
+            'facebook' => $album->facebook,
+            'linkedin' => $album->linkedin,
         ]
     ], 200);
 }
+
 
     public function album_update(Request $request, $id)
     {
