@@ -57,7 +57,13 @@ class AlbumAccessController extends Controller
             'facebook' => $album->facebook,
             'linkedin' => $album->linkedin,
             'website' => $album->website,
-            'business_category' => $album->category_id,
+            'business_category' => $album->type == 'business' 
+            ? $album->category_id 
+            : ($album->type == 'creator' ? $album->content_type : null),
+        // Include category name for display
+        'category_name' => $album->type == 'business' 
+            ? ($album->category->name ?? null)
+            : ($album->type == 'creator' ? $album->contentType->name ?? null : null),
         ]
     ], 200);
 }
@@ -104,6 +110,11 @@ class AlbumAccessController extends Controller
             'name' => $validated['name'],
             'description' => $validated['description'],
             'business_category' => $validated['business_category'],
+           'phone' => $request->phone,
+           'email' => $request->email,
+           'website' => $request->website,
+           'facebook' => $request->facebook,
+           'linkedin' => $request->linkedin,
         ]);
 
         // Process sharing only with valid emails
