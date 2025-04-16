@@ -155,7 +155,7 @@ Route::middleware('auth:api')->get('/manage/album/{id}/access', 'Api\AlbumAccess
 Route::middleware('auth:api')->get('/manage/album/{id}', 'Api\AlbumAccessController@albums');
 Route::middleware('auth:api')->put('/manage/album/update/{id}', 'Api\AlbumAccessController@albumupdate');
 Route::middleware('auth:api')->get('/album/requests', 'Api\AlbumAccessController@getRequests');
-Route::middleware('auth:api')->post('/album/requests/respond/{id}', 'Api\AlbumAccessController@respondToRequest');
+Route::middleware('auth:api')->post('/album/requests/{id}/respond', 'Api\AlbumAccessController@respondToRequest');
 
 Route::middleware('auth:api')->post('/support/ticket/submit', 'Api\ContactSupportController@store');
 Route::middleware('auth:api')->get('/support/tickets', 'Api\ContactSupportController@index');
