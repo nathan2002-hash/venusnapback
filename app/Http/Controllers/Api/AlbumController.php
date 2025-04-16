@@ -6,6 +6,7 @@ use App\Models\Album;
 use App\Jobs\AlbumCreate;
 use Illuminate\Http\Request;
 use App\Models\AlbumCategory;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -46,34 +47,42 @@ class AlbumController extends Controller
     }
 
 
-    public function getUserAlbums()
-    {
-        // Get the authenticated user
-        $user = Auth::user();
+public function getUserAlbums()
+{
+    $user = Auth::user();
 
-        // Fetch albums associated with the user
-        $albums = Album::where('user_id', $user->id)
-            ->select('id', 'name', 'type') // Only fetch necessary fields
-            ->get();
+    // Albums the user owns
+    $ownedAlbums = Album::where('user_id', $user->id)
+        ->select('id', 'name', 'type')
+        ->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $albums->map(function ($album) {
-                if ($album->type == 'personal') {
-                    $albumName = "{$album->name} (Personal)";
-                } elseif ($album->type == 'creator') {
-                    $albumName = "{$album->name} (Creator)";
-                } else {
-                    $albumName = "{$album->name} (Business)";
-                }
+    // Albums the user has been granted access to
+    $sharedAlbums = DB::table('album_accesses')
+        ->join('albums', 'album_accesses.album_id', '=', 'albums.id')
+        ->where('album_accesses.user_id', $user->id)
+        ->where('album_accesses.status', 'approved')
+        ->select('albums.id', 'albums.name', 'albums.type')
+        ->get();
 
-                return [
-                    'id' => $album->id,
-                    'album_name' => $albumName,
-                ];
-            }),
-        ]);
-    }
+    // Merge both collections
+    $albums = $ownedAlbums->merge($sharedAlbums);
+
+    return response()->json([
+        'success' => true,
+        'data' => $albums->map(function ($album) {
+            $typeLabel = match($album->type) {
+                'personal' => 'Personal',
+                'creator' => 'Creator',
+                default => 'Business',
+            };
+
+            return [
+                'id' => $album->id,
+                'album_name' => "{$album->name} ($typeLabel)",
+            ];
+        }),
+    ]);
+}
 
     public function personalstore(Request $request)
     {
@@ -239,50 +248,6 @@ class AlbumController extends Controller
             'success' => true,
             'categories' => $categories
         ]);
-    }
-
-    public function getAlbumis(Request $request)
-    {
-        // Fetch albums for the logged-in user
-        $albums = Album::where('user_id', $request->user()->id)
-            ->select('id', 'name', 'description', 'thumbnail_original', 'business_logo_original', 'business_logo_compressed', 'thumbnail_compressed', 'type', 'created_at')
-            ->get();
-
-        // Modify each album to include the proper S3 URL for thumbnails
-        $albums = $albums->map(function ($album) {
-            // Get the appropriate thumbnail based on the album type
-            $thumbnailUrl = null;
-
-            if ($album->type == 'personal' || $album->type == 'creator') {
-                // For personal and creator, use the compressed thumbnail if it exists, otherwise use the original
-                $thumbnailUrl = $album->thumbnail_compressed
-                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
-                    : ($album->thumbnail_original
-                        ? Storage::disk('s3')->url($album->thumbnail_original)
-                        : null);
-            } elseif ($album->type == 'business') {
-                // For business albums, you may want to use the business logo thumbnail if available
-                $thumbnailUrl = $album->business_logo_compressed
-                    ? Storage::disk('s3')->url($album->business_logo_compressed)
-                    : ($album->business_logo_original
-                        ? Storage::disk('s3')->url($album->business_logo_original)
-                        : null);
-            }
-
-            return [
-                'id' => $album->id,
-                'name' => $album->name,
-                'description' => $album->description,
-                'type' => $album->type,
-                'is_verified' => (bool)$album->is_verified,
-                'supporters' => $album->supporters->count(),
-                'posts' => $album->posts->count(),
-                'thumbnail_url' => $thumbnailUrl, // Include the S3 URL for the thumbnail
-                'created_at' => $album->created_at->format('l, d F Y at h:i A'), // Format the date nicely
-            ];
-        });
-
-        return response()->json(['albums' => $albums]);
     }
 
     public function getAlbums(Request $request)
@@ -470,7 +435,7 @@ class AlbumController extends Controller
     public function album_update(Request $request, $id)
     {
         $album = Auth::user()->albums()->findOrFail($id);
-    
+
         $request->validate([
             'image_type' => 'required|in:profile,cover',
             'image' => 'required|image|max:2048',
@@ -497,7 +462,7 @@ class AlbumController extends Controller
         }
 
         AlbumCreate::dispatch($album->id);
-        
+
         return response()->json(['message' => 'Image updated successfully']);
     }
 }
