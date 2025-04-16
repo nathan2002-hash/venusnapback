@@ -20,18 +20,31 @@ use Illuminate\Support\Facades\Storage;
 class AdController extends Controller
 {
     public function getUserAlbums(Request $request)
-    {
-        // Get the authenticated user's albums, filtering for 'creator' and 'business' types only
-        $albums = $request->user()->albums()
-            ->whereIn('type', ['creator', 'business']) // Only 'creator' and 'business' albums
-            ->select('id', 'name', 'type')  // Include the 'type' column in case you want to display it
-            ->get();
-    
-        // Return response in JSON format
-        return response()->json([
-            'albums' => $albums
-        ]);
-    }
+{
+    $user = $request->user();
+
+    // Owned albums (creator/business only)
+    $ownedAlbums = $user->albums()
+        ->whereIn('type', ['creator', 'business'])
+        ->select('id', 'name', 'type')
+        ->get();
+
+    // Shared albums (approved only, creator/business only)
+    $sharedAlbums = DB::table('album_accesses')
+        ->join('albums', 'album_accesses.album_id', '=', 'albums.id')
+        ->where('album_accesses.user_id', $user->id)
+        ->where('album_accesses.status', 'approved')
+        ->whereIn('albums.type', ['creator', 'business'])
+        ->select('albums.id', 'albums.name', 'albums.type')
+        ->get();
+
+    // Combine both sets
+    $albums = $ownedAlbums->merge($sharedAlbums);
+
+    return response()->json([
+        'albums' => $albums
+    ]);
+}
 
     public function getUserPoints(Request $request)
     {
@@ -418,9 +431,9 @@ class AdController extends Controller
     $conversions = DB::table('ad_cta_clicks')
     ->where('ad_id', $ad->id)
     ->count();
-    
+
     $conversionRate = ($clickscount > 0) ? ($conversions / $clickscount) * 100 : 0;
-    
+
     $total_spent = $ad->adboard->budget - $ad->adboard->points;
 
     $album = $ad->adboard->album ?? null;
