@@ -396,7 +396,6 @@ class AlbumController extends Controller
             'facebook' => $album->facebook,
             'linkedin' => $album->linkedin,
             //'instagram' => $album->socialLinks->instagram,
-            //'twitter' => $album->socialLinks->twitter,
         ];
     }
 
