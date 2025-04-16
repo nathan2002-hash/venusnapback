@@ -67,7 +67,8 @@ class AdController extends Controller
 
                 return [
                     'id' => $album['id'],
-                    'album_name' => "{$album['name']} ($typeLabel)",
+                    'name' => "{$album['name']}",
+                    'type' => "$typeLabel",
                 ];
             })
         ]);
