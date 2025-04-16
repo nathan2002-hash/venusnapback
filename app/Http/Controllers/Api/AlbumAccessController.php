@@ -210,38 +210,6 @@ class AlbumAccessController extends Controller
     }
 }
 
-    public function getRequedsts(Request $request)
-{
-    $user = $request->user();
-
-    $requests = AlbumAccess::with(['album', 'requester'])
-        ->where(function($query) use ($user) {
-            $query->where('granted_by', $user->id) // Requests you need to approve
-                ->orWhere('user_id', $user->id); // Requests you've made
-        })
-        ->where('status', 'pending')
-        ->get()
-        ->map(function ($access) {
-            return [
-                'id' => $access->id,
-                'album' => [
-                    'id' => $access->album->id,
-                    'name' => $access->album->name,
-                ],
-                'requester' => [
-                    'id' => $access->requester->id,
-                    'name' => $access->requester->name,
-                    'avatar' => $access->requester->avatar_url,
-                ],
-                'role' => $access->role,
-                'status' => $access->status,
-                'created_at' => $access->created_at->diffForHumans(),
-            ];
-        });
-
-    return response()->json(['requests' => $requests]);
-}
-
 public function getRequests(Request $request)
 {
     $userId = $request->user()->id;
@@ -301,6 +269,25 @@ public function getRequests(Request $request)
         });
 
     return response()->json(['requests' => $requests]);
+}
+
+public function respondToRequest(Request $request, $id)
+{
+    $validated = $request->validate([
+        'action' => 'required|in:approve,reject'
+    ]);
+
+    $albumAccess = AlbumAccess::findOrFail($id);
+
+    // Verify user has permission to respond
+    if ($albumAccess->granted_by != $request->user()->id) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
+    $albumAccess->status = $validated['action'] == 'approve' ? 'approved' : 'rejected';
+    $albumAccess->save();
+
+    return response()->json(['message' => 'Request updated']);
 }
 
 
