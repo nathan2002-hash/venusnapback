@@ -241,7 +241,7 @@ class AlbumController extends Controller
         ]);
     }
 
-    public function getAlbums(Request $request)
+    public function getAlbumis(Request $request)
     {
         // Fetch albums for the logged-in user
         $albums = Album::where('user_id', $request->user()->id)
@@ -284,6 +284,63 @@ class AlbumController extends Controller
 
         return response()->json(['albums' => $albums]);
     }
+
+    public function getAlbums(Request $request)
+{
+    $userId = $request->user()->id;
+
+    // 1. Albums the user owns
+    $ownedAlbums = Album::where('user_id', $userId)
+        ->select('id', 'user_id', 'name', 'description', 'thumbnail_original', 'business_logo_original', 'business_logo_compressed', 'thumbnail_compressed', 'type', 'is_verified', 'created_at')
+        ->get();
+
+    // 2. Albums the user has been granted access to (approved only)
+    $accessedAlbums = Album::whereIn('id', function ($query) use ($userId) {
+        $query->select('album_id')
+            ->from('album_accesses')
+            ->where('user_id', $userId)
+            ->where('status', 'approved');
+    })
+    ->select('id', 'user_id', 'name', 'description', 'thumbnail_original', 'business_logo_original', 'business_logo_compressed', 'thumbnail_compressed', 'type', 'is_verified', 'created_at')
+    ->get();
+
+    // 3. Merge and remove duplicates by album ID
+    $allAlbums = $ownedAlbums->merge($accessedAlbums)->unique('id');
+
+    // 4. Map album info with thumbnails, etc.
+    $albums = $allAlbums->map(function ($album) {
+        $thumbnailUrl = null;
+
+        if ($album->type === 'personal' || $album->type === 'creator') {
+            $thumbnailUrl = $album->thumbnail_compressed
+                ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                : ($album->thumbnail_original
+                    ? Storage::disk('s3')->url($album->thumbnail_original)
+                    : null);
+        } elseif ($album->type === 'business') {
+            $thumbnailUrl = $album->business_logo_compressed
+                ? Storage::disk('s3')->url($album->business_logo_compressed)
+                : ($album->business_logo_original
+                    ? Storage::disk('s3')->url($album->business_logo_original)
+                    : null);
+        }
+
+        return [
+            'id' => $album->id,
+            'name' => $album->name,
+            'description' => $album->description,
+            'type' => $album->type,
+            'is_verified' => (bool) $album->is_verified,
+            'supporters' => $album->supporters->count(),
+            'posts' => $album->posts->count(),
+            'thumbnail_url' => $thumbnailUrl,
+            'created_at' => $album->created_at->format('l, d F Y at h:i A'),
+        ];
+    });
+
+    return response()->json(['albums' => $albums->values()]);
+}
+
 
     public function show($albumId)
     {
