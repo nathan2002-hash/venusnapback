@@ -209,7 +209,7 @@ class AlbumAccessController extends Controller
     }
 }
 
-    public function getRequests(Request $request)
+    public function getRiuequests(Request $request)
 {
     $user = $request->user();
     
@@ -240,6 +240,49 @@ class AlbumAccessController extends Controller
 
     return response()->json(['requests' => $requests]);
 }
+
+    public function getRequests(Request $request)
+{
+    $userId = $request->user()->id;
+
+    $requests = DB::table('album_accesses')
+        ->join('albums', 'album_accesses.album_id', '=', 'albums.id')
+        ->leftJoin('users', 'album_accesses.granted_by', '=', 'users.id')
+        ->where('album_accesses.user_id', $userId)
+        ->select(
+            'album_accesses.id',
+            'album_accesses.role',
+            'album_accesses.status',
+            'album_accesses.created_at',
+            'albums.id as album_id',
+            'albums.name as album_name',
+            'users.id as granted_by_id',
+            'users.name as granted_by_name',
+            'users.avatar_url as granted_by_avatar'
+        )
+        ->orderByDesc('album_accesses.created_at')
+        ->get()
+        ->map(function ($access) {
+            return [
+                'id' => $access->id,
+                'album' => [
+                    'id' => $access->album_id,
+                    'name' => $access->album_name,
+                ],
+                'granted_by' => $access->granted_by_id ? [
+                    'id' => $access->granted_by_id,
+                    'name' => $access->granted_by_name,
+                    'avatar' => $access->granted_by_avatar,
+                ] : null,
+                'role' => $access->role,
+                'status' => $access->status,
+                'created_at' => \Carbon\Carbon::parse($access->created_at)->diffForHumans(),
+            ];
+        });
+
+    return response()->json(['requests' => $requests]);
+}
+
 
     public function respondToRequest(Request $request, $id)
 {
