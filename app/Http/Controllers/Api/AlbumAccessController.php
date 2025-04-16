@@ -254,4 +254,23 @@ class AlbumAccessController extends Controller
     return response()->json(['requests' => $requests]);
 }
 
+    public function respondToRequest(Request $request, $id)
+{
+    $validated = $request->validate([
+        'action' => 'required|in:approve,reject'
+    ]);
+
+    $albumAccess = AlbumAccess::findOrFail($id);
+    
+    // Verify user has permission to respond
+    if ($albumAccess->granted_by != $request->user()->id) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
+    $albumAccess->status = $validated['action'] == 'approve' ? 'approved' : 'rejected';
+    $albumAccess->save();
+
+    return response()->json(['message' => 'Request updated']);
+}
+
 }
