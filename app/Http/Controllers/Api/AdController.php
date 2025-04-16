@@ -20,31 +20,52 @@ use Illuminate\Support\Facades\Storage;
 class AdController extends Controller
 {
     public function getUserAlbums(Request $request)
-{
-    $user = $request->user();
+    {
+        $user = $request->user();
 
-    // Owned albums (creator/business only)
-    $ownedAlbums = $user->albums()
-        ->whereIn('type', ['creator', 'business'])
-        ->select('id', 'name', 'type')
-        ->get();
+        // Owned albums (creator/business only)
+        $ownedAlbums = $user->albums()
+            ->whereIn('type', ['creator', 'business'])
+            ->select('id', 'name', 'type')
+            ->get();
 
-    // Shared albums (approved only, creator/business only)
-    $sharedAlbums = DB::table('album_accesses')
-        ->join('albums', 'album_accesses.album_id', '=', 'albums.id')
-        ->where('album_accesses.user_id', $user->id)
-        ->where('album_accesses.status', 'approved')
-        ->whereIn('albums.type', ['creator', 'business'])
-        ->select('albums.id', 'albums.name', 'albums.type')
-        ->get();
+        // Shared albums (approved only, creator/business only)
+        $sharedAlbumsRaw = DB::table('album_accesses')
+            ->join('albums', 'album_accesses.album_id', '=', 'albums.id')
+            ->where('album_accesses.user_id', $user->id)
+            ->where('album_accesses.status', 'approved')
+            ->whereIn('albums.type', ['creator', 'business'])
+            ->select('albums.id', 'albums.name', 'albums.type')
+            ->get();
 
-    // Combine both sets
-    $albums = $ownedAlbums->merge($sharedAlbums);
+        // Convert stdClass to objects with matching keys
+        $sharedAlbums = collect($sharedAlbumsRaw)->map(function ($album) {
+            return (object) [
+                'id' => $album->id,
+                'name' => $album->name,
+                'type' => $album->type,
+            ];
+        });
 
-    return response()->json([
-        'albums' => $albums
-    ]);
-}
+        // Merge both sets
+        $albums = $ownedAlbums->merge($sharedAlbums);
+
+        return response()->json([
+            'albums' => $albums->map(function ($album) {
+                $typeLabel = match($album->type) {
+                    'personal' => 'Personal',
+                    'creator' => 'Creator',
+                    default => 'Business',
+                };
+
+                return [
+                    'id' => $album->id,
+                    'album_name' => "{$album->name} ($typeLabel)",
+                ];
+            }),
+        ]);
+    }
+
 
     public function getUserPoints(Request $request)
     {
