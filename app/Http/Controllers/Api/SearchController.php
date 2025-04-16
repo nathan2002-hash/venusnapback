@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Models\Search;
 use App\Models\Category;
 use App\Models\Album;
+use App\Models\Ad;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
