@@ -30,52 +30,38 @@ class AlbumAccessController extends Controller
 
     public function accesslist($id)
 {
-    $user = Auth::user();
+    $userId = Auth::id();
 
-    // Check if user is album owner or has editor/owner access
-    $hasAccess = Album::where('id', $id)
-        ->where(function ($query) use ($user) {
-            $query->where('user_id', $user->id)
-                  ->orWhereIn('id', function ($subQuery) use ($user) {
-                      $subQuery->select('album_id')
+    // Check if the user is either the owner or has approved access to this album
+    $hasAccess = DB::table('albums')
+        ->where('id', $id)
+        ->where(function ($query) use ($userId) {
+            $query->where('user_id', $userId)
+                  ->orWhereExists(function ($sub) use ($userId) {
+                      $sub->select(DB::raw(1))
                           ->from('album_accesses')
-                          ->where('user_id', $user->id)
-                          ->where('status', 'approved')
-                          ->whereIn('role', ['editor', 'owner']);
+                          ->whereColumn('album_accesses.album_id', 'albums.id')
+                          ->where('album_accesses.user_id', $userId)
+                          ->where('album_accesses.status', 'approved');
                   });
         })
         ->exists();
 
-    if (! $hasAccess) {
+    if (!$hasAccess) {
         return response()->json(['message' => 'Unauthorized'], 403);
     }
 
-    // Fetch and format the access list
-    $accessList = DB::table('album_accesses')
+    // Return all approved emails for the album
+    $emails = DB::table('album_accesses')
         ->join('users', 'album_accesses.user_id', '=', 'users.id')
         ->where('album_accesses.album_id', $id)
-        ->select(
-            'users.email',
-            'album_accesses.role',
-            'album_accesses.status',
-            'album_accesses.created_at'
-        )
-        ->get()
-        ->map(function ($item) {
-            return [
-                'email' => $item->email,
-                'role' => $item->role,
-                'status' => $item->status,
-                'created_at' => Carbon::parse($item->created_at)->format('Y-m-d H:i:s'),
-            ];
-        });
+        ->where('album_accesses.status', 'approved')
+        ->pluck('users.email');
 
     return response()->json([
-        'access_list' => $accessList
+        'access_list' => $emails
     ]);
 }
-
-
 
     public function al($id)
     {
