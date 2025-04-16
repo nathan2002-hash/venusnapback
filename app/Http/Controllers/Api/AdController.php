@@ -9,7 +9,6 @@ use App\Models\AdClick;
 use App\Models\AdMedia;
 use App\Models\Supporter;
 use App\Models\AdImpression;
-use App\Models\Album;
 use Illuminate\Http\Request;
 use App\Jobs\AdImageCompress;
 use Illuminate\Support\Facades\DB;
@@ -39,31 +38,38 @@ class AdController extends Controller
             ->select('albums.id', 'albums.name', 'albums.type')
             ->get();
 
-        // Convert shared albums to Album model instances
+        // Convert shared albums to Album-like objects
         $sharedAlbums = collect($sharedAlbumsRaw)->map(function ($album) {
-            return new Album([
+            return [
                 'id' => $album->id,
                 'name' => $album->name,
                 'type' => $album->type,
-            ]);
+            ];
         });
 
-        // Merge owned and shared albums
-        $albums = $ownedAlbums->merge($sharedAlbums);
+        // Merge owned and shared, then map to clean output
+        $albums = $ownedAlbums->map(function ($album) {
+            return [
+                'id' => $album->id,
+                'name' => $album->name,
+                'type' => $album->type,
+            ];
+        })->merge($sharedAlbums);
 
+        // Final formatted output
         return response()->json([
             'albums' => $albums->map(function ($album) {
-                $typeLabel = match($album->type) {
+                $typeLabel = match($album['type']) {
                     'personal' => 'Personal',
                     'creator' => 'Creator',
                     default => 'Business',
                 };
 
                 return [
-                    'id' => $album->id,
-                    'album_name' => "{$album->name} ($typeLabel)",
+                    'id' => $album['id'],
+                    'album_name' => "{$album['name']} ($typeLabel)",
                 ];
-            }),
+            })
         ]);
     }
 
