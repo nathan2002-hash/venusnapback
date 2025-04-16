@@ -33,8 +33,7 @@ class AlbumAccessController extends Controller
 
     public function albums($id)
 {
-    $album = Album::with(['posts.postmedias'])
-        ->find($albumId);
+    $album = Auth::user()->albums()->findOrFail($id);
 
     if (!$album) {
         return response()->json([
