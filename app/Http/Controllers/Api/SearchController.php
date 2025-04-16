@@ -154,7 +154,7 @@ $ads = Ad::with(['media', 'adboard.album'])
     ->map(function ($ad) {
         // Get ad image (first media item or default)
         $adImage = $ad->media->isNotEmpty() 
-            ? Storage::disk('s3')->url($ad->media->first()->path)
+            ? Storage::disk('s3')->url($ad->media->first()->file_path)
             : asset('default/ad.png');
         
         // Get album image if available
