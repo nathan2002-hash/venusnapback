@@ -74,19 +74,43 @@ public function getFaqs()
         [
             'question' => 'How do I request a payout?',
             'answer' => 'Go to Monetization Settings → Payment Method and follow the instructions to set up your payout account.',
-            'category' => 'payments'
+            'category' => 'Payment Problem'
         ],
         [
-            'question' => 'Why is my account not monetized yet?',
-            'answer' => 'Monetization requires approval. Ensure you meet all platform guidelines and have completed verification.',
-            'category' => 'monetization'
+            'question' => 'Why is my payment delayed?',
+            'answer' => 'Payments are processed within 7 business days. Delays may occur during holidays or if additional verification is needed.',
+            'category' => 'Payment Problem'
         ],
         [
-            'question' => 'How are taxes handled?',
-            'answer' => 'For earnings over $600/year, we provide tax forms. Update your tax info in Settings.',
-            'category' => 'taxes'
+            'question' => 'How do I reset my password?',
+            'answer' => 'Go to Account Settings → Security → Change Password. You\'ll receive an email with reset instructions.',
+            'category' => 'Account Help'
         ],
-        // Add more FAQs as needed
+        [
+            'question' => 'Why can\'t I log in?',
+            'answer' => 'Ensure you\'re using the correct credentials. If locked out, use the "Forgot Password" feature or contact support.',
+            'category' => 'Account Help'
+        ],
+        [
+            'question' => 'How do I report a bug?',
+            'answer' => 'Use the "Report Issue" option in settings or describe the problem in detail when submitting a support ticket.',
+            'category' => 'Technical Issue'
+        ],
+        [
+            'question' => 'Why is the app crashing?',
+            'answer' => 'Try updating to the latest version. If issues persist, clear app cache or reinstall the application.',
+            'category' => 'Technical Issue'
+        ],
+        [
+            'question' => 'How do I report inappropriate content?',
+            'answer' => 'Tap the three dots next to the content and select "Report". Our team will review within 24 hours.',
+            'category' => 'Content Issue'
+        ],
+        [
+            'question' => 'What isn\'t covered by support?',
+            'answer' => 'General usage questions should first consult our Help Center. Business decisions and third-party integrations may have limited support.',
+            'category' => 'Other'
+        ],
     ];
 
     return response()->json([
