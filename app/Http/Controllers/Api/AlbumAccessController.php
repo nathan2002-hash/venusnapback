@@ -95,11 +95,11 @@ class AlbumAccessController extends Controller
             'facebook' => $album->facebook,
             'linkedin' => $album->linkedin,
             'website' => $album->website,
-            'business_category' => $album->type == 'business' 
-            ? $album->category_id 
+            'business_category' => $album->type == 'business'
+            ? $album->category_id
             : ($album->type == 'creator' ? $album->content_type : null),
         // Include category name for display
-        'category_name' => $album->type == 'business' 
+        'category_name' => $album->type == 'business'
             ? ($album->category->name ?? null)
             : ($album->type == 'creator' ? $album->contentType->name ?? null : null),
         ]
@@ -210,10 +210,10 @@ class AlbumAccessController extends Controller
     }
 }
 
-    public function getRiuequests(Request $request)
+    public function getRequests(Request $request)
 {
     $user = $request->user();
-    
+
     $requests = AlbumAccess::with(['album', 'requester'])
         ->where(function($query) use ($user) {
             $query->where('granted_by', $user->id) // Requests you need to approve
@@ -242,7 +242,7 @@ class AlbumAccessController extends Controller
     return response()->json(['requests' => $requests]);
 }
 
-    public function getRequests(Request $request)
+    public function getRequefsts(Request $request)
 {
     $userId = $request->user()->id;
 
@@ -301,7 +301,7 @@ class AlbumAccessController extends Controller
     ]);
 
     $albumAccess = AlbumAccess::findOrFail($id);
-    
+
     // Verify user has permission to respond
     if ($albumAccess->granted_by != $request->user()->id) {
         return response()->json(['message' => 'Unauthorized'], 403);
