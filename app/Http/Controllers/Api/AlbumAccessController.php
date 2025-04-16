@@ -25,11 +25,44 @@ class AlbumAccessController extends Controller
     }
 
 
-    public function albums($id)
+    public function al($id)
     {
         $album = Auth::user()->albums()->findOrFail($id);
         return response()->json(['album' => $album]);
     }
+
+    public function albums($id)
+{
+    $album = Album::with(['posts.postmedias'])
+        ->find($albumId);
+
+    if (!$album) {
+        return response()->json([
+            'message' => 'Album not found'
+        ], 404);
+    }
+
+    // ... (existing code for thumbnails, etc.)
+
+    return response()->json([
+        'album' => [
+            'id' => $album->id,
+            'name' => $album->name,
+            'description' => $album->description,
+            'type' => $album->type,
+            'is_verified' => (bool)$album->is_verified,
+            'is_owner' => auth()->id() === $album->user_id, // Add this line
+            'supporters' => $album->supporters->count(),
+            'posts' => $posts,
+            'email' => $album->email,
+            'phone' => $album->phone,
+            'facebook' => $album->facebook,
+            'linkedin' => $album->linkedin,
+            'website' => $album->website,
+            'business_category' => $album->category_id,
+        ]
+    ], 200);
+}
 
    public function albumupdate(Request $request, $id)
 {
