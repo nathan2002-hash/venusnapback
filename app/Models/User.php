@@ -33,7 +33,9 @@ class User extends Authenticatable
         'password',
         'preference',
         'points',
-        'status'
+        'status',
+        'tfa_code',
+        'tfa_expires_at'
     ];
 
     /**
