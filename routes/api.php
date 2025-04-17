@@ -24,6 +24,9 @@ Route::post('/login', 'Api\AuthController@login');
 Route::middleware('auth:api')->post('/verify-2fa', 'Api\AuthController@verify2FA');
 Route::middleware('auth:api')->post('/resend-2fa', 'Api\AuthController@resend2FA');
 
+//account deletions
+Route::middleware('auth:api')->post('/verify-password', 'Api\AuthController@verifyPassword');
+
 //profile routes
 //Route::get('/user/profile', 'Api\ProfileController@index');
 
