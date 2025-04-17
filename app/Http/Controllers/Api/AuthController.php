@@ -283,4 +283,36 @@ class AuthController extends Controller
         ]);
     }
 
+    public function deleteAccount(Request $request)
+{
+    $request->validate([
+        'password' => 'required',
+        'otp' => 'nullable|digits:6'
+    ]);
+
+    $user = $request->user();
+
+    // Verify password
+    if (!Hash::check($request->password, $user->password)) {
+        return response()->json(['message' => 'Incorrect password'], 401);
+    }
+
+   $tfaEnabled = ($user->usersetting->tfa === null || $user->usersetting->tfa == 1);
+
+    if ($tfaEnabled) {
+        if (!$request->otp || $user->tfa_code != $request->otp) {
+            return response()->json(['message' => 'Invalid 2FA code'], 401);
+        }
+    }
+
+    $user->update([
+        'status' => 'deletion',
+    ]);
+
+    // Send confirmation email
+    //Mail::to($user->email)->send(new AccountDeletionMail());
+
+    return response()->json(['message' => 'Account deletion scheduled']);
+}
+
 }
