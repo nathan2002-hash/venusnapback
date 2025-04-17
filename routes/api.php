@@ -14,14 +14,15 @@ Route::get('/user', function (Request $request) {
 Route::post('/register', 'Api\AuthController@register');
 Route::post('/login', 'Api\AuthController@login');
 
+Route::middleware('auth:api')->post('/logout', function (Request $request) {
+    $request->user()->token()->revoke();
+    return response()->json([
+        'message' => 'Successfully logged out'
+    ]);
+});
+
 
 Route::middleware(['auth:api', 'check.account.status'])->group(function () {
-    Route::post('/logout', function (Request $request) {
-        $request->user()->token()->revoke();
-        return response()->json([
-            'message' => 'Successfully logged out'
-        ]);
-    });
     Route::post('/verify-2fa', 'Api\AuthController@verify2FA');
     Route::post('/resend-2fa', 'Api\AuthController@resend2FA');
 
