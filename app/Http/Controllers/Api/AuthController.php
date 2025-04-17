@@ -50,6 +50,14 @@ class AuthController extends Controller
         // Retrieve the authenticated user
         $user = Auth::user();
 
+        if ($user->status === 'deletion') {
+            return response()->json(['error' => 'Your account is queued for deletion.'], 403);
+        } elseif ($user->status === 'locked') {
+            return response()->json(['error' => 'Your account is locked. Contact support.'], 403);
+        } elseif ($user->status !== 'active') {
+            return response()->json(['error' => 'Account not active.'], 403);
+        }
+
         // Create a token for the user
         $token = $user->createToken('authToken');
 
