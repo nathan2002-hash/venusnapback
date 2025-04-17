@@ -284,35 +284,75 @@ class AuthController extends Controller
     }
 
     public function deleteAccount(Request $request)
-{
-    $request->validate([
-        'password' => 'required',
-        'otp' => 'nullable|digits:6'
-    ]);
-
-    $user = $request->user();
-
-    // Verify password
-    if (!Hash::check($request->password, $user->password)) {
-        return response()->json(['message' => 'Incorrect password'], 401);
-    }
-
-   $tfaEnabled = ($user->usersetting->tfa === null || $user->usersetting->tfa == 1);
-
-    if ($tfaEnabled) {
-        if (!$request->otp || $user->tfa_code != $request->otp) {
-            return response()->json(['message' => 'Invalid 2FA code'], 401);
+    {
+        $request->validate([
+            'password' => 'required',
+            'otp' => 'nullable|digits:6'
+        ]);
+    
+        $user = $request->user();
+    
+        // Verify password
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Incorrect password'], 401);
         }
+    
+       $tfaEnabled = ($user->usersetting->tfa === null || $user->usersetting->tfa == 1);
+    
+        if ($tfaEnabled) {
+            if (!$request->otp || $user->tfa_code != $request->otp) {
+                return response()->json(['message' => 'Invalid 2FA code'], 401);
+            }
+        }
+    
+        $user->update([
+            'status' => 'deletion',
+        ]);
+    
+        // Send confirmation email
+        //Mail::to($user->email)->send(new AccountDeletionMail());
+    
+        return response()->json(['message' => 'Account deletion scheduled']);
     }
 
-    $user->update([
-        'status' => 'deletion',
-    ]);
+    public function sendOTP(Request $request)
+    {
+        $user = $request->user();
+        
+        // Generate and save OTP
+        $otp = rand(100000, 999999);
+        $user->update([
+            'tfa_code' => $otp,
+            'tfa_expires_at' => now()->addMinutes(10)
+        ]);
+    
+        // Send email with OTP
+        //Mail::to($user->email)->send(new TwoFactorAuthMail($otp));
+    
+        return response()->json(['message' => 'OTP sent']);
+    }
 
-    // Send confirmation email
-    //Mail::to($user->email)->send(new AccountDeletionMail());
-
-    return response()->json(['message' => 'Account deletion scheduled']);
-}
+    public function verifyOTP(Request $request)
+    {
+        $request->validate([
+            'otp' => 'required|digits:6',
+            'action' => 'required|string'
+        ]);
+    
+        $user = $request->user();
+    
+        if ($user->tfa_expires_at < now() || 
+            $user->tfa_code != $request->otp) {
+            return response()->json(['message' => 'Invalid or expired code'], 401);
+        }
+    
+        // Clear OTP after successful verification
+        $user->update([
+            'tfa_code' => null,
+            'tfa_expires_at' => null
+        ]);
+    
+        return response()->json(['message' => 'OTP verified']);
+    }
 
 }
