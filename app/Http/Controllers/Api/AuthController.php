@@ -278,7 +278,7 @@ class AuthController extends Controller
         $authe = ($user->usersetting->tfa === null || $user->usersetting->tfa == 1) ? 1 : 0;
     
         return response()->json([
-            'has_2fa' => $authe,
+            'has_2fa' => (bool) $authe,
             'otp_sent' => false
         ]);
     }
