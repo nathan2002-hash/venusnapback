@@ -219,7 +219,7 @@ public function getRequests(Request $request)
         ->leftJoin('users as requesters', 'album_accesses.user_id', '=', 'requesters.id')
         ->leftJoin('users as granters', 'album_accesses.granted_by', '=', 'granters.id')
         ->where('album_accesses.user_id', $userId) // 👈 Only requests *to* the current user
-        ->whereIn('album_accesses.status', ['pending', 'approved'])
+        ->whereIn('album_accesses.status', ['pending', 'approved', 'rejected'])
         ->select(
             'album_accesses.id',
             'album_accesses.role',
