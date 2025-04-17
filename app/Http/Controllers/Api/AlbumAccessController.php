@@ -218,9 +218,7 @@ public function getRequests(Request $request)
         ->join('albums', 'album_accesses.album_id', '=', 'albums.id')
         ->leftJoin('users as requesters', 'album_accesses.user_id', '=', 'requesters.id')
         ->leftJoin('users as granters', 'album_accesses.granted_by', '=', 'granters.id')
-       ->where('album_accesses.user_id', $userId)
-
-        })
+        ->where('album_accesses.user_id', $userId) // 👈 Only requests *to* the current user
         ->where('album_accesses.status', 'pending')
         ->select(
             'album_accesses.id',
@@ -240,12 +238,10 @@ public function getRequests(Request $request)
         )
         ->orderByDesc('album_accesses.created_at')
         ->get()
-        ->map(function ($access) use ($userId) {
-            // If I'm the requester
-            $isRequester = $access->requester_id == $userId;
+        ->map(function ($access) {
+            $avatarEmail = $access->granter_email;
+            $avatarProfile = $access->granter_profile;
 
-            $avatarEmail = $isRequester ? $access->granter_email : $access->requester_email;
-            $avatarProfile = $isRequester ? $access->granter_profile : $access->requester_profile;
             $avatarUrl = $avatarProfile
                 ? Storage::disk('s3')->url($avatarProfile)
                 : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($avatarEmail))) . '?s=100&d=mp';
@@ -257,8 +253,8 @@ public function getRequests(Request $request)
                     'name' => $access->album_name,
                 ],
                 'requester' => [
-                    'id' => $isRequester ? $access->granter_id : $access->requester_id,
-                    'name' => $isRequester ? $access->granter_name : $access->requester_name,
+                    'id' => $access->granter_id,
+                    'name' => $access->granter_name,
                     'avatar' => $avatarUrl,
                 ],
                 'role' => $access->role,
@@ -269,6 +265,7 @@ public function getRequests(Request $request)
 
     return response()->json(['requests' => $requests]);
 }
+
 
 public function respondToRequest(Request $request, $id)
 {
