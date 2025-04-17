@@ -297,13 +297,13 @@ class AuthController extends Controller
             return response()->json(['message' => 'Incorrect password'], 401);
         }
     
-       $tfaEnabled = ($user->usersetting->tfa === null || $user->usersetting->tfa == 1);
+       //$tfaEnabled = ($user->usersetting->tfa === null || $user->usersetting->tfa == 1);
     
-        if ($tfaEnabled) {
-            if (!$request->otp || $user->tfa_code != $request->otp) {
-                return response()->json(['message' => 'Invalid 2FA code'], 401);
-            }
-        }
+        //if ($tfaEnabled) {
+            //if (!$request->otp || $user->tfa_code != $request->otp) {
+                //return response()->json(['message' => 'Invalid 2FA code'], 401);
+            //}
+        //}
     
         $user->update([
             'status' => 'deletion',
