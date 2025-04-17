@@ -21,6 +21,11 @@ Route::middleware('auth:api')->post('/logout', function (Request $request) {
     ]);
 });
 
+Route::middleware('auth:api')->post('/support/ticket/submit', 'Api\ContactSupportController@store');
+Route::middleware('auth:api')->get('/support/tickets', 'Api\ContactSupportController@index');
+Route::middleware('auth:api')->post('/support/tickets/resolve/{id}', 'Api\ContactSupportController@updateStatus');
+Route::middleware('auth:api')->get('/support/faqs', 'Api\ContactSupportController@getFaqs');
+
 
 Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/verify-2fa', 'Api\AuthController@verify2FA');
@@ -164,10 +169,5 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::put('/manage/album/update/{id}', 'Api\AlbumAccessController@albumupdate');
     Route::get('/album/requests', 'Api\AlbumAccessController@getRequests');
     Route::post('/album/requests/{id}/respond', 'Api\AlbumAccessController@respondToRequest');
-
-    Route::post('/support/ticket/submit', 'Api\ContactSupportController@store');
-    Route::get('/support/tickets', 'Api\ContactSupportController@index');
-    Route::post('/support/tickets/resolve/{id}', 'Api\ContactSupportController@updateStatus');
-    Route::get('/support/faqs', 'Api\ContactSupportController@getFaqs');
 
 });
