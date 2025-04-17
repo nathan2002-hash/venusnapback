@@ -218,9 +218,8 @@ public function getRequests(Request $request)
         ->join('albums', 'album_accesses.album_id', '=', 'albums.id')
         ->leftJoin('users as requesters', 'album_accesses.user_id', '=', 'requesters.id')
         ->leftJoin('users as granters', 'album_accesses.granted_by', '=', 'granters.id')
-        ->where(function($query) use ($userId) {
-            $query->where('album_accesses.granted_by', $userId)
-                  ->orWhere('album_accesses.user_id', $userId);
+       ->where('album_accesses.user_id', $userId)
+
         })
         ->where('album_accesses.status', 'pending')
         ->select(
