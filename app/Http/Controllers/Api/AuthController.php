@@ -260,4 +260,27 @@ class AuthController extends Controller
             'message' => 'A new 2FA code has been sent to your email.',
         ]);
     }
+
+    public function verifyPassword(Request $request)
+    {
+        $request->validate([
+            'password' => 'required',
+            'action' => 'required|string'
+        ]);
+    
+        $user = $request->user();
+    
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Incorrect password'], 401);
+        }
+    
+        // Use usersetting->tfa to determine 2FA status
+        $authe = ($user->usersetting->tfa === null || $user->usersetting->tfa == 1) ? 1 : 0;
+    
+        return response()->json([
+            'has_2fa' => $authe,
+            'otp_sent' => false
+        ]);
+    }
+
 }
