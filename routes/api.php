@@ -32,7 +32,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/resend-2fa', 'Api\AuthController@resend2FA');
 
     //account deletions
-    Route::middleware(['auth:api', 'check.account.status'])->post('/verify-password', 'Api\AuthController@verifyPassword');
+    Route::post('/verify-password', 'Api\AuthController@verifyPassword');
     Route::post('/account/delete', 'Api\AuthController@deleteAccount');
     Route::post('/send-otp', 'Api\AuthController@sendOTP');
     Route::post('/verify-otp', 'Api\AuthController@verifyOTP');
