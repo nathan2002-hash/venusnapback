@@ -270,7 +270,7 @@ public function getRequests(Request $request)
 public function respondToRequest(Request $request, $id)
 {
     $validated = $request->validate([
-        'action' => 'required|in:approve,reject'
+        'action' => 'required|in:approve,reject,revoke'
     ]);
 
     $userId = $request->user()->id;
@@ -287,14 +287,22 @@ public function respondToRequest(Request $request, $id)
         return response()->json(['message' => 'Unauthorized'], 403);
     }
 
+    // Set the correct status
+    $status = match ($validated['action']) {
+        'approve' => 'approved',
+        'reject' => 'rejected',
+        'revoke' => 'revoked',
+    };
+
     // Update the status
     DB::table('album_accesses')->where('id', $id)->update([
-        'status' => $validated['action'] === 'approve' ? 'approved' : 'rejected',
+        'status' => $status,
         'updated_at' => now(),
     ]);
 
-    return response()->json(['message' => 'Request ' . $validated['action'] . 'd']);
+    return response()->json(['message' => "Request {$status}"]);
 }
+
 
 
 
