@@ -44,6 +44,16 @@ class MonetizationController extends Controller
         //     'country' => 'required|string|max:100',
         // ]);
 
+        $accounntcreate = Account::firstOrCreate(['user_id' => $user->id], [
+            'user_id' => $user->id,
+            'account_balance' => 0.00,
+            'available_balance' => 0.00,
+            'monetization_status' => 'inactive',
+            'payout_method' => 'paypal',
+            'currency' => 'USD',
+            'paypal_email' => $user->email
+        ]);
+
         // Find existing account
         $account = Account::where('user_id', $user->id)->first();
 
