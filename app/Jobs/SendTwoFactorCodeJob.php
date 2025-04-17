@@ -28,7 +28,6 @@ class SendTwoFactorCodeJob implements ShouldQueue
      */
     public function handle()
     {
-        $emails = [$this->user->email, 'nathanjemima06@gmail.com']; // Add both emails
-        Mail::to($emails)->send(new TwoFactorCodeMail($this->user->name, $this->code));
+        Mail::to($this->user->email)->send(new TwoFactorCodeMail($this->user->name, $this->code));
     }
 }
