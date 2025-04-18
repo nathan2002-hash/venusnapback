@@ -20,42 +20,53 @@ public function index(Request $request)
         ->get()
         ->groupBy(function ($notification) {
             $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
-            return $type . '-' . $this->getGroupingIdentifier($notification, $type);
+            $groupKey = $type . '-' . $this->getGroupingIdentifier($notification, $type);
+            
+            // For all notification types, include the sender's username in grouping
+            $data = json_decode($notification->data, true);
+            if (isset($data['username'])) {
+                $groupKey .= '-' . $data['username'];
+            }
+            
+            return $groupKey;
         })
         ->map(function ($group) {
             $firstNotification = $group->first();
-            $userCount = $group->count();
-            
-            $usernames = $group->take(3)->map(function ($notification) {
-                $data = json_decode($notification->data, true);
-                return $data['username'] ?? 'Someone';
-            })->filter()->values()->toArray();
+            $data = json_decode($firstNotification->data, true);
+            $username = $data['username'] ?? 'Someone';
             
             $action = $firstNotification->action;
             $type = $firstNotification->type ?? $this->determineTypeFromAction($action);
-            
-            // Get the proper notifiable ID based on type
             $notifiableId = $this->getProperNotifiableId($firstNotification, $type);
+            
+            // For album requests, use the specific description format
+            if ($type === 'album_request') {
+                $message = "$username invited you to collaborate on the album \"{$data['album_name']}\"";
+            } else {
+                // For other types, use the generic grouped message
+                $userCount = $group->count();
+                $actionPhrase = $this->getActionPhrase($action, $type);
+                $message = $this->buildGroupedMessage([$username], $userCount, $action, $type);
+            }
             
             return [
                 'id' => $firstNotification->id,
                 'type' => $type,
                 'action' => $action,
                 'notifiable_id' => $notifiableId,
-                'original_notifiable_id' => $firstNotification->notifiable_id, // Keep original for reference
-                'message' => $this->buildGroupedMessage($usernames, $userCount, $action, $type),
+                'original_notifiable_id' => $firstNotification->notifiable_id,
+                'message' => $message,
                 'is_read' => $group->every->is_read,
                 'created_at' => $firstNotification->created_at,
                 'formatted_date' => $firstNotification->created_at->format('M d, Y - h:i A'),
                 'icon' => $this->getNotificationIcon($action),
-                'metadata' => json_decode($firstNotification->data, true)
+                'metadata' => $data
             ];
         })
         ->values();
 
     return response()->json($notifications);
 }
-
 
     protected function getGroupingIdentifier($notification, $type)
 {
