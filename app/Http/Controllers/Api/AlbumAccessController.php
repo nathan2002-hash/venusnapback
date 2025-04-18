@@ -10,101 +10,81 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Jobs\CreateNotificationJob;
 use Illuminate\Support\Facades\Storage;
 
 class AlbumAccessController extends Controller
 {
-    public function accesdslist($id)
+    public function accesslist($id)
     {
-        // Ensure the logged-in user owns this album
-        $album = Auth::user()->albums()->findOrFail($id);
-
-        // Get the list of users who have access to the album
-        $accessList = $album->sharedWith()
-                            ->join('users', 'album_accesses.user_id', '=', 'users.id') // Join users table
-                            ->pluck('users.email'); // Pluck email from the users table
-
+        $userId = Auth::id();
+    
+        // Check if the user is either the owner or has approved access to this album
+        $hasAccess = DB::table('albums')
+            ->where('id', $id)
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                      ->orWhereExists(function ($sub) use ($userId) {
+                          $sub->select(DB::raw(1))
+                              ->from('album_accesses')
+                              ->whereColumn('album_accesses.album_id', 'albums.id')
+                              ->where('album_accesses.user_id', $userId)
+                              ->where('album_accesses.status', 'approved');
+                      });
+            })
+            ->exists();
+    
+        if (!$hasAccess) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+    
+        // Return all approved emails for the album
+        $emails = DB::table('album_accesses')
+            ->join('users', 'album_accesses.user_id', '=', 'users.id')
+            ->where('album_accesses.album_id', $id)
+            ->where('album_accesses.status', 'approved')
+            ->pluck('users.email');
+    
         return response()->json([
-            'access_list' => $accessList
+            'access_list' => $emails
         ]);
     }
 
-    public function accesslist($id)
-{
-    $userId = Auth::id();
-
-    // Check if the user is either the owner or has approved access to this album
-    $hasAccess = DB::table('albums')
-        ->where('id', $id)
-        ->where(function ($query) use ($userId) {
-            $query->where('user_id', $userId)
-                  ->orWhereExists(function ($sub) use ($userId) {
-                      $sub->select(DB::raw(1))
-                          ->from('album_accesses')
-                          ->whereColumn('album_accesses.album_id', 'albums.id')
-                          ->where('album_accesses.user_id', $userId)
-                          ->where('album_accesses.status', 'approved');
-                  });
-        })
-        ->exists();
-
-    if (!$hasAccess) {
-        return response()->json(['message' => 'Unauthorized'], 403);
-    }
-
-    // Return all approved emails for the album
-    $emails = DB::table('album_accesses')
-        ->join('users', 'album_accesses.user_id', '=', 'users.id')
-        ->where('album_accesses.album_id', $id)
-        ->where('album_accesses.status', 'approved')
-        ->pluck('users.email');
-
-    return response()->json([
-        'access_list' => $emails
-    ]);
-}
-
-    public function al($id)
-    {
-        $album = Auth::user()->albums()->findOrFail($id);
-        return response()->json(['album' => $album]);
-    }
-
     public function albums($id)
-{
-    $album = Album::findOrFail($id);
-    if (!$album) {
+    {
+        $album = Album::findOrFail($id);
+        if (!$album) {
+            return response()->json([
+                'message' => 'Album not found'
+            ], 404);
+        }
+    
+        // ... (existing code for thumbnails, etc.)
+    
         return response()->json([
-            'message' => 'Album not found'
-        ], 404);
+            'album' => [
+                'id' => $album->id,
+                'name' => $album->name,
+                'description' => $album->description,
+                'type' => $album->type,
+                'is_verified' => (bool)$album->is_verified,
+                'is_owner' => auth()->id() === $album->user_id, // Add this line
+                'supporters' => $album->supporters->count(),
+                'email' => $album->email,
+                'phone' => $album->phone,
+                'facebook' => $album->facebook,
+                'linkedin' => $album->linkedin,
+                'website' => $album->website,
+                'business_category' => $album->type == 'business'
+                ? $album->category_id
+                : ($album->type == 'creator' ? $album->content_type : null),
+            // Include category name for display
+            'category_name' => $album->type == 'business'
+                ? ($album->category->name ?? null)
+                : ($album->type == 'creator' ? $album->contentType->name ?? null : null),
+            ]
+        ], 200);
     }
-
-    // ... (existing code for thumbnails, etc.)
-
-    return response()->json([
-        'album' => [
-            'id' => $album->id,
-            'name' => $album->name,
-            'description' => $album->description,
-            'type' => $album->type,
-            'is_verified' => (bool)$album->is_verified,
-            'is_owner' => auth()->id() === $album->user_id, // Add this line
-            'supporters' => $album->supporters->count(),
-            'email' => $album->email,
-            'phone' => $album->phone,
-            'facebook' => $album->facebook,
-            'linkedin' => $album->linkedin,
-            'website' => $album->website,
-            'business_category' => $album->type == 'business'
-            ? $album->category_id
-            : ($album->type == 'creator' ? $album->content_type : null),
-        // Include category name for display
-        'category_name' => $album->type == 'business'
-            ? ($album->category->name ?? null)
-            : ($album->type == 'creator' ? $album->contentType->name ?? null : null),
-        ]
-    ], 200);
-}
 
    public function albumupdate(Request $request, $id)
 {
@@ -154,29 +134,38 @@ class AlbumAccessController extends Controller
            'facebook' => $request->facebook,
            'linkedin' => $request->linkedin,
         ]);
-
+        
         // Process sharing only with valid emails
-        $sharedUsers = [];
-        foreach ($request->shared_with as $email) {
-            $user = User::where('email', $email)->first();
-            if (!$user) continue;
+$sharedUsers = [];
+foreach ($request->shared_with as $email) {
+    $user = User::where('email', $email)->first();
+    if (!$user) continue;
 
-            $existingAccess = $album->sharedWith()
-                ->where('user_id', $user->id)
-                ->first();
+    $existingAccess = $album->sharedWith()
+        ->where('user_id', $user->id)
+        ->first();
 
-            if (!$existingAccess) {
-                $album->sharedWith()->create([
-                    'user_id' => $user->id,
-                    'album_id' => $album->id,
-                    'granted_by' => Auth::id(),
-                    'status' => 'pending',
-                    'role' => 'editor',
-                ]);
-            }
-            $sharedUsers[] = $user->email;
-        }
+    if (!$existingAccess) {
+        $album->sharedWith()->create([
+            'user_id' => $user->id,
+            'album_id' => $album->id,
+            'granted_by' => Auth::id(),
+            'status' => 'pending',
+            'role' => 'editor',
+        ]);
 
+        // ✅ Dispatch notification to new shared user
+        CreateNotificationJob::dispatch(
+            Auth::user(),             // sender
+            $album,                   // notifiable model (Album)
+            'shared_album',           // action
+            $user->id,                // target user
+            ['album_name' => $album->name]
+        );
+    }
+
+    $sharedUsers[] = $user->email;
+}
         $response = [
             'success' => true,
             'message' => 'Album updated successfully',
