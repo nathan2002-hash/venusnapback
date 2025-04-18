@@ -136,7 +136,7 @@ class CommentController extends Controller
           $commentid = $id;
 
         $comment = Comment::find($commentid);
-        $postMedia = PostMedia::with('post')->find($comment->postMedia->id);
+        $postMedia = PostMedia::with('post')->find($comment->post_media_id);
             if (!$postMedia || !$postMedia->post) {
                 return response()->json(['message' => 'Post or post media not found'], 404);
             }
