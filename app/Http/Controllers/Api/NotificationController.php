@@ -189,34 +189,65 @@ public function index(Request $request)
 
 
 
-    public function markAsRead(Request $request)
-    {
-        $request->validate([
-            'post_media_id' => 'required|integer',
-            'action' => 'required|string', // Add action to the request validation
-        ]);
+   public function markAsRead(Request $request)
+{
+    $request->validate([
+        'notification_id' => 'required|integer',
+    ]);
 
-        // Get the authenticated user
-        $user = $request->user();
+    $user = $request->user();
+    
+    // Get the notification being marked as read
+    $notification = Notification::where('id', $request->notification_id)
+        ->where('user_id', $user->id)
+        ->first();
 
-        // Mark all notifications as read for the given post_media_id, user_id, and action
-        $updated = Notification::where('notifiable_id', $request->post_media_id)
-            ->where('user_id', $user->id)
-            ->where('action', $request->action) // Filter by action
-            ->update(['is_read' => true]); // Update all matching notifications
-
-        if ($updated > 0) {
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Notifications marked as read',
-            ]);
-        }
-
+    if (!$notification) {
         return response()->json([
             'status' => 'error',
-            'message' => 'No notifications found',
+            'message' => 'Notification not found',
         ], 404);
     }
+
+    // Determine the type (fallback to auto-detection if not set)
+    $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
+    
+    // Get all notifications in the same group
+    $groupedNotifications = Notification::where('user_id', $user->id)
+        ->where(function($query) use ($notification, $type) {
+            // For posts, we need to handle the post_media -> post relationship
+            if ($type === 'post') {
+                $postMedia = PostMedia::find($notification->notifiable_id);
+                if ($postMedia) {
+                    // Find all notifications for post_media items belonging to this post
+                    $postMediaIds = PostMedia::where('post_id', $postMedia->post_id)
+                        ->pluck('id');
+                    $query->whereIn('notifiable_id', $postMediaIds);
+                } else {
+                    $query->where('notifiable_id', $notification->notifiable_id);
+                }
+            } else {
+                $query->where('notifiable_id', $notification->notifiable_id);
+            }
+            
+            // Include the same action and type
+            $query->where('action', $notification->action);
+            if ($notification->type) {
+                $query->where('type', $notification->type);
+            }
+        })
+        ->get();
+
+    // Mark all grouped notifications as read
+    $updated = Notification::whereIn('id', $groupedNotifications->pluck('id'))
+        ->update(['is_read' => true]);
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Notifications marked as read',
+        'count' => $updated,
+    ]);
+}
 
     public function notificationscount()
     {
