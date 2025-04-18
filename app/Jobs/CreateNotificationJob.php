@@ -13,16 +13,22 @@ class CreateNotificationJob implements ShouldQueue
 {
     use Queueable;
 
-    protected $user;
-    protected $postMediaId;
+    protected $sender;
+    protected $notifiable;
+    protected $action;
+    protected $targetUserId;
+    protected $data;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(User $user, $postMediaId)
+    public function __construct(User $sender, $notifiable, $action, $targetUserId, array $data = [])
     {
-        $this->user = $user;
-        $this->postMediaId = $postMediaId;
+        $this->sender = $sender;
+        $this->notifiable = $notifiable;
+        $this->action = $action;
+        $this->targetUserId = $targetUserId;
+        $this->data = $data;
     }
 
     /**
@@ -30,25 +36,17 @@ class CreateNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $postMedia = PostMedia::find($this->postMediaId);
-        if (!$postMedia) {
-            return;
-        }
-
-        $post = Post::find($postMedia->post_id);
-
-        // Create a notification for the like action
         Notification::create([
-            'user_id' => $post->user_id, // The user receiving the notification (post owner)
-            'action' => 'admired', // Action type (can be 'liked', 'admired', etc.)
-            'notifiable_type' => PostMedia::class, // The model being interacted with
-            'notifiable_id' => $postMedia->id, // The post media ID
-            'data' => json_encode([
-                'username' => $this->user->name, // The name of the user admiring the post
-                'sender_id' => $this->user->id,
-            ]),
-            'group_count' => 0, // Will be updated later when grouped
-            'is_read' => false, // Notification is unread initially
+            'user_id' => $this->targetUserId,
+            'action' => $this->action,
+            'notifiable_type' => get_class($this->notifiable),
+            'notifiable_id' => $this->notifiable->id,
+            'data' => json_encode(array_merge([
+                'username' => $this->sender->name,
+                'sender_id' => $this->sender->id,
+            ], $this->data)),
+            'group_count' => 0,
+            'is_read' => false,
         ]);
     }
 }
