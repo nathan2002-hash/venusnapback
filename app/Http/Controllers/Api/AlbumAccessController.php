@@ -158,7 +158,7 @@ foreach ($request->shared_with as $email) {
         CreateNotificationJob::dispatch(
             Auth::user(),             // sender
             $album,                   // notifiable model (Album)
-            'shared_album',           // action
+            'invited',           // action
             $user->id,                // target user
             ['album_name' => $album->name]
         );
