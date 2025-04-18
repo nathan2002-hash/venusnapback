@@ -82,7 +82,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/user/all/posts', 'Api\PostController@getPosts');
 
     //album routes
-    Route::get('/albums', 'Api\AlbumController@getUserAlbums');
+    Route::get('/albums', 'Api\AlbumController@getAlbums');
     Route::post('/album/store', 'Api\AlbumController@store');
     Route::post('/album/personal/store', 'Api\AlbumController@personalstore');
     Route::post('/album/creator/store', 'Api\AlbumController@creatorstore');
@@ -90,7 +90,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/album/content/types/creator', 'Api\AlbumController@albumcategorycreator');
     Route::get('/album/business/categories', 'Api\AlbumController@albumcategorybusiness');
 
-    Route::get('/user/albums', 'Api\AlbumController@getAlbums');
+    Route::get('/user/albums', 'Api\AlbumController@getUserAlbums');
     Route::get('/user/album/{id}', 'Api\AlbumController@show');
     Route::get('/user/album/viewer/{albumId}', 'Api\AlbumController@showviewer');
     Route::post('/user/album/{id}/update-image', 'Api\AlbumController@album_update');
