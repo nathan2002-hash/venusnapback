@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use Carbon\Carbon;
 use App\Models\Comment;
+use App\Models\PostMedia;
 use App\Models\CommentReply;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Jobs\CreateNotificationJob;
 
 class CommentController extends Controller
 {
@@ -86,6 +88,21 @@ class CommentController extends Controller
         $comment->load('user');
         $profileUrl = $comment->user->profile_compressed ? Storage::disk('s3')->url($comment->user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp';
 
+        $postOwnerId = $comment->postMedia->post->user_id;
+
+        // Avoid notifying self
+        if ($postOwnerId !== $user->id) {
+            CreateNotificationJob::dispatch(
+                $user,                      // sender (commenting user)
+                $comment->postMedia,       // notifiable (postMedia)
+                'commented',               // action
+                $postOwnerId,              // receiver (post owner)
+                [
+                    'post_id' => $comment->postMedia->post->id,
+                    'media_id' => $comment->post_media_id,
+                ]
+            );
+        }
         return response()->json([
             'id' => $comment->id,
             'comment' => $comment->comment,
@@ -115,6 +132,23 @@ class CommentController extends Controller
         $reply->load('user');
         $profileUrl = $reply->user->profile_compressed ? Storage::disk('s3')->url($reply->user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($reply->user->email))) . '?s=100&d=mp';
 
+        $commentOwnerId = $reply->comment->user_id;
+        $user = Auth::user();
+
+        // Avoid notifying self
+        if ($commentOwnerId !== $user->id) {
+            CreateNotificationJob::dispatch(
+                $user,                     // sender (replying user)
+                $reply->comment->postMedia, // notifiable (still the postMedia!)
+                'replied',                // action
+                $commentOwnerId,          // receiver (comment owner)
+                [
+                    'post_id' => $reply->comment->postMedia->post->id,
+                    'media_id' => $reply->comment->post_media_id,
+                    'comment_id' => $reply->comment_id
+                ]
+            );
+        }
         return response()->json([
             'id' => $reply->id,
             'reply' => $reply->reply,
