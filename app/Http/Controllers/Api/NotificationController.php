@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
-    public function index(Request $request)
+ public function index(Request $request)
 {
     $user = $request->user();
 
@@ -18,20 +18,21 @@ class NotificationController extends Controller
         ->orderBy('created_at', 'desc')
         ->get()
         ->groupBy(function ($notification) {
-            return $notification->type . '-' . $notification->notifiable_id;
+            // Determine type from action if not set
+            $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
+            return $type . '-' . $notification->notifiable_id;
         })
         ->map(function ($group) {
             $firstNotification = $group->first();
             $userCount = $group->count();
             
-            // Safely get usernames with fallback
             $usernames = $group->take(3)->map(function ($notification) {
                 $data = json_decode($notification->data, true);
                 return $data['username'] ?? 'Someone';
             })->filter()->values()->toArray();
             
             $action = $firstNotification->action;
-            $type = $firstNotification->type;
+            $type = $firstNotification->type ?? $this->determineTypeFromAction($action);
             
             return [
                 'id' => $firstNotification->id,
@@ -51,7 +52,19 @@ class NotificationController extends Controller
     return response()->json($notifications);
 }
 
-    private function buildGroupedMessage($usernames, $userCount, $action, $type)
+    private function determineTypeFromAction($action)
+{
+    $typeMap = [
+        'shared_album' => 'album_request',
+        'admired' => 'post',
+        'liked' => 'post',
+        'commented' => 'comment'
+    ];
+    
+    return $typeMap[$action] ?? 'post';
+}
+
+   private function buildGroupedMessage($usernames, $userCount, $action, $type)
 {
     $actionPhrase = $this->getActionPhrase($action, $type);
     
@@ -59,22 +72,15 @@ class NotificationController extends Controller
         return "Someone $actionPhrase";
     }
     
-    if ($userCount == 1) {
-        return "{$usernames[0]} $actionPhrase";
-    }
-    
-    if ($userCount == 2) {
-        return "{$usernames[0]} and {$usernames[1]} $actionPhrase";
-    }
-    
-    if ($userCount == 3) {
-        return "{$usernames[0]}, {$usernames[1]}, and {$usernames[2]} $actionPhrase";
-    }
+    if ($userCount == 1) return "{$usernames[0]} $actionPhrase";
+    if ($userCount == 2) return "{$usernames[0]} and {$usernames[1]} $actionPhrase";
+    if ($userCount == 3) return "{$usernames[0]}, {$usernames[1]}, and {$usernames[2]} $actionPhrase";
     
     return "{$usernames[0]} and " . ($userCount - 1) . " others $actionPhrase";
 }
 
-    private function getActionPhrase($action, $type)
+
+   private function getActionPhrase($action, $type)
 {
     $phrases = [
         'comment' => [
@@ -83,9 +89,11 @@ class NotificationController extends Controller
         ],
         'post' => [
             'liked' => 'liked your post',
+            'admired' => 'admired your post',
             'shared' => 'shared your post'
         ],
         'album_request' => [
+            'shared_album' => 'shared an album with you',
             'invited' => 'invited you to collaborate on an album'
         ]
     ];
@@ -94,13 +102,14 @@ class NotificationController extends Controller
 }
 
 
-    // Helper method to get the icon based on the action
     private function getNotificationIcon($action)
 {
     $icons = [
         'liked' => 'thumb_up',
+        'admired' => 'favorite',
         'commented' => 'comment',
         'shared' => 'share',
+        'shared_album' => 'album',
         'invited' => 'group_add'
     ];
     
