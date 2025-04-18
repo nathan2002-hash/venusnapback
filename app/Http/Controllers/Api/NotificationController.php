@@ -23,10 +23,15 @@ class NotificationController extends Controller
         ->map(function ($group) {
             $firstNotification = $group->first();
             $userCount = $group->count();
-            $usernames = $group->take(3)->pluck('data->username')->filter()->values();
+            
+            // Safely get usernames with fallback
+            $usernames = $group->take(3)->map(function ($notification) {
+                $data = json_decode($notification->data, true);
+                return $data['username'] ?? 'Someone';
+            })->filter()->values()->toArray();
             
             $action = $firstNotification->action;
-            $type = $firstNotification->type; // 'comment', 'post', 'album_request', etc.
+            $type = $firstNotification->type;
             
             return [
                 'id' => $firstNotification->id,
@@ -49,6 +54,10 @@ class NotificationController extends Controller
     private function buildGroupedMessage($usernames, $userCount, $action, $type)
 {
     $actionPhrase = $this->getActionPhrase($action, $type);
+    
+    if (empty($usernames)) {
+        return "Someone $actionPhrase";
+    }
     
     if ($userCount == 1) {
         return "{$usernames[0]} $actionPhrase";
