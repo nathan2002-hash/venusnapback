@@ -100,6 +100,7 @@ class CommentController extends Controller
             'commented',               // action
             $postOwnerId,              // receiver (post owner)
             [
+                'username' => $user->name, // Add this
                 'post_id' => $postMedia->post->id,
                 'media_id' => $postMedia->id,
             ]
@@ -149,9 +150,10 @@ class CommentController extends Controller
             'commented',               // action
             $postOwnerId,              // receiver (post owner)
             [
+                'username' => $user->name, // Add this
                 'post_id' => $postMedia->post->id,
                 'media_id' => $postMedia->id,
-                 'comment_id' => $comment->id,
+                'comment_id' => $comment->id,
             ]
         );
         return response()->json([
