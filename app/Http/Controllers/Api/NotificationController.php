@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Carbon\Carbon;
+use App\Models\PostMedia;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
- public function index(Request $request)
+public function index(Request $request)
 {
     $user = $request->user();
 
@@ -18,9 +19,8 @@ class NotificationController extends Controller
         ->orderBy('created_at', 'desc')
         ->get()
         ->groupBy(function ($notification) {
-            // Determine type from action if not set
             $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
-            return $type . '-' . $notification->notifiable_id;
+            return $type . '-' . $this->getGroupingIdentifier($notification, $type);
         })
         ->map(function ($group) {
             $firstNotification = $group->first();
@@ -34,11 +34,15 @@ class NotificationController extends Controller
             $action = $firstNotification->action;
             $type = $firstNotification->type ?? $this->determineTypeFromAction($action);
             
+            // Get the proper notifiable ID based on type
+            $notifiableId = $this->getProperNotifiableId($firstNotification, $type);
+            
             return [
                 'id' => $firstNotification->id,
                 'type' => $type,
                 'action' => $action,
-                'notifiable_id' => $firstNotification->notifiable_id,
+                'notifiable_id' => $notifiableId,
+                'original_notifiable_id' => $firstNotification->notifiable_id, // Keep original for reference
                 'message' => $this->buildGroupedMessage($usernames, $userCount, $action, $type),
                 'is_read' => $group->every->is_read,
                 'created_at' => $firstNotification->created_at,
@@ -50,6 +54,38 @@ class NotificationController extends Controller
         ->values();
 
     return response()->json($notifications);
+}
+
+
+    protected function getGroupingIdentifier($notification, $type)
+{
+    // For posts, we want to group by the post_id (from post_media) not the post_media_id
+    if ($type === 'post') {
+        try {
+            $postMedia = PostMedia::find($notification->notifiable_id);
+            return $postMedia ? $postMedia->post_id : $notification->notifiable_id;
+        } catch (\Exception $e) {
+            return $notification->notifiable_id;
+        }
+    }
+    
+    return $notification->notifiable_id;
+}
+
+    protected function getProperNotifiableId($notification, $type)
+{
+    // Only modify notifiable_id for post types
+    if ($type === 'post') {
+        try {
+            $postMedia = PostMedia::find($notification->notifiable_id);
+            return $postMedia ? $postMedia->post_id : $notification->notifiable_id;
+        } catch (\Exception $e) {
+            return $notification->notifiable_id;
+        }
+    }
+    
+    // For all other types, return the original notifiable_id
+    return $notification->notifiable_id;
 }
 
     private function determineTypeFromAction($action)
