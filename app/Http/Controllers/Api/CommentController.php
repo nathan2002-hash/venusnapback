@@ -123,8 +123,10 @@ class CommentController extends Controller
             'reply' => 'required|string',
         ]);
 
+        $user = Auth::user();
+
         $reply = new CommentReply();
-        $reply->user_id = Auth::user()->id;
+        $reply->user_id = $user->id;
         $reply->comment_id = $id;
         $reply->reply = $request->reply;
         $reply->status = 'active';
