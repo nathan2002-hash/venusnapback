@@ -12,50 +12,50 @@ class AdmireController extends Controller
 {
 
     public function admire(Request $request)
-{
-    $postMediaId = $request->post_media_id;
-    $user = Auth::user();
-
-    $admire = Admire::where('user_id', $user->id)
-                    ->where('post_media_id', $postMediaId)
-                    ->first();
-
-    if ($admire) {
-        $admire->delete();
-        return response()->json(['message' => 'Unliked']);
-    } else {
-        Admire::create([
-            'user_id' => $user->id,
-            'post_media_id' => $postMediaId
-        ]);
-
-        // ✅ Fetch postMedia and its parent post
-        $postMedia = PostMedia::with('post')->find($postMediaId);
-        if (!$postMedia || !$postMedia->post) {
-            return response()->json(['message' => 'Post or post media not found'], 404);
+    {
+        $postMediaId = $request->post_media_id;
+        $user = Auth::user();
+    
+        $admire = Admire::where('user_id', $user->id)
+                        ->where('post_media_id', $postMediaId)
+                        ->first();
+    
+        if ($admire) {
+            $admire->delete();
+            return response()->json(['message' => 'Unliked']);
+        } else {
+            Admire::create([
+                'user_id' => $user->id,
+                'post_media_id' => $postMediaId
+            ]);
+    
+            // ✅ Fetch postMedia and its parent post
+            $postMedia = PostMedia::with('post')->find($postMediaId);
+            if (!$postMedia || !$postMedia->post) {
+                return response()->json(['message' => 'Post or post media not found'], 404);
+            }
+    
+            $postOwnerId = $postMedia->post->user_id;
+    
+            // ✅ Prevent self-notification
+            if ($postOwnerId !== $user->id) {
+                CreateNotificationJob::dispatch(
+                    $user,                   // sender
+                    $postMedia,             // notifiable model
+                    'admired',              // action
+                    $postOwnerId,           // receiver
+                    [
+                        'post_id' => $postMedia->post->id,
+                        'media_id' => $postMediaId
+                    ]
+                );
+            }
+    
+            return response()->json(['message' => 'Liked']);
         }
 
-        $postOwnerId = $postMedia->post->user_id;
-
-        // ✅ Prevent self-notification
-        if ($postOwnerId !== $user->id) {
-            CreateNotificationJob::dispatch(
-                $user,                   // sender
-                $postMedia,             // notifiable model
-                'admired',              // action
-                $postOwnerId,           // receiver
-                [
-                    'post_id' => $postMedia->post->id,
-                    'media_id' => $postMediaId
-                ]
-            );
-        }
-
-        return response()->json(['message' => 'Liked']);
     }
-}
 
-    }
 
     public function checkLike(Request $request)
     {
