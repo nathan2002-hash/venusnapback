@@ -96,7 +96,7 @@ class CommentController extends Controller
         $postOwnerId = $postMedia->post->user_id;
         CreateNotificationJob::dispatch(
             $user,                      // sender (commenting user)
-            $comment->postMedia,       // notifiable (postMedia)
+            $postMedia,       // notifiable (postMedia)
             'commented',               // action
             $postOwnerId,              // receiver (post owner)
             [
