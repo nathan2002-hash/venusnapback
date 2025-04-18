@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Admire;
+use App\Models\PostMedia;
 use Illuminate\Http\Request;
 use App\Jobs\CreateNotificationJob;
 use App\Http\Controllers\Controller;
