@@ -51,7 +51,8 @@ class NotificationController extends Controller
                     }),
                     'created_at' => $firstNotification->created_at,
                     'formatted_date' => Carbon::parse($firstNotification->created_at)->format('M d, Y - h:i A'),
-                    'title' => ucfirst($firstNotification->action),
+                    'title' => $this->getNotificationTitle($firstNotification->action),
+                    'description' => $this->getNotificationDescription($firstNotification), // 👈 this
                     'icon' => $this->getNotificationIcon($firstNotification->action),
                 ];
             })
@@ -74,6 +75,43 @@ class NotificationController extends Controller
                 return 'notifications';
         }
     }
+
+    private function getNotificationTitle($action)
+    {
+        switch ($action) {
+            case 'shared_album':
+                return 'Album Invite Request';
+            case 'admired':
+                return 'Admire';
+            case 'support':
+                return 'Support';
+            case 'commented':
+                return 'Comment';
+            default:
+                return ucfirst(str_replace('_', ' ', $action));
+        }
+    }
+
+    private function getNotificationDescription($notification)
+    {
+        $data = json_decode($notification->data, true);
+        $username = $data['username'] ?? 'Someone';
+    
+        switch ($notification->action) {
+            case 'shared_album':
+                return "$username invited you to edit the album \"{$data['album_name']}\"";
+            case 'admired':
+                return "$username admired your post";
+            case 'liked':
+                return "$username liked your post";
+            case 'commented':
+                return "$username commented on your post";
+            default:
+                return "$username performed an action";
+        }
+    }
+
+
 
     public function markAsRead(Request $request)
     {
