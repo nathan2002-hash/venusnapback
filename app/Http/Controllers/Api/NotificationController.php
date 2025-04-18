@@ -93,7 +93,7 @@ class NotificationController extends Controller
             'shared' => 'shared your post'
         ],
         'album_request' => [
-            'shared_album' => 'shared an album with you',
+            'shared_album' => 'invited you to collaborate on an album',
             'invited' => 'invited you to collaborate on an album'
         ]
     ];
