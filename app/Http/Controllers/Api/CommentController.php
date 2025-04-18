@@ -87,7 +87,7 @@ class CommentController extends Controller
 
         $comment->load('user');
         $profileUrl = $comment->user->profile_compressed ? Storage::disk('s3')->url($comment->user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp';
-
+        $comment->load('postmedia.post'); // make sure postmedia and its post are loaded
         $postOwnerId = $comment->postmedia->post->user_id;
 
         // Avoid notifying self
