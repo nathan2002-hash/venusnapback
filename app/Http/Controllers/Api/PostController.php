@@ -99,6 +99,7 @@ public function index(Request $request)
             'id' => $post->id,
             'user' => $album ? $album->name : 'Unknown Album',
             'supporters' => (string) ($album ? $album->supporters->count() : 0),
+            'album_id' => (string) $album->id,
             'profile' => $profileUrl,
             'description' => $post->description ?: 'No description available provided by the creator',
             'post_media' => $postMediaData,
