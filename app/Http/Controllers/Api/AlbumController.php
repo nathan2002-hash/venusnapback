@@ -53,7 +53,7 @@ class AlbumController extends Controller
 
     // Owned albums (Eloquent collection)
     $ownedAlbums = Album::where('user_id', $user->id)
-        ->whereIn('type', ['creator', 'business'])
+        ->whereIn('type', ['creator', 'business', 'personal'])
         ->select('id', 'name', 'type')
         ->get();
 
