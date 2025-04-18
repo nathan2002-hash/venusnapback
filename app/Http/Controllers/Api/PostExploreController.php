@@ -240,9 +240,11 @@ class PostExploreController extends Controller
                 'name' => $album->name,
                 'profile_image' => $profileImage,
                 'is_verified' => (bool) ($album ? $album->is_verified : false),
+                'album_id' => $album->id,
             ],
             'supporters' => $album ? $album->supporters->count() : 0,
             'support' => $supportstatus,
+            'album_id' => $album->id,
             'cta_name' => $ad->cta_name,
             'cta_link' => $ad->cta_link,
         ], 200);
