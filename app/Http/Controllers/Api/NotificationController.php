@@ -11,71 +11,92 @@ use Illuminate\Support\Facades\Auth;
 class NotificationController extends Controller
 {
     public function index(Request $request)
-    {
-        $user = $request->user();
+{
+    $user = $request->user();
 
-        // Fetch all notifications for the user
-        $notifications = Notification::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->groupBy(function ($notification) {
-                // Group by action and notifiable_id (e.g., post ID)
-                return $notification->action . '-' . $notification->notifiable_id;
-            })
-            ->map(function ($group) {
-                // Get the first notification in the group for metadata
-                $firstNotification = $group->first();
+    $notifications = Notification::where('user_id', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->groupBy(function ($notification) {
+            return $notification->type . '-' . $notification->notifiable_id;
+        })
+        ->map(function ($group) {
+            $firstNotification = $group->first();
+            $userCount = $group->count();
+            $usernames = $group->take(3)->pluck('data->username')->filter()->values();
+            
+            $action = $firstNotification->action;
+            $type = $firstNotification->type; // 'comment', 'post', 'album_request', etc.
+            
+            return [
+                'id' => $firstNotification->id,
+                'type' => $type,
+                'action' => $action,
+                'notifiable_id' => $firstNotification->notifiable_id,
+                'message' => $this->buildGroupedMessage($usernames, $userCount, $action, $type),
+                'is_read' => $group->every->is_read,
+                'created_at' => $firstNotification->created_at,
+                'formatted_date' => $firstNotification->created_at->format('M d, Y - h:i A'),
+                'icon' => $this->getNotificationIcon($action),
+                'metadata' => json_decode($firstNotification->data, true)
+            ];
+        })
+        ->values();
 
-                // Count the number of users in the group
-                $userCount = $group->count();
+    return response()->json($notifications);
+}
 
-                // Get the usernames of the first 3 users
-                $usernames = $group->take(3)->map(function ($notification) {
-                    return json_decode($notification->data, true)['username'];
-                });
-
-                // Build the grouped notification
-                return [
-                    'id' => $firstNotification->id,
-                    'user_id' => $firstNotification->user_id,
-                    'action' => $firstNotification->action,
-                    'notifiable_type' => $firstNotification->notifiable_type,
-                    'notifiable_id' => $firstNotification->notifiable_id,
-                    'data' => [
-                        'usernames' => $usernames,
-                        'user_count' => $userCount,
-                        'description' => $this->getNotificationDescription($firstNotification), 
-                    ],
-                    'group_count' => $userCount,
-                    'is_read' => $group->every(function ($notification) {
-                        return $notification->is_read;
-                    }),
-                    'created_at' => $firstNotification->created_at,
-                    'formatted_date' => Carbon::parse($firstNotification->created_at)->format('M d, Y - h:i A'),
-                    'title' => $this->getNotificationTitle($firstNotification->action),
-                    'description' => $this->getNotificationDescription($firstNotification), // 👈 this
-                    'icon' => $this->getNotificationIcon($firstNotification->action),
-                ];
-            })
-            ->values(); // Reset keys to 0, 1, 2, ...
-
-        return response()->json($notifications);
+    private function buildGroupedMessage($usernames, $userCount, $action, $type)
+{
+    $actionPhrase = $this->getActionPhrase($action, $type);
+    
+    if ($userCount == 1) {
+        return "{$usernames[0]} $actionPhrase";
     }
+    
+    if ($userCount == 2) {
+        return "{$usernames[0]} and {$usernames[1]} $actionPhrase";
+    }
+    
+    if ($userCount == 3) {
+        return "{$usernames[0]}, {$usernames[1]}, and {$usernames[2]} $actionPhrase";
+    }
+    
+    return "{$usernames[0]} and " . ($userCount - 1) . " others $actionPhrase";
+}
+
+    private function getActionPhrase($action, $type)
+{
+    $phrases = [
+        'comment' => [
+            'created' => 'commented on your post',
+            'replied' => 'replied to your comment'
+        ],
+        'post' => [
+            'liked' => 'liked your post',
+            'shared' => 'shared your post'
+        ],
+        'album_request' => [
+            'invited' => 'invited you to collaborate on an album'
+        ]
+    ];
+    
+    return $phrases[$type][$action] ?? $action;
+}
+
 
     // Helper method to get the icon based on the action
     private function getNotificationIcon($action)
-    {
-        switch ($action) {
-            case 'admired':
-                return 'favorite';
-            case 'liked':
-                return 'thumb_up';
-            case 'commented':
-                return 'comment';
-            default:
-                return 'notifications';
-        }
-    }
+{
+    $icons = [
+        'liked' => 'thumb_up',
+        'commented' => 'comment',
+        'shared' => 'share',
+        'invited' => 'group_add'
+    ];
+    
+    return $icons[$action] ?? 'notifications';
+}
 
     private function getNotificationTitle($action)
     {
