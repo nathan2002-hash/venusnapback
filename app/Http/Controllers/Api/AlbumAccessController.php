@@ -160,7 +160,10 @@ foreach ($request->shared_with as $email) {
             $album,                   // notifiable model (Album)
             'invited',           // action
             $user->id,                // target user
-            ['album_name' => $album->name]
+            [
+                'username' => Auth::user()->name, // Add this
+                'album_name' => $album->name
+            ]
         );
     }
 
