@@ -44,6 +44,7 @@ class NotificationController extends Controller
                     'data' => [
                         'usernames' => $usernames,
                         'user_count' => $userCount,
+                        'description' => $this->getNotificationDescription($firstNotification), 
                     ],
                     'group_count' => $userCount,
                     'is_read' => $group->every(function ($notification) {
