@@ -87,15 +87,21 @@ class CommentController extends Controller
 
         $comment->load('user');
         $profileUrl = $comment->user->profile_compressed ? Storage::disk('s3')->url($comment->user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp';
-    
+        $postMediaId = $id;
+
+        $postMedia = PostMedia::with('post')->find($postMediaId);
+            if (!$postMedia || !$postMedia->post) {
+                return response()->json(['message' => 'Post or post media not found'], 404);
+            }
+        $postOwnerId = $postMedia->post->user_id;
         CreateNotificationJob::dispatch(
             $user,                      // sender (commenting user)
             $comment->postMedia,       // notifiable (postMedia)
             'commented',               // action
             $postOwnerId,              // receiver (post owner)
             [
-                'post_id' => $comment->post_media_id,
-                'media_id' => $comment->post_media_id,
+                'post_id' => $postMedia->post->id,
+                'media_id' => $postMedia->id,
             ]
         );
         return response()->json([
