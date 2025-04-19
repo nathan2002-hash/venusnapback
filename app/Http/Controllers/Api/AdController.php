@@ -659,7 +659,8 @@ class AdController extends Controller
 
     public function update(Request $request, $id)
 {
-    $adBoard = AdBoard::findOrFail($id);
+    $ad = Ad::findOrFail($id);
+    $adBoard = AdBoard::findOrFail($ad->adboard_id);
     $album = Album::findOrFail($adBoard->album_id);
     
     // Authorization check
@@ -694,8 +695,6 @@ class AdController extends Controller
     }
 
     $adBoard->update($validated);
-    $ad = $adBoard->ad;
-
     return response()->json([
         'message' => 'Ad board updated successfully',
         'adboard' => $adBoard,
