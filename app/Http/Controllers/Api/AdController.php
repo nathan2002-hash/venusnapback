@@ -727,7 +727,7 @@ class AdController extends Controller
             'cta_name' => $ad->cta_name,
             'cta_link' => $ad->cta_link,
             'description' => $ad->description,
-            'target' => $ad->target,
+           'target' => $ad->target ?? 'all',
         ],
         'categories' => $ad->categories->pluck('id')->toArray(),
         'media' => $ad->media->map(function($media) {
