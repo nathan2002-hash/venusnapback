@@ -707,7 +707,7 @@ class AdController extends Controller
     $ad = Ad::with(['categories', 'media', 'targets'])->findOrFail($id);
     
     // Authorization check
-    $this->authorize('update', $ad);
+    //$this->authorize('update', $ad);
 
     // Group targets by type
     $continents = [];
