@@ -149,7 +149,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/adboard/edit/{id}', 'Api\AdController@adboardedit');
     Route::get('/ad/edit/{id}', 'Api\AdController@editads');
     Route::put('/adboard/update/{id}', 'Api\AdController@update');
-    Route::put('/ad/update/{id}', 'Api\AdController@adupdate');
+    Route::post('/ad/update/{id}', 'Api\AdController@adupdate');
 
     Route::get('/ad/list', 'Api\AdController@getAds');
     Route::get('/ad/{id}/performance', 'Api\AdController@getAdPerformance');
