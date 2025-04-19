@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Album;
 use App\Models\AdClick;
 use App\Models\AdMedia;
+use App\Models\PointTransaction;
 use App\Models\Supporter;
 use App\Models\AdImpression;
 use Illuminate\Http\Request;
@@ -565,60 +566,69 @@ class AdController extends Controller
 }
 
    public function deleteAd($id)
-    {
-        DB::beginTransaction();
-    
-        try {
-            $ad = Ad::findOrFail($id);
-            $adboard = Adboard::findOrFail($ad->adboard_id);
-            $album = Album::findOrFail($adboard->album_id);
-            $user = User::findOrFail($album->user_id); // get the owner of the album
-    
-            // Check if current user is the album owner
-            if ($user->id !== Auth::id()) {
-                return response()->json([
-                    'message' => 'Unauthorized: You do not own this ad\'s album.'
-                ], 403);
-            }
-    
-            $remainingPoints = $adboard->points;
-    
-            if ($remainingPoints > 0) {
-                // Refund points to user
-                $user->points += $remainingPoints;
-                $user->save();
-    
-                // Reset adboard points
-                $adboard->points = 0;
-            }
-    
-            // Mark both ad and adboard as deleted
-            $ad->status = 'deleted';
-            $ad->save();
-    
-            $adboard->status = 'deleted';
-            $adboard->save();
-    
-            DB::commit();
-    
-            return response()->json([
-                'message' => 'Ad deleted and points refunded successfully.',
-                'data' => [
-                    'refunded_points' => $remainingPoints,
-                    'user_points' => $user->points,
-                    'ad_status' => $ad->status,
-                    'adboard_status' => $adboard->status,
-                ],
-            ], 200);
-    
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'message' => 'Failed to delete ad',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+{
+    DB::beginTransaction();
+
+    try {
+        $user = Auth::user();
+        $ad = Ad::where('id', $id)->firstOrFail();
+        $adboard = Adboard::where('id', $ad->adboard_id)->firstOrFail();
+
+        // Check ownership
+        $album = Album::where('id', $ad->album_id)->where('user_id', $user->id)->firstOrFail();
+
+        // Get points to refund
+        $pointsToRefund = $adboard->points;
+
+        // Refund points
+        $balanceBefore = $user->points;
+        $user->points += $pointsToRefund;
+        $user->save();
+
+        // Clear adboard points
+        $adboard->points = 0;
+        $adboard->save();
+
+        // Mark ad as deleted
+        $ad->status = 'deleted';
+        $ad->save();
+
+        // Also update adboard status
+        $adboard->status = 'deleted';
+        $adboard->save();
+
+        // Record transaction
+        PointTransaction::create([
+            'user_id' => $user->id,
+            'resource_id' => $ad->id,
+            'points' => $pointsToRefund,
+            'type' => 'ad_points_refund',
+            'status' => 'completed',
+            'balance_after' => $user->points,
+            'description' => "Refunded $pointsToRefund points from deleted ad",
+            'metadata' => json_encode([
+                'ad_id' => $ad->id,
+                'adboard_id' => $adboard->id,
+                'points_before_refund' => $pointsToRefund,
+            ])
+        ]);
+
+        DB::commit();
+
+        return response()->json([
+            'message' => 'Ad deleted successfully and points refunded',
+            'refunded_points' => $pointsToRefund,
+            'new_balance' => $user->points
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'message' => 'Failed to delete ad',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
 
 
