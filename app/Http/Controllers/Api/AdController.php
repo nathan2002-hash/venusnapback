@@ -657,6 +657,48 @@ class AdController extends Controller
     ]);
 }
 
+    public function editads($id)
+{
+    $ad = Ad::with(['categories', 'media', 'targets'])->findOrFail($id);
+    
+    // Authorization check
+    $this->authorize('update', $ad);
+
+    // Group targets by type
+    $continents = [];
+    $countries = [];
+    
+    foreach ($ad->targets as $target) {
+        if ($target->country) {
+            $countries[] = $target->country;
+        } elseif ($target->continent) {
+            $continents[] = $target->continent;
+        }
+    }
+
+    return response()->json([
+        'ad' => [
+            'id' => $ad->id,
+            'cta_name' => $ad->cta_name,
+            'cta_link' => $ad->cta_link,
+            'description' => $ad->description,
+            'target' => $ad->target,
+        ],
+        'categories' => $ad->categories->pluck('id')->toArray(),
+        'media' => $ad->media->map(function($media) {
+            return [
+                'id' => $media->id,
+                'file_path' => $media->file_path,
+                'sequence_order' => $media->sequence_order,
+            ];
+        })->toArray(),
+        'targets' => [
+            'continents' => array_unique($continents),
+            'countries' => array_unique($countries),
+        ]
+    ]);
+}
+
 
 
 
