@@ -818,23 +818,24 @@ class AdController extends Controller
         $ad = Ad::findOrFail($id);
 
         // Validate required fields
-        $validated = $request->validate([
-            'cta_name' => 'required|string|max:255',
-            'cta_link' => 'required|url|max:255',
-            'description' => 'required|string',
-            'categories' => 'required|json',
-            'target_data' => 'required|json',
-        ]);
+        // $validated = $request->validate([
+        //     'cta_name' => 'required|string|max:255',
+        //     'cta_link' => 'required|url|max:255',
+        //     'description' => 'required|string',
+        //     'categories' => 'required|json',
+        //     'target_data' => 'required|json',
+        // ]);
 
         // Decode JSON fields
-        $categories = json_decode($validated['categories'], true);
-        $targetData = json_decode($validated['target_data'], true);
+        // Decode JSON fields
+        $categories = json_decode($request->categories, true);
+        $targetData = json_decode($request->target_data, true);
 
         // Update ad with validated data
         $ad->update([
-            'cta_name' => $validated['cta_name'],
-            'cta_link' => $validated['cta_link'],
-            'description' => $validated['description'],
+            'cta_name' => $request->cta_name,
+            'cta_link' => $request->cta_link,
+            'description' => $request->description,
             'target' => $targetData['target'] ?? 'all',
         ]);
 
