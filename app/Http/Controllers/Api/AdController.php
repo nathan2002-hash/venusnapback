@@ -733,7 +733,7 @@ class AdController extends Controller
         'media' => $ad->media->map(function($media) {
             return [
                 'id' => $media->id,
-                'file_path' => Storage::disk('s3')->url($media->file_path_compress),
+                'file_path' => Storage::disk('s3')->url($media->file_path),
                 'sequence_order' => $media->sequence_order,
             ];
         })->toArray(),
