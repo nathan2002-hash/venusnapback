@@ -575,7 +575,7 @@ class AdController extends Controller
         $adboard = Adboard::where('id', $ad->adboard_id)->firstOrFail();
 
         // Check ownership
-        $album = Album::where('id', $ad->album_id)->where('user_id', $user->id)->firstOrFail();
+        $album = Album::where('id', $adboard->album_id)->where('user_id', $user->id)->firstOrFail();
 
         // Get points to refund
         $pointsToRefund = $adboard->points;
