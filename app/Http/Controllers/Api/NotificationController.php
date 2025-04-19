@@ -131,12 +131,12 @@ public function index(Request $request)
 {
     $phrases = [
         'comment' => [
-            'created' => 'commented on your post',
+            'created' => 'commented on your snap',
             'replied' => 'replied to your comment'
         ],
         'post' => [
             'liked' => 'liked your post',
-            'admired' => 'admired your post',
+            'admired' => 'admired your snap',
             'shared' => 'shared your post'
         ],
         'album_request' => [
