@@ -657,6 +657,52 @@ class AdController extends Controller
     ]);
 }
 
+    public function update(Request $request, $id)
+{
+    $adBoard = AdBoard::findOrFail($id);
+    $album = Album::findOrFail($adBoard->album_id);
+    
+    // Authorization check
+    if (auth()->id() !== $album->user_id) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'points' => 'required|integer|min:1',
+        'status' => 'required|in:active,inactive',
+        'album_id' => 'required|exists:albums,id',
+    ]);
+
+    // Check if points are being increased
+    $pointsDifference = $validated['points'] - $adBoard->points;
+    if ($pointsDifference > 0) {
+        $user = auth()->user();
+        if ($user->available_points < $pointsDifference) {
+            return response()->json([
+                'message' => 'Not enough points available'
+            ], 422);
+        }
+        
+        // Deduct the additional points
+        $user->decrement('available_points', $pointsDifference);
+    } else if ($pointsDifference < 0) {
+        // If points are being decreased, refund the difference
+        $user = auth()->user();
+        $user->increment('available_points', abs($pointsDifference));
+    }
+
+    $adBoard->update($validated);
+    $ad = $adBoard->ad;
+
+    return response()->json([
+        'message' => 'Ad board updated successfully',
+        'adboard' => $adBoard,
+        'ad_id' => $ad->id
+    ]);
+}
+
     public function editads($id)
 {
     $ad = Ad::with(['categories', 'media', 'targets'])->findOrFail($id);
