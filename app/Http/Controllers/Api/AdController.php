@@ -885,8 +885,10 @@ class AdController extends Controller
         }
 
         DB::commit();
-
-        return response()->json(['message' => 'Ad updated successfully']);
+        return response()->json([
+            'message' =>'Ad updated successfully',
+            'id' => $ad->id,
+        ], 200);
 
     } catch (\Exception $e) {
         DB::rollBack();
