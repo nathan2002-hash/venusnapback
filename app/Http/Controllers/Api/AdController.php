@@ -635,7 +635,8 @@ class AdController extends Controller
 
     public function adboardedit($id)
 {
-    $adBoard = AdBoard::with('album')->findOrFail($id);
+     $ad = Ad::where('id', $id)->firstOrFail();
+    $adBoard = AdBoard::with('album')->findOrFail($ad->id);
     
     // Authorization check - ensure user owns this ad board
     if (auth()->id() !== $adBoard->album->user_id) {
