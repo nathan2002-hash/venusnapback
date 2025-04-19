@@ -102,7 +102,7 @@ public function index(Request $request)
     private function determineTypeFromAction($action)
 {
     $typeMap = [
-        'shared_album' => 'album_request',
+        'invited' => 'album_request',
         'admired' => 'post',
         'liked' => 'post',
         'commented' => 'comment'
