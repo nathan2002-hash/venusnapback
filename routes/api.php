@@ -142,6 +142,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/user/ad/albums', 'Api\AdController@getUserAlbums');
     Route::get('/ads/{id}', 'Api\AdController@show');
     Route::post('/ad/status/{id}', 'Api\AdController@updateStatus');
+    Route::post('/ad/delete/{id}', 'Api\AdController@deleteAd');
     Route::post('/ad/add-points/{ad}', 'Api\PointController@addPoints');
 
     Route::get('/ad/list', 'Api\AdController@getAds');
