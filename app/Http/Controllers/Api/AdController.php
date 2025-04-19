@@ -562,5 +562,51 @@ class AdController extends Controller
         }
 }
 
+    public function deleteAd($id)
+{
+    DB::beginTransaction();
+
+    try {
+        // Find the ad
+        $ad = Ad::findOrFail($id);
+
+        // Find related adboard
+        $adboard = Adboard::findOrFail($ad->adboard_id);
+
+        // Check if the authenticated user owns the album
+        if ($adboard->album->user_id !== Auth::id()) {
+            return response()->json([
+                'message' => 'Unauthorized: You do not own this ad\'s album.'
+            ], 403);
+        }
+
+        // Mark both ad and adboard as deleted
+        $ad->status = 'deleted';
+        $ad->save();
+
+        $adboard->status = 'deleted';
+        $adboard->save();
+
+        DB::commit();
+
+        return response()->json([
+            'message' => 'Ad and Adboard deleted (status updated) successfully',
+            'data' => [
+                'ad_id' => $ad->id,
+                'adboard_id' => $adboard->id,
+                'status' => 'deleted'
+            ]
+        ], 200);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'message' => 'Failed to delete ad',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
 
 }
