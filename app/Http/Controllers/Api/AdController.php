@@ -633,6 +633,29 @@ class AdController extends Controller
     }
 }
 
+    public function adboardedit($id)
+{
+    $adBoard = AdBoard::with('album')->findOrFail($id);
+    
+    // Authorization check - ensure user owns this ad board
+    if (auth()->id() !== $adBoard->album->user_id) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
+    return response()->json([
+        'adboard' => [
+            'id' => $adBoard->id,
+            'name' => $adBoard->name,
+            'description' => $adBoard->description,
+            'points' => $adBoard->points,
+            'status' => $adBoard->status,
+            'album_id' => $adBoard->album_id,
+            'album_name' => $adBoard->album->name,
+            'created_at' => $adBoard->created_at,
+        ]
+    ]);
+}
+
 
 
 
