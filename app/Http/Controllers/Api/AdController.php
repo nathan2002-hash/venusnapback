@@ -368,11 +368,14 @@ class AdController extends Controller
     public function getAds()
     {
         $userId = auth()->id();
-        $ads = Ad::whereHas('adboard.album', function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })
-        ->with('adboard') // eager load adboard
-        ->get();
+
+         $ads = Ad::where('status', '!=', 'deleted') // ✅ Exclude deleted ads
+            ->whereHas('adboard.album', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->with('adboard') // Eager load adboard
+            ->get();
+        
 
         $adsData = $ads->map(function ($ad) {
             $impressions = AdImpression::where('ad_id', $ad->id)->count();
