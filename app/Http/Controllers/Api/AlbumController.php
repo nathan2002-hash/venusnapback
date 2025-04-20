@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Album;
 use App\Jobs\AlbumCreate;
+use App\Models\AlbumView;
 use Illuminate\Http\Request;
 use App\Models\AlbumCategory;
 use Illuminate\Support\Facades\DB;
@@ -262,60 +263,60 @@ class AlbumController extends Controller
     }
 
     public function getAlbums(Request $request)
-{
-    $userId = $request->user()->id;
+    {
+        $userId = $request->user()->id;
 
-    // 1. Albums the user owns
-    $ownedAlbums = Album::where('user_id', $userId)
+        // 1. Albums the user owns
+        $ownedAlbums = Album::where('user_id', $userId)
+            ->select('id', 'user_id', 'name', 'description', 'thumbnail_original', 'business_logo_original', 'business_logo_compressed', 'thumbnail_compressed', 'type', 'is_verified', 'created_at')
+            ->get();
+
+        // 2. Albums the user has been granted access to (approved only)
+        $accessedAlbums = Album::whereIn('id', function ($query) use ($userId) {
+            $query->select('album_id')
+                ->from('album_accesses')
+                ->where('user_id', $userId)
+                ->where('status', 'approved');
+        })
         ->select('id', 'user_id', 'name', 'description', 'thumbnail_original', 'business_logo_original', 'business_logo_compressed', 'thumbnail_compressed', 'type', 'is_verified', 'created_at')
         ->get();
 
-    // 2. Albums the user has been granted access to (approved only)
-    $accessedAlbums = Album::whereIn('id', function ($query) use ($userId) {
-        $query->select('album_id')
-            ->from('album_accesses')
-            ->where('user_id', $userId)
-            ->where('status', 'approved');
-    })
-    ->select('id', 'user_id', 'name', 'description', 'thumbnail_original', 'business_logo_original', 'business_logo_compressed', 'thumbnail_compressed', 'type', 'is_verified', 'created_at')
-    ->get();
+        // 3. Merge and remove duplicates by album ID
+        $allAlbums = $ownedAlbums->merge($accessedAlbums)->unique('id');
 
-    // 3. Merge and remove duplicates by album ID
-    $allAlbums = $ownedAlbums->merge($accessedAlbums)->unique('id');
+        // 4. Map album info with thumbnails, etc.
+        $albums = $allAlbums->map(function ($album) {
+            $thumbnailUrl = null;
 
-    // 4. Map album info with thumbnails, etc.
-    $albums = $allAlbums->map(function ($album) {
-        $thumbnailUrl = null;
+            if ($album->type === 'personal' || $album->type === 'creator') {
+                $thumbnailUrl = $album->thumbnail_compressed
+                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                    : ($album->thumbnail_original
+                        ? Storage::disk('s3')->url($album->thumbnail_original)
+                        : null);
+            } elseif ($album->type === 'business') {
+                $thumbnailUrl = $album->business_logo_compressed
+                    ? Storage::disk('s3')->url($album->business_logo_compressed)
+                    : ($album->business_logo_original
+                        ? Storage::disk('s3')->url($album->business_logo_original)
+                        : null);
+            }
 
-        if ($album->type === 'personal' || $album->type === 'creator') {
-            $thumbnailUrl = $album->thumbnail_compressed
-                ? Storage::disk('s3')->url($album->thumbnail_compressed)
-                : ($album->thumbnail_original
-                    ? Storage::disk('s3')->url($album->thumbnail_original)
-                    : null);
-        } elseif ($album->type === 'business') {
-            $thumbnailUrl = $album->business_logo_compressed
-                ? Storage::disk('s3')->url($album->business_logo_compressed)
-                : ($album->business_logo_original
-                    ? Storage::disk('s3')->url($album->business_logo_original)
-                    : null);
-        }
+            return [
+                'id' => $album->id,
+                'name' => $album->name,
+                'description' => $album->description,
+                'type' => $album->type,
+                'is_verified' => (bool) $album->is_verified,
+                'supporters' => $album->supporters->count(),
+                'posts' => $album->posts->count(),
+                'thumbnail_url' => $thumbnailUrl,
+                'created_at' => $album->created_at->format('l, d F Y at h:i A'),
+            ];
+        });
 
-        return [
-            'id' => $album->id,
-            'name' => $album->name,
-            'description' => $album->description,
-            'type' => $album->type,
-            'is_verified' => (bool) $album->is_verified,
-            'supporters' => $album->supporters->count(),
-            'posts' => $album->posts->count(),
-            'thumbnail_url' => $thumbnailUrl,
-            'created_at' => $album->created_at->format('l, d F Y at h:i A'),
-        ];
-    });
-
-    return response()->json(['albums' => $albums->values()]);
-}
+        return response()->json(['albums' => $albums->values()]);
+    }
 
 
     public function show($albumId)
@@ -326,6 +327,32 @@ class AlbumController extends Controller
             return response()->json([
                 'message' => 'Album not found'
             ], 404);
+        }
+
+        // ✅ Log the album view
+        $user = Auth::user();
+        $ip = request()->ip();
+        $userAgent = request()->header('User-Agent');
+
+        // Optional: prevent duplicate views in short span
+        $alreadyViewed = AlbumView::where('album_id', $albumId)
+            ->where(function ($query) use ($user, $ip) {
+                if ($user) {
+                    $query->where('user_id', $user->id);
+                } else {
+                    $query->where('ip_address', $ip);
+                }
+            })
+            ->where('created_at', '>=', now()->subMinutes(30)) // 30 minutes gap
+            ->exists();
+
+        if (!$alreadyViewed) {
+            AlbumView::create([
+                'album_id' => $album->id,
+                'user_id' => $user?->id,
+                'ip_address' => $ip,
+                'user_agent' => $userAgent,
+            ]);
         }
 
         // Determine the album's thumbnail
@@ -376,71 +403,97 @@ class AlbumController extends Controller
         ], 200);
     }
 
-   public function showviewer($albumId)
-{
-    $album = Album::with(['posts.postmedias', 'supporters'])->find($albumId);
+    public function showviewer($albumId)
+    {
+        $album = Album::with(['posts.postmedias', 'supporters'])->find($albumId);
 
-    if (!$album) {
+        if (!$album) {
+            return response()->json([
+                'message' => 'Album not found'
+            ], 404);
+        }
+
+         // ✅ Log the album view
+         $user = Auth::user();
+         $ip = request()->ip();
+         $userAgent = request()->header('User-Agent');
+
+         // Optional: prevent duplicate views in short span
+         $alreadyViewed = AlbumView::where('album_id', $albumId)
+             ->where(function ($query) use ($user, $ip) {
+                 if ($user) {
+                     $query->where('user_id', $user->id);
+                 } else {
+                     $query->where('ip_address', $ip);
+                 }
+             })
+             ->where('created_at', '>=', now()->subMinutes(30)) // 30 minutes gap
+             ->exists();
+
+         if (!$alreadyViewed) {
+             AlbumView::create([
+                 'album_id' => $album->id,
+                 'user_id' => $user?->id,
+                 'ip_address' => $ip,
+                 'user_agent' => $userAgent,
+             ]);
+         }
+
+        // Determine the album's thumbnail
+        if ($album->type == 'personal' || $album->type == 'creator') {
+            $thumbnailUrl = $album->thumbnail_compressed
+                ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                : ($album->thumbnail_original
+                    ? Storage::disk('s3')->url($album->thumbnail_original)
+                    : null);
+        } elseif ($album->type == 'business') {
+            $thumbnailUrl = $album->business_logo_compressed
+                ? Storage::disk('s3')->url($album->business_logo_compressed)
+                : ($album->business_logo_original
+                    ? Storage::disk('s3')->url($album->business_logo_original)
+                    : null);
+        } else {
+            $thumbnailUrl = asset('defaults/album.png');
+        }
+
+        $bgthumbnailUrl = $album->cover_image_compressed
+            ? Storage::disk('s3')->url($album->cover_image_compressed)
+            : ($album->cover_image_original
+                ? Storage::disk('s3')->url($album->cover_image_original)
+                : null);
+
+        // Attach post thumbnail from postmedias
+        $posts = $album->posts->map(function ($post) {
+            $postThumbnail = $post->postmedias->first()
+                ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress)
+                : null;
+            return [
+                'id' => $post->id,
+                'title' => $post->title,
+                'thumbnail_url' => $postThumbnail,
+                'image_count' => $post->postmedias->count(),
+            ];
+        });
+
         return response()->json([
-            'message' => 'Album not found'
-        ], 404);
+            'album' => [
+                'id' => $album->id,
+                'name' => $album->name,
+                'type' => $album->type,
+                'description' => $album->description,
+                'is_verified' => (bool)$album->is_verified,
+                'thumbnail_url' => $thumbnailUrl,
+                'bg_thumbnail_url' => $bgthumbnailUrl,
+                'supporters' => $album->supporters->count(),
+                'posts' => $posts,
+                'email' => in_array($album->type, ['creator', 'business']) ? $album->email : null,
+                'phone' => in_array($album->type, ['creator', 'business']) ? $album->phone : null,
+                'website' => $album->website,
+                'facebook' => $album->facebook,
+                'linkedin' => $album->linkedin,
+            ]
+        ], 200);
     }
-
-    // Determine the album's thumbnail
-    if ($album->type == 'personal' || $album->type == 'creator') {
-        $thumbnailUrl = $album->thumbnail_compressed
-            ? Storage::disk('s3')->url($album->thumbnail_compressed)
-            : ($album->thumbnail_original
-                ? Storage::disk('s3')->url($album->thumbnail_original)
-                : null);
-    } elseif ($album->type == 'business') {
-        $thumbnailUrl = $album->business_logo_compressed
-            ? Storage::disk('s3')->url($album->business_logo_compressed)
-            : ($album->business_logo_original
-                ? Storage::disk('s3')->url($album->business_logo_original)
-                : null);
-    } else {
-        $thumbnailUrl = asset('defaults/album.png');
-    }
-
-    $bgthumbnailUrl = $album->cover_image_compressed
-        ? Storage::disk('s3')->url($album->cover_image_compressed)
-        : ($album->cover_image_original
-            ? Storage::disk('s3')->url($album->cover_image_original)
-            : null);
-
-    // Attach post thumbnail from postmedias
-    $posts = $album->posts->map(function ($post) {
-        $postThumbnail = $post->postmedias->first()
-            ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress)
-            : null;
-        return [
-            'id' => $post->id,
-            'title' => $post->title,
-            'thumbnail_url' => $postThumbnail,
-            'image_count' => $post->postmedias->count(),
-        ];
-    });
-
-    return response()->json([
-        'album' => [
-            'id' => $album->id,
-            'name' => $album->name,
-            'type' => $album->type,
-            'description' => $album->description,
-            'is_verified' => (bool)$album->is_verified,
-            'thumbnail_url' => $thumbnailUrl,
-            'bg_thumbnail_url' => $bgthumbnailUrl,
-            'supporters' => $album->supporters->count(),
-            'posts' => $posts,
-            'email' => in_array($album->type, ['creator', 'business']) ? $album->email : null,
-            'phone' => in_array($album->type, ['creator', 'business']) ? $album->phone : null,
-            'website' => $album->website,
-            'facebook' => $album->facebook,
-            'linkedin' => $album->linkedin,
-        ]
-    ], 200);
-}
 
 
     public function album_update(Request $request, $id)
