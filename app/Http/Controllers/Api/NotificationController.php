@@ -169,25 +169,27 @@ class NotificationController extends Controller
             $album = \App\Models\Album::find($data['album_id'] ?? null);
             $albumName = $album ? $album->name : 'your album';
 
-            $date = $notification->created_at->startOfDay();
-            $today = now()->startOfDay();
-            $diffInDays = $date->diffInDays($today);
+            // Convert to local timezone (adjust as needed)
+            $notificationDate = $notification->created_at->timezone(config('app.timezone'))->startOfDay();
+            $today = now()->timezone(config('app.timezone'))->startOfDay();
+            $diffInDays = $notificationDate->diffInDays($today);
 
             $timePhrase = match (true) {
                 $diffInDays === 0 => 'today',
                 $diffInDays === 1 => 'yesterday',
-                $diffInDays <= 6 => 'on ' . $date->format('l'), // Monday, Tuesday, etc.
-                default => 'on ' . $date->format('M j'), // Mar 20, Apr 4, etc.
+                $diffInDays <= 6 => 'on ' . $notificationDate->format('l'),
+                default => 'on ' . $notificationDate->format('M j'),
             };
 
+            // Use correct grammar
             if ($userCount === 1) {
-                return "1 person has explored \"$albumName\" $timePhrase";
+                return "1 person explored \"$albumName\" $timePhrase";
             }
 
             return "$userCount people have explored \"$albumName\" $timePhrase";
         }
 
-        // For other types of notifications
+        // Fallback for other types
         $actionPhrase = $this->getActionPhrase($action, $type, $notification);
 
         if (empty($usernames)) {
@@ -200,6 +202,7 @@ class NotificationController extends Controller
 
         return "{$usernames[0]} and " . ($userCount - 1) . " others $actionPhrase";
     }
+
 
 
 
