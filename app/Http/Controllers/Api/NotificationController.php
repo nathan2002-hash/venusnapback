@@ -20,11 +20,24 @@ class NotificationController extends Controller
             ->get()
             ->groupBy(function ($notification) {
                 $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
+
+                // Special handling for album views
+                if ($type === 'album_view') {
+                    $data = json_decode($notification->data, true);
+                    $albumId = $data['album_id'] ?? $notification->notifiable_id;
+                    $date = $notification->created_at->format('Y-m-d');
+                    return "album_view-{$albumId}-{$date}";
+                }
+
+                // Default grouping for other types
                 $groupKey = $type . '-' . $this->getGroupingIdentifier($notification, $type);
 
-                $data = json_decode($notification->data, true);
-                if (isset($data['username'])) {
-                    $groupKey .= '-' . $data['username'];
+                // Don't include username for album_view grouping
+                if ($type !== 'album_view') {
+                    $data = json_decode($notification->data, true);
+                    if (isset($data['username'])) {
+                        $groupKey .= '-' . $data['username'];
+                    }
                 }
 
                 return $groupKey;
@@ -129,7 +142,7 @@ class NotificationController extends Controller
     }
 
 
-    private function buildGroupedMessage($usernames, $userCount, $action, $type, $notification)
+    private function buildGrdoupedMessage($usernames, $userCount, $action, $type, $notification)
     {
         if ($type === 'album_view') {
             $data = json_decode($notification->data, true);
@@ -154,6 +167,60 @@ class NotificationController extends Controller
             }
 
             return "$userCount people have explored your album \"$albumName\" $timePhrase";
+        }
+
+        // Fallback for other types
+        $actionPhrase = $this->getActionPhrase($action, $type, $notification);
+
+        if (empty($usernames)) {
+            return "Someone $actionPhrase";
+        }
+
+        if ($userCount == 1) return "{$usernames[0]} $actionPhrase";
+        if ($userCount == 2) return "{$usernames[0]} and {$usernames[1]} $actionPhrase";
+        if ($userCount == 3) return "{$usernames[0]}, {$usernames[1]}, and {$usernames[2]} $actionPhrase";
+
+        return "{$usernames[0]} and " . ($userCount - 1) . " others $actionPhrase";
+    }
+
+    private function buildGroupedMessage($usernames, $userCount, $action, $type, $notification)
+    {
+        if ($type === 'album_view') {
+            $data = json_decode($notification->data, true);
+            $album = \App\Models\Album::find($data['album_id'] ?? null);
+            $albumName = $album ? $album->name : 'your album';
+
+            $notificationDate = $notification->created_at->timezone(config('app.timezone'))->startOfDay();
+            $today = now()->timezone(config('app.timezone'))->startOfDay();
+            $diffInDays = $notificationDate->diffInDays($today);
+
+            $timePhrase = match (true) {
+                $diffInDays === 0 => 'today',
+                $diffInDays === 1 => 'yesterday',
+                $diffInDays <= 6 => 'on ' . $notificationDate->format('l'),
+                default => 'on ' . $notificationDate->format('M j'),
+            };
+
+            // Get all unique usernames from the group
+            $allUsernames = $notification->group->map(function ($n) {
+                $data = json_decode($n->data, true);
+                return $data['username'] ?? null;
+            })->filter()->unique()->values()->toArray();
+
+            if (count($allUsernames) > 0) {
+                if ($userCount === 1) {
+                    return "{$allUsernames[0]} explored your album \"$albumName\" $timePhrase";
+                }
+                if ($userCount === 2) {
+                    return "{$allUsernames[0]} and {$allUsernames[1]} explored your album \"$albumName\" $timePhrase";
+                }
+                if ($userCount === 3) {
+                    return "{$allUsernames[0]}, {$allUsernames[1]}, and {$allUsernames[2]} explored your album \"$albumName\" $timePhrase";
+                }
+                return "{$allUsernames[0]} and " . ($userCount - 1) . " others explored your album \"$albumName\" $timePhrase";
+            }
+
+            return "$userCount people explored your album \"$albumName\" $timePhrase";
         }
 
         // Fallback for other types
