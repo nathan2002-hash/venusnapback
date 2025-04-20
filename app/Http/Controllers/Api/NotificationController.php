@@ -141,10 +141,10 @@ class NotificationController extends Controller
 
             // Use correct grammar
             if ($userCount === 1) {
-                return "1 person explored your \"$albumName\" $timePhrase";
+                return "1 person explored your album \"$albumName\" $timePhrase";
             }
 
-            return "$userCount people have explored your \"$albumName\" $timePhrase";
+            return "$userCount people have explored your album \"$albumName\" $timePhrase";
         }
 
         // Fallback for other types
