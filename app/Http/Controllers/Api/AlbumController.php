@@ -330,31 +330,43 @@ class AlbumController extends Controller
             ], 404);
         }
 
-        // ✅ Log the album view
         $user = Auth::user();
-        $ip = request()->ip();
-        $userAgent = request()->header('User-Agent');
+         $ip = request()->ip();
+         $userAgent = request()->header('User-Agent');
 
-        // Optional: prevent duplicate views in short span
-        $alreadyViewed = AlbumView::where('album_id', $albumId)
-            ->where(function ($query) use ($user, $ip) {
-                if ($user) {
-                    $query->where('user_id', $user->id);
-                } else {
-                    $query->where('ip_address', $ip);
-                }
-            })
-            ->where('created_at', '>=', now()->subMinutes(30)) // 30 minutes gap
-            ->exists();
+         // Optional: prevent duplicate views in short span
+         $alreadyViewed = AlbumView::where('album_id', $albumId)
+             ->where(function ($query) use ($user, $ip) {
+                 if ($user) {
+                     $query->where('user_id', $user->id);
+                 } else {
+                     $query->where('ip_address', $ip);
+                 }
+             })
+             ->where('created_at', '>=', now()->subMinutes(30)) // 30 minutes gap
+             ->exists();
 
-        if (!$alreadyViewed) {
-            AlbumView::create([
-                'album_id' => $album->id,
-                'user_id' => $user?->id,
-                'ip_address' => $ip,
-                'user_agent' => $userAgent,
-            ]);
-        }
+         if (!$alreadyViewed) {
+             AlbumView::create([
+                 'album_id' => $album->id,
+                 'user_id' => $user?->id,
+                 'ip_address' => $ip,
+                 'user_agent' => $userAgent,
+             ]);
+         }
+
+         $receiver = $album->user_id;
+
+         CreateNotificationJob::dispatch(
+            $user,
+            $album,
+            'viewed_album',
+            $receiver,
+            [
+                'viewer' => $user->id,
+                'album_id' => $album->id
+            ]
+        );
 
         // Determine the album's thumbnail
         if ($album->type == 'personal' || $album->type == 'creator') {
@@ -414,7 +426,6 @@ class AlbumController extends Controller
             ], 404);
         }
 
-         // ✅ Log the album view
          $user = Auth::user();
          $ip = request()->ip();
          $userAgent = request()->header('User-Agent');

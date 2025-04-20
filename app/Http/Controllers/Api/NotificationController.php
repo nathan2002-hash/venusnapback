@@ -38,10 +38,19 @@ class NotificationController extends Controller
                 $type = $firstNotification->type ?? $this->determineTypeFromAction($action);
                 $notifiableId = $this->getProperNotifiableId($firstNotification, $type);
 
+                // if ($type === 'album_request') {
+                //     $message = "$username invited you to collaborate on the album \"{$data['album_name']}\"";
+                // } else {
+                //     $userCount = $group->count();
+                //     $message = $this->buildGroupedMessage([$username], $userCount, $action, $type, $firstNotification);
+                // }
+                $userCount = $group->count();
+
                 if ($type === 'album_request') {
                     $message = "$username invited you to collaborate on the album \"{$data['album_name']}\"";
+                } elseif ($type === 'album_view') {
+                    $message = $this->buildGroupedMessage([], $userCount, $action, $type, $firstNotification);
                 } else {
-                    $userCount = $group->count();
                     $message = $this->buildGroupedMessage([$username], $userCount, $action, $type, $firstNotification);
                 }
 
@@ -160,8 +169,6 @@ class NotificationController extends Controller
 
         return "{$usernames[0]} and " . ($userCount - 1) . " others $actionPhrase";
     }
-
-
 
 
     private function getActionPhrase($action, $type, $notification)
