@@ -125,28 +125,6 @@ class NotificationController extends Controller
     }
 
 
-    private function getActionhrase($action, $type, $notification)
-    {
-        $data = json_decode($notification->data, true);
-
-        $phrases = [
-            'comment' => [
-                'commented' => 'commented on your snap',
-                'replied' => 'replied to your comment',
-            ],
-            'post' => [
-                'liked' => 'liked your post',
-                'admired' => isset($data['album_name']) ? "admired your snap on \"{$data['album_name']}\"" : 'admired your snap',
-                'shared' => 'shared your post',
-            ],
-            'album_request' => [
-                'shared_album' => 'invited you to collaborate on an album',
-                'invited' => 'invited you to collaborate on an album',
-            ],
-        ];
-
-        return $phrases[$type][$action] ?? $action;
-    }
 
     private function getActionPhrase($action, $type, $notification)
 {
@@ -162,12 +140,12 @@ class NotificationController extends Controller
 
     $phrases = [
         'comment' => [
-            'commented' => 'commented on your snap',
+            'commented' => "commented on your snap on {$albumName} Album",
             'replied' => 'replied to your comment',
         ],
         'post' => [
             'liked' => 'liked your post',
-            'admired' => $albumName ? "admired your snap on \"{$albumName}\"" : 'admired your snap',
+            'admired' => $albumName ? "admired your snap on {$albumName} Album" : 'admired your snap',
             'shared' => 'shared your post',
         ],
         'album_request' => [
@@ -196,6 +174,29 @@ class NotificationController extends Controller
         return $icons[$action] ?? 'notifications';
     }
 
+
+    private function getActionhrase($action, $type, $notification)
+    {
+        $data = json_decode($notification->data, true);
+
+        $phrases = [
+            'comment' => [
+                'commented' => 'commented on your snap',
+                'replied' => 'replied to your comment',
+            ],
+            'post' => [
+                'liked' => 'liked your post',
+                'admired' => isset($data['album_name']) ? "admired your snap on \"{$data['album_name']}\"" : 'admired your snap',
+                'shared' => 'shared your post',
+            ],
+            'album_request' => [
+                'shared_album' => 'invited you to collaborate on an album',
+                'invited' => 'invited you to collaborate on an album',
+            ],
+        ];
+
+        return $phrases[$type][$action] ?? $action;
+    }
     private function getNotificationTitle($action)
     {
         switch ($action) {

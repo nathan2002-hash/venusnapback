@@ -89,7 +89,7 @@ class CommentController extends Controller
         $profileUrl = $comment->user->profile_compressed ? Storage::disk('s3')->url($comment->user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp';
         $postMediaId = $id;
 
-        $postMedia = PostMedia::with('post')->find($postMediaId);
+        $postMedia = PostMedia::with('post.album')->find($postMediaId);
             if (!$postMedia || !$postMedia->post) {
                 return response()->json(['message' => 'Post or post media not found'], 404);
             }
@@ -103,6 +103,7 @@ class CommentController extends Controller
                 'username' => $user->name, // Add this
                 'post_id' => $postMedia->post->id,
                 'media_id' => $postMedia->id,
+                'album_id' => $postMedia->post->album_id ?? null // Fixed this line
             ]
         );
         return response()->json([
@@ -139,7 +140,7 @@ class CommentController extends Controller
           $commentid = $id;
 
         $comment = Comment::find($commentid);
-        $postMedia = PostMedia::with('post')->find($comment->post_media_id);
+        $postMedia = PostMedia::with('post.album')->find($comment->post_media_id);
             if (!$postMedia || !$postMedia->post) {
                 return response()->json(['message' => 'Post or post media not found'], 404);
             }
@@ -154,6 +155,7 @@ class CommentController extends Controller
                 'post_id' => $postMedia->post->id,
                 'media_id' => $postMedia->id,
                 'comment_id' => $comment->id,
+                'album_id' => $postMedia->post->album_id ?? null // Fixed this line
             ]
         );
         return response()->json([
