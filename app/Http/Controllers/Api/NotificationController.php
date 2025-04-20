@@ -215,7 +215,7 @@ class NotificationController extends Controller
             }
 
             // If all viewers were the owner
-            return "$userCount people explored your album \"$albumName\" $timePhrase";
+             return null;
         }
 
         // Fallback for other types
