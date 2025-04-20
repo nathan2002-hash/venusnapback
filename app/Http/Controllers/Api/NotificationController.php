@@ -125,7 +125,7 @@ class NotificationController extends Controller
     }
 
 
-    private function getActionPhrase($action, $type, $notification)
+    private function getActionhrase($action, $type, $notification)
     {
         $data = json_decode($notification->data, true);
 
@@ -147,6 +147,38 @@ class NotificationController extends Controller
 
         return $phrases[$type][$action] ?? $action;
     }
+
+    private function getActionPhrase($action, $type, $notification)
+{
+    $data = json_decode($notification->data, true);
+
+    $albumName = null;
+    if (isset($data['album_id'])) {
+        $album = \App\Models\Album::find($data['album_id']);
+        if ($album) {
+            $albumName = $album->name;
+        }
+    }
+
+    $phrases = [
+        'comment' => [
+            'commented' => 'commented on your snap',
+            'replied' => 'replied to your comment',
+        ],
+        'post' => [
+            'liked' => 'liked your post',
+            'admired' => $albumName ? "admired your snap on \"{$albumName}\"" : 'admired your snap',
+            'shared' => 'shared your post',
+        ],
+        'album_request' => [
+            'shared_album' => 'invited you to collaborate on an album',
+            'invited' => 'invited you to collaborate on an album',
+        ],
+    ];
+
+    return $phrases[$type][$action] ?? $action;
+}
+
 
 
     private function getNotificationIcon($action)
