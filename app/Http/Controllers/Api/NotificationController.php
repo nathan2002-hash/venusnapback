@@ -64,9 +64,23 @@ class NotificationController extends Controller
     return response()->json($notifications);
 }
 
+    // protected function getGroupingIdentifier($notification, $type)
+    // {
+    //     // For posts, we want to group by the post_id (from post_media) not the post_media_id
+    //     if ($type === 'post') {
+    //         try {
+    //             $postMedia = PostMedia::find($notification->notifiable_id);
+    //             return $postMedia ? $postMedia->post_id : $notification->notifiable_id;
+    //         } catch (\Exception $e) {
+    //             return $notification->notifiable_id;
+    //         }
+    //     }
+
+    //     return $notification->notifiable_id;
+    // }
+
     protected function getGroupingIdentifier($notification, $type)
     {
-        // For posts, we want to group by the post_id (from post_media) not the post_media_id
         if ($type === 'post') {
             try {
                 $postMedia = PostMedia::find($notification->notifiable_id);
@@ -76,8 +90,17 @@ class NotificationController extends Controller
             }
         }
 
+        if ($type === 'album_view') {
+            // Group by album and date (e.g., 2025-04-11)
+            $data = json_decode($notification->data, true);
+            $albumId = $data['album_id'] ?? $notification->notifiable_id;
+            $date = $notification->created_at->format('Y-m-d');
+            return $albumId . '-' . $date;
+        }
+
         return $notification->notifiable_id;
     }
+
 
     protected function getProperNotifiableId($notification, $type)
     {
@@ -95,6 +118,20 @@ class NotificationController extends Controller
         return $notification->notifiable_id;
     }
 
+    // private function determineTypeFromAction($action)
+    // {
+    //     $typeMap = [
+    //         'invited' => 'album_request',
+    //         'admired' => 'post',
+    //         'liked' => 'post',
+    //         'commented' => 'comment',
+    //         'replied' => 'comment',
+    //         //'replied' => 'comment'
+    //     ];
+
+    //     return $typeMap[$action] ?? 'post';
+    // }
+
     private function determineTypeFromAction($action)
     {
         $typeMap = [
@@ -103,14 +140,37 @@ class NotificationController extends Controller
             'liked' => 'post',
             'commented' => 'comment',
             'replied' => 'comment',
-            //'replied' => 'comment'
+            'viewed_album' => 'album_view', // ✅ New type
         ];
 
         return $typeMap[$action] ?? 'post';
     }
 
+
+    // private function buildGroupedMessage($usernames, $userCount, $action, $type, $notification)
+    // {
+    //     $actionPhrase = $this->getActionPhrase($action, $type, $notification);
+
+    //     if (empty($usernames)) {
+    //         return "Someone $actionPhrase";
+    //     }
+
+    //     if ($userCount == 1) return "{$usernames[0]} $actionPhrase";
+    //     if ($userCount == 2) return "{$usernames[0]} and {$usernames[1]} $actionPhrase";
+    //     if ($userCount == 3) return "{$usernames[0]}, {$usernames[1]}, and {$usernames[2]} $actionPhrase";
+
+    //     return "{$usernames[0]} and " . ($userCount - 1) . " others $actionPhrase";
+    // }
+
     private function buildGroupedMessage($usernames, $userCount, $action, $type, $notification)
     {
+        if ($type === 'album_view') {
+            $data = json_decode($notification->data, true);
+            $album = \App\Models\Album::find($data['album_id'] ?? null);
+            $albumName = $album ? $album->name : 'your album';
+            return "$userCount people explored \"$albumName\" today";
+        }
+
         $actionPhrase = $this->getActionPhrase($action, $type, $notification);
 
         if (empty($usernames)) {
@@ -123,6 +183,7 @@ class NotificationController extends Controller
 
         return "{$usernames[0]} and " . ($userCount - 1) . " others $actionPhrase";
     }
+
 
 
 
