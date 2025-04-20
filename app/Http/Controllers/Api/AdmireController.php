@@ -16,11 +16,11 @@ class AdmireController extends Controller
     {
         $postMediaId = $request->post_media_id;
         $user = Auth::user();
-    
+
         $admire = Admire::where('user_id', $user->id)
                         ->where('post_media_id', $postMediaId)
                         ->first();
-    
+
         if ($admire) {
             $admire->delete();
             return response()->json(['message' => 'Unliked']);
@@ -29,15 +29,15 @@ class AdmireController extends Controller
                 'user_id' => $user->id,
                 'post_media_id' => $postMediaId
             ]);
-    
+
             // ✅ Fetch postMedia and its parent post
             $postMedia = PostMedia::with('post')->find($postMediaId);
             if (!$postMedia || !$postMedia->post) {
                 return response()->json(['message' => 'Post or post media not found'], 404);
             }
-    
+
             $postOwnerId = $postMedia->post->user_id;
-    
+
             // ✅ Prevent self-notification
             if ($postOwnerId !== $user->id) {
                 CreateNotificationJob::dispatch(
@@ -47,11 +47,12 @@ class AdmireController extends Controller
                     $postOwnerId,           // receiver
                     [
                         'post_id' => $postMedia->post->id,
-                        'media_id' => $postMediaId
+                        'media_id' => $postMediaId,
+                        'album_id' => $postMediaId->post->album_id
                     ]
                 );
             }
-    
+
             return response()->json(['message' => 'Liked']);
         }
 
