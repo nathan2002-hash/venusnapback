@@ -93,19 +93,22 @@ class CommentController extends Controller
             if (!$postMedia || !$postMedia->post) {
                 return response()->json(['message' => 'Post or post media not found'], 404);
             }
-        $postOwnerId = $postMedia->post->user_id;
-        CreateNotificationJob::dispatch(
-            $user,                      // sender (commenting user)
-            $postMedia,       // notifiable (postMedia)
-            'commented',               // action
-            $postOwnerId,              // receiver (post owner)
-            [
-                'username' => $user->name, // Add this
-                'post_id' => $postMedia->post->id,
-                'media_id' => $postMedia->id,
-                'album_id' => $postMedia->post->album_id ?? null // Fixed this line
-            ]
-        );
+        //$postOwnerId = $postMedia->post->user_id;
+        $postOwnerId = $postMedia->post->album->user_id;
+        if ($postOwnerId !== $user->id) {
+            CreateNotificationJob::dispatch(
+                $user,                      // sender (commenting user)
+                $postMedia,       // notifiable (postMedia)
+                'commented',               // action
+                $postOwnerId,              // receiver (post owner)
+                [
+                    'username' => $user->name, // Add this
+                    'post_id' => $postMedia->post->id,
+                    'media_id' => $postMedia->id,
+                    'album_id' => $postMedia->post->album_id ?? null // Fixed this line
+                ]
+            );
+        }
         return response()->json([
             'id' => $comment->id,
             'comment' => $comment->comment,
@@ -144,20 +147,24 @@ class CommentController extends Controller
             if (!$postMedia || !$postMedia->post) {
                 return response()->json(['message' => 'Post or post media not found'], 404);
             }
-        $postOwnerId = $postMedia->post->user_id;
-        CreateNotificationJob::dispatch(
-            $user,                      // sender (commenting user)
-            $postMedia,       // notifiable (postMedia)
-            'commented',               // action
-            $postOwnerId,              // receiver (post owner)
-            [
-                'username' => $user->name, // Add this
-                'post_id' => $postMedia->post->id,
-                'media_id' => $postMedia->id,
-                'comment_id' => $comment->id,
-                'album_id' => $postMedia->post->album_id ?? null // Fixed this line
-            ]
-        );
+        //$postOwnerId = $postMedia->post->user_id;
+        $postOwnerId = $postMedia->post->album->user_id;
+
+        if ($postOwnerId !== $user->id) {
+            CreateNotificationJob::dispatch(
+                $user,                      // sender (commenting user)
+                $postMedia,       // notifiable (postMedia)
+                'commented',               // action
+                $postOwnerId,              // receiver (post owner)
+                [
+                    'username' => $user->name, // Add this
+                    'post_id' => $postMedia->post->id,
+                    'media_id' => $postMedia->id,
+                    'comment_id' => $comment->id,
+                    'album_id' => $postMedia->post->album_id ?? null // Fixed this line
+                ]
+            );
+        }
         return response()->json([
             'id' => $reply->id,
             'reply' => $reply->reply,

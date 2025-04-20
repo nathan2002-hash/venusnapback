@@ -37,7 +37,8 @@ class AdmireController extends Controller
                 return response()->json(['message' => 'Post or post media not found'], 404);
             }
 
-            $postOwnerId = $postMedia->post->user_id;
+            //$postOwnerId = $postMedia->post->user_id;
+            $postOwnerId = $postMedia->post->album->user_id;
 
             // Prevent self-notification
             if ($postOwnerId !== $user->id) {
