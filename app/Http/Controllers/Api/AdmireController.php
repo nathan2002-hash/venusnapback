@@ -30,15 +30,16 @@ class AdmireController extends Controller
                 'post_media_id' => $postMediaId
             ]);
 
-            // ✅ Fetch postMedia and its parent post
-            $postMedia = PostMedia::with('post')->find($postMediaId);
+            // Fetch postMedia and its relationships
+            $postMedia = PostMedia::with('post.album')->find($postMediaId);
+
             if (!$postMedia || !$postMedia->post) {
                 return response()->json(['message' => 'Post or post media not found'], 404);
             }
 
             $postOwnerId = $postMedia->post->user_id;
 
-            // ✅ Prevent self-notification
+            // Prevent self-notification
             if ($postOwnerId !== $user->id) {
                 CreateNotificationJob::dispatch(
                     $user,                   // sender
@@ -48,14 +49,13 @@ class AdmireController extends Controller
                     [
                         'post_id' => $postMedia->post->id,
                         'media_id' => $postMediaId,
-                        'album_id' => $postMediaId->post->album_id
+                        'album_id' => $postMedia->post->album_id ?? null // Fixed this line
                     ]
                 );
             }
 
             return response()->json(['message' => 'Liked']);
         }
-
     }
 
 
