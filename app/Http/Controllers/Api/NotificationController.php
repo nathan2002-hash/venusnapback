@@ -11,157 +11,167 @@ use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
-public function index(Request $request)
-{
-    $user = $request->user();
+    public function index(Request $request)
+    {
+        $user = $request->user();
 
-    $notifications = Notification::where('user_id', $user->id)
-        ->orderBy('created_at', 'desc')
-        ->get()
-        ->groupBy(function ($notification) {
-            $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
-            $groupKey = $type . '-' . $this->getGroupingIdentifier($notification, $type);
-            
-            // For all notification types, include the sender's username in grouping
-            $data = json_decode($notification->data, true);
-            if (isset($data['username'])) {
-                $groupKey .= '-' . $data['username'];
-            }
-            
-            return $groupKey;
-        })
-        ->map(function ($group) {
-            $firstNotification = $group->first();
-            $data = json_decode($firstNotification->data, true);
-            $username = $data['username'] ?? 'Someone';
-            
-            $action = $firstNotification->action;
-            $type = $firstNotification->type ?? $this->determineTypeFromAction($action);
-            $notifiableId = $this->getProperNotifiableId($firstNotification, $type);
-            
-            // For album requests, use the specific description format
-            if ($type === 'album_request') {
-                $message = "$username invited you to collaborate on the album \"{$data['album_name']}\"";
-            } else {
-                // For other types, use the generic grouped message
-                $userCount = $group->count();
-                $actionPhrase = $this->getActionPhrase($action, $type);
-                $message = $this->buildGroupedMessage([$username], $userCount, $action, $type);
-            }
-            
-            return [
-                'id' => $firstNotification->id,
-                'type' => $type,
-                'action' => $action,
-                'notifiable_id' => $notifiableId,
-                'original_notifiable_id' => $firstNotification->notifiable_id,
-                'message' => $message,
-                'is_read' => $group->every->is_read,
-                'created_at' => $firstNotification->created_at,
-                'formatted_date' => $firstNotification->created_at->format('M d, Y - h:i A'),
-                'icon' => $this->getNotificationIcon($action),
-                'metadata' => $data
-            ];
-        })
-        ->values();
+        $notifications = Notification::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy(function ($notification) {
+                $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
+                $groupKey = $type . '-' . $this->getGroupingIdentifier($notification, $type);
 
-    return response()->json($notifications);
-}
+                // For all notification types, include the sender's username in grouping
+                $data = json_decode($notification->data, true);
+                if (isset($data['username'])) {
+                    $groupKey .= '-' . $data['username'];
+                }
+
+                return $groupKey;
+            })
+            ->map(function ($group) {
+                $firstNotification = $group->first();
+                $data = json_decode($firstNotification->data, true);
+                $username = $data['username'] ?? 'Someone';
+
+                $action = $firstNotification->action;
+                $type = $firstNotification->type ?? $this->determineTypeFromAction($action);
+                $notifiableId = $this->getProperNotifiableId($firstNotification, $type);
+
+                // For album requests, use the specific description format
+                if ($type === 'album_request') {
+                    $message = "$username invited you to collaborate on the album \"{$data['album_name']}\"";
+                } else {
+                    // For other types, use the generic grouped message
+                    $userCount = $group->count();
+                    $actionPhrase = $this->getActionPhrase($action, $type);
+                    $message = $this->buildGroupedMessage([$username], $userCount, $action, $type);
+                }
+
+                return [
+                    'id' => $firstNotification->id,
+                    'type' => $type,
+                    'action' => $action,
+                    'notifiable_id' => $notifiableId,
+                    'original_notifiable_id' => $firstNotification->notifiable_id,
+                    'message' => $message,
+                    'is_read' => $group->every->is_read,
+                    'created_at' => $firstNotification->created_at,
+                    'formatted_date' => $firstNotification->created_at->format('M d, Y - h:i A'),
+                    'icon' => $this->getNotificationIcon($action),
+                    'metadata' => $data
+                ];
+            })
+            ->values();
+
+        return response()->json($notifications);
+    }
 
     protected function getGroupingIdentifier($notification, $type)
-{
-    // For posts, we want to group by the post_id (from post_media) not the post_media_id
-    if ($type === 'post') {
-        try {
-            $postMedia = PostMedia::find($notification->notifiable_id);
-            return $postMedia ? $postMedia->post_id : $notification->notifiable_id;
-        } catch (\Exception $e) {
-            return $notification->notifiable_id;
+    {
+        // For posts, we want to group by the post_id (from post_media) not the post_media_id
+        if ($type === 'post') {
+            try {
+                $postMedia = PostMedia::find($notification->notifiable_id);
+                return $postMedia ? $postMedia->post_id : $notification->notifiable_id;
+            } catch (\Exception $e) {
+                return $notification->notifiable_id;
+            }
         }
+
+        return $notification->notifiable_id;
     }
-    
-    return $notification->notifiable_id;
-}
 
     protected function getProperNotifiableId($notification, $type)
-{
-    // Only modify notifiable_id for post types
-    if ($type === 'post') {
-        try {
-            $postMedia = PostMedia::find($notification->notifiable_id);
-            return $postMedia ? $postMedia->post_id : $notification->notifiable_id;
-        } catch (\Exception $e) {
-            return $notification->notifiable_id;
+    {
+        // Only modify notifiable_id for post types
+        if ($type === 'post') {
+            try {
+                $postMedia = PostMedia::find($notification->notifiable_id);
+                return $postMedia ? $postMedia->post_id : $notification->notifiable_id;
+            } catch (\Exception $e) {
+                return $notification->notifiable_id;
+            }
         }
+
+        // For all other types, return the original notifiable_id
+        return $notification->notifiable_id;
     }
-    
-    // For all other types, return the original notifiable_id
-    return $notification->notifiable_id;
-}
 
     private function determineTypeFromAction($action)
-{
-    $typeMap = [
-        'invited' => 'album_request',
-        'admired' => 'post',
-        'liked' => 'post',
-        'commented' => 'comment'
-    ];
-    
-    return $typeMap[$action] ?? 'post';
-}
+    {
+        $typeMap = [
+            'invited' => 'album_request',
+            'admired' => 'post',
+            'liked' => 'post',
+            'commented' => 'comment'
+        ];
 
-   private function buildGroupedMessage($usernames, $userCount, $action, $type)
-{
-    $actionPhrase = $this->getActionPhrase($action, $type);
-    
-    if (empty($usernames)) {
-        return "Someone $actionPhrase";
+        return $typeMap[$action] ?? 'post';
     }
-    
-    if ($userCount == 1) return "{$usernames[0]} $actionPhrase";
-    if ($userCount == 2) return "{$usernames[0]} and {$usernames[1]} $actionPhrase";
-    if ($userCount == 3) return "{$usernames[0]}, {$usernames[1]}, and {$usernames[2]} $actionPhrase";
-    
-    return "{$usernames[0]} and " . ($userCount - 1) . " others $actionPhrase";
-}
+
+    private function buildGroupedMessage($usernames, $userCount, $action, $type)
+    {
+        $actionPhrase = $this->getActionPhrase($action, $type);
+
+        if (empty($usernames)) {
+            return "Someone $actionPhrase";
+        }
+
+        if ($userCount == 1) return "{$usernames[0]} $actionPhrase";
+        if ($userCount == 2) return "{$usernames[0]} and {$usernames[1]} $actionPhrase";
+        if ($userCount == 3) return "{$usernames[0]}, {$usernames[1]}, and {$usernames[2]} $actionPhrase";
+
+        return "{$usernames[0]} and " . ($userCount - 1) . " others $actionPhrase";
+    }
 
 
-   private function getActionPhrase($action, $type)
-{
-    $phrases = [
-        'comment' => [
-            'created' => 'commented on your snap',
-            'replied' => 'replied to your comment'
-        ],
-        'post' => [
-            'liked' => 'liked your post',
-            'admired' => 'admired your snap',
-            'shared' => 'shared your post'
-        ],
-        'album_request' => [
-            'shared_album' => 'invited you to collaborate on an album',
-            'invited' => 'invited you to collaborate on an album'
-        ]
-    ];
-    
-    return $phrases[$type][$action] ?? $action;
-}
+    private function getActionPhrase($action, $type)
+    {
+        // Split the action into parts if it contains a comma
+        $actionParts = explode(',', $action);
+        $primaryAction = trim($actionParts[0]);
+        $secondaryAction = isset($actionParts[1]) ? trim($actionParts[1]) : null;
+
+        $phrases = [
+            'comment' => [
+                'created' => 'commented on your snap',
+                'reply' => 'replied to your comment',
+                // Fallback if only "commented" is provided
+                'commented' => 'commented on your snap'
+            ],
+            'post' => [
+                'liked' => 'liked your post',
+                'admired' => 'admired your snap',
+                'shared' => 'shared your post'
+            ],
+            'album_request' => [
+                'shared_album' => 'invited you to collaborate on an album',
+                'invited' => 'invited you to collaborate on an album'
+            ]
+        ];
+
+        // Use the secondary action if available, otherwise fallback to primary
+        $effectiveAction = $secondaryAction ?: $primaryAction;
+
+        return $phrases[$type][$effectiveAction] ?? $effectiveAction;
+    }
 
 
     private function getNotificationIcon($action)
-{
-    $icons = [
-        'liked' => 'thumb_up',
-        'admired' => 'favorite',
-        'commented' => 'comment',
-        'shared' => 'share',
-        'shared_album' => 'album',
-        'invited' => 'group_add'
-    ];
-    
-    return $icons[$action] ?? 'notifications';
-}
+    {
+        $icons = [
+            'liked' => 'thumb_up',
+            'admired' => 'favorite',
+            'commented' => 'comment',
+            'shared' => 'share',
+            'shared_album' => 'album',
+            'invited' => 'group_add'
+        ];
+
+        return $icons[$action] ?? 'notifications';
+    }
 
     private function getNotificationTitle($action)
     {
@@ -183,7 +193,7 @@ public function index(Request $request)
     {
         $data = json_decode($notification->data, true);
         $username = $data['username'] ?? 'Someone';
-    
+
         switch ($notification->action) {
             case 'shared_album':
                 return "$username invited you to edit the album \"{$data['album_name']}\"";
@@ -192,7 +202,7 @@ public function index(Request $request)
             case 'liked':
                 return "$username liked your post";
             case 'commented':
-                return "$username commented on your post";
+                return "$username commented on your snap";
             default:
                 return "$username performed an action";
         }
@@ -201,64 +211,64 @@ public function index(Request $request)
 
 
    public function markAsRead(Request $request)
-{
-    $request->validate([
-        'notification_id' => 'required|integer',
-    ]);
+    {
+        $request->validate([
+            'notification_id' => 'required|integer',
+        ]);
 
-    $user = $request->user();
-    
-    // Get the notification being marked as read
-    $notification = Notification::where('id', $request->notification_id)
-        ->where('user_id', $user->id)
-        ->first();
+        $user = $request->user();
 
-    if (!$notification) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Notification not found',
-        ], 404);
-    }
+        // Get the notification being marked as read
+        $notification = Notification::where('id', $request->notification_id)
+            ->where('user_id', $user->id)
+            ->first();
 
-    // Determine the type (fallback to auto-detection if not set)
-    $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
-    
-    // Get all notifications in the same group
-    $groupedNotifications = Notification::where('user_id', $user->id)
-        ->where(function($query) use ($notification, $type) {
-            // For posts, we need to handle the post_media -> post relationship
-            if ($type === 'post') {
-                $postMedia = PostMedia::find($notification->notifiable_id);
-                if ($postMedia) {
-                    // Find all notifications for post_media items belonging to this post
-                    $postMediaIds = PostMedia::where('post_id', $postMedia->post_id)
-                        ->pluck('id');
-                    $query->whereIn('notifiable_id', $postMediaIds);
+        if (!$notification) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Notification not found',
+            ], 404);
+        }
+
+        // Determine the type (fallback to auto-detection if not set)
+        $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
+
+        // Get all notifications in the same group
+        $groupedNotifications = Notification::where('user_id', $user->id)
+            ->where(function($query) use ($notification, $type) {
+                // For posts, we need to handle the post_media -> post relationship
+                if ($type === 'post') {
+                    $postMedia = PostMedia::find($notification->notifiable_id);
+                    if ($postMedia) {
+                        // Find all notifications for post_media items belonging to this post
+                        $postMediaIds = PostMedia::where('post_id', $postMedia->post_id)
+                            ->pluck('id');
+                        $query->whereIn('notifiable_id', $postMediaIds);
+                    } else {
+                        $query->where('notifiable_id', $notification->notifiable_id);
+                    }
                 } else {
                     $query->where('notifiable_id', $notification->notifiable_id);
                 }
-            } else {
-                $query->where('notifiable_id', $notification->notifiable_id);
-            }
-            
-            // Include the same action and type
-            $query->where('action', $notification->action);
-            if ($notification->type) {
-                $query->where('type', $notification->type);
-            }
-        })
-        ->get();
 
-    // Mark all grouped notifications as read
-    $updated = Notification::whereIn('id', $groupedNotifications->pluck('id'))
-        ->update(['is_read' => true]);
+                // Include the same action and type
+                $query->where('action', $notification->action);
+                if ($notification->type) {
+                    $query->where('type', $notification->type);
+                }
+            })
+            ->get();
 
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Notifications marked as read',
-        'count' => $updated,
-    ]);
-}
+        // Mark all grouped notifications as read
+        $updated = Notification::whereIn('id', $groupedNotifications->pluck('id'))
+            ->update(['is_read' => true]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Notifications marked as read',
+            'count' => $updated,
+        ]);
+    }
 
     public function notificationscount()
     {
