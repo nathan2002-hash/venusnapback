@@ -168,9 +168,26 @@ class NotificationController extends Controller
             $data = json_decode($notification->data, true);
             $album = \App\Models\Album::find($data['album_id'] ?? null);
             $albumName = $album ? $album->name : 'your album';
-            return "$userCount people explored \"$albumName\" today";
+
+            $date = $notification->created_at->startOfDay();
+            $today = now()->startOfDay();
+            $diffInDays = $date->diffInDays($today);
+
+            $timePhrase = match (true) {
+                $diffInDays === 0 => 'today',
+                $diffInDays === 1 => 'yesterday',
+                $diffInDays <= 6 => 'on ' . $date->format('l'), // Monday, Tuesday, etc.
+                default => 'on ' . $date->format('M j'), // Mar 20, Apr 4, etc.
+            };
+
+            if ($userCount === 1) {
+                return "1 person has explored \"$albumName\" $timePhrase";
+            }
+
+            return "$userCount people have explored \"$albumName\" $timePhrase";
         }
 
+        // For other types of notifications
         $actionPhrase = $this->getActionPhrase($action, $type, $notification);
 
         if (empty($usernames)) {
@@ -187,36 +204,37 @@ class NotificationController extends Controller
 
 
 
+
     private function getActionPhrase($action, $type, $notification)
-{
-    $data = json_decode($notification->data, true);
+    {
+        $data = json_decode($notification->data, true);
 
-    $albumName = null;
-    if (isset($data['album_id'])) {
-        $album = \App\Models\Album::find($data['album_id']);
-        if ($album) {
-            $albumName = $album->name;
+        $albumName = null;
+        if (isset($data['album_id'])) {
+            $album = \App\Models\Album::find($data['album_id']);
+            if ($album) {
+                $albumName = $album->name;
+            }
         }
+
+        $phrases = [
+            'comment' => [
+                'commented' => "commented on your snap on {$albumName} Album",
+                'replied' => 'replied to your comment',
+            ],
+            'post' => [
+                'liked' => 'liked your post',
+                'admired' => $albumName ? "admired your snap on {$albumName} Album" : 'admired your snap',
+                'shared' => 'shared your post',
+            ],
+            'album_request' => [
+                'shared_album' => 'invited you to collaborate on an album',
+                'invited' => 'invited you to collaborate on an album',
+            ],
+        ];
+
+        return $phrases[$type][$action] ?? $action;
     }
-
-    $phrases = [
-        'comment' => [
-            'commented' => "commented on your snap on {$albumName} Album",
-            'replied' => 'replied to your comment',
-        ],
-        'post' => [
-            'liked' => 'liked your post',
-            'admired' => $albumName ? "admired your snap on {$albumName} Album" : 'admired your snap',
-            'shared' => 'shared your post',
-        ],
-        'album_request' => [
-            'shared_album' => 'invited you to collaborate on an album',
-            'invited' => 'invited you to collaborate on an album',
-        ],
-    ];
-
-    return $phrases[$type][$action] ?? $action;
-}
 
 
 
