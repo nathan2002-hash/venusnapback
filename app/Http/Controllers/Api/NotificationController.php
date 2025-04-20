@@ -105,7 +105,9 @@ class NotificationController extends Controller
             'invited' => 'album_request',
             'admired' => 'post',
             'liked' => 'post',
-            'commented' => 'comment'
+            'commented' => 'comment',
+            'replied' => 'comment',
+            //'replied' => 'comment'
         ];
 
         return $typeMap[$action] ?? 'post';
@@ -129,17 +131,10 @@ class NotificationController extends Controller
 
     private function getActionPhrase($action, $type)
     {
-        // Split the action into parts if it contains a comma
-        $actionParts = explode(',', $action);
-        $primaryAction = trim($actionParts[0]);
-        $secondaryAction = isset($actionParts[1]) ? trim($actionParts[1]) : null;
-
         $phrases = [
             'comment' => [
-                'created' => 'commented on your snap',
-                'reply' => 'replied to your comment',
-                // Fallback if only "commented" is provided
-                'commented' => 'commented on your snap'
+                'commented' => 'commented on your snap',
+                'replied' => 'replied to your comment'
             ],
             'post' => [
                 'liked' => 'liked your post',
@@ -152,10 +147,7 @@ class NotificationController extends Controller
             ]
         ];
 
-        // Use the secondary action if available, otherwise fallback to primary
-        $effectiveAction = $secondaryAction ?: $primaryAction;
-
-        return $phrases[$type][$effectiveAction] ?? $effectiveAction;
+        return $phrases[$type][$action] ?? $action;
     }
 
 
