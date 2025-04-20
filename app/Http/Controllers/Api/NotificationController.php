@@ -157,6 +157,7 @@ class NotificationController extends Controller
             'liked' => 'thumb_up',
             'admired' => 'favorite',
             'commented' => 'comment',
+            'replied' => 'reply',
             'shared' => 'share',
             'shared_album' => 'album',
             'invited' => 'group_add'
