@@ -12,61 +12,57 @@ use Illuminate\Support\Facades\Auth;
 class NotificationController extends Controller
 {
     public function index(Request $request)
-    {
-        $user = $request->user();
+{
+    $user = $request->user();
 
-        $notifications = Notification::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->groupBy(function ($notification) {
-                $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
-                $groupKey = $type . '-' . $this->getGroupingIdentifier($notification, $type);
+    $notifications = Notification::where('user_id', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->groupBy(function ($notification) {
+            $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
+            $groupKey = $type . '-' . $this->getGroupingIdentifier($notification, $type);
 
-                // For all notification types, include the sender's username in grouping
-                $data = json_decode($notification->data, true);
-                if (isset($data['username'])) {
-                    $groupKey .= '-' . $data['username'];
-                }
+            $data = json_decode($notification->data, true);
+            if (isset($data['username'])) {
+                $groupKey .= '-' . $data['username'];
+            }
 
-                return $groupKey;
-            })
-            ->map(function ($group) {
-                $firstNotification = $group->first();
-                $data = json_decode($firstNotification->data, true);
-                $username = $data['username'] ?? 'Someone';
+            return $groupKey;
+        })
+        ->map(function ($group) {
+            $firstNotification = $group->first();
+            $data = json_decode($firstNotification->data, true);
+            $username = $data['username'] ?? 'Someone';
 
-                $action = $firstNotification->action;
-                $type = $firstNotification->type ?? $this->determineTypeFromAction($action);
-                $notifiableId = $this->getProperNotifiableId($firstNotification, $type);
+            $action = $firstNotification->action;
+            $type = $firstNotification->type ?? $this->determineTypeFromAction($action);
+            $notifiableId = $this->getProperNotifiableId($firstNotification, $type);
 
-                // For album requests, use the specific description format
-                if ($type === 'album_request') {
-                    $message = "$username invited you to collaborate on the album \"{$data['album_name']}\"";
-                } else {
-                    // For other types, use the generic grouped message
-                    $userCount = $group->count();
-                    $actionPhrase = $this->getActionPhrase($action, $type);
-                    $message = $this->buildGroupedMessage([$username], $userCount, $action, $type);
-                }
+            if ($type === 'album_request') {
+                $message = "$username invited you to collaborate on the album \"{$data['album_name']}\"";
+            } else {
+                $userCount = $group->count();
+                $message = $this->buildGroupedMessage([$username], $userCount, $action, $type, $firstNotification);
+            }
 
-                return [
-                    'id' => $firstNotification->id,
-                    'type' => $type,
-                    'action' => $action,
-                    'notifiable_id' => $notifiableId,
-                    'original_notifiable_id' => $firstNotification->notifiable_id,
-                    'message' => $message,
-                    'is_read' => $group->every->is_read,
-                    'created_at' => $firstNotification->created_at,
-                    'formatted_date' => $firstNotification->created_at->format('M d, Y - h:i A'),
-                    'icon' => $this->getNotificationIcon($action),
-                    'metadata' => $data
-                ];
-            })
-            ->values();
+            return [
+                'id' => $firstNotification->id,
+                'type' => $type,
+                'action' => $action,
+                'notifiable_id' => $notifiableId,
+                'original_notifiable_id' => $firstNotification->notifiable_id,
+                'message' => $message,
+                'is_read' => $group->every->is_read,
+                'created_at' => $firstNotification->created_at,
+                'formatted_date' => $firstNotification->created_at->format('M d, Y - h:i A'),
+                'icon' => $this->getNotificationIcon($action),
+                'metadata' => $data
+            ];
+        })
+        ->values();
 
-        return response()->json($notifications);
-    }
+    return response()->json($notifications);
+}
 
     protected function getGroupingIdentifier($notification, $type)
     {
@@ -113,9 +109,9 @@ class NotificationController extends Controller
         return $typeMap[$action] ?? 'post';
     }
 
-    private function buildGroupedMessage($usernames, $userCount, $action, $type)
+    private function buildGroupedMessage($usernames, $userCount, $action, $type, $notification)
     {
-        $actionPhrase = $this->getActionPhrase($action, $type);
+        $actionPhrase = $this->getActionPhrase($action, $type, $notification);
 
         if (empty($usernames)) {
             return "Someone $actionPhrase";
@@ -129,22 +125,24 @@ class NotificationController extends Controller
     }
 
 
-    private function getActionPhrase($action, $type)
+    private function getActionPhrase($action, $type, $notification)
     {
+        $data = json_decode($notification->data, true);
+
         $phrases = [
             'comment' => [
                 'commented' => 'commented on your snap',
-                'replied' => 'replied to your comment'
+                'replied' => 'replied to your comment',
             ],
             'post' => [
                 'liked' => 'liked your post',
-                'admired' => 'admired your snap',
-                'shared' => 'shared your post'
+                'admired' => isset($data['album_name']) ? "admired your snap on \"{$data['album_name']}\"" : 'admired your snap',
+                'shared' => 'shared your post',
             ],
             'album_request' => [
                 'shared_album' => 'invited you to collaborate on an album',
-                'invited' => 'invited you to collaborate on an album'
-            ]
+                'invited' => 'invited you to collaborate on an album',
+            ],
         ];
 
         return $phrases[$type][$action] ?? $action;
