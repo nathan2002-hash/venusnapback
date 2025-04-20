@@ -357,16 +357,18 @@ class AlbumController extends Controller
 
          $receiver = $album->user_id;
 
-         CreateNotificationJob::dispatch(
-            $user,
-            $album,
-            'viewed_album',
-            $receiver,
-            [
-                'viewer' => $user->id,
-                'album_id' => $album->id
-            ]
-        );
+         if ($receiver !== $user->id) {
+            CreateNotificationJob::dispatch(
+                $user,
+                $album,
+                'viewed_album',
+                $receiver,
+                [
+                    'viewer' => $user->id,
+                    'album_id' => $album->id
+                ]
+            );
+        }
 
         // Determine the album's thumbnail
         if ($album->type == 'personal' || $album->type == 'creator') {
@@ -453,16 +455,18 @@ class AlbumController extends Controller
 
          $receiver = $album->user_id;
 
-         CreateNotificationJob::dispatch(
-            $user,
-            $album,
-            'viewed_album',
-            $receiver,
-            [
-                'viewer' => $user->id,
-                'album_id' => $album->id
-            ]
-        );
+         if ($receiver !== $user->id) {
+            CreateNotificationJob::dispatch(
+                $user,
+                $album,
+                'viewed_album',
+                $receiver,
+                [
+                    'viewer' => $user->id,
+                    'album_id' => $album->id
+                ]
+            );
+        }
 
         // Determine the album's thumbnail
         if ($album->type == 'personal' || $album->type == 'creator') {

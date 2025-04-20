@@ -174,58 +174,63 @@ class NotificationController extends Controller
     }
 
     private function buildGroupedMessage($usernames, $userCount, $action, $type, $notification, $group)
-{
-    if ($type === 'album_view') {
-        $data = json_decode($notification->data, true);
-        $album = \App\Models\Album::find($data['album_id'] ?? null);
-        $albumName = $album ? $album->name : 'your album';
+    {
+        if ($type === 'album_view') {
+            $data = json_decode($notification->data, true);
+            $album = \App\Models\Album::with('user')->find($data['album_id'] ?? null);
+            $albumName = $album ? $album->name : 'your album';
+            $ownerUsername = $album?->user?->name;
 
-        $notificationDate = $notification->created_at->timezone(config('app.timezone'))->startOfDay();
-        $today = now()->timezone(config('app.timezone'))->startOfDay();
-        $diffInDays = $notificationDate->diffInDays($today);
+            $notificationDate = $notification->created_at->timezone(config('app.timezone'))->startOfDay();
+            $today = now()->timezone(config('app.timezone'))->startOfDay();
+            $diffInDays = $notificationDate->diffInDays($today);
 
-        $timePhrase = match (true) {
-            $diffInDays === 0 => 'today',
-            $diffInDays === 1 => 'yesterday',
-            $diffInDays <= 6 => 'on ' . $notificationDate->format('l'),
-            default => 'on ' . $notificationDate->format('M j'),
-        };
+            $timePhrase = match (true) {
+                $diffInDays === 0 => 'today',
+                $diffInDays === 1 => 'yesterday',
+                $diffInDays <= 6 => 'on ' . $notificationDate->format('l'),
+                default => 'on ' . $notificationDate->format('M j'),
+            };
 
-        // Get all unique usernames from the group
-        $allUsernames = $group->map(function ($n) {
-            $data = json_decode($n->data, true);
-            return $data['username'] ?? null;
-        })->filter()->unique()->values()->toArray();
+            // Get all unique usernames from the group, excluding the owner
+            $allUsernames = $group->map(function ($n) use ($ownerUsername) {
+                $data = json_decode($n->data, true);
+                $username = $data['username'] ?? null;
+                return $username && $username !== $ownerUsername ? $username : null;
+            })->filter()->unique()->values()->toArray();
 
-        if (!empty($allUsernames)) {
-            if ($userCount === 1) {
-                return "{$allUsernames[0]} explored your album \"$albumName\" $timePhrase";
+            $filteredCount = count($allUsernames);
+
+            if (!empty($allUsernames)) {
+                if ($filteredCount === 1) {
+                    return "{$allUsernames[0]} explored your album \"$albumName\" $timePhrase";
+                }
+                if ($filteredCount === 2) {
+                    return "{$allUsernames[0]} and {$allUsernames[1]} explored your album \"$albumName\" $timePhrase";
+                }
+                if ($filteredCount === 3) {
+                    return "{$allUsernames[0]}, {$allUsernames[1]}, and {$allUsernames[2]} explored your album \"$albumName\" $timePhrase";
+                }
+                return "{$allUsernames[0]} and " . ($filteredCount - 1) . " others explored your album \"$albumName\" $timePhrase";
             }
-            if ($userCount === 2) {
-                return "{$allUsernames[0]} and {$allUsernames[1]} explored your album \"$albumName\" $timePhrase";
-            }
-            if ($userCount === 3) {
-                return "{$allUsernames[0]}, {$allUsernames[1]}, and {$allUsernames[2]} explored your album \"$albumName\" $timePhrase";
-            }
-            return "{$allUsernames[0]} and " . ($userCount - 1) . " others explored your album \"$albumName\" $timePhrase";
+
+            // If all viewers were the owner
+            return "$userCount people explored your album \"$albumName\" $timePhrase";
         }
 
-        return "$userCount people explored your album \"$albumName\" $timePhrase";
+        // Fallback for other types
+        $actionPhrase = $this->getActionPhrase($action, $type, $notification);
+
+        if (empty($usernames)) {
+            return "Someone $actionPhrase";
+        }
+
+        if ($userCount == 1) return "{$usernames[0]} $actionPhrase";
+        if ($userCount == 2) return "{$usernames[0]} and {$usernames[1]} $actionPhrase";
+        if ($userCount == 3) return "{$usernames[0]}, {$usernames[1]}, and {$usernames[2]} $actionPhrase";
+
+        return "{$usernames[0]} and " . ($userCount - 1) . " others $actionPhrase";
     }
-
-    // Fallback for other types
-    $actionPhrase = $this->getActionPhrase($action, $type, $notification);
-
-    if (empty($usernames)) {
-        return "Someone $actionPhrase";
-    }
-
-    if ($userCount == 1) return "{$usernames[0]} $actionPhrase";
-    if ($userCount == 2) return "{$usernames[0]} and {$usernames[1]} $actionPhrase";
-    if ($userCount == 3) return "{$usernames[0]}, {$usernames[1]}, and {$usernames[2]} $actionPhrase";
-
-    return "{$usernames[0]} and " . ($userCount - 1) . " others $actionPhrase";
-}
 
 
     private function getActionPhrase($action, $type, $notification)
