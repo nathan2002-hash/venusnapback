@@ -5,8 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Models\Album;
 use App\Jobs\AlbumCreate;
 use App\Models\AlbumView;
-use Illuminate\Http\Request;
 use App\Models\AlbumCategory;
+use App\Models\Admire;
+use App\Models\Post;
+use App\Models\PostMedia;
+use App\Models\View;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\CreateNotificationJob;
 use App\Http\Controllers\Controller;
@@ -563,5 +567,66 @@ class AlbumController extends Controller
         AlbumCreate::dispatch($album->id);
 
         return response()->json(['message' => 'Image updated successfully']);
+    }
+
+    public function albumAnalytics($id)
+    {
+        $album = Album::find($albumId);
+    
+        if (!$album) {
+            return response()->json(['message' => 'Album not found'], 404);
+        }
+    
+        // Get all post IDs in this album
+        $postIds = Post::where('album_id', $albumId)->pluck('id');
+    
+        // Get all post_media_ids from these posts
+        $postMediaIds = PostMedia::whereIn('post_id', $postIds)->pluck('id');
+    
+        // Album views summary
+        $albumViewsCount = AlbumView::where('album_id', $albumId)->count();
+        $uniqueViewers = AlbumView::where('album_id', $albumId)->distinct('ip_address')->count('ip_address');
+    
+        // Media views summary
+        $mediaViewsCount = View::whereIn('post_media_id', $postMediaIds)->count();
+    
+        // Total duration watched across all medias
+        $totalDuration = View::whereIn('post_media_id', $postMediaIds)->sum(DB::raw("CAST(duration AS UNSIGNED)"));
+    
+        // Admires (likes) summary
+        $admiresCount = Admire::whereIn('post_media_id', $postMediaIds)->count();
+    
+        // Post and media counts
+        $postCount = $postIds->count();
+        $mediaCount = $postMediaIds->count();
+    
+        // Optional: Top viewed media
+        $topMedia = View::whereIn('post_media_id', $postMediaIds)
+            ->select('post_media_id', DB::raw('COUNT(*) as views'))
+            ->groupBy('post_media_id')
+            ->orderByDesc('views')
+            ->first();
+    
+        return response()->json([
+            'album_id' => $albumId,
+            'album_name' => $album->name,
+            'views' => [
+                'total_album_views' => $albumViewsCount,
+                'unique_viewers' => $uniqueViewers,
+                'total_media_views' => $mediaViewsCount,
+            ],
+            'engagement' => [
+                'admires' => $admiresCount,
+                'total_duration_seconds' => $totalDuration,
+            ],
+            'content' => [
+                'post_count' => $postCount,
+                'media_count' => $mediaCount,
+            ],
+            'top_media' => $topMedia ? [
+                'media_id' => $topMedia->post_media_id,
+                'views' => $topMedia->views,
+            ] : null
+        ]);
     }
 }
