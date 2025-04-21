@@ -58,7 +58,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/post/store/cloud', 'Api\PostController@storecloud');
 
     Route::get('/post/edit/{id}', 'Api\PostController@postedit');
-    Route::get('/post/update/{id}', 'Api\PostController@update');
+    Route::put('/post/update/{id}', 'Api\PostController@update');
 
     Route::get('/post/media/state', 'Api\ViewController@more');
     Route::get('/ad/sponsored/{id}', 'Api\PostExploreController@getAdById');
