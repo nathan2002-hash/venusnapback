@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Carbon\Carbon;
 use App\Models\Post;
 use App\Models\Saved;
+use App\Models\Category;
 use App\Models\Admire;
 use App\Models\Report;
 use App\Models\Comment;
