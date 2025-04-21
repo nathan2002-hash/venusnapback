@@ -476,6 +476,9 @@ class AlbumController extends Controller
             );
         }
 
+        // Check if current user is a supporter
+       $isSupporter = $user ? $album->supporters->contains($user->id) : false;
+
         // Determine the album's thumbnail
         if ($album->type == 'personal' || $album->type == 'creator') {
             $thumbnailUrl = $album->thumbnail_compressed
@@ -527,6 +530,7 @@ class AlbumController extends Controller
                 'posts' => $posts,
                 'email' => in_array($album->type, ['creator', 'business']) ? $album->email : null,
                 'phone' => in_array($album->type, ['creator', 'business']) ? $album->phone : null,
+                'is_supporter' => $isSupporter, // Add this line
                 'website' => $album->website,
                 'facebook' => $album->facebook,
                 'linkedin' => $album->linkedin,
