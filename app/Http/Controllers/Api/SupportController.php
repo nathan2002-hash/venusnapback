@@ -155,6 +155,55 @@ class SupportController extends Controller
         ], 200);
     }
 
+      public function supportalbum(Request $request)
+    {
+        // Validate the request
+        // $validator = Validator::make($request->all(), [
+        //     'postmedia' => 'required|exists:post_media,id', // Ensure postmedia exists in the post_media table
+        // ]);
+
+        // // If validation fails, return error response
+        // if ($validator->fails()) {
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => 'Validation failed',
+        //         'errors' => $validator->errors(),
+        //     ], 422);
+        // }
+
+        // Get the authenticated user's ID
+        $user_id = Auth::id();
+
+        // Get the album_id from the post
+        $album_id = $request->album_id;
+
+        // Check if the user has already supported this post
+        $existingSupport = Supporter::where('user_id', $user_id)
+            ->where('album_id', $album_id)
+            ->first();
+
+        if ($existingSupport) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You have already supported this post.',
+            ], 409); // Conflict status code
+        }
+
+        // Create a new support record
+        $support = Supporter::create([
+            'album_id' => $album_id,
+            'user_id' => $user_id,
+            'status' => 'active',
+        ]);
+
+        // Return success response
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Support added successfully',
+            'data' => $support,
+        ], 201);
+    }
+
     public function checkSupport(Request $request)
     {
         // Get the authenticated user's ID
