@@ -228,7 +228,7 @@ public function index(Request $request)
 
     public function postedit($id)
     {
-        $post = Post::with(['postMedia', 'category', 'album'])
+        $post = Post::with(['postmedias', 'category', 'album'])
                     ->findOrFail($id);
     
         return response()->json([
@@ -238,7 +238,7 @@ public function index(Request $request)
             'album_id' => $post->album_id,
             'album' => $post->album,
             'visibility' => $post->visibility,
-            'post_media' => $post->postMedia->map(function($media) {
+            'post_media' => $post->postmedias->map(function($media) {
                 return [
                     'id' => $media->id,
                     'file_path' => $media->file_url, // Using the accessor we defined
