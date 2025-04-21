@@ -228,13 +228,14 @@ public function index(Request $request)
 
     public function postedit($id)
     {
-        $post = Post::with(['postmedias', 'categories', 'album'])
+        $post = Post::with(['postmedias', 'album'])
                     ->findOrFail($id);
+        $category = Category::find($post->type);
     
         return response()->json([
             'id' => $post->id,
             'description' => $post->description,
-            'type' => $post->category,
+            'type' => $category->name,
             'album_id' => $post->album_id,
             'album' => $post->album,
             'visibility' => $post->visibility,
