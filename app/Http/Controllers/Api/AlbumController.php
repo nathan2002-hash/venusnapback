@@ -619,7 +619,7 @@ class AlbumController extends Controller
             ],
             'engagement' => [
                 'admires' => $admiresCount,
-                'total_duration_seconds' => $totalDuration,
+                'total_duration_seconds' => (int) $totalDuration,
             ],
             'content' => [
                 'post_count' => $postCount,
