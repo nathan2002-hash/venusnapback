@@ -245,7 +245,7 @@ public function index(Request $request)
                     'sequence_order' => $media->sequence_order
                 ];
             }),
-            'can_edit' => Auth::id() === $post->user_id
+            'can_edit' => Auth::id() === optional($post->album)->user_id,
         ]);
     }
 
