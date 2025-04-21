@@ -226,6 +226,29 @@ public function index(Request $request)
         return response()->json(['message' => 'Post created successfully', 'post' => $post], 200);
     }
 
+    public function postedit($id)
+    {
+        $post = Post::with(['postMedia', 'category', 'album'])
+                    ->findOrFail($id);
+    
+        return response()->json([
+            'id' => $post->id,
+            'description' => $post->description,
+            'type' => $post->category,
+            'album_id' => $post->album_id,
+            'album' => $post->album,
+            'visibility' => $post->visibility,
+            'post_media' => $post->postMedia->map(function($media) {
+                return [
+                    'id' => $media->id,
+                    'file_path' => $media->file_url, // Using the accessor we defined
+                    'sequence_order' => $media->sequence_order
+                ];
+            }),
+            'can_edit' => Auth::id() === $post->user_id
+        ]);
+    }
+
     public function storecloud(Request $request)
 {
     $user = Auth::user();
