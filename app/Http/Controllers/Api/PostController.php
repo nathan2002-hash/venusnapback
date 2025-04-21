@@ -295,6 +295,7 @@ public function index(Request $request)
                     'sequence_order' => $media['sequence_order'],
                     'status' => 'original'
                 ]);
+                CompressImageJob::dispatch($postMedia->fresh()); 
             }
         }
     
