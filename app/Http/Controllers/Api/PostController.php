@@ -228,7 +228,7 @@ public function index(Request $request)
 
     public function postedit($id)
     {
-        $post = Post::with(['postmedias', 'category', 'album'])
+        $post = Post::with(['postmedias', 'categories', 'albums'])
                     ->findOrFail($id);
     
         return response()->json([
