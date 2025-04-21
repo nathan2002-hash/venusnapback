@@ -243,7 +243,7 @@ public function index(Request $request)
             'post_media' => $post->postmedias->map(function($media) {
                 return [
                     'id' => $media->id,
-                    'file_path' => $media->file_path, // Using the accessor we defined
+                    'file_path' => Storage::disk('s3')->url($media->file_path), // Using the accessor we defined
                     'sequence_order' => $media->sequence_order
                 ];
             }),
