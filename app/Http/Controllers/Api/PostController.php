@@ -301,7 +301,7 @@ public function index(Request $request)
     
         return response()->json([
             'message' => 'Post updated successfully',
-            'post' => $post->load('postMedia')
+             'post' => $post->load('postmedias')
         ]);
     }
 
