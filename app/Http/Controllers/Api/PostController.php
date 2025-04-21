@@ -251,6 +251,17 @@ public function index(Request $request)
         ]);
     }
 
+    public function postdelete($id)
+    {
+        $post = Post::findOrFail($id);
+        $post->status = "deletion";
+        $post->save();
+    
+        return response()->json([
+            'id' => $post->id,
+        ], 200);
+    }
+
     public function update(Request $request, $id)
     {
         $post = Post::findOrFail($id);
