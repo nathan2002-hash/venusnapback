@@ -572,6 +572,8 @@ class AlbumController extends Controller
     public function albumAnalytics($id)
     {
         $album = Album::find($id);
+
+        $albumId = $id;
     
         if (!$album) {
             return response()->json(['message' => 'Album not found'], 404);
