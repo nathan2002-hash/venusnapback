@@ -59,6 +59,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
 
     Route::get('/post/edit/{id}', 'Api\PostController@postedit');
     Route::put('/post/update/{id}', 'Api\PostController@update');
+    Route::post('/post/delete/{id}', 'Api\PostController@postdelete');
 
     Route::get('/post/media/state', 'Api\ViewController@more');
     Route::get('/ad/sponsored/{id}', 'Api\PostExploreController@getAdById');
