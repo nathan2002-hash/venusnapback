@@ -249,6 +249,59 @@ public function index(Request $request)
         ]);
     }
 
+    public function update(Request $request, $id)
+    {
+        $post = Post::findOrFail($id);
+        
+        // Authorization check
+        if ($post->user_id != Auth::id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+    
+        // Update post details
+        $post->update([
+            'description' => $request->description,
+            'type' => $request->type,
+            'album_id' => $request->album_id,
+            'visibility' => $request->visibility
+        ]);
+    
+        // Handle media deletions
+        if ($request->media_to_delete) {
+            PostMedia::whereIn('id', $request->media_to_delete)
+                    ->where('post_id', $post->id)
+                    ->delete();
+        }
+    
+        // Update sequence orders for existing media
+        if ($request->existing_media) {
+            foreach ($request->existing_media as $mediaId => $sequenceOrder) {
+                PostMedia::where('id', $mediaId)
+                        ->where('post_id', $post->id)
+                        ->update(['sequence_order' => $sequenceOrder]);
+            }
+        }
+    
+        // Handle new media
+        if ($request->hasFile('post_medias')) {
+            foreach ($request->post_medias as $media) {
+                $path = $media['file']->store('uploads/posts/originals', 's3');
+                
+                PostMedia::create([
+                    'post_id' => $post->id,
+                    'file_path' => $path,
+                    'sequence_order' => $media['sequence_order'],
+                    'status' => 'original'
+                ]);
+            }
+        }
+    
+        return response()->json([
+            'message' => 'Post updated successfully',
+            'post' => $post->load('postMedia')
+        ]);
+    }
+
     public function storecloud(Request $request)
 {
     $user = Auth::user();
