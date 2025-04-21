@@ -71,6 +71,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
 
     Route::post('/supporter/subscribe', 'Api\SupportController@supportpost');
     Route::post('/supporter/subscribe/ad/{id}', 'Api\SupportController@supportad');
+    Route::post('/supporter/album/subscribe/{id}', 'Api\SupportController@supportalbum');
     Route::get('/supporter/check-support', 'Api\SupportController@checkSupport');
 
     Route::get('/notifications/count', 'Api\NotificationController@notificationscount');
