@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('thumbnail_original')->nullable(); // Path to thumbnail (Personal & Creator use this)
             $table->string('thumbnail_compressed')->nullable(); // Path to thumbnail (Personal & Creator use this)
             $table->string('is_verified')->default(0);
+            $table->string('category_id')->nullable();
 
             // Personal-specific (nothing extra in your case)
 
@@ -34,7 +35,6 @@ return new class extends Migration
             $table->boolean('enable_rating')->default(true);
 
             // Business-specific fields
-            $table->string('business_category')->nullable();
             $table->boolean('is_paid_access')->default(false);
             $table->decimal('price', 10, 2)->nullable(); // If paid access
             $table->string('phone')->nullable();
