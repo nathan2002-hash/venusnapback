@@ -386,12 +386,15 @@ protected function processTargetData(Ad $ad, array $targetData)
     {
         $userId = auth()->id();
 
-        $ads = Ad::whereNotIn('status', ['deleted', 'draft'])
-            ->whereHas('adboard.album', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })
-            ->with('adboard') // Eager load adboard
-            ->get();
+      $ads = Ad::whereNotIn('status', ['deleted', 'draft'])
+        ->whereHas('adboard', function ($query) use ($userId) {
+            $query->where('status', '!=', 'draft') // Exclude draft adboards
+                  ->whereHas('album', function ($q) use ($userId) {
+                      $q->where('user_id', $userId);
+                  });
+        })
+        ->with('adboard') // Eager load adboard
+        ->get();
 
 
 
