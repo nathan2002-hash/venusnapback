@@ -39,6 +39,32 @@ class SavedController extends Controller
         ], 200);
     }
 
+    public function unsave(Request $request, $postId)
+    {
+        $user = $request->user();
+
+        // Find the saved post record
+        $saved = Saved::where('user_id', $user->id)
+                      ->where('post_id', $postId)
+                      ->first();
+
+        if (!$saved) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Post not found in saved items'
+            ], 404);
+        }
+
+        // Delete the record
+        $saved->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Post unsaved successfully'
+        ]);
+    }
+}
+
 public function getSavedPosts(Request $request)
 {
     $user = $request->user();
