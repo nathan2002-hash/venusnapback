@@ -297,7 +297,8 @@ protected function processTargetData(Ad $ad, array $targetData)
                 'created_at' => $ad->created_at->toDateTimeString(),
                 'creator' => [
                     'name' => $album->name ?? 'Unknown Album',
-                    'is_verified' => $album->is_verified ?? false,
+                    //'is_verified' => $album->is_verified ?? false,
+                    'is_verified' => (bool)$album->is_verified,
                     'profile_image' => $profileUrl,
                 ],
                 'media_urls' => $ad->media->map(function ($media) {
