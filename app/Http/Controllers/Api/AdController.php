@@ -119,6 +119,17 @@ class AdController extends Controller
         ], 201);
     }
 
+    public function regions()
+    {
+        return response()->json([
+            'Africa' => ['Nigeria', 'Kenya', 'South Africa'],
+            'Asia' => ['India', 'China', 'Japan'],
+            'Europe' => ['Germany', 'France', 'UK'],
+            'North America' => ['USA', 'Canada', 'Mexico'],
+            'South America' => ['Brazil', 'Argentina', 'Chile'],
+        ]);
+    }
+
 
     public function adstore(Request $request)
 {
