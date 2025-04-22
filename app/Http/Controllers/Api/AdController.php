@@ -121,103 +121,108 @@ class AdController extends Controller
 
 
     public function adstore(Request $request)
-    {
+{
+    DB::beginTransaction();
+    try {
+        // Decode JSON fields
+        $categories = json_decode($request->categories, true);
+        $targetData = json_decode($request->target_data, true);
 
-        DB::beginTransaction();
-        try {
-            // Decode JSON fields
-            $categories = json_decode($request->categories, true);
-            $targetData = json_decode($request->target_data, true);
+        // Validate target data structure
+        if (!isset($targetData['type'])) {
+            throw new \Exception("Target type is required");
+        }
 
-            // Create ad
-            $ad = Ad::create([
-                'adboard_id' => $request->adboard_id,
-                'cta_name' => $request->cta_name,
-                'cta_link' => $request->cta_link,
-                'description' => $request->description,
+        // Create ad
+        $ad = Ad::create([
+            'adboard_id' => $request->adboard_id,
+            'cta_name' => $request->cta_name,
+            'cta_link' => $request->cta_link,
+            'description' => $request->description,
+            'status' => 'active',
+            'target' => $targetData['type'], // Set target type from the data
+        ]);
+
+        // Attach categories
+        $ad->categories()->attach($categories);
+
+        // Process target data
+        $this->processTargetData($ad, $targetData);
+
+        // Process media files
+        foreach ($request->media as $media) {
+            $path = $media['file']->store('ads/media/original', 's3');
+
+            $media = AdMedia::create([
+                'ad_id' => $ad->id,
+                'file_path' => $path,
+                'sequence_order' => $media['sequence_order'],
                 'status' => 'active',
-                'target' => 'all_region',
+                'type' => 'active',
             ]);
+            AdImageCompress::dispatch($media->fresh());
+        }
 
-            // Attach categories
-            $ad->categories()->attach($categories);
+        DB::commit();
 
-            // Process target data
-            $this->processTargetData($ad, $targetData);
+        return response()->json(['id' => $ad->id], 201);
 
-            // Process media files
-            foreach ($request->media as $media) {
-                $path = $media['file']->store('ads/media/original', 's3');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
 
-                $media = AdMedia::create([
-                    'ad_id' => $ad->id,
-                    'file_path' => $path,
-                    'sequence_order' => $media['sequence_order'],
+
+protected function processTargetData(Ad $ad, array $targetData)
+{
+    Log::debug('Processing target data', ['target_type' => $targetData['type'] ?? 'none']);
+
+    if ($targetData['type'] === 'all_region') {
+        Log::debug('Creating all-region target');
+        $target = $ad->targets()->create([
+            'continent' => null,
+            'country' => null,
+            'status' => 'active',
+        ]);
+        Log::info('All-region target created', ['target_id' => $target->id]);
+    } else {
+        // Process continents if they exist
+        if (!empty($targetData['continents'])) {
+            Log::debug('Processing continent targets', ['count' => count($targetData['continents'])]);
+            foreach ($targetData['continents'] as $continent) {
+                $target = $ad->targets()->create([
+                    'continent' => $continent,
+                    'country' => null,
                     'status' => 'active',
-                    'type' => 'active',
                 ]);
-                AdImageCompress::dispatch($media->fresh());
-            }
-
-            DB::commit();
-
-            return response()->json(['id' => $ad->id], 201);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-
-    protected function processTargetData(Ad $ad, array $targetData)
-    {
-        Log::debug('Processing target data', ['target_type' => $targetData['target'] ?? 'none']);
-
-        if ($targetData['target'] === 'all_region') {
-            Log::debug('Creating all-region target');
-            $target = $ad->targets()->create([
-                'continent' => null,
-                'country' => null,
-                'status' => 'active',
-            ]);
-            Log::info('All-region target created', ['target_id' => $target->id]);
-        } else {
-            if (!empty($targetData['continents'])) {
-                Log::debug('Processing continent targets', ['count' => count($targetData['continents'])]);
-                foreach ($targetData['continents'] as $continent) {
-                    $target = $ad->targets()->create([
-                        'continent' => $continent,
-                        'country' => null,
-                        'status' => 'active',
-                    ]);
-                    Log::debug('Continent target created', [
-                        'target_id' => $target->id,
-                        'continent' => $continent
-                    ]);
-                }
-            }
-
-            if (!empty($targetData['countries'])) {
-                Log::debug('Processing country targets', ['count' => count($targetData['countries'])]);
-                foreach ($targetData['countries'] as $country) {
-                    $continent = $this->getContinentForCountry($country);
-                    $target = $ad->targets()->create([
-                        'country' => $country,
-                        'continent' => $continent,
-                        'status' => 'active',
-                    ]);
-                    Log::debug('Country target created', [
-                        'target_id' => $target->id,
-                        'country' => $country,
-                        'continent' => $continent
-                    ]);
-                }
+                Log::debug('Continent target created', [
+                    'target_id' => $target->id,
+                    'continent' => $continent
+                ]);
             }
         }
-        Log::info('Target data processing completed');
-    }
 
+        // Process countries if they exist
+        if (!empty($targetData['countries'])) {
+            Log::debug('Processing country targets', ['count' => count($targetData['countries'])]);
+            foreach ($targetData['countries'] as $country) {
+                $continent = $this->getContinentForCountry($country);
+                $target = $ad->targets()->create([
+                    'country' => $country,
+                    'continent' => $continent,
+                    'status' => 'active',
+                ]);
+                Log::debug('Country target created', [
+                    'target_id' => $target->id,
+                    'country' => $country,
+                    'continent' => $continent
+                ]);
+            }
+        }
+    }
+    Log::info('Target data processing completed');
+}
     protected function getContinentForCountry(string $country): ?string
     {
         $continentMap = [
