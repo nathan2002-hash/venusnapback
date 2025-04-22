@@ -42,24 +42,32 @@ class SavedController extends Controller
 public function getSavedPosts(Request $request)
 {
     $user = $request->user();
+    $defaultProfile = 'https://example.com/default-profile.jpg'; // Set your default profile URL
     
     $savedPosts = $user->saveds()
-        ->with(['post.user', 'post.postmedias.admires', 'post.postmedias.comments'])
+        ->with(['post.postmedias.admires', 'post.postmedias.comments', 'post.album'])
         ->orderBy('created_at', 'desc')
         ->get()
-        ->map(function ($saved) {
+        ->map(function ($saved) use ($defaultProfile) {
             $post = $saved->post;
             
+            if (!$post) {
+                return null;
+            }
+
             // Calculate total admires and comments across all media
             $totalAdmires = 0;
             $totalComments = 0;
             
-            foreach ($post->postmedias as $media) {
-                $totalAdmires += $media->admires->count();
-                $totalComments += $media->comments->count();
+            if ($post->postmedias) {
+                foreach ($post->postmedias as $media) {
+                    $totalAdmires += $media->admires->count();
+                    $totalComments += $media->comments->count();
+                }
             }
 
-             $album = Album::find($post->album_id);
+            $album = $post->album;
+            $profileUrl = $defaultProfile;
 
             if ($album) {
                 if (in_array($album->type, ['personal', 'creator'])) {
@@ -81,20 +89,24 @@ public function getSavedPosts(Request $request)
                 'post_id' => $post->id,
                 'post_description' => $post->description,
                 'saved_at' => $saved->created_at->toDateTimeString(),
-                'post_medias' => $post->media->map(function ($media) {
+                'post_medias' => $post->postmedias ? $post->postmedias->map(function ($media) {
                     return [
                         'media_url' => Storage::disk('s3')->url($media->file_path_compressed),
                         'media_type' => 'webp',
                         'admires_count' => $media->admires->count(),
                         'comments_count' => $media->comments->count(),
                     ];
-                }),
-                'album_id' => $album->id,
-                'album_name' => $album->name,
+                }) : [],
+                'album_id' => $album ? $album->id : null,
+                'album_name' => $album ? $album->name : 'Unknown',
                 'album_logo' => $profileUrl,
-                'album_verified' => $album->is_verified,
+                'album_verified' => $album ? $album->is_verified : false,
+                'total_admires' => $totalAdmires,
+                'total_comments' => $totalComments,
             ];
-        });
+        })
+        ->filter() // Remove any null entries
+        ->values(); // Reset array keys
     
     return response()->json($savedPosts);
 }
