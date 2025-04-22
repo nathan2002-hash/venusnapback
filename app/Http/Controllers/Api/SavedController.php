@@ -43,7 +43,7 @@ public function getSavedPosts(Request $request)
 {
     $user = $request->user();
     
-    $savedPosts = $user->savedPosts()
+    $savedPosts = $user->saveds()
         ->with(['post.user', 'post.postmedia.admires', 'post.postmedia.comments'])
         ->orderBy('created_at', 'desc')
         ->get()
