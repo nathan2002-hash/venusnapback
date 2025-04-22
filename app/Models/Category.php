@@ -9,4 +9,8 @@ class Category extends Model
     public function adcategories(){
         return $this->hasMany(AdCategory::class);
     }
+
+     public function albums(){
+        return $this->hasMany(Category::class);
+    }
 }
