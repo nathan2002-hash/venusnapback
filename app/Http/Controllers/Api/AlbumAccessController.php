@@ -124,7 +124,7 @@ class AlbumAccessController extends Controller
                 'description' => $validated['description'],
                 'business_category' => $request->business_category,
                 'phone' => $request->phone,
-                'category_id' => $request->phone,
+                'category_id' => $request->business_category,
                 'email' => $request->email,
                 'website' => $request->website,
                 'facebook' => $request->facebook,
