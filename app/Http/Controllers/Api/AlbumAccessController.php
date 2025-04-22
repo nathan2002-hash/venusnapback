@@ -65,6 +65,8 @@ class AlbumAccessController extends Controller
             'album' => [
                 'id' => $album->id,
                 'name' => $album->name,
+                'category_name' => $album->category->name,
+                'category_id' => $album->category->id,
                 'description' => $album->description,
                 'type' => $album->type,
                 'is_verified' => (bool)$album->is_verified,
@@ -75,13 +77,6 @@ class AlbumAccessController extends Controller
                 'facebook' => $album->facebook,
                 'linkedin' => $album->linkedin,
                 'website' => $album->website,
-                'business_category' => $album->type == 'business'
-                ? $album->category_id
-                : ($album->type == 'creator' ? $album->content_type : null),
-            // Include category name for display
-            'category_name' => $album->type == 'business'
-                ? ($album->category->name ?? null)
-                : ($album->type == 'creator' ? $album->contentType->name ?? null : null),
             ]
         ], 200);
     }
