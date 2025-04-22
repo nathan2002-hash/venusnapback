@@ -136,6 +136,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
 
     Route::post('/post/media/report', 'Api\ReportController@report');
     Route::post('/post/save', 'Api\SavedController@save');
+    Route::post('/post/unsave/{postId}', 'Api\SavedController@unsave');
 
     Route::get('/post/saved', 'Api\SavedController@getSavedPosts');
 
