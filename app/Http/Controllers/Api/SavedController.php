@@ -94,7 +94,7 @@ public function getSavedPosts(Request $request)
                     $mediaUrl = $defaultMedia;
                     if ($media->file_path_compressed) {
                         try {
-                            $mediaUrl = Storage::disk('s3')->url($media->file_path_compressed);
+                            $mediaUrl = Storage::disk('s3')->url($media->file_path_compress);
                         } catch (\Exception $e) {
                             // Fallback to default if URL generation fails
                             $mediaUrl = $defaultMedia;
