@@ -477,7 +477,9 @@ class AlbumController extends Controller
         }
 
         // Check if current user is a supporter
-       $isSupporter = $user ? $album->supporters->contains($user->id) : false;
+       //$isSupporter = $user ? $album->supporters->contains($user->id) : false;
+        $isSupporter = $album->supporters->contains('id', $user->id);
+
 
         // Determine the album's thumbnail
         if ($album->type == 'personal' || $album->type == 'creator') {
