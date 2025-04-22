@@ -92,7 +92,7 @@ public function getSavedPosts(Request $request)
                 'saved_at' => $saved->created_at->toDateTimeString(),
                 'post_medias' => $post->postmedias ? $post->postmedias->map(function ($media) use ($defaultMedia) {
                     $mediaUrl = $defaultMedia;
-                    if ($media->file_path_compressed) {
+                    if ($media->file_path_compress) {
                         try {
                             $mediaUrl = Storage::disk('s3')->url($media->file_path_compress);
                         } catch (\Exception $e) {
