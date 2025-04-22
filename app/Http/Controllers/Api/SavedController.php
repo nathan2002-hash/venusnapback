@@ -43,12 +43,13 @@ public function getSavedPosts(Request $request)
 {
     $user = $request->user();
     $defaultProfile = 'https://example.com/default-profile.jpg'; // Set your default profile URL
-    
+    $defaultMedia = 'https://example.com/default-media.jpg'; // Set your default media URL
+
     $savedPosts = $user->saveds()
         ->with(['post.postmedias.admires', 'post.postmedias.comments', 'post.album'])
         ->orderBy('created_at', 'desc')
         ->get()
-        ->map(function ($saved) use ($defaultProfile) {
+        ->map(function ($saved) use ($defaultProfile, $defaultMedia) {
             $post = $saved->post;
             
             if (!$post) {
@@ -87,11 +88,21 @@ public function getSavedPosts(Request $request)
             
             return [
                 'post_id' => $post->id,
-                'post_description' => $post->description,
+                'post_description' => $post->description ?? '',
                 'saved_at' => $saved->created_at->toDateTimeString(),
-                'post_medias' => $post->postmedias ? $post->postmedias->map(function ($media) {
+                'post_medias' => $post->postmedias ? $post->postmedias->map(function ($media) use ($defaultMedia) {
+                    $mediaUrl = $defaultMedia;
+                    if ($media->file_path_compressed) {
+                        try {
+                            $mediaUrl = Storage::disk('s3')->url($media->file_path_compressed);
+                        } catch (\Exception $e) {
+                            // Fallback to default if URL generation fails
+                            $mediaUrl = $defaultMedia;
+                        }
+                    }
+                    
                     return [
-                        'media_url' => Storage::disk('s3')->url($media->file_path_compressed),
+                        'media_url' => $mediaUrl,
                         'media_type' => 'webp',
                         'admires_count' => $media->admires->count(),
                         'comments_count' => $media->comments->count(),
@@ -105,8 +116,8 @@ public function getSavedPosts(Request $request)
                 'total_comments' => $totalComments,
             ];
         })
-        ->filter() // Remove any null entries
-        ->values(); // Reset array keys
+        ->filter()
+        ->values();
     
     return response()->json($savedPosts);
 }
