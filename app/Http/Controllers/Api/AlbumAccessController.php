@@ -122,12 +122,13 @@ class AlbumAccessController extends Controller
             $album->update([
                 'name' => $validated['name'],
                 'description' => $validated['description'],
-                'business_category' => $validated['business_category'],
-            'phone' => $request->phone,
-            'email' => $request->email,
-            'website' => $request->website,
-            'facebook' => $request->facebook,
-            'linkedin' => $request->linkedin,
+                'business_category' => $request->business_category,
+                'phone' => $request->phone,
+                'category_id' => $request->phone,
+                'email' => $request->email,
+                'website' => $request->website,
+                'facebook' => $request->facebook,
+                'linkedin' => $request->linkedin,
             ]);
 
             // Process sharing only with valid emails
