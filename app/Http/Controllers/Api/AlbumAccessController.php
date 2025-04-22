@@ -65,8 +65,8 @@ class AlbumAccessController extends Controller
             'album' => [
                 'id' => $album->id,
                 'name' => $album->name,
-                'category_name' => $album->category->name,
-                'category_id' => $album->category->id,
+                'category_name' => optional($album->category)->name,
+                'category_id' => optional($album->category)->id,
                 'description' => $album->description,
                 'type' => $album->type,
                 'is_verified' => (bool)$album->is_verified,
