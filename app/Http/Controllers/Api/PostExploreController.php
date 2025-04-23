@@ -6,15 +6,17 @@ use App\Models\Ad;
 use App\Models\Post;
 use App\Models\Adboard;
 use App\Jobs\AdClickJob;
-use App\Models\Category;
 use App\Models\AdSession;
 use App\Models\Supporter;
 use App\Models\AdCtaClick;
+use Illuminate\Support\Str;
 use App\Models\AdImpression;
 use Illuminate\Http\Request;
 use App\Models\Recommendation;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Jobs\ProcessBatchEarningsJob;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 
 class PostExploreController extends Controller
@@ -65,6 +67,20 @@ class PostExploreController extends Controller
             ->merge($this->transformPosts($posts))
             ->merge($this->transformAds($ads))
             ->shuffle();
+
+             // ✨ Batch push for processing (no processing here)
+            $batchId = Str::uuid()->toString();
+            $fetchedPostIds = collect()
+                ->merge($recommendations->pluck('post.id'))
+                ->merge($posts->pluck('id'))
+                ->values()
+                ->toArray();
+
+            Queue::push(new ProcessBatchEarningsJob([
+                'batch_id' => $batchId,
+                'fetched_posts' => $fetchedPostIds,
+                'ads_included' => $ads->isNotEmpty(),
+            ]));
 
         return response()->json([
             'items' => $items,

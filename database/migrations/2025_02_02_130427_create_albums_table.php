@@ -36,6 +36,7 @@ return new class extends Migration
 
             // Business-specific fields
             $table->boolean('is_paid_access')->default(false);
+            $table->string('monetization_status')->nullable();
             $table->decimal('price', 10, 2)->nullable(); // If paid access
             $table->string('phone')->nullable();
             $table->string('email')->nullable();

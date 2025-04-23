@@ -16,19 +16,43 @@ class MonetizationController extends Controller
     {
         $user = Auth::user();
         $account = Account::where('user_id', $user->id)->first();
-    
+
         if (!$account) {
             return response()->json([
                 'status' => 'inactive',
                 'message' => 'Monetization not enabled'
             ], 200);
         }
-    
+
         return response()->json([
             'status' => $account->monetization_status ?? 'inactive',
             'message' => $this->getStatusMessage($account->monetization_status)
         ], 200);
     }
+
+    public function getUserAlbums(Request $request)
+    {
+        $perPage = $request->input('per_page', 20);
+
+        $albums = Auth::user()->albums()
+            ->where('is_active', true)
+            ->where('status', 'active') // ✅ status = 'active'
+            ->whereIn('type', ['creator', 'business']) // ✅ type filter
+            ->where(function ($query) {
+                $query->where('monetization_status', 0)
+                    ->orWhereNull('monetization_status'); // ✅ monetization_status is 0 or null
+            })
+            ->select(['id', 'name', 'type', 'monetization_status', 'status']) // optional fields
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'data' => $albums
+        ]);
+}
+
+
 
   public function applyForMonetization(Request $request)
     {
@@ -96,7 +120,7 @@ class MonetizationController extends Controller
             'status' => 'pending'
         ], 200);
     }
-    
+
     public function getUserDashboardData(Request $request)
     {
         // Get the authenticated user

@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('earnings', function (Blueprint $table) {
             $table->id();
-            $table->string('post_media_id');
-            $table->string('user_id');
-            $table->decimal('earning', 13,2);
-            $table->string('type');
+            $table->string('album_id'); // Monetized album ID
+            $table->string('post_id')->nullable(); // For reference
+            $table->string('post_media_id')->nullable(); // Optional
+            $table->decimal('earning', 13, 2)->default(0); // Default 0 even if no earnings
+            $table->string('type')->nullable(); // view, like, support, ad_click
+            $table->string('batch_id')->nullable(); // Unique batch reference
+            $table->json('meta')->nullable(); // Metadata: full json of what happened
             $table->timestamps();
         });
     }
