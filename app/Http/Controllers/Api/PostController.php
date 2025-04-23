@@ -42,20 +42,20 @@ public function index(Request $request)
     // If not enough active recommendations, recycle some fetched ones
     if ($recommendations->count() < $limit) {
         $needed = $limit - $recommendations->count();
-        
+
         Recommendation::where('user_id', $userId)
             ->where('status', 'fetched')
             ->orderBy('updated_at', 'asc') // Oldest first
             ->limit($needed)
             ->update(['status' => 'active']);
-            
+
         // Get the newly activated recommendations
         $additionalRecs = Recommendation::where('user_id', $userId)
             ->where('status', 'active')
             ->inRandomOrder()
             ->take($needed)
             ->get();
-            
+
         $recommendations = $recommendations->merge($additionalRecs);
     }
 
@@ -233,11 +233,12 @@ public function index(Request $request)
         $post = Post::with(['postmedias', 'album'])
                     ->findOrFail($id);
         $category = Category::find($post->type);
-    
+
         return response()->json([
             'id' => $post->id,
             'description' => $post->description,
             'type' => $category->name,
+            'type_id' => $category->id,
             'album_id' => $post->album_id,
             'album' => $post->album->name,
             'visibility' => $post->visibility,
@@ -257,7 +258,7 @@ public function index(Request $request)
         $post = Post::findOrFail($id);
         $post->status = "deletion";
         $post->save();
-    
+
         return response()->json([
             'id' => $post->id,
         ], 200);
