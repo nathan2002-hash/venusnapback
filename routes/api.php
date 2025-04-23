@@ -188,6 +188,9 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/user/account/payout/settings', 'Api\AccountController@getPayoutSettings');
     Route::post('/user/account/payout/update', 'Api\AccountController@savePayoutSettings');
 
+    Route::get('/tax/information', 'Api\TaxController@getTaxInformation');
+    Route::post('/tax/information/update', 'Api\TaxController@getTaxInformation');
+
     //album access
     Route::get('/manage/album/{id}/access', 'Api\AlbumAccessController@accesslist');
     Route::get('/manage/album/{id}', 'Api\AlbumAccessController@albums');
