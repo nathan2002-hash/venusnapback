@@ -200,6 +200,21 @@ class MonetizationController extends Controller
         ], 200);
     }
 
+    public function getApplications(Request $request)
+    {
+        $applications = $request->user()->monetizationrequests()
+            ->with(['album' => function($query) {
+                $query->select('id', 'name');
+            }])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $applications
+        ]);
+    }
+
     public function getUserDashboardData(Request $request)
     {
         // Get the authenticated user

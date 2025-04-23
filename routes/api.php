@@ -183,6 +183,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/user/monetization/apply', 'Api\MonetizationController@applyForMonetization');
     Route::get('/monetization/albums/fetch', 'Api\MonetizationController@getUserAlbums');
     Route::get('/monetization/countries/fetch', 'Api\MonetizationController@countries');
+    Route::get('/usermonetization/applications', 'Api\MonetizationController@getApplications');
 
     //album access
     Route::get('/manage/album/{id}/access', 'Api\AlbumAccessController@accesslist');

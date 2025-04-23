@@ -58,8 +58,13 @@ class Album extends Model
             ->where('status', 'pending');
     }
 
-     public function category()
+    public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function monetizationrequests()
+    {
+        return $this->hasMany(MonetizationRequest::class);
     }
 }

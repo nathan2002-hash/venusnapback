@@ -133,7 +133,12 @@ class User extends Authenticatable
         return $this->hasMany(ContactSupport::class);
     }
 
-     public function albumAccessRequests()
+    public function monetizationrequests()
+    {
+        return $this->hasMany(MonetizationRequest::class);
+    }
+
+    public function albumAccessRequests()
     {
         return $this->hasMany(AlbumAccess::class, 'user_id');
     }
