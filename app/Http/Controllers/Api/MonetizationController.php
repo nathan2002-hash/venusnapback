@@ -49,11 +49,27 @@ class MonetizationController extends Controller
             'success' => true,
             'data' => $albums
         ]);
-}
+    }
+
+    public function countries()
+    {
+        $countries = [
+            ['code' => 'US', 'name' => 'United States'],
+            ['code' => 'GB', 'name' => 'United Kingdom'],
+            ['code' => 'CA', 'name' => 'Canada'],
+            // Add all countries you support
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $countries,
+            'message' => 'Countries fetched successfully'
+        ]);
+    }
 
 
 
-  public function applyForMonetization(Request $request)
+    public function applyForMonetization(Request $request)
     {
         $user = Auth::user();
 
