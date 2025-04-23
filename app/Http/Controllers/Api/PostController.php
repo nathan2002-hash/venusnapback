@@ -264,10 +264,19 @@ public function index(Request $request)
 
     public function update(Request $request, $id)
     {
-        $post = Post::findOrFail($id);
+        $post = Post::with('album')->findOrFail($id);
+        $userId = auth()->id();
         
-        // Authorization check
-        if ($post->user_id != Auth::id()) {
+        // Check if the user owns the album
+        $isOwner = $post->album->user_id == $userId;
+        
+        // Check if the user has access to the album
+       $hasAccess = AlbumAccess::where('album_id', $post->album_id)
+        ->where('user_id', $userId)
+        ->where('status', 'active')
+        ->exists();
+        
+        if (!($isOwner || $hasAccess)) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
     
