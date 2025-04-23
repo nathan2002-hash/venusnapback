@@ -20,7 +20,7 @@ class TaxController extends Controller
             'data' => [
                 'message' => 'For legal compliance, we collect tax information for payouts exceeding $400/year.',
                 'countries' => $countries,
-                'can_edit' => false,
+                'can_edit' => true,
                 'lock_reason' => "For legal compliance, we collect tax informatio",
                 'requirements' => [
                     'individual' => 'SSN or ITIN for individuals',
