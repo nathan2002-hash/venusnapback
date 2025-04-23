@@ -264,67 +264,83 @@ public function index(Request $request)
     }
 
     public function update(Request $request, $id)
-    {
-        $post = Post::with('album')->findOrFail($id);
-        $userId = auth()->id();
-        
-        // Check if the user owns the album
-        $isOwner = $post->album->user_id == $userId;
-        
-        // Check if the user has access to the album
-       $hasAccess = AlbumAccess::where('album_id', $post->album_id)
+{
+    $post = Post::with('album')->findOrFail($id);
+    $userId = auth()->id();
+
+    // Check if the user owns the album
+    $isOwner = $post->album->user_id == $userId;
+
+    // Check if the user has access to the album
+    $hasAccess = AlbumAccess::where('album_id', $post->album_id)
         ->where('user_id', $userId)
         ->where('status', 'active')
         ->exists();
-        
-        if (!($isOwner || $hasAccess)) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-    
-        // Update post details
-        $post->update([
-            'description' => $request->description,
-            'type' => $request->type,
-            'album_id' => $request->album_id,
-            'visibility' => $request->visibility
-        ]);
-    
-        // Handle media deletions
-        if ($request->media_to_delete) {
-            PostMedia::whereIn('id', $request->media_to_delete)
-                    ->where('post_id', $post->id)
-                    ->delete();
-        }
-    
-        // Update sequence orders for existing media
-        if ($request->existing_media) {
-            foreach ($request->existing_media as $mediaId => $sequenceOrder) {
-                PostMedia::where('id', $mediaId)
-                        ->where('post_id', $post->id)
-                        ->update(['sequence_order' => $sequenceOrder]);
-            }
-        }
-    
-        // Handle new media
-        if ($request->hasFile('post_medias')) {
-            foreach ($request->post_medias as $media) {
-                $path = $media['file']->store('uploads/posts/originals', 's3');
-                
-                PostMedia::create([
-                    'post_id' => $post->id,
-                    'file_path' => $path,
-                    'sequence_order' => $media['sequence_order'],
-                    'status' => 'original'
-                ]);
-                CompressImageJob::dispatch($postMedia->fresh()); 
-            }
-        }
-    
-        return response()->json([
-            'message' => 'Post updated successfully',
-             'post' => $post->load('postmedias')
-        ]);
+
+    if (!($isOwner || $hasAccess)) {
+        return response()->json(['message' => 'Unauthorized'], 403);
     }
+
+    // Update post details
+    $post->update([
+        'description' => $request->description,
+        'type' => $request->type,
+        'album_id' => $request->album_id,
+        'visibility' => $request->visibility
+    ]);
+
+    // Handle media deletions
+    if ($request->media_to_delete) {
+        PostMedia::whereIn('id', $request->media_to_delete)
+            ->where('post_id', $post->id)
+            ->delete();
+    }
+
+    // Update sequence orders for existing media and log old/new values
+    $sequenceLog = [];
+    if ($request->existing_media) {
+        foreach ($request->existing_media as $mediaId => $newOrder) {
+            $media = PostMedia::where('id', $mediaId)
+                            ->where('post_id', $post->id)
+                            ->first();
+
+            if ($media) {
+                $sequenceLog[] = [
+                    'media_id' => $media->id,
+                    'old_sequence_order' => $media->sequence_order,
+                    'new_sequence_order' => $newOrder
+                ];
+
+                $media->sequence_order = $newOrder;
+                $media->save();
+            }
+        }
+    }
+
+    // Handle new media
+    if ($request->hasFile('post_medias')) {
+        foreach ($request->post_medias as $media) {
+            $path = $media['file']->store('uploads/posts/originals', 's3');
+
+            $postMedia = PostMedia::create([
+                'post_id' => $post->id,
+                'file_path' => $path,
+                'sequence_order' => $media['sequence_order'],
+                'status' => 'original'
+            ]);
+
+            CompressImageJob::dispatch($postMedia->fresh());
+        }
+    }
+
+    return response()->json([
+        'message' => 'Post updated successfully',
+        'post' => $post->load('postmedias'),
+        'sequence_changes' => $sequenceLog, // 👈 log of changes
+        'existing_media_input' => $request->existing_media, // 👈 raw input
+    ]);
+}
+
 
     public function storecloud(Request $request)
 {
