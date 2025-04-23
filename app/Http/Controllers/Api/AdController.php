@@ -359,10 +359,10 @@ protected function processTargetData(Ad $ad, array $targetData)
             $user->decrement('points', $adboard->points);
 
             // Update ad status to published
-            $ad->status = 'published';
+            $ad->status = 'review';
             $ad->save();
 
-            $adboard->status = 'active';
+            $adboard->status = 'review';
             $adboard->save();
 
             DB::commit(); // Commit transaction
@@ -814,14 +814,29 @@ protected function processTargetData(Ad $ad, array $targetData)
         // Group targets by type
         $continents = [];
         $countries = [];
+        $cities = [];
+        $regions = [];
 
         foreach ($ad->targets as $target) {
             if ($target->country) {
                 $countries[] = $target->country;
-            } elseif ($target->continent) {
+            } 
+            if ($target->continent) {
                 $continents[] = $target->continent;
             }
+            if ($target->city) {
+                $cities[] = $target->city;
+            }
+            if ($target->region) {
+                $regions[] = $target->region;
+            }
         }
+
+         $targetType = 'all_region'; // Default
+        if (!empty($continents) || !empty($countries) || !empty($cities) || !empty($regions)) {
+            $targetType = 'specify';
+        }
+
 
         return response()->json([
             'ad' => [
@@ -839,9 +854,11 @@ protected function processTargetData(Ad $ad, array $targetData)
                     'sequence_order' => $media->sequence_order,
                 ];
             })->toArray(),
-            'targets' => [
-                'continents' => array_unique($continents),
-                'countries' => array_unique($countries),
+             'targets' => [
+                'continents' => array_values(array_unique($continents)),
+                'countries' => array_values(array_unique($countries)),
+                'cities' => array_values(array_unique($cities)),
+                'regions' => array_values(array_unique($regions)),
             ]
         ]);
     }
