@@ -35,7 +35,6 @@ class MonetizationController extends Controller
         $perPage = $request->input('per_page', 20);
 
         $albums = Auth::user()->albums()
-            ->where('is_active', true)
             ->where('status', 'active') // ✅ status = 'active'
             ->whereIn('type', ['creator', 'business']) // ✅ type filter
             ->where(function ($query) {
@@ -111,6 +110,10 @@ class MonetizationController extends Controller
         $account->country = $request->country;
         $account->monetization_status = 'pending';
         $account->save();
+
+        $album = Album::find($request->album_id);
+        $album->monetization_status = 'pending';
+        $album->save();
         // Send notification to admin for review
         //$user->notify(new MonetizationApplicationSubmitted($account));
         // Or for admin: Notification::send($adminUsers, new NewMonetizationApplication($account));
