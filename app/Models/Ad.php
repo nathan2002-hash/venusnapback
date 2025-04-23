@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ad extends Model
 {
-    protected $fillable = ['adboard_id', 'cta_name', 'status', 'cta_link', 'description'];
+    protected $fillable = ['adboard_id', 'cta_name', 'status', 'cta_link', 'description', 'cta_type'];
 
     public function categories()
     {
