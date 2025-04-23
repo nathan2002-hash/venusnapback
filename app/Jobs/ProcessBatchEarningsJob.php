@@ -43,17 +43,24 @@ class ProcessBatchEarningsJob implements ShouldQueue
 
         // Step 2: Create earnings per album
         foreach ($groupedByAlbum as $albumId => $posts) {
-            $pointsEarned = $posts->count(); // 1 point per post (adjustable)
+            // If ads were included, calculate points for monetized posts
+            if ($this->adsIncluded) {
+                $pointsEarned = $posts->count(); // 1 point per post (adjustable)
+            } else {
+                $pointsEarned = 0; // No points if ads weren't included
+            }
 
             $album = $posts->first()->album;
             $user = $album->user ?? null;
 
             if ($user && $user->account) {
-                // Step 3: Add to available balance
-                $user->account->increment('available_balance', $pointsEarned);
+                // Step 3: Add to available balance if there were points earned
+                if ($pointsEarned > 0) {
+                    $user->account->increment('available_balance', $pointsEarned);
+                }
             }
 
-            // Step 4: Log earning entry
+            // Step 4: Log earning entry with points or 0 if no points earned
             Earning::create([
                 'album_id' => $albumId,
                 'batch_id' => $this->batchId,
