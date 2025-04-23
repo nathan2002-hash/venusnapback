@@ -149,6 +149,7 @@ class AdController extends Controller
             'adboard_id' => $request->adboard_id,
             'cta_name' => $request->cta_name,
             'cta_link' => $request->cta_link,
+            'cta_type' => $request->cta_type,
             'description' => $request->description,
             'status' => 'active',
             'target' => $targetData['type'], // Set target type from the data
@@ -878,6 +879,7 @@ protected function processTargetData(Ad $ad, array $targetData)
         $ad->update([
             'cta_name' => $request->cta_name,
             'cta_link' => $request->cta_link,
+            'cta_type' => $request->cta_type,
             'description' => $request->description,
             'target' => $targetData['target'] ?? 'all',
             'status' => 'review',
