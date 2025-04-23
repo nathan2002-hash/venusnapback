@@ -64,7 +64,7 @@ class TaxController extends Controller
             $tax = Tax::find($taxInfo->id);
             $tax->account_id = $accountId;
             $tax->type = $request->tax_type;
-            $tax->legal_name = $request->full_legal_name;
+            $tax->legal_names = $request->full_legal_name;
             $tax->tax_number = $request->tax_id;
             $tax->address = $request->address;
             $tax->city = $request->city;
@@ -76,7 +76,7 @@ class TaxController extends Controller
             $tax = new Tax();
             $tax->account_id = $accountId;
             $tax->type = $request->tax_type;
-            $tax->legal_name = $request->full_legal_name;
+            $tax->legal_names = $request->full_legal_name;
             $tax->tax_number = $request->tax_id;
             $tax->address = $request->address;
             $tax->city = $request->city;
