@@ -10,6 +10,7 @@ use App\Models\Admire;
 use App\Models\Report;
 use App\Models\Comment;
 use App\Models\PostMedia;
+use App\Models\AlbumAccess;
 use App\Models\CommentReply;
 use Illuminate\Http\Request;
 use App\Jobs\CompressImageJob;
