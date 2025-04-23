@@ -8,6 +8,7 @@ use App\Models\Account;
 use App\Models\Earning;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\MonetizationRequest;
 use Illuminate\Support\Facades\Auth;
 
 class MonetizationController extends Controller
@@ -69,7 +70,7 @@ class MonetizationController extends Controller
 
 
 
-    public function applyForMonetization(Request $request)
+    public function applyFsorMonetization(Request $request)
     {
         $user = Auth::user();
 
@@ -130,6 +131,65 @@ class MonetizationController extends Controller
         $album = Album::find($request->album_id);
         $album->monetization_status = 'pending';
         $album->save();
+        // Send notification to admin for review
+        //$user->notify(new MonetizationApplicationSubmitted($account));
+        // Or for admin: Notification::send($adminUsers, new NewMonetizationApplication($account));
+
+        return response()->json([
+            'message' => 'Application submitted successfully',
+            'status' => 'pending'
+        ], 200);
+    }
+
+    public function applyForMonetization(Request $request)
+    {
+        $user = Auth::user();
+
+        // $validated = $request->validate([
+        //     'payout_method' => 'required|in:paypal,bank_transfer',
+        //     'paypal_email' => 'required_if:payout_method,paypal|email',
+        //     'bank_account_number' => 'required_if:payout_method,bank_transfer',
+        //     'bank_routing_number' => 'required_if:payout_method,bank_transfer',
+        //     'bank_name' => 'required_if:payout_method,bank_transfer',
+        //     'account_holder_name' => 'required_if:payout_method,bank_transfer',
+        //     'country' => 'required|string|max:100',
+        // ]);
+
+        $accounntcreate = Account::firstOrCreate(['user_id' => $user->id], [
+            'user_id' => $user->id,
+            'account_balance' => 0.00,
+            'available_balance' => 0.00,
+            'monetization_status' => 'inactive',
+            'payout_method' => 'paypal',
+            'currency' => 'USD',
+            'paypal_email' => $user->email
+        ]);
+
+        // Find existing account
+        $account = Account::where('user_id', $user->id)->first();
+
+        if (!$account) {
+            return response()->json([
+                'message' => 'Account not found'
+            ], 404);
+        }
+
+        $album = Album::find($request->album_id);
+        $album->monetization_status = 'pending';
+        $album->save();
+
+        $userAgent = $request->header('User-Agent');
+        $deviceinfo = $request->header('Device-Info');
+
+        $monetizationrequest = MonetizationRequest::find($request->album_id);
+        $monetizationrequest->country = $request->country;
+        $monetizationrequest->album_id = $request->album_id;
+        $monetizationrequest->user_id = $user->id;
+        $monetizationrequest->status = 'pending';
+        $monetizationrequest->device_info = $deviceinfo;
+        $monetizationrequest->user_agent = $userAgent;
+        $monetizationrequest->ip_address = $request->ip();
+        $monetizationrequest->save();
         // Send notification to admin for review
         //$user->notify(new MonetizationApplicationSubmitted($account));
         // Or for admin: Notification::send($adminUsers, new NewMonetizationApplication($account));

@@ -114,6 +114,7 @@ class AlbumController extends Controller
         $album->user_id = Auth::user()->id;
         $album->type = 'personal';
         $album->name = $request->name;
+        $album->status = 'active';
         $album->description = $request->description;
         $album->visibility = $request->visibility;
 
@@ -149,6 +150,7 @@ class AlbumController extends Controller
         $album = new Album();
         $album->user_id = Auth::user()->id;
         $album->type = 'creator';
+        $album->status = 'active';
         $album->name = $request->name;
         $album->description = $request->description;
         $album->visibility = $request->visibility;
@@ -208,6 +210,7 @@ class AlbumController extends Controller
         $album = new Album();
         $album->user_id = Auth::user()->id;
         $album->type = 'business';
+        $album->status = 'active';
         $album->name = $request->name;
         $album->description = $request->description;
         $album->business_category = $request->business_category;
@@ -582,41 +585,41 @@ class AlbumController extends Controller
         $album = Album::find($id);
 
         $albumId = $id;
-    
+
         if (!$album) {
             return response()->json(['message' => 'Album not found'], 404);
         }
-    
+
         // Get all post IDs in this album
         $postIds = Post::where('album_id', $albumId)->pluck('id');
-    
+
         // Get all post_media_ids from these posts
         $postMediaIds = PostMedia::whereIn('post_id', $postIds)->pluck('id');
-    
+
         // Album views summary
         $albumViewsCount = AlbumView::where('album_id', $albumId)->count();
         $uniqueViewers = AlbumView::where('album_id', $albumId)->distinct('ip_address')->count('ip_address');
-    
+
         // Media views summary
         $mediaViewsCount = View::whereIn('post_media_id', $postMediaIds)->count();
-    
+
         // Total duration watched across all medias
         $totalDuration = View::whereIn('post_media_id', $postMediaIds)->sum(DB::raw("CAST(duration AS UNSIGNED)"));
-    
+
         // Admires (likes) summary
         $admiresCount = Admire::whereIn('post_media_id', $postMediaIds)->count();
-    
+
         // Post and media counts
         $postCount = $postIds->count();
         $mediaCount = $postMediaIds->count();
-    
+
         // Optional: Top viewed media
         $topMedia = View::whereIn('post_media_id', $postMediaIds)
             ->select('post_media_id', DB::raw('COUNT(*) as views'))
             ->groupBy('post_media_id')
             ->orderByDesc('views')
             ->first();
-    
+
         return response()->json([
             'album_id' => $albumId,
             'album_name' => $album->name,

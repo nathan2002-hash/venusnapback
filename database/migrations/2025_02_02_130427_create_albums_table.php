@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('thumbnail_compressed')->nullable(); // Path to thumbnail (Personal & Creator use this)
             $table->string('is_verified')->default(0);
             $table->string('category_id')->nullable();
+            $table->string('status')->default('active');
 
             // Personal-specific (nothing extra in your case)
 
