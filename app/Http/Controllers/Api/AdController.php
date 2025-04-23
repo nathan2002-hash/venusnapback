@@ -844,6 +844,7 @@ protected function processTargetData(Ad $ad, array $targetData)
                 'id' => $ad->id,
                 'cta_name' => $ad->cta_name,
                 'cta_link' => $ad->cta_link,
+                'cta_type' => $ad->cta_type,
                 'description' => $ad->description,
             'target' => $ad->target ?? 'all',
             ],
