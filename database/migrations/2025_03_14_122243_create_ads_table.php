@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('ag_type')->nullable();
             $table->string('cta_name');
             $table->string('cta_link');
+            $table->string('cta_type');
             $table->string('status');
             $table->text('ag_description')->nullable();
             $table->text('description')->nullable();
