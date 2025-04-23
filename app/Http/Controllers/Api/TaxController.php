@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Tax;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class TaxController extends Controller
 {
@@ -53,11 +54,12 @@ class TaxController extends Controller
             'country' => 'required|string|max:255',
         ]);
 
-        $user = $request->user();
+        $accountId = Auth::user()->account->id;
 
-        $taxInfo = Tax::updateOrCreate(
-            ['account_id' => $user->account->id],
-            [
+        $taxInfo = Tax::where('account_id', $accountId)->first();
+
+        if ($taxInfo) {
+            $taxInfo->update([
                 'type' => $validated['tax_type'],
                 'legal_name' => $validated['full_legal_name'],
                 'tax_number' => $validated['tax_id'],
@@ -66,8 +68,21 @@ class TaxController extends Controller
                 'state' => $validated['state'],
                 'zip' => $validated['zip_code'],
                 'country' => $validated['country'],
-            ]
-        );
+            ]);
+        } else {
+            $taxInfo = Tax::create([
+                'account_id' => $accountId,
+                'type' => $validated['tax_type'],
+                'legal_name' => $validated['full_legal_name'],
+                'tax_number' => $validated['tax_id'],
+                'address' => $validated['address'],
+                'city' => $validated['city'],
+                'state' => $validated['state'],
+                'zip' => $validated['zip_code'],
+                'country' => $validated['country'],
+            ]);
+        }
+
 
         return response()->json([
             'success' => true,
