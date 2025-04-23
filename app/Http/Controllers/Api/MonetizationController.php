@@ -220,6 +220,13 @@ class MonetizationController extends Controller
 
         $application->update(['status' => 'cancelled']);
 
+        $album = Album::find($application->album_id);
+        if (!$album) {
+            return response()->json(['message' => 'Album not found'], 404);
+        }
+        $album->monetization_status = '0';
+        $album->save();
+
         return response()->json([
             'success' => true,
             'message' => 'Application cancelled successfully'
