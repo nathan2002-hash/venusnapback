@@ -59,19 +59,19 @@ class AccountController extends Controller
         ]);
 
         // Update payment method
-        $user->payment_method = $validated['method'];
+        $user->account->payout_method = $validated['method'];
 
         if ($validated['method'] === 'paypal') {
-            $user->paypal_email = $validated['email'];
+            $user->account->paypal_email = $validated['email'];
         } else {
-            $user->bank_account_name = $validated['account_name'];
-            $user->bank_account_number = $validated['account_number'];
-            $user->bank_routing_number = $validated['routing_number'];
-            $user->bank_name = $validated['bank_name'];
-            $user->bank_country = $validated['country'];
+            $user->account->account_name = $validated['account_name'];
+            $user->account->account_number = $validated['account_number'];
+            $user->account->swift_code = $validated['routing_number'];
+            $user->account->bank_name = $validated['bank_name'];
+            $user->account->country = $validated['country'];
         }
 
-        $user->save();
+        $user->account->save();
 
         return response()->json([
             'message' => 'Payment settings updated successfully'
