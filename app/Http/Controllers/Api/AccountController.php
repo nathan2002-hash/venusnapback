@@ -22,7 +22,7 @@ class AccountController extends Controller
         $user = $request->user();
 
         // Check monetization status
-        if ($user->monetization_status !== 'active') {
+        if ($user->account->monetization_status !== 'active') {
             return response()->json([
                 'can_set_payment' => false,
                 'message' => 'Your monetization account is not active. ' .
