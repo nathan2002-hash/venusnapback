@@ -58,32 +58,33 @@ class TaxController extends Controller
 
         $taxInfo = Tax::where('account_id', $accountId)->first();
 
+
+
         if ($taxInfo) {
-            $taxInfo->update([
-                'type' => $request->tax_type,
-                'legal_name' => $request->full_legal_name,
-                'tax_number' => $request->tax_id,
-                'address' => $request->address,
-                'city' => $request->city,
-                'state' => $request->state,
-                'zip' => $request->zip_code,
-                'country' => $request->country,
-            ]);
+            $tax = Tax::find($taxInfo->id);
+            $tax->account_id = $accountId;
+            $tax->type = $request->tax_type;
+            $tax->legal_name = $request->full_legal_nam;
+            $tax->tax_number = $request->tax_id;
+            $tax->address = $request->address;
+            $tax->city = $request->city;
+            $tax->state = $request->state;
+            $tax->zip = $request->zip_code;
+            $tax->country = $request->country;
+            $tax->save();
         } else {
-            $taxInfo = Tax::create([
-                'account_id' => $accountId,
-                'type' => $request->tax_type,
-                'legal_name' => $request->full_legal_name,
-                'tax_number' => $request->tax_id,
-                'address' => $request->address,
-                'city' => $request->city,
-                'state' => $request->state,
-                'zip' => $request->zip_code,
-                'country' => $request->country,
-            ]);
+            $tax = new Tax();
+            $tax->account_id = $accountId;
+            $tax->type = $request->tax_type;
+            $tax->legal_name = $request->full_legal_nam;
+            $tax->tax_number = $request->tax_id;
+            $tax->address = $request->address;
+            $tax->city = $request->city;
+            $tax->state = $request->state;
+            $tax->zip = $request->zip_code;
+            $tax->country = $request->country;
+            $tax->save();
         }
-
-
         return response()->json([
             'success' => true,
             'message' => 'Tax information saved successfully',
