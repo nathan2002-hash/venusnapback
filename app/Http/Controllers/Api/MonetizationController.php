@@ -211,6 +211,21 @@ class MonetizationController extends Controller
         ]);
     }
 
+    public function cancelApplication(Request $request, $id)
+    {
+        $application = $request->user()->monetizationrequests()
+            ->where('id', $id)
+            ->where('status', 'pending')
+            ->firstOrFail();
+
+        $application->update(['status' => 'cancelled']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Application cancelled successfully'
+        ]);
+    }
+
     public function getUserDashboardData(Request $request)
     {
         // Get the authenticated user
