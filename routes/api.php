@@ -185,6 +185,8 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/monetization/countries/fetch', 'Api\MonetizationController@countries');
     Route::get('/user/monetization/applications', 'Api\MonetizationController@getApplications');
     Route::post('/user/monetization/application/cancel/{id}', 'Api\MonetizationController@cancelApplication');
+    Route::get('/user/account/payout/settings', 'Api\AccountController@getPayoutSettings');
+    Route::post('/user/account/payout/update', 'Api\AccountController@savePayoutSettings');
 
     //album access
     Route::get('/manage/album/{id}/access', 'Api\AlbumAccessController@accesslist');
