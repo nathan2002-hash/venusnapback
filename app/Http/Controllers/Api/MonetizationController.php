@@ -145,49 +145,54 @@ class MonetizationController extends Controller
     {
         $user = Auth::user();
 
-        $accounntcreate = Account::firstOrCreate(['user_id' => $user->id], [
-            'user_id' => $user->id,
-            'account_balance' => 0.00,
-            'available_balance' => 0.00,
-            'monetization_status' => 'inactive',
-            'payout_method' => 'paypal',
-            'country' => $request->country,
-            'currency' => 'USD',
-            'paypal_email' => $user->email
+        // Validate the request
+        $validated = $request->validate([
+            'country' => 'required|string',
+            'album_id' => 'required|exists:albums,id'
         ]);
 
-        // Find existing account
-        $account = Account::where('user_id', $user->id)->first();
+        // Create or update account
+        $account = Account::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'user_id' => $user->id,
+                'account_balance' => 0.00,
+                'available_balance' => 0.00,
+                'monetization_status' => 'inactive',
+                'payout_method' => 'paypal',
+                'country' => $validated['country'],
+                'currency' => 'USD',
+                'paypal_email' => $user->email
+            ]
+        );
 
-        if (!$account) {
-            return response()->json([
-                'message' => 'Account not found'
-            ], 404);
+        // Update album monetization status
+        $album = Album::find($validated['album_id']);
+        if (!$album) {
+            return response()->json(['message' => 'Album not found'], 404);
         }
 
-        $album = Album::find($request->album_id);
         $album->monetization_status = 'pending';
         $album->save();
 
-        $userAgent = $request->header('User-Agent');
-        $deviceinfo = $request->header('Device-Info');
+        // Create new monetization request (don't use find() - use create())
+        $monetizationrequest = MonetizationRequest::create([
+            'country' => $validated['country'],
+            'album_id' => $validated['album_id'],
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'device_info' => $request->header('Device-Info'),
+            'user_agent' => $request->header('User-Agent'),
+            'ip_address' => $request->ip()
+        ]);
 
-        $monetizationrequest = MonetizationRequest::find($request->album_id);
-        $monetizationrequest->country = $request->country;
-        $monetizationrequest->album_id = $request->album_id;
-        $monetizationrequest->user_id = $user->id;
-        $monetizationrequest->status = 'pending';
-        $monetizationrequest->device_info = $deviceinfo;
-        $monetizationrequest->user_agent = $userAgent;
-        $monetizationrequest->ip_address = $request->ip();
-        $monetizationrequest->save();
-        // Send notification to admin for review
-        //$user->notify(new MonetizationApplicationSubmitted($account));
-        // Or for admin: Notification::send($adminUsers, new NewMonetizationApplication($account));
+        // Send notifications if needed
+        // $user->notify(new MonetizationApplicationSubmitted($account));
 
         return response()->json([
             'message' => 'Application submitted successfully',
-            'status' => 'pending'
+            'status' => 'pending',
+            'data' => $monetizationrequest
         ], 200);
     }
 
