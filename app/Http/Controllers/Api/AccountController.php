@@ -33,13 +33,13 @@ class AccountController extends Controller
         return response()->json([
             'can_set_payment' => true,
             'payment_details' => [
-                'method' => $user->payment_method,
-                'email' => $user->paypal_email,
-                'account_name' => $user->bank_account_name,
-                'account_number' => $user->bank_account_number,
-                'routing_number' => $user->bank_routing_number,
-                'bank_name' => $user->bank_name,
-                'country' => $user->bank_country,
+                'method' => $user->account->payout_method,
+                'email' => $user->account->paypal_email,
+                'account_name' => $user->account->account_name,
+                'account_number' => $user->account->account_number,
+                'routing_number' => $user->account->swift_code,
+                'bank_name' => $user->account->bank_name,
+                'country' => $user->account->country,
             ]
         ]);
     }
