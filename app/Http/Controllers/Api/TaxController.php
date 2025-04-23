@@ -43,16 +43,16 @@ class TaxController extends Controller
 
     public function saveTaxInformation(Request $request)
     {
-        $validated = $request->validate([
-            'tax_type' => 'required|in:individual,business',
-            'full_legal_name' => 'required|string|max:255',
-            'tax_id' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'city' => 'required|string|max:255',
-            'state' => 'required|string|max:255',
-            'zip_code' => 'required|string|max:255',
-            'country' => 'required|string|max:255',
-        ]);
+        // $validated = $request->validate([
+        //     'tax_type' => 'required|in:individual,business',
+        //     'full_legal_name' => 'required|string|max:255',
+        //     'tax_id' => 'required|string|max:255',
+        //     'address' => 'required|string|max:255',
+        //     'city' => 'required|string|max:255',
+        //     'state' => 'required|string|max:255',
+        //     'zip_code' => 'required|string|max:255',
+        //     'country' => 'required|string|max:255',
+        // ]);
 
         $accountId = Auth::user()->account->id;
 
@@ -60,26 +60,26 @@ class TaxController extends Controller
 
         if ($taxInfo) {
             $taxInfo->update([
-                'type' => $validated['tax_type'],
-                'legal_name' => $validated['full_legal_name'],
-                'tax_number' => $validated['tax_id'],
-                'address' => $validated['address'],
-                'city' => $validated['city'],
-                'state' => $validated['state'],
-                'zip' => $validated['zip_code'],
-                'country' => $validated['country'],
+                'type' => $request->tax_type,
+                'legal_name' => $request->full_legal_name,
+                'tax_number' => $request->tax_id,
+                'address' => $request->address,
+                'city' => $request->city,
+                'state' => $request->state,
+                'zip' => $request->zip_code,
+                'country' => $request->country,
             ]);
         } else {
             $taxInfo = Tax::create([
                 'account_id' => $accountId,
-                'type' => $validated['tax_type'],
-                'legal_name' => $validated['full_legal_name'],
-                'tax_number' => $validated['tax_id'],
-                'address' => $validated['address'],
-                'city' => $validated['city'],
-                'state' => $validated['state'],
-                'zip' => $validated['zip_code'],
-                'country' => $validated['country'],
+                'type' => $request->tax_type,
+                'legal_name' => $request->full_legal_name,
+                'tax_number' => $request->tax_id,
+                'address' => $request->address,
+                'city' => $request->city,
+                'state' => $request->state,
+                'zip' => $request->zip_code,
+                'country' => $request->country,
             ]);
         }
 
