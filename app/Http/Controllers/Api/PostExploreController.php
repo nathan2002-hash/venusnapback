@@ -53,7 +53,7 @@ class PostExploreController extends Controller
         // 3. Get ads (10-20% of batch)
         $adCount = max(1, min(2, ceil($limit * 0.2)));
         $ads = Ad::with(['media', 'adboard.album'])
-            ->where('status', 'published')
+            ->where('status', 'active')
             ->whereHas('adboard', function($query) {
                 $query->where('points', '>', 0);
             })
