@@ -68,7 +68,7 @@ class ArtworkController extends Controller
         ]);
     }
 
-    public function destroy($id): JsonResponse
+    public function destroy($id)
     {
         $artwork = Artwork::find($id);
     
