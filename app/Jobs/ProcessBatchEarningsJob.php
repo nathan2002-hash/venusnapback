@@ -53,12 +53,12 @@ class ProcessBatchEarningsJob implements ShouldQueue
             $album = $posts->first()->album;
             $user = $album->user ?? null;
 
-            if ($user && $user->account) {
-                // Step 3: Add to available balance if there were points earned
-                if ($pointsEarned > 0) {
-                    $user->account->increment('available_balance', $pointsEarned);
-                }
-            }
+            $conversionRate = 0.01; // 1 point = $0.01
+            $amountToAdd = $pointsEarned * $conversionRate;
+
+            if ($user && $user->account && $amountToAdd > 0) {
+                $user->account->increment('available_balance', $amountToAdd);
+            }  
 
             // Step 4: Log earning entry with points or 0 if no points earned
             Earning::create([
