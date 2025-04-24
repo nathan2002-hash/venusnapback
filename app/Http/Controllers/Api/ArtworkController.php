@@ -76,6 +76,10 @@ class ArtworkController extends Controller
             return response()->json(['message' => 'Artwork not found'], 404);
         }
     
+        if ($artwork->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized to delete this artwork'], 403);
+        }
+    
         $artwork->delete();
     
         return response()->json(['message' => 'Artwork deleted successfully'], 200);
