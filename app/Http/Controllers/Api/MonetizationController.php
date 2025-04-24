@@ -203,15 +203,18 @@ class MonetizationController extends Controller
             ];
         });
 
-       // Get the current month's earnings from the 'earnings' table
-        $currentMonthEarnings = Earning::where('user_id', $user->id)
-        ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
-        ->sum('earning');
-
-        // Get the last month's earnings from the 'earnings' table
-        $lastMonthEarnings = Earning::where('user_id', $user->id)
-        ->whereBetween('created_at', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()])
-        ->sum('earning');
+        // Get all album IDs that belong to the current user
+        $albumIds = $user->albums()->pluck('id');
+        
+        // Current month earnings
+        $currentMonthEarnings = Earning::whereIn('album_id', $albumIds)
+            ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
+            ->sum('earning');
+        
+        // Last month earnings
+        $lastMonthEarnings = Earning::whereIn('album_id', $albumIds)
+            ->whereBetween('created_at', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()])
+            ->sum('earning');
 
 
         // Calculate the change in earnings (optional)
