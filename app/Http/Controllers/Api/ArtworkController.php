@@ -67,4 +67,17 @@ class ArtworkController extends Controller
             'next_page' => $artworks->nextPageUrl(), // URL for the next page
         ]);
     }
+
+    public function destroy($id): JsonResponse
+    {
+        $artwork = Artwork::find($id);
+    
+        if (!$artwork) {
+            return response()->json(['message' => 'Artwork not found'], 404);
+        }
+    
+        $artwork->delete();
+    
+        return response()->json(['message' => 'Artwork deleted successfully'], 200);
+    }
 }
