@@ -106,6 +106,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     //artwork routes
     Route::post('/artwork/save', 'Api\ArtworkController@store');
     Route::get('/user/artwork', 'Api\ArtworkController@fetchArtworks');
+    Route::delete('/artwork/delete/{id}', 'Api\ArtworkController@destroy');
 
     //template routes
     Route::get('/templates', 'Api\TemplateController@index');
