@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Album;
 use App\Jobs\AlbumCreate;
 use App\Models\AlbumView;
+use App\Models\AlbumAccess;
 use App\Models\AlbumCategory;
 use App\Models\Admire;
 use App\Models\Post;
@@ -274,20 +275,30 @@ class AlbumController extends Controller
     {
         $userId = $request->user()->id;
 
-        // 1. Albums the user owns
+        // 1. Albums the user owns (only active)
         $ownedAlbums = Album::where('user_id', $userId)
-            ->select('id', 'user_id', 'name', 'description', 'thumbnail_original', 'business_logo_original', 'business_logo_compressed', 'thumbnail_compressed', 'type', 'is_verified', 'created_at')
+            ->where('status', 'active')
+            ->select(
+                'id', 'user_id', 'name', 'description', 'thumbnail_original',
+                'business_logo_original', 'business_logo_compressed',
+                'thumbnail_compressed', 'type', 'is_verified', 'created_at'
+            )
             ->get();
-
-        // 2. Albums the user has been granted access to (approved only)
+        
+        // 2. Albums the user has been granted access to (approved & active only)
         $accessedAlbums = Album::whereIn('id', function ($query) use ($userId) {
-            $query->select('album_id')
-                ->from('album_accesses')
-                ->where('user_id', $userId)
-                ->where('status', 'approved');
-        })
-        ->select('id', 'user_id', 'name', 'description', 'thumbnail_original', 'business_logo_original', 'business_logo_compressed', 'thumbnail_compressed', 'type', 'is_verified', 'created_at')
-        ->get();
+                $query->select('album_id')
+                    ->from('album_accesses')
+                    ->where('user_id', $userId)
+                    ->where('status', 'approved');
+            })
+            ->where('status', 'active')
+            ->select(
+                'id', 'user_id', 'name', 'description', 'thumbnail_original',
+                'business_logo_original', 'business_logo_compressed',
+                'thumbnail_compressed', 'type', 'is_verified', 'created_at'
+            )
+            ->get();
 
         // 3. Merge and remove duplicates by album ID
         $allAlbums = $ownedAlbums->merge($accessedAlbums)->unique('id');
