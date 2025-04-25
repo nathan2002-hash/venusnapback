@@ -294,6 +294,11 @@ class AlbumAccessController extends Controller
        public function albumdelete($id)
         {
             $album = Album::findOrFail($id);
+            if ($album->user_id !== Auth::id()) {
+                return response()->json([
+                    'message' => 'Unauthorized: You do not own this album.'
+                ], 403);
+            }
             $album->status = "deletion";
             $album->save();
     
