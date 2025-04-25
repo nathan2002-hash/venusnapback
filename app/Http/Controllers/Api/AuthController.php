@@ -11,6 +11,7 @@ use App\Models\Activity;
 use App\Models\Artboard;
 use Illuminate\Http\Request;
 use App\Jobs\RegistrationJob;
+use App\Jobs\SendPaswordResetCode;
 use App\Jobs\LoginActivityJob;
 use App\Jobs\ChangePasswordJob;
 use App\Mail\TwoFactorCodeMail;
@@ -363,4 +364,31 @@ class AuthController extends Controller
         return response()->json(['message' => 'OTP verified']);
     }
 
+    public function sendResetCode(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+    
+        $user = User::where('email', $request->email)->first();
+    
+        if (!$user) {
+            return response()->json(['message' => 'Email not found'], 404);
+        }
+    
+        $code = random_int(100000, 999999);
+        $expiry = Carbon::now()->addMinutes(10);
+    
+        $user->reset_code = $code;
+        $user->reset_code_expire = $expiry;
+        $user->save();
+    
+        // Dispatch the email sending job
+        SendPasswordRestCode::dispatch($user->email, $code);
+    
+        return response()->json([
+            'message' => 'Reset code sent successfully',
+            'email' => $user->email,
+        ], 200);
+    }
 }
