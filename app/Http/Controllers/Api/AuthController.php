@@ -11,7 +11,7 @@ use App\Models\Activity;
 use App\Models\Artboard;
 use Illuminate\Http\Request;
 use App\Jobs\RegistrationJob;
-use App\Jobs\SendPasswordResetCode;
+use App\Jobs\SendPasswordRestCode;
 use App\Jobs\LoginActivityJob;
 use App\Jobs\ChangePasswordJob;
 use App\Mail\TwoFactorCodeMail;
