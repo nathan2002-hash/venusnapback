@@ -291,4 +291,15 @@ class AlbumAccessController extends Controller
         return response()->json(['message' => "Request {$status}"]);
     }
 
+       public function albumdelete($id)
+        {
+            $album = Album::findOrFail($id);
+            $album->status = "deletion";
+            $album->save();
+    
+            return response()->json([
+                'id' => $album->id,
+            ], 200);
+        }
+
 }
