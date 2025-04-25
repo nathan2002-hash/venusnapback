@@ -391,4 +391,33 @@ class AuthController extends Controller
             'email' => $user->email,
         ], 200);
     }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'reset_code' => 'required|numeric',
+            'password' => 'required|min:6|confirmed', // expects password_confirmation too
+        ]);
+    
+        $user = User::where('email', $request->email)
+                    ->where('reset_code', $request->reset_code)
+                    ->first();
+    
+        if (!$user) {
+            return response()->json(['message' => 'Invalid email or code'], 404);
+        }
+    
+        if (!$user->reset_code_expire || Carbon::now()->greaterThan($user->reset_code_expire)) {
+            return response()->json(['message' => 'Reset code has expired'], 410);
+        }
+    
+        // Update password
+        $user->password = Hash::make($request->password);
+        $user->reset_code = null;
+        $user->reset_code_expire = null;
+        $user->save();
+    
+        return response()->json(['message' => 'Password reset successfully'], 200);
+    }
 }
