@@ -189,9 +189,9 @@ class CommentController extends Controller
             'user' // Load the comment author as well
         ])->find($id);
 
-        if (!$comment || !$comment->postMedia || !$comment->postMedia->post || !$comment->postMedia->post->album) {
-            return response()->json(['message' => 'Comment or related post not found'], 404);
-        }
+        // if (!$comment || !$comment->postMedia || !$comment->postMedia->post || !$comment->postMedia->post->album) {
+        //     return response()->json(['message' => 'Comment or related post not found'], 404);
+        // }
 
         $album = $comment->postMedia->post->album;
         $albumOwnerId = $album->user_id;
