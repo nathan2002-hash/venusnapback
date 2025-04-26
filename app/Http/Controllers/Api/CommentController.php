@@ -52,7 +52,7 @@ class CommentController extends Controller
 
 
             // Determine if comment is from album owner
-            $isOwnerComment = ($comment->user_id === $albumOwnerId);
+            $isOwnerComment = ($comment->user_id == $albumOwnerId);
             $commentUsername = $isOwnerComment ? $album->name : $comment->user->name;
             $commentProfilePic = $isOwnerComment
                 ? $this->getProfileUrl($album)
@@ -69,7 +69,7 @@ class CommentController extends Controller
 
             $formattedReplies = $replies->map(function ($commentreply) use ($album, $albumOwnerId) {
                 // Determine if reply is from album owner
-                $isOwnerReply = ($commentreply->user_id === $albumOwnerId);
+                $isOwnerReply = ($commentreply->user_id == $albumOwnerId);
                 $replyUsername = $isOwnerReply ? $album->name : $commentreply->user->name;
                 $replyProfilePic = $isOwnerReply
                     ? $this->getProfileUrl($album)
@@ -99,9 +99,6 @@ class CommentController extends Controller
                 'commentreplies' => $formattedReplies,
                 'replies_next_page' => $replies->hasMorePages() ? $replyPage + 1 : null,
                 'is_owner' => $isOwnerComment,
-
-                'Comment User ID: ' . $comment->user_id,
-                'Album Owner ID: ' . $albumOwnerId,
             ];
         });
 
