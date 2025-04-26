@@ -50,6 +50,7 @@ class CommentController extends Controller
             $replyPage = $request->query('reply_page', 1);
             $replyLimit = $request->query('reply_limit', 5);
 
+
             // Determine if comment is from album owner
             $isOwnerComment = ($comment->user_id === $albumOwnerId);
             $commentUsername = $isOwnerComment ? $album->name : $comment->user->name;
@@ -97,7 +98,10 @@ class CommentController extends Controller
                 'total_replies' => $comment->commentreplies()->where('status', 'active')->count(),
                 'commentreplies' => $formattedReplies,
                 'replies_next_page' => $replies->hasMorePages() ? $replyPage + 1 : null,
-                'is_owner' => $isOwnerComment
+                'is_owner' => $isOwnerComment,
+
+                'Comment User ID: ' . $comment->user_id,
+                'Album Owner ID: ' . $albumOwnerId,
             ];
         });
 
@@ -185,13 +189,13 @@ class CommentController extends Controller
 
         // Load comment with post media and album info
         $comment = Comment::with([
-            'postMedia.post.album.user',
+            'postmedia.post.album.user',
             'user' // Load the comment author as well
         ])->find($id);
 
-        // if (!$comment || !$comment->postMedia || !$comment->postMedia->post || !$comment->postMedia->post->album) {
-        //     return response()->json(['message' => 'Comment or related post not found'], 404);
-        // }
+        if (!$comment || !$comment->postMedia || !$comment->postMedia->post || !$comment->postMedia->post->album) {
+            return response()->json(['message' => 'Comment or related post not found'], 404);
+        }
 
         $album = $comment->postMedia->post->album;
         $albumOwnerId = $album->user_id;
