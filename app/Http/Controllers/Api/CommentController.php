@@ -69,7 +69,7 @@ class CommentController extends Controller
                     ? $this->getProfileUrl($album)
                     : ($commentreply->user->profile_compressed
                         ? Storage::disk('s3')->url($commentreply->user->profile_compressed)
-                        : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($commentreply->user->email))) . '?s=100&d=mp';
+                        : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($commentreply->user->email))) . '?s=100&d=mp');
 
                 return [
                     'id' => $commentreply->id,
