@@ -29,40 +29,52 @@ class CommentController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate($commentLimit, ['*'], 'comment_page', $commentPage);
 
-        // Format the response
-        $formattedComments = $comments->map(function ($comment) use ($request) {
-            // Pagination parameters for replies
-            $replyPage = $request->query('reply_page', 1); // Default to page 1
-            $replyLimit = $request->query('reply_limit', 5); // Default to 5 replies per page
+            $formattedComments = $comments->map(function ($comment) use ($request) {
+                $postOwnerId = $comment->postmedia->post->user_id;
+                $album = $comment->postmedia->post->album;
 
-            // Fetch replies for the current comment with pagination
-            $replies = $comment->commentreplies()
-                ->where('status', 'active') // Only get active replies
-                ->with('user')
-                ->orderBy('created_at', 'desc')
-                ->paginate($replyLimit, ['*'], 'reply_page', $replyPage);
+                $replyPage = $request->query('reply_page', 1);
+                $replyLimit = $request->query('reply_limit', 5);
 
-            return [
-                'id' => $comment->id,
-                'user_id' => $comment->user_id,
-                'username' => $comment->user->name,
-                'profile_picture_url' => $comment->user->profile_compressed ? Storage::disk('s3')->url($comment->user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp',
-                'comment' => $comment->comment,
-                'created_at' => Carbon::parse($comment->created_at)->diffForHumans(), // Format the timestamp
-                'total_replies' => $comment->commentreplies()->where('status', 'active')->count(), // Total number of active replies
-                'commentreplies' => $replies->map(function ($commentreply) {
-                    return [
-                        'id' => $commentreply->id,
-                        'user_id' => $commentreply->user_id,
-                        'username' => $commentreply->user->name,
-                        'profile_picture_url' => $commentreply->user->profile_compressed ? Storage::disk('s3')->url($commentreply->user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($commentreply->user->email))) . '?s=100&d=mp',
-                        'reply' => $commentreply->reply,
-                        'created_at' => Carbon::parse($commentreply->created_at)->diffForHumans(), // Format timestamp
-                    ];
-                })->toArray(), // Convert replies to array
-                'replies_next_page' => $replies->hasMorePages() ? $replyPage + 1 : null, // Next page for replies
-            ];
-        });
+                $replies = $comment->commentreplies()
+                    ->where('status', 'active')
+                    ->with('user')
+                    ->orderBy('created_at', 'desc')
+                    ->paginate($replyLimit, ['*'], 'reply_page', $replyPage);
+
+                $isCommentOwner = $comment->user_id === $postOwnerId;
+
+                return [
+                    'id' => $comment->id,
+                    'user_id' => $comment->user_id,
+                    'username' => $isCommentOwner ? ($album->name ?? 'Unknown Album') : $comment->user->name,
+                    'profile_picture_url' => $isCommentOwner ? $this->getProfileUrl($album) : (
+                        $comment->user->profile_compressed
+                            ? Storage::disk('s3')->url($comment->user->profile_compressed)
+                            : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp'
+                    ),
+                    'comment' => $comment->comment,
+                    'created_at' => Carbon::parse($comment->created_at)->diffForHumans(),
+                    'total_replies' => $comment->commentreplies()->where('status', 'active')->count(),
+                    'commentreplies' => $replies->map(function ($commentreply) use ($postOwnerId, $album) {
+                        $isReplyOwner = $commentreply->user_id === $postOwnerId;
+
+                        return [
+                            'id' => $commentreply->id,
+                            'user_id' => $commentreply->user_id,
+                            'username' => $isReplyOwner ? ($album->name ?? 'Unknown Album') : $commentreply->user->name,
+                            'profile_picture_url' => $isReplyOwner ? $this->getProfileUrl($album) : (
+                                $commentreply->user->profile_compressed
+                                    ? Storage::disk('s3')->url($commentreply->user->profile_compressed)
+                                    : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($commentreply->user->email))) . '?s=100&d=mp'
+                            ),
+                            'reply' => $commentreply->reply,
+                            'created_at' => Carbon::parse($commentreply->created_at)->diffForHumans(),
+                        ];
+                    })->toArray(),
+                    'replies_next_page' => $replies->hasMorePages() ? $replyPage + 1 : null,
+                ];
+            });
 
         return response()->json([
             'comments' => $formattedComments->toArray(), // Convert comments to array
@@ -175,6 +187,31 @@ class CommentController extends Controller
 
             'created_at' => Carbon::parse($reply->created_at)->diffForHumans(),
         ], 201);
+    }
+
+    private function getProfileUrl($album)
+    {
+        if (!$album) {
+            return asset('default/profile.png');
+        }
+
+        if (in_array($album->type, ['personal', 'creator'])) {
+            return $album->thumbnail_compressed
+                ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                : ($album->thumbnail_original
+                    ? Storage::disk('s3')->url($album->thumbnail_original)
+                    : asset('default/profile.png'));
+        }
+
+        if ($album->type === 'business') {
+            return $album->business_logo_compressed
+                ? Storage::disk('s3')->url($album->business_logo_compressed)
+                : ($album->business_logo_original
+                    ? Storage::disk('s3')->url($album->business_logo_original)
+                    : asset('default/profile.png'));
+        }
+
+        return asset('default/profile.png');
     }
 
     public function commentdelete($id)
