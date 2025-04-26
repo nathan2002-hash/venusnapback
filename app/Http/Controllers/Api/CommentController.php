@@ -23,7 +23,7 @@ class CommentController extends Controller
         // Fetch comments with replies that are active, ordered by creation date (newest first)
         $comments = Comment::with(['commentreplies' => function ($query) {
                 $query->where('status', 'active'); // Only get active replies
-            }, 'commentreplies.user', 'user'])
+            }, 'commentreplies.user', 'user',  'postmedia.post.album'])
             ->where('post_media_id', $postMediaId)
             ->where('status', 'active') // Only get active comments
             ->orderBy('created_at', 'desc')
@@ -98,41 +98,51 @@ class CommentController extends Controller
         $comment->save();
 
         $comment->load('user');
-        $profileUrl = $comment->user->profile_compressed ? Storage::disk('s3')->url($comment->user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp';
-        $postMediaId = $id;
+        $postMedia = PostMedia::with('post.album')->find($id);
 
-        $postMedia = PostMedia::with('post.album')->find($postMediaId);
-            if (!$postMedia || !$postMedia->post) {
-                return response()->json(['message' => 'Post or post media not found'], 404);
-            }
-        //$postOwnerId = $postMedia->post->user_id;
-        $postOwnerId = $postMedia->post->album->user_id;
-        if ($postOwnerId !== $user->id) {
+        if (!$postMedia || !$postMedia->post) {
+            return response()->json(['message' => 'Post or post media not found'], 404);
+        }
+
+        $postOwnerId = $postMedia->post->album->user_id ?? $postMedia->post->user_id; // fallback
+        $album = $postMedia->post->album;
+
+        $isOwner = $user->id === $postOwnerId;
+
+        if (!$isOwner) {
             CreateNotificationJob::dispatch(
-                $user,                      // sender (commenting user)
-                $postMedia,       // notifiable (postMedia)
-                'commented',               // action
-                $postOwnerId,              // receiver (post owner)
+                $user,
+                $postMedia,
+                'commented',
+                $postOwnerId,
                 [
-                    'username' => $user->name, // Add this
+                    'username' => $user->name,
                     'post_id' => $postMedia->post->id,
                     'media_id' => $postMedia->id,
-                    'album_id' => $postMedia->post->album_id ?? null // Fixed this line
+                    'album_id' => $postMedia->post->album_id ?? null
                 ]
             );
         }
+
         return response()->json([
             'id' => $comment->id,
             'comment' => $comment->comment,
             'post_media_id' => $comment->post_media_id,
             'user_id' => $comment->user->id,
-            'username' => $comment->user->name,
-            'profile_picture_url' => $profileUrl,
+            'username' => $isOwner ? ($album->name ?? 'Unknown Album') : $comment->user->name,
+            'profile_picture_url' => $isOwner
+                ? $this->getProfileUrl($album)
+                : (
+                    $comment->user->profile_compressed
+                        ? Storage::disk('s3')->url($comment->user->profile_compressed)
+                        : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp'
+                ),
             'created_at' => Carbon::parse($comment->created_at)->diffForHumans(),
-            'commentreplies' => [], // Add an empty array for replies
-            'total_replies' => 0, // Add total replies count
+            'commentreplies' => [],
+            'total_replies' => 0,
         ], 201);
     }
+
 
     public function storeReply(Request $request, $id)
     {
@@ -150,44 +160,52 @@ class CommentController extends Controller
         $reply->save();
 
         $reply->load('user');
-        $profileUrl = $reply->user->profile_compressed ? Storage::disk('s3')->url($reply->user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($reply->user->email))) . '?s=100&d=mp';
 
-          $commentid = $id;
-
-        $comment = Comment::find($commentid);
+        $comment = Comment::find($id);
         $postMedia = PostMedia::with('post.album')->find($comment->post_media_id);
-            if (!$postMedia || !$postMedia->post) {
-                return response()->json(['message' => 'Post or post media not found'], 404);
-            }
-        //$postOwnerId = $postMedia->post->user_id;
-        $postOwnerId = $postMedia->post->album->user_id;
 
-        if ($postOwnerId !== $user->id) {
+        if (!$postMedia || !$postMedia->post) {
+            return response()->json(['message' => 'Post or post media not found'], 404);
+        }
+
+        $postOwnerId = $postMedia->post->album->user_id ?? $postMedia->post->user_id; // fallback
+        $album = $postMedia->post->album;
+
+        $isOwner = $user->id === $postOwnerId;
+
+        if (!$isOwner) {
             CreateNotificationJob::dispatch(
-                $user,                      // sender (commenting user)
-                $postMedia,       // notifiable (postMedia)
-                'commented',               // action
-                $postOwnerId,              // receiver (post owner)
+                $user,
+                $postMedia,
+                'commented',
+                $postOwnerId,
                 [
-                    'username' => $user->name, // Add this
+                    'username' => $user->name,
                     'post_id' => $postMedia->post->id,
                     'media_id' => $postMedia->id,
                     'comment_id' => $comment->id,
-                    'album_id' => $postMedia->post->album_id ?? null // Fixed this line
+                    'album_id' => $postMedia->post->album_id ?? null
                 ]
             );
         }
+
         return response()->json([
             'id' => $reply->id,
             'reply' => $reply->reply,
             'comment_id' => $reply->comment_id,
-            'id' => $reply->user->id,
-            'username' => $reply->user->name,
-            'profile_picture_url' => $profileUrl,
-
+            'user_id' => $reply->user->id,
+            'username' => $isOwner ? ($album->name ?? 'Unknown Album') : $reply->user->name,
+            'profile_picture_url' => $isOwner
+                ? $this->getProfileUrl($album)
+                : (
+                    $reply->user->profile_compressed
+                        ? Storage::disk('s3')->url($reply->user->profile_compressed)
+                        : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($reply->user->email))) . '?s=100&d=mp'
+                ),
             'created_at' => Carbon::parse($reply->created_at)->diffForHumans(),
         ], 201);
     }
+
 
     private function getProfileUrl($album)
     {
