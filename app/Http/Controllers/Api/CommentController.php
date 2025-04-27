@@ -280,7 +280,7 @@ class CommentController extends Controller
         }
 
         // Check if the authenticated user is the owner of the comment
-        if (Auth::id() !== $comment->user_id) {
+        if (Auth::id() != $comment->user_id) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to delete this comment.'
@@ -314,7 +314,7 @@ class CommentController extends Controller
         }
 
         // Check if the authenticated user is the owner of the reply
-        if (Auth::id() !== $commentreply->user_id) {
+        if (Auth::id() != $commentreply->user_id) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to delete this reply.'
