@@ -12,8 +12,6 @@ use Illuminate\Support\Facades\Storage;
 
 class AIGenController extends Controller
 {
-    private $stableDiffusionUrl = 'https://api.stability.ai/v2beta/stable-image/generate/sd3';
-
     public function generateAd(Request $request)
     {
         $user = auth()->user();
@@ -139,4 +137,48 @@ class AIGenController extends Controller
                 'created_at' => $genai->created_at->toDateTimeString()
             ]);
         }
+
+    public function recentAds()
+    {
+        return GenAi::where('user_id', auth()->id())
+            ->where('type', 'Ad')
+            ->orderBy('created_at', 'desc')
+            ->take(4)
+            ->get()
+            ->map(function ($ad) {
+                return [
+                    'id' => $ad->id,
+                    'image_url' => Storage::url($ad->file_path),
+                    'original_description' => $ad->original_description,
+                    'created_at' => $ad->created_at->toDateTimeString(),
+                    'status' => $ad->status
+                ];
+            });
+    }
+
+     public function placeholders()
+    {
+        // Return 4 placeholder ad templates
+        return [
+            [
+                'id' => 'placeholder-1',
+                'image_url' => Storage::url('placeholders/ad1.jpg'),
+                'description' => 'Sample product ad template',
+                'prompt' => 'Modern product display with clean background'
+            ],
+            // ... add 3 more placeholders
+        ];
+    }
+
+    public function checkStatus($id)
+    {
+        $ad = GenAi::where('user_id', auth()->id())
+            ->findOrFail($id);
+
+        return response()->json([
+            'status' => $ad->status,
+            'image_url' => $ad->file_path ? Storage::url($ad->file_path) : null,
+            // ... other fields
+        ]);
+    }
 }
