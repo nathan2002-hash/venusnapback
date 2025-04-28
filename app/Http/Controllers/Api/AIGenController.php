@@ -128,14 +128,14 @@ class AIGenController extends Controller
 
         public function getAd($id)
         {
-            $ad = auth()->user()->ads()->findOrFail($id);
+            $genai = GenAi::findOrFail($id);
 
             return response()->json([
-                'id' => $ad->id,
-                'original_description' => $ad->original_description,
-                'edited_description' => $ad->edited_description,
-                'image_url' => Storage::url($ad->image_path),
-                'created_at' => $ad->created_at->toDateTimeString()
+                'id' => $genai->id,
+                'original_description' => $genai->original_description,
+                'edited_description' => $genai->edited_description,
+                'image_url' => Storage::url($genai->file_path),
+                'created_at' => $genai->created_at->toDateTimeString()
             ]);
         }
 }
