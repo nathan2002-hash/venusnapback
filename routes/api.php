@@ -209,5 +209,6 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/generate-ad', 'Api\AIGenController@generateAd');
     Route::post('/regenerate-ad/{id}', 'Api\AIGenController@regenerateAd');
     Route::get('/generated-ads/{id}', 'Api\AIGenController@getAd');
-
+    Route::get('/recent-ads', 'Api\AIGenController@recentAds');
+    Route::get('/placeholder-ads', 'Api\AIGenController@placeholders');
 });
