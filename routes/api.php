@@ -204,4 +204,10 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/album/requests', 'Api\AlbumAccessController@getRequests');
     Route::post('/album/requests/{id}/respond', 'Api\AlbumAccessController@respondToRequest');
 
+
+    //genai
+    Route::post('/generate-ad', 'Api\AIGenController@generateAd');
+    Route::post('/regenerate-ad/{id}', 'Api\AIGenController@regenerateAd');
+    Route::get('/generated-ads/{id}', 'Api\AIGenController@getAd');
+
 });
