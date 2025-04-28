@@ -29,6 +29,7 @@ class AIGenController extends Controller
             $genai = GenAi::create([
                 'user_id' => $user->id,
                 'status' => 'pending',
+                'provider' => 'OPEN_AI',
                 'original_description' => $request->description,
                 'venusnap_points' => 30,
                 'type' => 'Ad'
