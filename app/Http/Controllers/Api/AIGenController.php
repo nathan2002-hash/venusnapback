@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\GenAi;
+use App\Jobs\GenAiProcess;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -17,81 +18,33 @@ class AIGenController extends Controller
     {
         $user = auth()->user();
 
-        // Validate request
-        $request->validate([
-            'description' => 'required|min:20',
-        ]);
+        $request->validate(['description' => 'required|min:20']);
 
-        // Check user has enough points
         if ($user->points < 30) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Insufficient points'
-            ], 400);
+            return response()->json(['message' => 'Insufficient points'], 400);
         }
 
         try {
-            // Call Stable Diffusion API (SD3)
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . env('STABLE_DIFFUSION_API_KEY'),
-                'Accept' => 'image/*',
-            ])
-            ->asMultipart()
-            ->post($this->stableDiffusionUrl, [
-                [
-                    'name' => 'prompt',
-                    'contents' => $request->description
-                ],
-                [
-                    'name' => 'output_format',
-                    'contents' => 'jpeg'
-                ],
-                // You can add more parameters here
-                [
-                    'name' => 'none',
-                    'contents' => '',
-                    'filename' => 'none'
-                ]
+            // Create pending record first
+            $genai = GenAi::create([
+                'user_id' => $user->id,
+                'status' => 'pending',
+                'original_description' => $request->description,
+                'venusnap_points' => 30,
+                'type' => 'Ad'
             ]);
 
-            if ($response->successful()) {
-                // Save the generated image
-                $imageData = $response->body();
-                $fileName = 'genai/' . uniqid() . '.jpeg';
-                Storage::put($fileName, $imageData);
+            // Dispatch job to handle async generation
+            GenAiProcess::dispatch($genai->id, $request->description, $user->id);
 
-                // Deduct points
-                $user->decrement('points', 30);
-
-                // Save to GenAi model
-                $genai = new GenAi();
-                $genai->user_id = $user->id;
-                $genai->provider = 'stable diffusion';
-                $genai->venusnap_points = 30;
-                $genai->file_path = $fileName;
-                $genai->original_description = $request->description;
-                $genai->type = 'Ad';
-                $genai->save();
-
-                return response()->json([
-                    'success' => true,
-                    'genai_id' => $genai->id,
-                    'file_path' => Storage::url($fileName)
-                ]);
-            }
-
-            // Handle API error response
-            $errorResponse = $response->json();
             return response()->json([
-                'success' => false,
-                'message' => $errorResponse['message'] ?? 'Failed to generate image'
-            ], 500);
+                'success' => true,
+                'genai_id' => $genai->id,
+                'status' => 'pending'
+            ]);
 
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 

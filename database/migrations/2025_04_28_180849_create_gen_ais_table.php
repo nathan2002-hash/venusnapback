@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('user_id');
             $table->string('provider')->nullable();
+            $table->string('status')->nullable();
             $table->string('provider_credit')->nullable();
             $table->string('venusnap_points')->nullable();
             $table->string('file_path')->nullable();
