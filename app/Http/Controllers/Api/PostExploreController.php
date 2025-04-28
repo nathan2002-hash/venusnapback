@@ -263,6 +263,7 @@ class PostExploreController extends Controller
             'album_id' => $album->id,
             'cta_name' => $ad->cta_name,
             'cta_link' => $ad->cta_link,
+            'cta_type' => $ad->cta_type,
         ], 200);
     }
 
