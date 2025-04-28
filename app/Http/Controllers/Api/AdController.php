@@ -304,7 +304,8 @@ protected function processTargetData(Ad $ad, array $targetData)
                 'title' => $ad->name ?? 'No Title',
                 'description' => $ad->description,
                 'cta_name' => $ad->cta_name,
-                'cta_link' => $ad->cta_link,
+                'cta_link' => $ad->cta_type,
+                'cta_type' => $ad->cta_link,
                 'status' => $ad->status,
                 'created_at' => $ad->created_at->toDateTimeString(),
                 'creator' => [
