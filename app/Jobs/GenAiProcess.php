@@ -33,14 +33,14 @@ class GenAiProcess implements ShouldQueue
     
         try {
             $genai->update(['status' => 'processing']);
-    
+            $finalPrompt = "Create a professional advertisement image based on this description: " . $this->description . ". Focus on clarity, attractiveness, and engagement.";
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer '.env('OPENAI_API_KEY'),
                 'Content-Type' => 'application/json',
             ])
             ->post('https://api.openai.com/v1/images/generations', [
                 'model' => 'dall-e-2', // or 'dall-e-3' if you want DALL-E 3
-                'prompt' => $this->description,
+                'prompt' => $finalPrompt,
                 'n' => 1,
                 'size' => '1024x1024', // Standard size
                 'response_format' => 'url' // we want a URL first
