@@ -26,42 +26,51 @@ class GenAiProcess implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle()
+   public function handle()
     {
         $genai = GenAi::findOrFail($this->genaiId);
         $user = User::findOrFail($this->userId);
-
+    
         try {
             $genai->update(['status' => 'processing']);
-
+    
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer '.env('STABLE_DIFFUSION_API_KEY'),
-                'Accept' => 'image/*'
+                'Authorization' => 'Bearer '.env('OPENAI_API_KEY'),
+                'Content-Type' => 'application/json',
             ])
-            ->asMultipart()
-            ->post('https://api.stability.ai/v2beta/stable-image/generate/sd3', [
-                ['name' => 'prompt', 'contents' => $this->description],
-                ['name' => 'output_format', 'contents' => 'jpeg'],
-                ['name' => 'none', 'contents' => '', 'filename' => 'none']
+            ->post('https://api.openai.com/v1/images/generations', [
+                'model' => 'dall-e-2', // or 'dall-e-3' if you want DALL-E 3
+                'prompt' => $this->description,
+                'n' => 1,
+                'size' => '1024x1024', // Standard size
+                'response_format' => 'url' // we want a URL first
             ]);
-
+    
             if ($response->successful()) {
-                $fileName = 'genai/'.uniqid().'.jpeg';
-                Storage::put($fileName, $response->body());
-
+                $imageUrl = $response->json('data.0.url');
+    
+                // Download the image from the URL and save it to your storage
+                $imageContents = Http::get($imageUrl)->body();
+    
+                $fileName = 'genai/' . uniqid() . '.jpeg';
+                Storage::put($fileName, $imageContents);
+    
                 $genai->update([
                     'file_path' => $fileName,
                     'status' => 'completed',
                 ]);
-
-                $user->decrement('points', 30);
+    
+                // Decrement user points (adjust if needed)
+                $user->decrement('points', 30); 
+    
             } else {
                 $genai->update(['status' => 'failed']);
+                Log::error('DALL-E image generation failed: ' . $response->body());
             }
-
+    
         } catch (\Exception $e) {
             $genai->update(['status' => 'failed']);
-            Log::error("Ad generation failed: ".$e->getMessage());
+            Log::error("Ad generation failed: " . $e->getMessage());
         }
     }
 }
