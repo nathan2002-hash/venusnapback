@@ -12,41 +12,78 @@ use Illuminate\Support\Facades\Storage;
 
 class AIGenController extends Controller
 {
-    public function generateAd(Request $request)
+   public function generateAd(Request $request)
     {
         $user = auth()->user();
-
         $request->validate(['description' => 'required|min:20']);
-
-        if ($user->points < 30) {
-            return response()->json(['message' => 'Insufficient points'], 400);
+    
+        // Create transaction record immediately
+        $transaction = PointTransaction::create([
+            'user_id' => $user->id,
+            'points' => 60,
+            'type' => 'ad_generation',
+            'status' => 'pending',
+            'description' => 'Attempt to generate new ad',
+            'balance_before' => $user->points,
+            'balance_after' => $user->points // Will be updated if successful
+        ]);
+    
+        if ($user->points < 60) {
+            $transaction->update([
+                'status' => 'failed',
+                'description' => 'Insufficient points for ad generation',
+                'metadata' => json_encode([
+                    'required_points' => 30,
+                    'available_points' => $user->points
+                ])
+            ]);
+    
+            return response()->json([
+                'message' => 'Insufficient points',
+                'transaction_id' => $transaction->id
+            ], 400);
         }
-
+    
         try {
-            // Create pending record first
+            // Create pending record
             $genai = GenAi::create([
                 'user_id' => $user->id,
                 'status' => 'pending',
                 'provider' => 'OPEN_AI',
                 'original_description' => $request->description,
-                'venusnap_points' => 30,
-                'type' => 'Ad'
+                'venusnap_points' => 60,
+                'type' => 'Ad',
+                'transaction_id' => $transaction->id // Link to transaction
             ]);
-
-            // Dispatch job to handle async generation
-            GenAiProcess::dispatch($genai->id, $request->description, $user->id);
-
+    
+            // Dispatch job with transaction ID
+            GenAiProcess::dispatch($genai->id, $request->description, $user->id, $transaction->id);
+    
             return response()->json([
                 'success' => true,
                 'genai_id' => $genai->id,
+                'transaction_id' => $transaction->id,
                 'status' => 'pending'
             ]);
-
+    
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            $transaction->update([
+                'status' => 'failed',
+                'description' => 'System error: '.$e->getMessage(),
+                'metadata' => json_encode([
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ])
+            ]);
+    
+            return response()->json([
+                'message' => 'Failed to initiate ad generation',
+                'error' => $e->getMessage(),
+                'transaction_id' => $transaction->id
+            ], 500);
         }
     }
-
+    
     public function regenerateAd(Request $request, $id)
     {
         $user = auth()->user();
