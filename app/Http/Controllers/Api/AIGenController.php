@@ -184,7 +184,6 @@ class AIGenController extends Controller
 
     public function GenPoints(Request $request)
     {
-        // Get the authenticated user's albums, filtering for 'creator' and 'business' types only
         $available = Auth::user()->points;
 
         $available_points = (int) $available;
@@ -194,4 +193,22 @@ class AIGenController extends Controller
             'gen_points' => (int) 60
         ]);
     }
+
+    public function GenImages()
+    {
+        return GenAi::where('user_id', auth()->id())
+            ->where('type', 'Ad')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($genai) {
+                return [
+                    'id' => $genai->id,
+                    'image_url' => Storage::url($genai->file_path),
+                    'original_description' => $genai->original_description,
+                    'created_at' => $genai->created_at->toDateTimeString(),
+                    'status' => $genai->status
+                ];
+            });
+    }
+
 }
