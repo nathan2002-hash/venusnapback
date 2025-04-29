@@ -181,4 +181,17 @@ class AIGenController extends Controller
             // ... other fields
         ]);
     }
+
+    public function GenPoints(Request $request)
+    {
+        // Get the authenticated user's albums, filtering for 'creator' and 'business' types only
+        $available = Auth::user()->points;
+
+        $available_points = (int) $available;
+        // Return response in JSON format
+        return response()->json([
+            'available_points' => $available_points,
+            'gen_points' => (int) 60
+        ]);
+    }
 }
