@@ -34,13 +34,13 @@ class GenAiProcess implements ShouldQueue
         $genai = GenAi::findOrFail($this->genaiId);
         $user = User::findOrFail($this->userId);
         $transaction = PointTransaction::findOrFail($this->transactionId);
-    
+
         DB::beginTransaction();
-    
+
         try {
             $genai->update(['status' => 'processing']);
             $finalPrompt = "Create a professional advertisement image based on: " . $this->description;
-    
+
             $response = Http::withToken(env('OPENAI_API_KEY'))
             ->withHeaders([
                 'Content-Type' => 'application/json',
@@ -57,16 +57,16 @@ class GenAiProcess implements ShouldQueue
                 $imageUrl = $response->json('data.0.url');
                 $imageContents = Http::get($imageUrl)->body();
                 $fileName = 'genai/' . uniqid() . '.jpeg';
-                Storage::put($fileName, $imageContents);
-    
+                Storage::disk('s3')->put($fileName, $imageContents);
+
                 // Deduct points within transaction
                 $user->decrement('points', 30);
-    
+
                 $genai->update([
                     'file_path' => $fileName,
                     'status' => 'completed',
                 ]);
-    
+
                 $transaction->update([
                     'status' => 'completed',
                     'resource_id' => $genai->id,
@@ -78,17 +78,17 @@ class GenAiProcess implements ShouldQueue
                         'api_response' => $response->json()
                     ])
                 ]);
-    
+
                 DB::commit();
             } else {
                 throw new \Exception('DALL-E API error: '.$response->body());
             }
-    
+
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             $genai->update(['status' => 'failed']);
-            
+
             $transaction->update([
                 'status' => 'failed',
                 'description' => 'Ad generation failed: '.$e->getMessage(),
@@ -97,7 +97,7 @@ class GenAiProcess implements ShouldQueue
                     'trace' => $e->getTraceAsString()
                 ])
             ]);
-    
+
             Log::error("Ad generation failed: " . $e->getMessage());
         }
     }
