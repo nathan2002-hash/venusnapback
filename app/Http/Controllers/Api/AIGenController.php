@@ -164,18 +164,30 @@ class AIGenController extends Controller
         }
     }
 
-        public function getAd($id)
-        {
-            $genai = GenAi::findOrFail($id);
-
+    public function getAd($id)
+    {
+        $genai = GenAi::findOrFail($id);
+    
+        // Return status and data only when generation is complete
+        if ($genai->status !== 'completed') {
             return response()->json([
-                'id' => $genai->id,
-                'original_description' => $genai->original_description,
-                'edited_description' => $genai->edited_description,
-                'image_url' => Storage::disk('s3')->url($genai->file_path),
-                'created_at' => $genai->created_at->toDateTimeString()
+                'status' => $genai->status,
+                'message' => 'Generation in progress'
             ]);
         }
+    
+        // Only return file URL if status is complete and file exists
+        $imageUrl = $genai->file_path ? Storage::disk('s3')->url($genai->file_path) : null;
+    
+        return response()->json([
+            'status' => 'completed',
+            'id' => $genai->id,
+            'original_description' => $genai->original_description,
+            'edited_description' => $genai->edited_description,
+            'image_url' => $imageUrl,
+            'created_at' => $genai->created_at->toDateTimeString()
+        ]);
+    }
 
     public function recentAds()
     {
