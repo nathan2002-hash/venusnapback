@@ -33,7 +33,7 @@ class TrackPostViewJob implements ShouldQueue
 
         if (!$postMediaId && $this->postId) {
             $media = PostMedia::where('post_id', $this->postId)
-                ->where('sequence_no', 1)
+                ->where('sequence_order', 1)
                 ->first();
 
             if ($media) {
