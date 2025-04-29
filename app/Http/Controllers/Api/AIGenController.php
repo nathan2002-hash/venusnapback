@@ -162,9 +162,13 @@ class AIGenController extends Controller
         return [
             [
                 'id' => 'placeholder-1',
-                'image_url' => Storage::url('placeholders/ad1.jpg'),
-                'description' => 'Sample product ad template',
+                'description' => 'Modern product display with clean background',
                 'prompt' => 'Modern product display with clean background'
+            ],
+            [
+                'id' => 'placeholder-2',
+                'description' => 'Classic Image with two people dancing',
+                'prompt' => 'Classic Image with two people dancing'
             ],
             // ... add 3 more placeholders
         ];
