@@ -234,16 +234,6 @@ class AIGenController extends Controller
             'description' => 'Food promotion poster',
             'prompt' => 'A vibrant and colorful ad poster of a juicy hamburger with fries and a drink, placed on a wooden table with blurred background, high-quality'
         ],
-        [
-            'id' => 'placeholder-4',
-            'description' => 'Fitness promo with athlete',
-            'prompt' => 'A muscular male athlete lifting weights in a gym with dramatic lighting, promotional fitness poster style'
-        ],
-        [
-            'id' => 'placeholder-5',
-            'description' => 'Luxury perfume bottle display',
-            'prompt' => 'A close-up of a luxury perfume bottle with elegant lighting and a dark floral background, professional advertisement layout'
-        ],
     ];
 }
 
