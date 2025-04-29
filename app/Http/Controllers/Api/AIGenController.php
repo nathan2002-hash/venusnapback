@@ -199,7 +199,7 @@ class AIGenController extends Controller
             ->get()
             ->map(function ($genai) {
                 // Safely handle file path
-                $imageUrl = $genai->file_path_compress ? Storage::disk('s3')->url($genai->file_path) : null;
+                $imageUrl = $genai->file_path_compress ? Storage::disk('s3')->url($genai->file_path_compress) : null;
 
                 return [
                     'id' => $genai->id,
