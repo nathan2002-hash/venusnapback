@@ -211,4 +211,5 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/generated-ads/{id}', 'Api\AIGenController@getAd');
     Route::get('/recent-ads', 'Api\AIGenController@recentAds');
     Route::get('/placeholder-ads', 'Api\AIGenController@placeholders');
+    Route::get('/genai/points', 'Api\AIGenController@GenPoints');
 });
