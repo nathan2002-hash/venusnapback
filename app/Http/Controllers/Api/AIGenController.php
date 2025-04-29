@@ -133,7 +133,7 @@ class AIGenController extends Controller
                 'id' => $genai->id,
                 'original_description' => $genai->original_description,
                 'edited_description' => $genai->edited_description,
-                'image_url' => Storage::url($genai->file_path),
+                'image_url' => Storage::disk('s3')->url($genai->file_path),
                 'created_at' => $genai->created_at->toDateTimeString()
             ]);
         }
@@ -145,13 +145,13 @@ class AIGenController extends Controller
             ->orderBy('created_at', 'desc')
             ->take(4)
             ->get()
-            ->map(function ($ad) {
+            ->map(function ($genai) {
                 return [
-                    'id' => $ad->id,
-                    'image_url' => Storage::url($ad->file_path),
-                    'original_description' => $ad->original_description,
-                    'created_at' => $ad->created_at->toDateTimeString(),
-                    'status' => $ad->status
+                    'id' => $genai->id,
+                    'image_url' => Storage::disk('s3')->url($genai->file_path),
+                    'original_description' => $genai->original_description,
+                    'created_at' => $genai->created_at->toDateTimeString(),
+                    'status' => $genai->status
                 ];
             });
     }
@@ -176,12 +176,12 @@ class AIGenController extends Controller
 
     public function checkStatus($id)
     {
-        $ad = GenAi::where('user_id', auth()->id())
+        $genai = GenAi::where('user_id', auth()->id())
             ->findOrFail($id);
 
         return response()->json([
-            'status' => $ad->status,
-            'image_url' => $ad->file_path ? Storage::url($ad->file_path) : null,
+            'status' => $genai->status,
+            'image_url' => $genai->file_path ? Storage::disk('s3')->url($genai->file_path) : null,
             // ... other fields
         ]);
     }
@@ -207,7 +207,7 @@ class AIGenController extends Controller
             ->map(function ($genai) {
                 return [
                     'id' => $genai->id,
-                    'image_url' => Storage::url($genai->file_path),
+                    'image_url' => Storage::disk('s3')->url($genai->file_path),
                     'original_description' => $genai->original_description,
                     'created_at' => $genai->created_at->toDateTimeString(),
                     'status' => $genai->status
