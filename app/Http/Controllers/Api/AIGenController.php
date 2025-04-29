@@ -215,23 +215,38 @@ class AIGenController extends Controller
             })
             ->values(); // Reset array keys after filtering
     }
+    
      public function placeholders()
-    {
-        // Return 4 placeholder ad templates
-        return [
-            [
-                'id' => 'placeholder-1',
-                'description' => 'Modern product display with clean background',
-                'prompt' => 'Modern product display with clean background'
-            ],
-            [
-                'id' => 'placeholder-2',
-                'description' => 'Classic Image with two people dancing',
-                'prompt' => 'Classic Image with two people dancing'
-            ],
-            // ... add 3 more placeholders
-        ];
-    }
+{
+    return [
+        [
+            'id' => 'placeholder-1',
+            'description' => 'Modern tech product with clean background',
+            'prompt' => 'A modern smartphone on a white minimalist background, clean shadows, centered for ad display'
+        ],
+        [
+            'id' => 'placeholder-2',
+            'description' => 'Elegant fashion ad',
+            'prompt' => 'A full-body portrait of a stylish woman in elegant fashion wear, standing against a pastel backdrop for a fashion advertisement'
+        ],
+        [
+            'id' => 'placeholder-3',
+            'description' => 'Food promotion poster',
+            'prompt' => 'A vibrant and colorful ad poster of a juicy hamburger with fries and a drink, placed on a wooden table with blurred background, high-quality'
+        ],
+        [
+            'id' => 'placeholder-4',
+            'description' => 'Fitness promo with athlete',
+            'prompt' => 'A muscular male athlete lifting weights in a gym with dramatic lighting, promotional fitness poster style'
+        ],
+        [
+            'id' => 'placeholder-5',
+            'description' => 'Luxury perfume bottle display',
+            'prompt' => 'A close-up of a luxury perfume bottle with elegant lighting and a dark floral background, professional advertisement layout'
+        ],
+    ];
+}
+
 
     public function checkStatus($id)
     {
