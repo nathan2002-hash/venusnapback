@@ -23,6 +23,7 @@ class AIGenController extends Controller
             'user_id' => $user->id,
             'points' => 60,
             'type' => 'ad_generation',
+            'resource_id' => '1',
             'status' => 'pending',
             'description' => 'Attempt to generate new ad',
             'balance_before' => $user->points,
