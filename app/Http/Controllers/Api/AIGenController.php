@@ -63,7 +63,7 @@ class AIGenController extends Controller
     
             return response()->json([
                 'success' => true,
-                'genai_id' => String $genai->id,
+                'genai_id' => (string) $genai->id,
                 'transaction_id' => $transaction->id,
                 'status' => 'pending'
             ]);
