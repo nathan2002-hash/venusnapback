@@ -48,8 +48,48 @@ class ViewController extends Controller
         ]);
     }
 
-
     public function viewpost(Request $request)
+    {
+        $userId = Auth::id();
+        $postId = $request->input('post_id');
+        $duration = $request->input('duration');
+
+        // If post_media_id is not provided, get the one with sequence_no = 1
+        $postMediaId = $request->input('post_media_id');
+
+        if (!$postMediaId && $postId) {
+            $postMedia = PostMedia::where('post_id', $postId)
+                ->where('sequence_no', 1)
+                ->first();
+
+            if ($postMedia) {
+                $postMediaId = $postMedia->id;
+            }
+        }
+
+        if ($postMediaId) {
+            // Save the view
+            View::create([
+                'user_id' => $userId,
+                'ip_address' => $request->ip(),
+                'post_media_id' => $postMediaId,
+                'duration' => $duration,
+                'user_agent' => $request->header('User-Agent'),
+            ]);
+        }
+
+        // Mark recommendation as seen
+        Recommendation::where('user_id', $userId)
+            ->where('post_id', $postId)
+            ->whereIn('status', ['active', 'fetched'])
+            ->update(['status' => 'seen']);
+
+        return response()->json(['message' => 'View duration tracked and recommendation marked as seen']);
+    }
+
+
+
+    public function viewjpost(Request $request)
     {
         // Track the view duration
         $view = new View();
