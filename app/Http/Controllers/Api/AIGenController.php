@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\GenAi;
+use App\Models\PointTransaction;
 use App\Jobs\GenAiProcess;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
