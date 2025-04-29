@@ -22,7 +22,7 @@ class GenAiProcess implements ShouldQueue
     public function __construct(
         public int $genaiId,
         public string $description,
-        public int $userId
+        public int $userId,
         public int $transactionId
     ) {}
 
