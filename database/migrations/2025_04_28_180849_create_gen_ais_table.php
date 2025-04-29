@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('original_description')->nullable();
             $table->string('edited_description')->nullable();
             $table->string('type')->nullable();
+            $table->string('point_transaction_id')->nullable();
             $table->timestamps();
         });
     }
