@@ -17,7 +17,7 @@ class AIGenController extends Controller
     {
         $user = auth()->user();
         $request->validate(['description' => 'required|min:20']);
-    
+
         // Create transaction record immediately
         $transaction = PointTransaction::create([
             'user_id' => $user->id,
@@ -29,7 +29,7 @@ class AIGenController extends Controller
             'balance_before' => $user->points,
             'balance_after' => $user->points // Will be updated if successful
         ]);
-    
+
         if ($user->points < 60) {
             $transaction->update([
                 'status' => 'failed',
@@ -39,13 +39,13 @@ class AIGenController extends Controller
                     'available_points' => $user->points
                 ])
             ]);
-    
+
             return response()->json([
                 'message' => 'Insufficient points',
                 'transaction_id' => $transaction->id
             ], 400);
         }
-    
+
         try {
             // Create pending record
             $genai = GenAi::create([
@@ -57,17 +57,17 @@ class AIGenController extends Controller
                 'type' => 'Ad',
                 'point_transaction_id' => $transaction->id // Link to transaction
             ]);
-    
+
             // Dispatch job with transaction ID
             GenAiProcess::dispatch($genai->id, $request->description, $user->id, $transaction->id);
-    
+
             return response()->json([
                 'success' => true,
                 'genai_id' => (string) $genai->id,
                 'transaction_id' => $transaction->id,
                 'status' => 'pending'
             ]);
-    
+
         } catch (\Exception $e) {
             $transaction->update([
                 'status' => 'failed',
@@ -77,7 +77,7 @@ class AIGenController extends Controller
                     'trace' => $e->getTraceAsString()
                 ])
             ]);
-    
+
             return response()->json([
                 'message' => 'Failed to initiate ad generation',
                 'error' => $e->getMessage(),
@@ -85,7 +85,7 @@ class AIGenController extends Controller
             ], 500);
         }
     }
-    
+
     public function regenerateAd(Request $request, $id)
     {
         $user = auth()->user();
@@ -167,7 +167,7 @@ class AIGenController extends Controller
     public function getAd($id)
     {
         $genai = GenAi::findOrFail($id);
-    
+
         // Return status and data only when generation is complete
         if ($genai->status !== 'completed') {
             return response()->json([
@@ -175,10 +175,10 @@ class AIGenController extends Controller
                 'message' => 'Generation in progress'
             ]);
         }
-    
+
         // Only return file URL if status is complete and file exists
-        $imageUrl = $genai->file_path ? Storage::disk('s3')->url($genai->file_path) : null;
-    
+        $imageUrl = $genai->file_path_compress ? Storage::disk('s3')->url($genai->file_path_compress) : null;
+
         return response()->json([
             'status' => 'completed',
             'id' => $genai->id,
@@ -199,8 +199,8 @@ class AIGenController extends Controller
             ->get()
             ->map(function ($genai) {
                 // Safely handle file path
-                $imageUrl = $genai->file_path ? Storage::disk('s3')->url($genai->file_path) : null;
-                
+                $imageUrl = $genai->file_path_compress ? Storage::disk('s3')->url($genai->file_path) : null;
+
                 return [
                     'id' => $genai->id,
                     'image_url' => $imageUrl,
@@ -215,7 +215,7 @@ class AIGenController extends Controller
             })
             ->values(); // Reset array keys after filtering
     }
-    
+
      public function placeholders()
 {
     return [
@@ -245,7 +245,7 @@ class AIGenController extends Controller
 
         return response()->json([
             'status' => $genai->status,
-            'image_url' => $genai->file_path ? Storage::disk('s3')->url($genai->file_path) : null,
+            'image_url' => $genai->file_path_compress ? Storage::disk('s3')->url($genai->file_path_compress) : null,
             // ... other fields
         ]);
     }
@@ -271,8 +271,8 @@ class AIGenController extends Controller
             ->get()
             ->map(function ($genai) {
                 // Safely handle file path
-                $imageUrl = $genai->file_path ? Storage::disk('s3')->url($genai->file_path) : null;
-                
+                $imageUrl = $genai->file_path_compress ? Storage::disk('s3')->url($genai->file_path_compress) : null;
+
                 return [
                     'id' => $genai->id,
                     'image_url' => $imageUrl,

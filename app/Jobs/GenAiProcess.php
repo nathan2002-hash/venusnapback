@@ -56,15 +56,17 @@ class GenAiProcess implements ShouldQueue
             if ($response->successful()) {
                 $imageUrl = $response->json('data.0.url');
                 $imageContents = Http::get($imageUrl)->body();
-                $fileName = 'genai/' . uniqid() . '.jpeg';
+                $fileName = 'genai/original/' . uniqid() . '.jpeg';
                 Storage::disk('s3')->put($fileName, $imageContents);
 
                 // Deduct points within transaction
                 $user->decrement('points', 30);
 
+                CompressGenAiImage::dispatch($genai->id);
+
                 $genai->update([
                     'file_path' => $fileName,
-                    'status' => 'completed',
+                    'status' => 'awaiting_compression',
                 ]);
 
                 $transaction->update([
