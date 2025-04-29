@@ -54,7 +54,7 @@ class AIGenController extends Controller
                 'original_description' => $request->description,
                 'venusnap_points' => 60,
                 'type' => 'Ad',
-                'transaction_id' => $transaction->id // Link to transaction
+                'point_transaction_id' => $transaction->id // Link to transaction
             ]);
     
             // Dispatch job with transaction ID
