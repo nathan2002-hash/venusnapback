@@ -193,20 +193,28 @@ class AIGenController extends Controller
     {
         return GenAi::where('user_id', auth()->id())
             ->where('type', 'Ad')
+            ->where('status', 'completed') // Only completed ads
             ->orderBy('created_at', 'desc')
             ->take(4)
             ->get()
             ->map(function ($genai) {
+                // Safely handle file path
+                $imageUrl = $genai->file_path ? Storage::disk('s3')->url($genai->file_path) : null;
+                
                 return [
                     'id' => $genai->id,
-                    'image_url' => Storage::disk('s3')->url($genai->file_path),
+                    'image_url' => $imageUrl,
                     'original_description' => $genai->original_description,
                     'created_at' => $genai->created_at->toDateTimeString(),
                     'status' => $genai->status
                 ];
-            });
+            })
+            ->filter(function ($ad) {
+                // Ensure we only return ads with valid image URLs
+                return !empty($ad['image_url']);
+            })
+            ->values(); // Reset array keys after filtering
     }
-
      public function placeholders()
     {
         // Return 4 placeholder ad templates
@@ -253,17 +261,26 @@ class AIGenController extends Controller
     {
         return GenAi::where('user_id', auth()->id())
             ->where('type', 'Ad')
+            ->where('status', 'completed') // Only completed ads
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($genai) {
+                // Safely handle file path
+                $imageUrl = $genai->file_path ? Storage::disk('s3')->url($genai->file_path) : null;
+                
                 return [
                     'id' => $genai->id,
-                    'image_url' => Storage::disk('s3')->url($genai->file_path),
+                    'image_url' => $imageUrl,
                     'original_description' => $genai->original_description,
                     'created_at' => $genai->created_at->toDateTimeString(),
                     'status' => $genai->status
                 ];
-            });
+            })
+            ->filter(function ($ad) {
+                // Ensure we only return ads with valid image URLs
+                return !empty($ad['image_url']);
+            })
+            ->values(); // Reset array keys after filtering
     }
 
 }
