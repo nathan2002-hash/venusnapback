@@ -33,7 +33,7 @@ class PointController extends Controller
 
         return response()->json([
             'packages'   => $packages,
-            'user_points'   => Auth::user()->points,
+            'user_points'   => (int) Auth::user()->points,
             'min_points' => (int) config('points.min_points', 1000),
         ]);
     }
