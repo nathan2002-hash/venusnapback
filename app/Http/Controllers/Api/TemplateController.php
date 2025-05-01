@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use App\Models\PointTransaction;
 use App\Jobs\TemplateCreate;
+use Carbon\Carbon;
 
 class TemplateController extends Controller
 {
@@ -104,5 +105,27 @@ class TemplateController extends Controller
             $transaction->update(['status' => 'failed']);
             return response()->json(['message' => 'Failed to initiate generation'], 500);
         }
+    }
+
+    public function checkStatus($templateId)
+    {
+        $template = Template::findOrFail($templateId);
+        $user = auth()->user();
+    
+        // Check if created_at is within the past hour
+        $isNew = $template->created_at->gt(Carbon::now()->subHour());
+    
+        return response()->json([
+            'status' => $template->status,
+            'template' => $template->status === 'completed' ? [
+                'id' => $template->id,
+                'path' => Storage::disk('s3')->url($template->compressed_template),
+                'is_new' => $isNew,
+                'created_at' => $template->created_at->toIso8601String()
+            ] : [
+                'is_new' => $isNew
+            ],
+            'user_points' => $user->points
+        ]);
     }
 }
