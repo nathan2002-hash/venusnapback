@@ -89,7 +89,7 @@ class TemplateController extends Controller
             $template = Template::create([
                 'user_id' => $user->id,
                 'status' => 'pending',
-                'original_description' => $request->description,
+                'description' => $request->description,
             ]);
     
             TemplateCreate::dispatch($template->id, $request->description, $user->id, $transaction->id);
