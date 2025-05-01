@@ -59,7 +59,7 @@ class ArtworkController extends Controller
                 'id' => $artwork->id,
                 'thumbnail' => $thumbnailUrl, 
                 'downloadimage' => $downloadUrl,
-                'downloadfilename' => 'venusnap_' . $artwork->id,
+                'downloadfilename' => 'VEN_' . $artwork->id,
                 'created_at' => Carbon::parse($artwork->created_at)->format('d M Y H:i'),  // Format the date
             ];
         });
