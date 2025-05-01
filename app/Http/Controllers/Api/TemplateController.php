@@ -78,6 +78,8 @@ class TemplateController extends Controller
         $template = Template::create([
             'name' => 'template_' . $user->id . '_' . time(),
             'user_id' => $user->id,
+            'author' => $user->name,
+            'type' => 'free',
             'status' => 'pending',
             'description' => $request->description,
         ]);
