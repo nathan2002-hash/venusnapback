@@ -174,7 +174,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/ad/seen', 'Api\PostExploreController@sendAdSeenRequest');
     Route::post('/ad/cta/click/{id}', 'Api\PostExploreController@sendAdCtaClick');
 
-    Route::post('/create/payment/intent', 'Api\PayController@payment');
+    Route::post('/create/payment/intent', 'Api\PaymentController@payment');
     Route::post('/payment/confirm', 'Api\PaymentController@confirmPayment');
 
     Route::get('/payments', 'Api\PaymentController@fetchUserPayments');
