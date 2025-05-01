@@ -107,7 +107,7 @@ class TemplateController extends Controller
         }
     }
 
-    public function checkStatus($templateId)
+    public function checkStatus($id)
     {
         $template = Template::findOrFail($templateId);
         $user = auth()->user();
