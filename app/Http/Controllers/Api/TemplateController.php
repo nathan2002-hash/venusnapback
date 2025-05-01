@@ -73,6 +73,7 @@ class TemplateController extends Controller
             'user_id' => $user->id,
             'points' => $template_points,
             'type' => 'template_generation',
+            'resource_id' => '1',
             'status' => 'pending',
             'description' => 'Template generation request',
             'balance_before' => $user->points,
@@ -109,7 +110,7 @@ class TemplateController extends Controller
 
     public function checkStatus($id)
     {
-        $template = Template::findOrFail($templateId);
+        $template = Template::findOrFail($id);
         $user = auth()->user();
     
         // Check if created_at is within the past hour
