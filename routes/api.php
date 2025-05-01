@@ -114,6 +114,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
 
     //template routes
     Route::get('/templates', 'Api\TemplateController@index');
+    Route::post('/generate/template', 'Api\TemplateController@generateTemplate');
 
     //preference routes
     Route::get('/preference/categories', 'Api\PreferenceController@index');
