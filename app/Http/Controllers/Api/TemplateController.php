@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use Carbon\Carbon;
 use App\Models\Template;
+use App\Jobs\TemplateGenAI;
+use App\Jobs\TemplateCreate;
 use Illuminate\Http\Request;
+use App\Models\PointTransaction;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
-use App\Models\PointTransaction;
-use App\Jobs\TemplateCreate;
-use Carbon\Carbon;
 
 class TemplateController extends Controller
 {
@@ -18,20 +19,20 @@ class TemplateController extends Controller
         $templates = Template::where('status', 'completed')
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
-    
+
         // Include user points in response
         $userPoints = auth()->user()->points;
-    
+
         $transformed = $templates->getCollection()->map(function ($template) {
             return [
                 'id' => $template->id,
                 'name' => $template->name,
                 'type' => $template->type,
-                'path' => Storage::disk('s3')->url($template->compressed_template ?? $template->original_template), 
+                'path' => Storage::disk('s3')->url($template->compressed_template ?? $template->original_template),
                 'is_user_generated' => !empty($template->user_id),
             ];
         });
-    
+
         return response()->json([
             'templates' => $transformed,
             'pagination' => [
@@ -45,7 +46,7 @@ class TemplateController extends Controller
     {
         $perPage = 10; // Adjust if needed
         $templates = Template::orderBy('created_at', 'desc')->paginate($perPage);
-    
+
         // Transform the templates to fit the structure Flutter expects
         $templates->getCollection()->transform(function ($template) {
             return [
@@ -55,14 +56,14 @@ class TemplateController extends Controller
                 'path' => Storage::disk('s3')->url($template->compressed_template ?? $template->original_template), // URL to the image
             ];
         });
-    
+
         return response()->json($templates);
     }
 
    public function generateTemplate(Request $request)
 {
     $user = auth()->user();
-    
+
     $request->validate([
         'description' => 'required|min:20',
         'style' => 'sometimes|string'
@@ -99,7 +100,7 @@ class TemplateController extends Controller
         $user->points -= $template_points;
         $user->save();
 
-        TemplateCreate::dispatch($template->id, $request->description, $user->id, $transaction->id);
+        TemplateGenAI::dispatch($template->id, $request->description, $user->id, $transaction->id);
 
         return response()->json([
             'success' => true,
@@ -117,10 +118,10 @@ class TemplateController extends Controller
     {
         $template = Template::findOrFail($id);
         $user = auth()->user();
-    
+
         // Check if created_at is within the past hour
         $isNew = $template->created_at->gt(Carbon::now()->subHour());
-    
+
         return response()->json([
             'status' => $template->status,
             'template' => $template->status === 'completed' ? [
