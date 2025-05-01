@@ -13,6 +13,35 @@ class TemplateController extends Controller
 {
     public function index(Request $request)
     {
+        $perPage = 10;
+        $templates = Template::where('status', 'completed')
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+    
+        // Include user points in response
+        $userPoints = auth()->user()->points;
+    
+        $transformed = $templates->getCollection()->map(function ($template) {
+            return [
+                'id' => $template->id,
+                'name' => $template->name,
+                'type' => $template->type,
+                'path' => Storage::disk('s3')->url($template->path),
+                'is_user_generated' => !empty($template->user_id),
+            ];
+        });
+    
+        return response()->json([
+            'templates' => $transformed,
+            'pagination' => [
+                'current_page' => $templates->currentPage(),
+                'last_page' => $templates->lastPage(),
+            ],
+            'user_points' => $userPoints
+        ]);
+    }
+    public function indhex(Request $request)
+    {
         $perPage = 10; // Adjust if needed
         $templates = Template::orderBy('created_at', 'desc')->paginate($perPage);
     
