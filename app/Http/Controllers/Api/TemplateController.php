@@ -37,7 +37,7 @@ class TemplateController extends Controller
                 'current_page' => $templates->currentPage(),
                 'last_page' => $templates->lastPage(),
             ],
-            'user_points' => $userPoints
+            'user_points' => (int) $userPoints
         ]);
     }
     public function indhex(Request $request)
