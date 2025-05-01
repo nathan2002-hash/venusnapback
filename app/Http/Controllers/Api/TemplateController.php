@@ -26,7 +26,7 @@ class TemplateController extends Controller
                 'id' => $template->id,
                 'name' => $template->name,
                 'type' => $template->type,
-                'path' => Storage::disk('s3')->url($template->path),
+                'path' => Storage::disk('s3')->url($template->compressed_template ?? $template->original_template), 
                 'is_user_generated' => !empty($template->user_id),
             ];
         });
