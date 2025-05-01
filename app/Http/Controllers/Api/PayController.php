@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PaymentSession;
 use Stripe\Stripe;
+use Stripe\Token;
 use App\Models\Payment;
 use Stripe\PaymentIntent;
 use Illuminate\Support\Facades\Auth;
