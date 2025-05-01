@@ -66,11 +66,11 @@ class TemplateController extends Controller
             'style' => 'sometimes|string' // Optional style parameter
         ]);
     
-        const POINTS_REQUIRED = 40; // Different points cost for templates
+        $template_points = 40; // Different points cost for templates
     
         $transaction = PointTransaction::create([
             'user_id' => $user->id,
-            'points' => POINTS_REQUIRED,
+            'points' => $template_points,
             'type' => 'template_generation',
             'status' => 'pending',
             'description' => 'Template generation request',
@@ -78,7 +78,7 @@ class TemplateController extends Controller
             'balance_after' => $user->points
         ]);
     
-        if ($user->points < POINTS_REQUIRED) {
+        if ($user->points < $template_points) {
             $transaction->update(['status' => 'failed']);
             return response()->json(['message' => 'Insufficient points'], 400);
         }
@@ -97,7 +97,7 @@ class TemplateController extends Controller
             return response()->json([
                 'success' => true,
                 'template_id' => (string) $template->id,
-                'points_remaining' => $user->points - POINTS_REQUIRED
+                'points_remaining' => $user->points - $template_points
             ]);
     
         } catch (\Exception $e) {
