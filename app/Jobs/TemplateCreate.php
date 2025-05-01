@@ -10,61 +10,157 @@ use App\Models\Template;
 use Illuminate\Support\Facades\Log;
 use Intervention\Image\ImageManager;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User;
+use App\Models\PointTransaction;
+use Illuminate\Support\Facades\DB;
 
 class TemplateCreate implements ShouldQueue
 {
     use Queueable;
-    public $templateId;
 
     /**
      * Create a new job instance.
      */
-   public function __construct(
-        public int $templateId,
-        public string $description,
-        public int $userId,
-        public int $transactionId
-    ) {}
+    protected $templateId;
+    protected $description;
+    protected $userId;
+    protected $transactionId;
+
+    public function __construct($templateId, $description, $userId, $transactionId)
+    {
+        $this->templateId = $templateId;
+        $this->description = $description;
+        $this->userId = $userId;
+        $this->transactionId = $transactionId;
+    }
 
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle()
     {
-        $template = Template::find($this->templateId);
-        if (!$template || !$template->original_template) {
-            return; // Handle edge cases gracefully
+        $template = Template::findOrFail($this->templateId);
+        $user = User::findOrFail($this->userId);
+        $transaction = PointTransaction::findOrFail($this->transactionId);
+
+        DB::beginTransaction();
+
+        try {
+            // Update status to processing
+            $template->update(['status' => 'processing']);
+            
+            // Enhanced prompt for background templates
+            $finalPrompt = "Create a professional background template suitable for my artwork based on: " . 
+                          $this->description . 
+                          ". The background should be clean, visually appealing, and leave space for text placement.";
+
+            // Call DALL-E API
+            
+             $response = Http::withToken(env('OPENAI_API_KEY'))
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])
+                ->post('https://api.openai.com/v1/images/generations', [
+                    'model' => 'dall-e-3',
+                    'prompt' => $finalPrompt,
+                    'n' => 1,
+                    'size' => '1024x1792',
+                    'response_format' => 'url'
+                    ]);
+
+            if ($response->successful()) {
+                $imageUrl = $response->json('data.0.url');
+                
+                // Download the original image
+                $originalImage = Http::get($imageUrl)->body();
+                
+                // Generate unique filename
+                $originalFileName = 'uploads/templates/original/' . uniqid() . '.png';
+                
+                // Store original on S3
+                Storage::disk('s3')->put($originalFileName, $originalImage);
+                
+                // Process image compression
+                $compressedFileName = 'uploads/templates/compressed/' . pathinfo($originalFileName, PATHINFO_FILENAME) . '.webp';
+                $compressedImage = $this->compressImage($originalImage);
+                Storage::disk('s3')->put($compressedFileName, $compressedImage);
+                
+                // Deduct points
+                $user->decrement('points', 40);
+                
+                // Update template record
+                $template->update([
+                    'original_template' => $originalFileName,
+                    'compressed_template' => $compressedFileName,
+                    'status' => 'completed',
+                    'type' => 'user_generated',
+                    'name' => 'Custom Template - ' . substr($this->description, 0, 20) . '...'
+                ]);
+
+                // Update transaction
+                $transaction->update([
+                    'status' => 'completed',
+                    'resource_id' => $template->id,
+                    'balance_after' => $user->points,
+                    'description' => 'Successfully generated template',
+                    'metadata' => json_encode([
+                        'template_id' => $template->id,
+                        'original_template' => $originalFileName,
+                        'compressed_template' => $compressedFileName,
+                        'api_response' => $response->json()
+                    ])
+                ]);
+
+                DB::commit();
+
+            } else {
+                $error = $response->json('error.message', $response->body());
+                throw new \Exception("DALL-E API error: " . $error);
+            }
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            // Update status to failed
+            $template->update(['status' => 'failed']);
+
+            // Update transaction
+            $transaction->update([
+                'status' => 'failed',
+                'description' => 'Template generation failed: ' . $e->getMessage(),
+                'metadata' => json_encode([
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ])
+            ]);
+
+            Log::error("Template generation failed - Template ID: {$this->templateId}, Error: " . $e->getMessage());
+            
+            throw $e;
         }
-
-        $path = "https://venusnaplondon.s3.eu-west-2.amazonaws.com/uploads/templates/originals/9bTG1hcmS4u6FCH5FhJ6OH01K3FPZ9tPHf4qKXPY.jpg";
-        $context = stream_context_create([
-            "ssl" => [
-                "verify_peer" => false,
-                "verify_peer_name" => false,
-            ],
-        ]);
-        // Direct binary content
-        $originalImage = file_get_contents($path, false, $context);
-        //$originalImage = file_get_contents($path);
-
-        if (!$originalImage) {
-            // Log or handle the error if the image is not found or cannot be fetched
-            Log::error("Unable to fetch the image from the URL: {$path}");
-            return;
-        }
-
-        $manager = new ImageManager(new GdDriver());
-
-        // Read binary directly
-        $image = $manager->read($originalImage);
-
-        $compressedImage = $image->encode(new WebpEncoder(quality: 75));
-
-        $compressedPath = 'uploads/templates/compressed/' . basename($path);
-        Storage::disk('s3')->put($compressedPath, (string) $compressedImage);
-
-        $template->update(['compressed_template' => $compressedPath]);
     }
 
+    protected function compressImage($imageData)
+    {
+        $manager = new ImageManager(new Driver());
+        $image = $manager->read($imageData);
+
+        // Set max dimensions while maintaining aspect ratio
+        $maxWidth = 1200;
+        $maxHeight = 1200;
+
+        // Resize only if necessary
+        if ($image->width() > $maxWidth || $image->height() > $maxHeight) {
+            $image->cover($maxWidth, $maxHeight);
+        }
+
+        // Convert to WebP with quality optimization
+        return $image->encode(new WebpEncoder(quality: 75));
+    }
+
+    public function failed(\Throwable $exception)
+    {
+        Log::error("TemplateCreate job failed completely: " . $exception->getMessage());
+    }
 
 }
