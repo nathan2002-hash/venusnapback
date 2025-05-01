@@ -59,52 +59,56 @@ class TemplateController extends Controller
         return response()->json($templates);
     }
 
-    public function generateTemplate(Request $request)
-    {
-        $user = auth()->user();
-        $request->validate([
-            'description' => 'required|min:20',
-            'style' => 'sometimes|string' // Optional style parameter
+   public function generateTemplate(Request $request)
+{
+    $user = auth()->user();
+    
+    $request->validate([
+        'description' => 'required|min:20',
+        'style' => 'sometimes|string'
+    ]);
+
+    $template_points = 40;
+
+    if ($user->points < $template_points) {
+        return response()->json(['message' => 'Insufficient points'], 400);
+    }
+
+    try {
+        $template = Template::create([
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'description' => $request->description,
         ]);
-    
-        $template_points = 40; // Different points cost for templates
-    
+
         $transaction = PointTransaction::create([
             'user_id' => $user->id,
             'points' => $template_points,
             'type' => 'template_generation',
-            'resource_id' => '1',
+            'resource_id' => $template->id, // or null if not ready
             'status' => 'pending',
             'description' => 'Template generation request',
             'balance_before' => $user->points,
-            'balance_after' => $user->points
+            'balance_after' => $user->points - $template_points,
         ]);
-    
-        if ($user->points < $template_points) {
-            $transaction->update(['status' => 'failed']);
-            return response()->json(['message' => 'Insufficient points'], 400);
-        }
-    
-        try {
-            $template = Template::create([
-                'user_id' => $user->id,
-                'status' => 'pending',
-                'description' => $request->description,
-            ]);
-    
-            TemplateCreate::dispatch($template->id, $request->description, $user->id, $transaction->id);
-    
-            return response()->json([
-                'success' => true,
-                'template_id' => (string) $template->id,
-                'points_remaining' => $user->points - $template_points
-            ]);
-    
-        } catch (\Exception $e) {
-            $transaction->update(['status' => 'failed']);
-            return response()->json(['message' => 'Failed to initiate generation'], 500);
-        }
+
+        // Deduct points
+        $user->points -= $template_points;
+        $user->save();
+
+        TemplateCreate::dispatch($template->id, $request->description, $user->id, $transaction->id);
+
+        return response()->json([
+            'success' => true,
+            'template_id' => (string) $template->id,
+            'points_remaining' => $user->points
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json(['message' => $e->getMessage()], 500);
     }
+}
+
 
     public function checkStatus($id)
     {
