@@ -76,7 +76,7 @@ class TemplateController extends Controller
 
     try {
         $template = Template::create([
-            'name' => 'template_' . $user->id . '_' . time();
+            'name' => 'template_' . $user->id . '_' . time(),
             'user_id' => $user->id,
             'status' => 'pending',
             'description' => $request->description,
