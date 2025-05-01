@@ -90,8 +90,6 @@ class TemplateController extends Controller
                 'user_id' => $user->id,
                 'status' => 'pending',
                 'original_description' => $request->description,
-                'style' => $request->style ?? 'general',
-                'point_transaction_id' => $transaction->id
             ]);
     
             TemplateCreate::dispatch($template->id, $request->description, $user->id, $transaction->id);
