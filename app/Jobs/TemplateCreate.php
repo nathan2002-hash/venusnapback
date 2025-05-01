@@ -19,10 +19,12 @@ class TemplateCreate implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($templateId)
-    {
-        $this->templateId = $templateId;
-    }
+   public function __construct(
+        public int $templateId,
+        public string $description,
+        public int $userId,
+        public int $transactionId
+    ) {}
 
     /**
      * Execute the job.
