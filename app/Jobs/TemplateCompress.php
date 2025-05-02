@@ -56,8 +56,7 @@ class TemplateCompress implements ShouldQueue
         ]);
 
         // Check if all media for the post are compressed
-        $template = $this->template->post; // Assuming PostMedia belongsTo Post
-
+        $template = $this->template;
         $allCompressed = $template->where('status', '!=', 'compressed')->doesntExist();
 
         if ($allCompressed) {
