@@ -131,48 +131,6 @@ class NotificationController extends Controller
         return $typeMap[$action] ?? 'post';
     }
 
-
-    private function buildGrdoupedMessage($usernames, $userCount, $action, $type, $notification)
-    {
-        if ($type === 'album_view') {
-            $data = json_decode($notification->data, true);
-            $album = \App\Models\Album::find($data['album_id'] ?? null);
-            $albumName = $album ? $album->name : 'your album';
-
-            // Convert to local timezone (adjust as needed)
-            $notificationDate = $notification->created_at->timezone(config('app.timezone'))->startOfDay();
-            $today = now()->timezone(config('app.timezone'))->startOfDay();
-            $diffInDays = $notificationDate->diffInDays($today);
-
-            $timePhrase = match (true) {
-                $diffInDays === 0 => 'today',
-                $diffInDays === 1 => 'yesterday',
-                $diffInDays <= 6 => 'on ' . $notificationDate->format('l'),
-                default => 'on ' . $notificationDate->format('M j'),
-            };
-
-            // Use correct grammar
-            if ($userCount === 1) {
-                return "1 person explored your album \"$albumName\" $timePhrase";
-            }
-
-            return "$userCount people have explored your album \"$albumName\" $timePhrase";
-        }
-
-        // Fallback for other types
-        $actionPhrase = $this->getActionPhrase($action, $type, $notification);
-
-        if (empty($usernames)) {
-            return "Someone $actionPhrase";
-        }
-
-        if ($userCount == 1) return "{$usernames[0]} $actionPhrase";
-        if ($userCount == 2) return "{$usernames[0]} and {$usernames[1]} $actionPhrase";
-        if ($userCount == 3) return "{$usernames[0]}, {$usernames[1]}, and {$usernames[2]} $actionPhrase";
-
-        return "{$usernames[0]} and " . ($userCount - 1) . " others $actionPhrase";
-    }
-
     private function buildGroupedMessage($usernames, $userCount, $action, $type, $notification, $group)
     {
         if ($type === 'album_view') {
