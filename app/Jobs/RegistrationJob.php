@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\User;
 use App\Models\Album;
+use App\Models\Account;
 use App\Models\Activity;
 use App\Models\UserSetting;
 use Illuminate\Foundation\Queue\Queueable;
@@ -57,5 +58,19 @@ class RegistrationJob implements ShouldQueue
         $usersetting = new UserSetting();
         $usersetting->user_id = $this->user->id;
         $usersetting->save();
+
+        $account = Account::firstOrCreate(
+            ['user_id' => $this->user->id],
+            [
+                'user_id' => $this->user->id,
+                'account_balance' => 0.00,
+                'available_balance' => 0.00,
+                'monetization_status' => 'inactive',
+                'payout_method' => 'paypal',
+                'country' => $this->user->country,
+                'currency' => 'USD',
+                'paypal_email' => $this->user->email
+            ]
+        );
     }
 }
