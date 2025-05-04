@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Template extends Model
 {
-    protected $fillable = ['compressed_template', 'original_template', 'name', 'description', 'type', 'author', 'user_id', 'status',
+    protected $fillable = [
+        'name', 'type', 'author', 'user_id', 'description',
+        'original_template', 'compressed_template', 'status'
     ];
 }
