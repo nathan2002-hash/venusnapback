@@ -70,7 +70,8 @@ class TemplateGenAI implements ShouldQueue
                 // Deduct points within transaction
                 $user->decrement('points', 30);
 
-                TemplateCompress::dispatch($template->id);
+                //TemplateCompress::dispatch($template->id);
+                TemplateCompress::dispatch($template);
 
                 $template->update([
                     'original_template' => $fileName,

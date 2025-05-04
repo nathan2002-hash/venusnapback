@@ -60,7 +60,7 @@ class GenAiProcess implements ShouldQueue
                 Storage::disk('s3')->put($fileName, $imageContents);
 
                 // Deduct points within transaction
-                $user->decrement('points', 30);
+                $user->decrement('points', 60);
 
                 CompressGenAiImage::dispatch($genai->id);
 
