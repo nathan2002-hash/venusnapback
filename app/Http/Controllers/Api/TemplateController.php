@@ -59,6 +59,7 @@ class TemplateController extends Controller
 
         // Include user points in response
         $userPoints = auth()->user()->points;
+        $pointgen = '60';
 
         $transformed = $templates->getCollection()->map(function ($template) use ($userId) {
             return [
@@ -80,6 +81,7 @@ class TemplateController extends Controller
                 'total' => $templates->total(),
             ],
             'user_points' => (int) $userPoints,
+            'point_gen' => (int) $pointgen,
             'prompt_samples' => [
                 "Minimalist abstract background with soft pastel colors and space for text",
                 "Professional corporate template with geometric patterns in blue tones",
