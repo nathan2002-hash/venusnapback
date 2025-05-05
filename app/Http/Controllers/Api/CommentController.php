@@ -108,36 +108,49 @@ class CommentController extends Controller
         ]);
     }
 
-    // Returns only basic comment info without replies
-    public function getBasicComments($postMediaId, Request $request) {
+    public function getBasicComments($postMediaId, Request $request)
+    {
         $commentPage = $request->query('page', 1);
         $commentLimit = $request->query('limit', 10);
 
-        $comments = Comment::with(['user', 'postMedia.post.album.user'])
+        // Get post media with the needed relationships
+        $postMedia = PostMedia::with('post.album.user')->find($postMediaId);
+
+        // Handle missing or broken relationships
+        if (!$postMedia || !$postMedia->post || !$postMedia->post->album || !$postMedia->post->album->user) {
+            return response()->json(['message' => 'Post media, post, or album not found'], 404);
+        }
+
+        $album = $postMedia->post->album;
+        $albumOwnerId = $album->user_id;
+        $albumName = $album->name;
+
+        // Load comments
+        $comments = Comment::with('user')
             ->where('post_media_id', $postMediaId)
             ->where('status', 'active')
             ->orderBy('created_at', 'desc')
             ->paginate($commentLimit, ['*'], 'page', $commentPage);
 
-        $albumOwnerId = optional($comments->first()->postMedia->post->album)->user_id;
-        $albumName = optional($comments->first()->postMedia->post->album)->name;
+        $authUserId = Auth::check() ? Auth::id() : null;
 
-        $formattedComments = $comments->map(function ($comment) use ($albumOwnerId, $albumName) {
+        $formattedComments = $comments->map(function ($comment) use ($album, $albumOwnerId, $authUserId) {
             $isOwner = $comment->user_id == $albumOwnerId;
-            $authUserId = Auth::user()->id;
 
             return [
                 'id' => $comment->id,
                 'user_id' => $comment->user_id,
-                'username' => $isOwner ? $albumName : $comment->user->name,
+                'username' => $isOwner ? $album->name : $comment->user->name,
                 'profile_picture_url' => $isOwner
-                    ? $this->getProfileUrl($comment->postMedia->post->album)
-                    : ($comment->user->profile_compressed ?? 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp'),
+                    ? $this->getProfileUrl($album)
+                    : ($comment->user->profile_compressed
+                        ? Storage::disk('s3')->url($comment->user->profile_compressed)
+                        : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp'),
                 'comment' => $comment->comment,
                 'created_at' => $comment->created_at->diffForHumans(),
                 'total_replies' => $comment->commentreplies()->where('status', 'active')->count(),
                 'is_owner' => $isOwner,
-                'is_comment_owner' => $comment->user_id == $authUserId,
+                'is_comment_owner' => $authUserId && $comment->user_id == $authUserId,
             ];
         });
 
@@ -146,6 +159,7 @@ class CommentController extends Controller
             'has_more' => $comments->hasMorePages(),
         ]);
     }
+
 
 
     public function getCommentReplies($commentId, Request $request) {
