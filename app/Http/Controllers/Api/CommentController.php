@@ -190,21 +190,22 @@ class CommentController extends Controller
 
         $formattedReplies = $replies->map(function ($reply) use ($album, $albumOwnerId, $authUserId) {
             //$isOwner = $albumOwnerId && $reply->user_id == $albumOwnerId;
-            $isOwner = $reply->user_id == $albumOwnerId;
+            $isOwnerReply = ($reply->user_id == $albumOwnerId);
+            //$isOwner = $reply->user_id == $albumOwnerId;
 
 
             return [
                 'id' => $reply->id,
                 'user_id' => $reply->user_id,
-                'username' => $isOwner ? optional($album)->name : $reply->user->name,
-                'profile_picture_url' => $isOwner
+                'username' => $isOwnerReply ? optional($album)->name : $reply->user->name,
+                'profile_picture_url' => $isOwnerReply
                     ? $this->getProfileUrl($album)
                     : ($reply->user->profile_compressed
                         ? Storage::disk('s3')->url($reply->user->profile_compressed)
                         : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($reply->user->email))) . '?s=100&d=mp'),
                 'reply' => $reply->reply,
                 'created_at' => $reply->created_at->diffForHumans(),
-                'is_owner' => $isOwner,
+                'is_owner' => $isOwnerReply,
                 'is_reply_owner' => $authUserId && $reply->user_id == $authUserId,
             ];
         });
