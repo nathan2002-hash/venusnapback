@@ -108,6 +108,65 @@ class CommentController extends Controller
         ]);
     }
 
+    // Returns only basic comment info without replies
+public function getBasicComments($postMediaId, Request $request) {
+    $commentPage = $request->query('page', 1);
+    $commentLimit = $request->query('limit', 10);
+
+    $comments = Comment::with(['user', 'postMedia.post.album.user'])
+        ->where('post_media_id', $postMediaId)
+        ->where('status', 'active')
+        ->orderBy('created_at', 'desc')
+        ->paginate($commentLimit, ['*'], 'page', $commentPage);
+
+    $formattedComments = $comments->map(function ($comment) {
+        return [
+            'id' => $comment->id,
+            'user_id' => $comment->user_id,
+            'username' => $comment->user->name,
+            'profile_picture_url' => $comment->user->profile_compressed,
+            'comment' => $comment->comment,
+            'created_at' => $comment->created_at->diffForHumans(),
+            'total_replies' => $comment->commentreplies()->where('status', 'active')->count(),
+            'is_owner' => false, // Adjust as needed
+        ];
+    });
+
+    return response()->json([
+        'comments' => $formattedComments,
+        'has_more' => $comments->hasMorePages(),
+    ]);
+}
+
+    // Returns only replies for a specific comment
+public function getCommentReplies($commentId, Request $request) {
+    $replyPage = $request->query('page', 1);
+    $replyLimit = $request->query('limit', 5);
+
+    $replies = CommentReply::with(['user'])
+        ->where('comment_id', $commentId)
+        ->where('status', 'active')
+        ->orderBy('created_at', 'desc')
+        ->paginate($replyLimit, ['*'], 'page', $replyPage);
+
+    $formattedReplies = $replies->map(function ($reply) {
+        return [
+            'id' => $reply->id,
+            'user_id' => $reply->user_id,
+            'username' => $reply->user->name,
+            'profile_picture_url' => $reply->user->profile_compressed,
+            'reply' => $reply->reply,
+            'created_at' => $reply->created_at->diffForHumans(),
+            'is_owner' => false, // Adjust as needed
+        ];
+    });
+
+    return response()->json([
+        'replies' => $formattedReplies,
+        'has_more' => $replies->hasMorePages(),
+    ]);
+}
+
     public function storeComment(Request $request, $id)
     {
         $request->validate([
