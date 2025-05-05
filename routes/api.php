@@ -56,6 +56,10 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
 
 
     Route::get('/post/comments/{postMediaId}', 'Api\CommentController@getCommentsAndReplies');
+
+     Route::get('/post/comments/basic/{postMediaId}', 'Api\CommentController@getBasicComments');
+     Route::get('/post/comments/replies/{commentId}', 'Api\CommentController@getCommentReplies');
+    
     Route::post('/user/profile/update', 'Api\ProfileController@update');
     Route::post('/post/store', 'Api\PostController@store');
     Route::post('/post/store/cloud', 'Api\PostController@storecloud');
