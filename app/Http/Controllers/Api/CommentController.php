@@ -190,7 +190,7 @@ class CommentController extends Controller
 
         $formattedReplies = $replies->map(function ($reply) use ($album, $albumOwnerId, $authUserId) {
             //$isOwner = $albumOwnerId && $reply->user_id == $albumOwnerId;
-            $isOwner = $reply->user_id == optional(optional($album)->user)->id;
+            $isOwner = $reply->user_id == $albumOwnerId;
 
 
             return [
