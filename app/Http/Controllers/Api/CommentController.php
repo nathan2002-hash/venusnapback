@@ -168,7 +168,7 @@ class CommentController extends Controller
         $replyLimit = $request->query('limit', 10);
 
         // Load comment with related models
-        $comment = Comment::with('postMedia.post.album.user')->find($commentId);
+        $comment = Comment::with('postMedia.post.album.user', 'post')->find($commentId);
 
         // Check if comment exists
         if (!$comment) {
