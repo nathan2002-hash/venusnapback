@@ -164,53 +164,57 @@ class CommentController extends Controller
 
     public function getCommentReplies($commentId, Request $request)
     {
+        // Validate input
+        if (!is_numeric($commentId)) {
+            return response()->json(['message' => 'Invalid comment ID'], 400);
+        }
+
         $replyPage = $request->query('page', 1);
         $replyLimit = $request->query('limit', 10);
 
-        // Load comment with related models
-        $comment = Comment::with('postMedia.post.album.user')->find($commentId);
+        // Find comment with minimal relationships needed for owner check
+        $comment = Comment::with('postmedia.post.album.user')->find($commentId);
 
-        // Check if comment exists
         if (!$comment) {
             return response()->json(['message' => 'Comment not found'], 404);
         }
 
-        // Safely extract album and owner if they exist
+        $postMedia = PostMedia::with('post.album.user')->find($comment->post_media_id);
 
-        $album = $comment->postMedia->post->album;
-        //$albumOwnerId = optional($album)->user_id;
+        if (!$postMedia || !$postMedia->post || !$postMedia->post->album || !$postMedia->post->album->user) {
+            return response()->json(['message' => 'Post media, post, or album not found'], 404);
+        }
 
-        // $albumOwnerId = $album->user_id;
+        $album = $postMedia->post->album;
+        $albumOwnerId = $album->user_id;
 
-        $authUserId = Auth::check() ? Auth::id() : null;
-
-        // Get replies
+        // Get replies for this comment
         $replies = CommentReply::with('user')
             ->where('comment_id', $commentId)
             ->where('status', 'active')
             ->orderBy('created_at', 'desc')
             ->paginate($replyLimit, ['*'], 'page', $replyPage);
 
-            $formattedReplies = $replies->map(function ($reply) use ($authUserId) {
-                $userAlbum = $reply->user->albums->first(); // or choose based on your logic
+        $authUserId = Auth::check() ? Auth::id() : null;
 
-                $isOwner = $userAlbum && $reply->user_id == $userAlbum->user_id;
+        $formattedReplies = $replies->map(function ($reply) use ($authUserId, $album, $albumOwnerId) {
+            $isOwner = $albumOwnerId && ($reply->user_id == $albumOwnerId);
 
-                return [
-                    'id' => $reply->id,
-                    'user_id' => $reply->user_id,
-                    'username' => $isOwner ? $userAlbum->name : $reply->user->name,
-                    'profile_picture_url' => $isOwner
-                        ? $this->getProfileUrl($userAlbum)
-                        : ($reply->user->profile_compressed
-                            ? Storage::disk('s3')->url($reply->user->profile_compressed)
-                            : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($reply->user->email))) . '?s=100&d=mp'),
-                    'reply' => $reply->reply,
-                    'created_at' => $reply->created_at->diffForHumans(),
-                    'is_owner' => $isOwner,
-                    'is_reply_owner' => $authUserId && $reply->user_id == $authUserId,
-                ];
-            });
+            return [
+                'id' => $reply->id,
+                'user_id' => $reply->user_id,
+                'username' => $isOwner ? $album->name : $reply->user->name,
+                'profile_picture_url' => $isOwner
+                    ? $this->getProfileUrl($album)
+                    : ($reply->user->profile_compressed
+                        ? Storage::disk('s3')->url($reply->user->profile_compressed)
+                        : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($reply->user->email))) . '?s=100&d=mp'),
+                'reply' => $reply->reply,
+                'created_at' => $reply->created_at->diffForHumans(),
+                'is_owner' => $isOwner,
+                'is_reply_owner' => $authUserId && $reply->user_id == $authUserId,
+            ];
+        });
 
         return response()->json([
             'replies' => $formattedReplies,
