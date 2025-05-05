@@ -118,7 +118,7 @@ class ViewController extends Controller
     }
 
 
-    public function more(Request $request)
+    public function moredd(Request $request)
     {
         $mediaId = $request->query('media_id');
         $userId = Auth::user()->id;
@@ -137,4 +137,34 @@ class ViewController extends Controller
             'url' => "https://app.venusnap.com/post/$post_id",
         ]);
     }
+
+    public function more(Request $request)
+    {
+        $mediaId = $request->query('media_id');
+        $userId = Auth::id();
+
+        $postmedia = PostMedia::find($mediaId);
+        if (!$postmedia) {
+            return response()->json(['error' => 'Post media not found'], 404);
+        }
+
+        $post_id = $postmedia->post_id;
+
+        $isAdmired = Admire::where('post_media_id', $mediaId)->where('user_id', $userId)->exists();
+        $isSaved = Saved::where('post_id', $post_id)->where('user_id', $userId)->exists();
+
+        // Updated report check for new schema
+        $isReported = Report::where('resource_id', $mediaId)
+            ->where('target', 'post_media')
+            ->where('user_id', $userId)
+            ->exists();
+
+        return response()->json([
+            'isAdmired' => $isAdmired,
+            'isSaved' => $isSaved,
+            'isReported' => $isReported,
+            'url' => "https://www.venusnap.com/post/$post_id",
+        ]);
+    }
+
 }

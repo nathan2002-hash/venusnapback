@@ -17,14 +17,33 @@ class ReportController extends Controller
         ]);
     }
 
-    public function report(Request $request)
+    public function reportpost(Request $request)
     {
         // Get the authenticated user's ID
         $user_id = Auth::id();
 
         $report = new Report();
         $report->user_id = $user_id;
-        $report->post_media_id = $request->media_id;
+        $report->resource_id = $request->media_id;
+        $report->target = 'post_media';
+        $report->status = 'active';
+        $report->reason = 'default reporting';
+        $report->save();
+        // Return the simplified response
+        return response()->json([
+            'status' => 'success',
+        ], 200);
+    }
+
+    public function reportcomment(Request $request, $id)
+    {
+        // Get the authenticated user's ID
+        $user_id = Auth::id();
+
+        $report = new Report();
+        $report->user_id = $user_id;
+        $report->resource_id = $id;
+        $report->target = 'post_comment';
         $report->status = 'active';
         $report->reason = 'default reporting';
         $report->save();

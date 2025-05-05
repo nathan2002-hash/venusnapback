@@ -59,7 +59,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
 
      Route::get('/post/comments/basic/{postMediaId}', 'Api\CommentController@getBasicComments');
      Route::get('/post/comments/replies/{commentId}', 'Api\CommentController@getCommentReplies');
-    
+
     Route::post('/user/profile/update', 'Api\ProfileController@update');
     Route::post('/post/store', 'Api\PostController@store');
     Route::post('/post/store/cloud', 'Api\PostController@storecloud');
@@ -146,7 +146,8 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/post/delete/comment/{id}', 'Api\CommentController@commentdelete');
     Route::post('/post/delete/comment/reply/{id}', 'Api\CommentController@commentreplydelete');
 
-    Route::post('/post/media/report', 'Api\ReportController@report');
+    Route::post('/post/media/report', 'Api\ReportController@reportpost');
+    Route::post('/report/comment/{id}', 'Api\ReportController@reportcomment');
     Route::post('/post/save', 'Api\SavedController@save');
     Route::post('/post/unsave/{postId}', 'Api\SavedController@unsave');
 
