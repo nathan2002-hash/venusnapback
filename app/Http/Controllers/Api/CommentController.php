@@ -109,63 +109,83 @@ class CommentController extends Controller
     }
 
     // Returns only basic comment info without replies
-public function getBasicComments($postMediaId, Request $request) {
-    $commentPage = $request->query('page', 1);
-    $commentLimit = $request->query('limit', 10);
+    public function getBasicComments($postMediaId, Request $request) {
+        $commentPage = $request->query('page', 1);
+        $commentLimit = $request->query('limit', 10);
 
-    $comments = Comment::with(['user', 'postMedia.post.album.user'])
-        ->where('post_media_id', $postMediaId)
-        ->where('status', 'active')
-        ->orderBy('created_at', 'desc')
-        ->paginate($commentLimit, ['*'], 'page', $commentPage);
+        $comments = Comment::with(['user', 'postMedia.post.album.user'])
+            ->where('post_media_id', $postMediaId)
+            ->where('status', 'active')
+            ->orderBy('created_at', 'desc')
+            ->paginate($commentLimit, ['*'], 'page', $commentPage);
 
-    $formattedComments = $comments->map(function ($comment) {
-        return [
-            'id' => $comment->id,
-            'user_id' => $comment->user_id,
-            'username' => $comment->user->name,
-            'profile_picture_url' => $comment->user->profile_compressed,
-            'comment' => $comment->comment,
-            'created_at' => $comment->created_at->diffForHumans(),
-            'total_replies' => $comment->commentreplies()->where('status', 'active')->count(),
-            'is_owner' => false, // Adjust as needed
-        ];
-    });
+        $albumOwnerId = optional($comments->first()->postMedia->post->album)->user_id;
+        $albumName = optional($comments->first()->postMedia->post->album)->name;
 
-    return response()->json([
-        'comments' => $formattedComments,
-        'has_more' => $comments->hasMorePages(),
-    ]);
-}
+        $formattedComments = $comments->map(function ($comment) use ($albumOwnerId, $albumName) {
+            $isOwner = $comment->user_id == $albumOwnerId;
+            $authUserId = Auth::user()->id;
 
-    // Returns only replies for a specific comment
-public function getCommentReplies($commentId, Request $request) {
-    $replyPage = $request->query('page', 1);
-    $replyLimit = $request->query('limit', 5);
+            return [
+                'id' => $comment->id,
+                'user_id' => $comment->user_id,
+                'username' => $isOwner ? $albumName : $comment->user->name,
+                'profile_picture_url' => $isOwner
+                    ? $this->getProfileUrl($comment->postMedia->post->album)
+                    : ($comment->user->profile_compressed ?? 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp'),
+                'comment' => $comment->comment,
+                'created_at' => $comment->created_at->diffForHumans(),
+                'total_replies' => $comment->commentreplies()->where('status', 'active')->count(),
+                'is_owner' => $isOwner,
+                'is_comment_owner' => $comment->user_id == $authUserId,
+            ];
+        });
 
-    $replies = CommentReply::with(['user'])
-        ->where('comment_id', $commentId)
-        ->where('status', 'active')
-        ->orderBy('created_at', 'desc')
-        ->paginate($replyLimit, ['*'], 'page', $replyPage);
+        return response()->json([
+            'comments' => $formattedComments,
+            'has_more' => $comments->hasMorePages(),
+        ]);
+    }
 
-    $formattedReplies = $replies->map(function ($reply) {
-        return [
-            'id' => $reply->id,
-            'user_id' => $reply->user_id,
-            'username' => $reply->user->name,
-            'profile_picture_url' => $reply->user->profile_compressed,
-            'reply' => $reply->reply,
-            'created_at' => $reply->created_at->diffForHumans(),
-            'is_owner' => false, // Adjust as needed
-        ];
-    });
 
-    return response()->json([
-        'replies' => $formattedReplies,
-        'has_more' => $replies->hasMorePages(),
-    ]);
-}
+    public function getCommentReplies($commentId, Request $request) {
+        $replyPage = $request->query('page', 1);
+        $replyLimit = $request->query('limit', 5);
+
+        $comment = Comment::with('postMedia.post.album.user')->findOrFail($commentId);
+        $albumOwnerId = optional($comment->postMedia->post->album)->user_id;
+        $albumName = optional($comment->postMedia->post->album)->name;
+
+        $replies = CommentReply::with(['user'])
+            ->where('comment_id', $commentId)
+            ->where('status', 'active')
+            ->orderBy('created_at', 'desc')
+            ->paginate($replyLimit, ['*'], 'page', $replyPage);
+
+        $formattedReplies = $replies->map(function ($reply) use ($albumOwnerId, $albumName, $comment) {
+            $isOwner = $reply->user_id == $albumOwnerId;
+            $authUserId = Auth::user()->id;
+
+            return [
+                'id' => $reply->id,
+                'user_id' => $reply->user_id,
+                'username' => $isOwner ? $albumName : $reply->user->name,
+                'profile_picture_url' => $isOwner
+                    ? $this->getProfileUrl($comment->postMedia->post->album)
+                    : ($reply->user->profile_compressed ?? 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($reply->user->email))) . '?s=100&d=mp'),
+                'reply' => $reply->reply,
+                'created_at' => $reply->created_at->diffForHumans(),
+                'is_owner' => $isOwner,
+                'is_reply_owner' => $reply->user_id == $authUserId,
+            ];
+        });
+
+        return response()->json([
+            'replies' => $formattedReplies,
+            'has_more' => $replies->hasMorePages(),
+        ]);
+    }
+
 
     public function storeComment(Request $request, $id)
     {
