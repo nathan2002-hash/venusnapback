@@ -162,35 +162,47 @@ class CommentController extends Controller
 
 
 
-    public function getCommentReplies($commentId, Request $request) {
+    public function getCommentReplies($commentId, Request $request)
+    {
         $replyPage = $request->query('page', 1);
-        $replyLimit = $request->query('limit', 5);
+        $replyLimit = $request->query('limit', 10);
 
-        $comment = Comment::with('postMedia.post.album.user')->findOrFail($commentId);
-        $albumOwnerId = optional($comment->postMedia->post->album)->user_id;
-        $albumName = optional($comment->postMedia->post->album)->name;
+        // Load comment with related post media -> post -> album -> user
+        $comment = Comment::with('postMedia.post.album.user')->find($commentId);
 
-        $replies = CommentReply::with(['user'])
+        // Check if comment and album exist
+        if (!$comment || !$comment->postMedia || !$comment->postMedia->post || !$comment->postMedia->post->album) {
+            return response()->json(['message' => 'Comment or related post/album not found'], 404);
+        }
+
+        $album = $comment->postMedia->post->album;
+        $albumOwnerId = $album->user_id;
+
+        $authUserId = Auth::check() ? Auth::id() : null;
+
+        // Get replies
+        $replies = CommentReply::with('user')
             ->where('comment_id', $commentId)
             ->where('status', 'active')
             ->orderBy('created_at', 'desc')
             ->paginate($replyLimit, ['*'], 'page', $replyPage);
 
-        $formattedReplies = $replies->map(function ($reply) use ($albumOwnerId, $albumName, $comment) {
+        $formattedReplies = $replies->map(function ($reply) use ($album, $albumOwnerId, $authUserId) {
             $isOwner = $reply->user_id == $albumOwnerId;
-            $authUserId = Auth::user()->id;
 
             return [
                 'id' => $reply->id,
                 'user_id' => $reply->user_id,
-                'username' => $isOwner ? $albumName : $reply->user->name,
+                'username' => $isOwner ? $album->name : $reply->user->name,
                 'profile_picture_url' => $isOwner
-                    ? $this->getProfileUrl($comment->postMedia->post->album)
-                    : ($reply->user->profile_compressed ?? 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($reply->user->email))) . '?s=100&d=mp'),
+                    ? $this->getProfileUrl($album)
+                    : ($reply->user->profile_compressed
+                        ? Storage::disk('s3')->url($reply->user->profile_compressed)
+                        : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($reply->user->email))) . '?s=100&d=mp'),
                 'reply' => $reply->reply,
                 'created_at' => $reply->created_at->diffForHumans(),
                 'is_owner' => $isOwner,
-                'is_reply_owner' => $reply->user_id == $authUserId,
+                'is_reply_owner' => $authUserId && $reply->user_id == $authUserId,
             ];
         });
 
@@ -199,6 +211,7 @@ class CommentController extends Controller
             'has_more' => $replies->hasMorePages(),
         ]);
     }
+
 
 
     public function storeComment(Request $request, $id)
