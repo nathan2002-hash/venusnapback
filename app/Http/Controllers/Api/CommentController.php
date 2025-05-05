@@ -180,7 +180,7 @@ class CommentController extends Controller
         $album = $comment->postMedia->post->album;
         //$albumOwnerId = optional($album)->user_id;
 
-        $albumOwnerId = $album->user_id;
+        // $albumOwnerId = $album->user_id;
 
         $authUserId = Auth::check() ? Auth::id() : null;
 
@@ -191,27 +191,26 @@ class CommentController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate($replyLimit, ['*'], 'page', $replyPage);
 
-        $formattedReplies = $replies->map(function ($reply) use ($album, $albumOwnerId, $authUserId) {
-            //$isOwner = $albumOwnerId && $reply->user_id == $albumOwnerId;
-            $isOwnerReply = ($reply->user_id == $albumOwnerId);
-            //$isOwner = $reply->user_id == $albumOwnerId;
+            $formattedReplies = $replies->map(function ($reply) use ($authUserId) {
+                $userAlbum = $reply->user->albums->first(); // or choose based on your logic
 
+                $isOwner = $userAlbum && $reply->user_id == $userAlbum->user_id;
 
-            return [
-                'id' => $reply->id,
-                'user_id' => $reply->user_id,
-                'username' => $isOwnerReply ? optional($album)->name : $reply->user->name,
-                'profile_picture_url' => $isOwnerReply
-                    ? $this->getProfileUrl($album)
-                    : ($reply->user->profile_compressed
-                        ? Storage::disk('s3')->url($reply->user->profile_compressed)
-                        : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($reply->user->email))) . '?s=100&d=mp'),
-                'reply' => $reply->reply,
-                'created_at' => $reply->created_at->diffForHumans(),
-                'is_owner' => $isOwnerReply,
-                'is_reply_owner' => $authUserId && $reply->user_id == $authUserId,
-            ];
-        });
+                return [
+                    'id' => $reply->id,
+                    'user_id' => $reply->user_id,
+                    'username' => $isOwner ? $userAlbum->name : $reply->user->name,
+                    'profile_picture_url' => $isOwner
+                        ? $this->getProfileUrl($userAlbum)
+                        : ($reply->user->profile_compressed
+                            ? Storage::disk('s3')->url($reply->user->profile_compressed)
+                            : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($reply->user->email))) . '?s=100&d=mp'),
+                    'reply' => $reply->reply,
+                    'created_at' => $reply->created_at->diffForHumans(),
+                    'is_owner' => $isOwner,
+                    'is_reply_owner' => $authUserId && $reply->user_id == $authUserId,
+                ];
+            });
 
         return response()->json([
             'replies' => $formattedReplies,
