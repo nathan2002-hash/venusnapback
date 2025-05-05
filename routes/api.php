@@ -215,4 +215,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/placeholder-ads', 'Api\AIGenController@placeholders');
     Route::get('/genai/points', 'Api\AIGenController@GenPoints');
     Route::get('/genai/images', 'Api\AIGenController@GenImages');
+
+    //media download
+    Route::post('/post/media/download', 'Api\MediaDownloadController@download');
 });
