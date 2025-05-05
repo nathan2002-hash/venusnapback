@@ -176,8 +176,11 @@ class CommentController extends Controller
         }
 
         // Safely extract album and owner if they exist
-        $album = optional(optional(optional($comment->postMedia)->post)->album);
-        $albumOwnerId = optional($album)->user_id;
+
+        $album = $comment->postMedia->post->album;
+        //$albumOwnerId = optional($album)->user_id;
+
+        $albumOwnerId = $album->user_id;
 
         $authUserId = Auth::check() ? Auth::id() : null;
 
