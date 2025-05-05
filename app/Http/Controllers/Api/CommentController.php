@@ -167,16 +167,17 @@ class CommentController extends Controller
         $replyPage = $request->query('page', 1);
         $replyLimit = $request->query('limit', 10);
 
-        // Load comment with related post media -> post -> album -> user
+        // Load comment with related models
         $comment = Comment::with('postMedia.post.album.user')->find($commentId);
 
-        // Check if comment and album exist
-        if (!$comment || !$comment->postMedia || !$comment->postMedia->post || !$comment->postMedia->post->album) {
-            return response()->json(['message' => 'Comment or related post/album not found'], 404);
+        // Check if comment exists
+        if (!$comment) {
+            return response()->json(['message' => 'Comment not found'], 404);
         }
 
-        $album = $comment->postMedia->post->album;
-        $albumOwnerId = $album->user_id;
+        // Safely extract album and owner if they exist
+        $album = optional(optional(optional($comment->postMedia)->post)->album);
+        $albumOwnerId = optional($album)->user_id;
 
         $authUserId = Auth::check() ? Auth::id() : null;
 
@@ -188,12 +189,12 @@ class CommentController extends Controller
             ->paginate($replyLimit, ['*'], 'page', $replyPage);
 
         $formattedReplies = $replies->map(function ($reply) use ($album, $albumOwnerId, $authUserId) {
-            $isOwner = $reply->user_id == $albumOwnerId;
+            $isOwner = $albumOwnerId && $reply->user_id == $albumOwnerId;
 
             return [
                 'id' => $reply->id,
                 'user_id' => $reply->user_id,
-                'username' => $isOwner ? $album->name : $reply->user->name,
+                'username' => $isOwner ? optional($album)->name : $reply->user->name,
                 'profile_picture_url' => $isOwner
                     ? $this->getProfileUrl($album)
                     : ($reply->user->profile_compressed
