@@ -428,6 +428,161 @@ protected function processTargetData(Ad $ad, array $targetData)
     public function getAdPerformance($adId)
     {
         $ad = Ad::findOrFail($adId);
+    
+        // Check if ad status is "review"
+        if ($ad->adboard->status === 'review') {
+            $album = $ad->adboard->album ?? null;
+            $defaultProfile = asset('images/default-profile.png');
+    
+            $profileUrl = $defaultProfile;
+    
+            if ($album) {
+                if (in_array($album->type, ['personal', 'creator'])) {
+                    $profileUrl = $album->thumbnail_compressed
+                        ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                        : ($album->thumbnail_original
+                            ? Storage::disk('s3')->url($album->thumbnail_original)
+                            : $defaultProfile);
+                } elseif ($album->type === 'business') {
+                    $profileUrl = $album->business_logo_compressed
+                        ? Storage::disk('s3')->url($album->business_logo_compressed)
+                        : ($album->business_logo_original
+                            ? Storage::disk('s3')->url($album->business_logo_original)
+                            : $defaultProfile);
+                }
+            }
+    
+            $total_spent = $ad->adboard->budget - $ad->adboard->points;
+            $impressionscount = AdImpression::where('ad_id', $ad->id)->count();
+            $clickscount = AdClick::where('ad_id', $ad->id)->count();
+            $conversions = DB::table('ad_cta_clicks')->where('ad_id', $ad->id)->count();
+    
+            $ctr = ($impressionscount > 0) ? ($clickscount / $impressionscount) * 100 : 0;
+            $conversionRate = ($clickscount > 0) ? ($conversions / $clickscount) * 100 : 0;
+    
+            return response()->json([
+                'ad_id' => $ad->id,
+                'ad_name' => $ad->adboard->name,
+                'album_name' => $ad->adboard->album->name,
+                'album_logo_url' => $profileUrl,
+                'status' => $ad->adboard->status,
+                'budget' => $ad->adboard->budget,
+                'total_spent' => (String) $total_spent,
+                'start_date' => $ad->created_at,
+                'end_date' => $ad->end_date,
+                'impressions' => (String) $impressionscount,
+                'clicks' => (String) $clickscount,
+                'conversions' => (String) $conversions,
+                'ctr' => number_format($ctr, 0),
+                'cost_per_click' => '2',
+                'conversion_rate' => number_format($conversionRate, 0),
+                'daily_performance' => [],
+            ]);
+        }
+    
+        $start = Carbon::parse($ad->created_at)->startOfDay();
+        $end = Carbon::today();
+    
+        $dailyData = [];
+    
+        while ($start->lte($end)) {
+            $date = $start->toDateString(); // Get date as "Y-m-d"
+    
+            $clicks = DB::table('ad_clicks')
+                ->where('ad_id', $adId)
+                ->whereDate('created_at', $date)
+                ->count();
+    
+            $totalClickPoints = DB::table('ad_clicks')
+                ->where('ad_id', $adId)
+                ->whereDate('created_at', $date)
+                ->sum('points_used');
+    
+            $impressions = DB::table('ad_impressions')
+                ->where('ad_id', $adId)
+                ->whereDate('created_at', $date)
+                ->count();
+    
+            $totalImpressionPoints = DB::table('ad_impressions')
+                ->where('ad_id', $adId)
+                ->whereDate('created_at', $date)
+                ->sum('points_used');
+    
+            $cost = ($totalClickPoints + $totalImpressionPoints);
+            $ctr = ($impressions > 0) ? ($clicks / $impressions) * 100 : 0;
+    
+            $formattedDate = $start->format('M, d');
+    
+            $dailyData[] = [
+                'date' => $formattedDate,
+                'clicks' => (String) $clicks,
+                'impressions' => (String) $impressions,
+                'cost' => (String) $cost,
+                'ctr' => number_format($ctr, 0),
+            ];
+    
+            $start->addDay();
+        }
+    
+        $impressionscount = AdImpression::where('ad_id', $ad->id)->count();
+        $clickscount = AdClick::where('ad_id', $ad->id)->count();
+    
+        $ctr = ($impressionscount > 0) ? ($clickscount / $impressionscount) * 100 : 0;
+        $costPerClick = ($ad->clicks > 0) ? ($ad->total_spent / $ad->clicks) : 0;
+    
+        $conversions = DB::table('ad_cta_clicks')
+            ->where('ad_id', $ad->id)
+            ->count();
+    
+        $conversionRate = ($clickscount > 0) ? ($conversions / $clickscount) * 100 : 0;
+    
+        $total_spent = $ad->adboard->budget - $ad->adboard->points;
+    
+        $album = $ad->adboard->album ?? null;
+        $defaultProfile = asset('images/default-profile.png');
+    
+        $profileUrl = $defaultProfile;
+    
+        if ($album) {
+            if (in_array($album->type, ['personal', 'creator'])) {
+                $profileUrl = $album->thumbnail_compressed
+                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                    : ($album->thumbnail_original
+                        ? Storage::disk('s3')->url($album->thumbnail_original)
+                        : $defaultProfile);
+            } elseif ($album->type === 'business') {
+                $profileUrl = $album->business_logo_compressed
+                    ? Storage::disk('s3')->url($album->business_logo_compressed)
+                    : ($album->business_logo_original
+                        ? Storage::disk('s3')->url($album->business_logo_original)
+                        : $defaultProfile);
+            }
+        }
+    
+        return response()->json([
+            'ad_id' => $ad->id,
+            'ad_name' => $ad->adboard->name,
+            'album_name' => $ad->adboard->album->name,
+            'album_logo_url' => $profileUrl,
+            'status' => $ad->adboard->status,
+            'budget' => $ad->adboard->budget,
+            'total_spent' => (String) $total_spent,
+            'start_date' => $ad->created_at,
+            'end_date' => $ad->end_date,
+            'impressions' => (String) $impressionscount,
+            'clicks' => (String) $clickscount,
+            'conversions' => (String) $conversions,
+            'ctr' => number_format($ctr, 0),
+            'cost_per_click' => '2',
+            'conversion_rate' => number_format($conversionRate, 0),
+            'daily_performance' => $dailyData,
+        ]);
+    }
+
+
+    public function getAdPergformance($adId)
+    {
+        $ad = Ad::findOrFail($adId);
 
         $start = Carbon::parse($ad->created_at)->startOfDay();
         $end = Carbon::today();
