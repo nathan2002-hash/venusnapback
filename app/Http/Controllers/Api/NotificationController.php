@@ -132,6 +132,78 @@ class NotificationController extends Controller
     }
 
     private function buildGroupedMessage($usernames, $userCount, $action, $type, $notification, $group)
+{
+    if ($type === 'album_view') {
+        $data = json_decode($notification->data, true);
+        $album = \App\Models\Album::with('user')->find($data['album_id'] ?? null);
+        $albumName = $album ? $album->name : 'your album';
+        $ownerUsername = $album?->user?->name;
+
+        $notificationDate = $notification->created_at->timezone(config('app.timezone'))->startOfDay();
+        $today = now()->timezone(config('app.timezone'))->startOfDay();
+        $diffInDays = $notificationDate->diffInDays($today);
+
+        $timePhrase = match (true) {
+            $diffInDays === 0 => 'today',
+            $diffInDays === 1 => 'yesterday',
+            $diffInDays <= 6 => 'on ' . $notificationDate->format('l'),
+            default => 'on ' . $notificationDate->format('M j'),
+        };
+
+        // Get all unique usernames from the group, excluding the owner
+        $allUsernames = $group->map(function ($n) use ($ownerUsername) {
+            $data = json_decode($n->data, true);
+            $username = $data['username'] ?? null;
+            return $username && $username !== $ownerUsername ? $username : null;
+        })->filter()->unique()->values()->toArray();
+
+        $filteredCount = count($allUsernames);
+
+        if (!empty($allUsernames)) {
+            if ($filteredCount === 1) {
+                return "{$allUsernames[0]} explored your album \"$albumName\" $timePhrase";
+            }
+            if ($filteredCount === 2) {
+                return "{$allUsernames[0]} and {$allUsernames[1]} explored your album \"$albumName\" $timePhrase";
+            }
+            if ($filteredCount === 3) {
+                return "{$allUsernames[0]}, {$allUsernames[1]}, and {$allUsernames[2]} explored your album \"$albumName\" $timePhrase";
+            }
+            return "{$allUsernames[0]} and " . ($filteredCount - 1) . " others explored your album \"$albumName\" $timePhrase";
+        }
+
+        // If all viewers were the owner
+        return null;
+    }
+
+    // Fallback for other types
+    $actionPhrase = $this->getActionPhrase($action, $type, $notification);
+
+    // Filter out empty usernames and ensure we have unique values
+    $usernames = array_filter(array_unique($usernames));
+    $userCount = count($usernames);
+
+    if (empty($usernames)) {
+        return "Someone $actionPhrase";
+    }
+
+    // Get the first few usernames (up to 3)
+    $displayUsernames = array_slice($usernames, 0, 3);
+
+    if ($userCount == 1) {
+        return "{$displayUsernames[0]} $actionPhrase";
+    }
+    if ($userCount == 2) {
+        return "{$displayUsernames[0]} and {$displayUsernames[1]} $actionPhrase";
+    }
+    if ($userCount == 3) {
+        return "{$displayUsernames[0]}, {$displayUsernames[1]}, and {$displayUsernames[2]} $actionPhrase";
+    }
+
+    return "{$displayUsernames[0]} and " . ($userCount - 1) . " others $actionPhrase";
+}
+
+    private function buildroupedMessage($usernames, $userCount, $action, $type, $notification, $group)
     {
         if ($type === 'album_view') {
             $data = json_decode($notification->data, true);
