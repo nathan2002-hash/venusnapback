@@ -132,109 +132,110 @@ class AdController extends Controller
 
 
     public function adstore(Request $request)
-{
-    DB::beginTransaction();
-    try {
-        // Decode JSON fields
-        $categories = json_decode($request->categories, true);
-        $targetData = json_decode($request->target_data, true);
-
-        // Validate target data structure
-        if (!isset($targetData['type'])) {
-            throw new \Exception("Target type is required");
-        }
-
-        // Create ad
-        $ad = Ad::create([
-            'adboard_id' => $request->adboard_id,
-            'cta_name' => $request->cta_name,
-            'cta_link' => $request->cta_link,
-            'cta_type' => $request->cta_type,
-            'description' => $request->description,
-            'status' => 'active',
-            'target' => $targetData['type'], // Set target type from the data
-        ]);
-
-        // Attach categories
-        $ad->categories()->attach($categories);
-
-        // Process target data
-        $this->processTargetData($ad, $targetData);
-
-        // Process media files
-        foreach ($request->media as $media) {
-            $path = $media['file']->store('ads/media/original', 's3');
-
-            $media = AdMedia::create([
-                'ad_id' => $ad->id,
-                'file_path' => $path,
-                'sequence_order' => $media['sequence_order'],
+    {
+        DB::beginTransaction();
+        try {
+            // Decode JSON fields
+            $categories = json_decode($request->categories, true);
+            $targetData = json_decode($request->target_data, true);
+    
+            // Validate target data structure
+            if (!isset($targetData['type'])) {
+                throw new \Exception("Target type is required");
+            }
+    
+            // Create ad
+            $ad = Ad::create([
+                'adboard_id' => $request->adboard_id,
+                'cta_name' => $request->cta_name,
+                'cta_link' => $request->cta_link,
+                'cta_type' => $request->cta_type,
+                'description' => $request->description,
                 'status' => 'active',
-                'type' => 'active',
+                'target' => $targetData['type'], // Set target type from the data
             ]);
-            AdImageCompress::dispatch($media->fresh());
-        }
-
-        DB::commit();
-
-        return response()->json(['id' => $ad->id], 201);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json(['error' => $e->getMessage()], 500);
-    }
-}
-
-
-protected function processTargetData(Ad $ad, array $targetData)
-{
-    Log::debug('Processing target data', ['target_type' => $targetData['type'] ?? 'none']);
-
-    if ($targetData['type'] === 'all_region') {
-        Log::debug('Creating all-region target');
-        $target = $ad->targets()->create([
-            'continent' => null,
-            'country' => null,
-            'status' => 'active',
-        ]);
-        Log::info('All-region target created', ['target_id' => $target->id]);
-    } else {
-        // Process continents if they exist
-        if (!empty($targetData['continents'])) {
-            Log::debug('Processing continent targets', ['count' => count($targetData['continents'])]);
-            foreach ($targetData['continents'] as $continent) {
-                $target = $ad->targets()->create([
-                    'continent' => $continent,
-                    'country' => null,
+    
+            // Attach categories
+            $ad->categories()->attach($categories);
+    
+            // Process target data
+            $this->processTargetData($ad, $targetData);
+    
+            // Process media files
+            foreach ($request->media as $media) {
+                $path = $media['file']->store('ads/media/original', 's3');
+    
+                $media = AdMedia::create([
+                    'ad_id' => $ad->id,
+                    'file_path' => $path,
+                    'sequence_order' => $media['sequence_order'],
                     'status' => 'active',
+                    'type' => 'active',
                 ]);
-                Log::debug('Continent target created', [
-                    'target_id' => $target->id,
-                    'continent' => $continent
-                ]);
+                AdImageCompress::dispatch($media->fresh());
             }
-        }
-
-        // Process countries if they exist
-        if (!empty($targetData['countries'])) {
-            Log::debug('Processing country targets', ['count' => count($targetData['countries'])]);
-            foreach ($targetData['countries'] as $country) {
-                $continent = $this->getContinentForCountry($country);
-                $target = $ad->targets()->create([
-                    'country' => $country,
-                    'continent' => $continent,
-                    'status' => 'active',
-                ]);
-                Log::debug('Country target created', [
-                    'target_id' => $target->id,
-                    'country' => $country,
-                    'continent' => $continent
-                ]);
-            }
+    
+            DB::commit();
+    
+            return response()->json(['id' => $ad->id], 201);
+    
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-    Log::info('Target data processing completed');
-}
+
+
+    protected function processTargetData(Ad $ad, array $targetData)
+    {
+        Log::debug('Processing target data', ['target_type' => $targetData['type'] ?? 'none']);
+    
+        if ($targetData['type'] === 'all_region') {
+            Log::debug('Creating all-region target');
+            $target = $ad->targets()->create([
+                'continent' => null,
+                'country' => null,
+                'status' => 'active',
+            ]);
+            Log::info('All-region target created', ['target_id' => $target->id]);
+        } else {
+            // Process continents if they exist
+            if (!empty($targetData['continents'])) {
+                Log::debug('Processing continent targets', ['count' => count($targetData['continents'])]);
+                foreach ($targetData['continents'] as $continent) {
+                    $target = $ad->targets()->create([
+                        'continent' => $continent,
+                        'country' => null,
+                        'status' => 'active',
+                    ]);
+                    Log::debug('Continent target created', [
+                        'target_id' => $target->id,
+                        'continent' => $continent
+                    ]);
+                }
+            }
+    
+            // Process countries if they exist
+            if (!empty($targetData['countries'])) {
+                Log::debug('Processing country targets', ['count' => count($targetData['countries'])]);
+                foreach ($targetData['countries'] as $country) {
+                    $continent = $this->getContinentForCountry($country);
+                    $target = $ad->targets()->create([
+                        'country' => $country,
+                        'continent' => $continent,
+                        'status' => 'active',
+                    ]);
+                    Log::debug('Country target created', [
+                        'target_id' => $target->id,
+                        'country' => $country,
+                        'continent' => $continent
+                    ]);
+                }
+            }
+        }
+        Log::info('Target data processing completed');
+    }
+    
     protected function getContinentForCountry(string $country): ?string
     {
         $continentMap = [
@@ -576,117 +577,6 @@ protected function processTargetData(Ad $ad, array $targetData)
             'cost_per_click' => '2',
             'conversion_rate' => number_format($conversionRate, 0),
             'daily_performance' => $dailyData,
-        ]);
-    }
-
-
-    public function getAdPergformance($adId)
-    {
-        $ad = Ad::findOrFail($adId);
-
-        $start = Carbon::parse($ad->created_at)->startOfDay();
-        $end = Carbon::today();
-
-        $dailyData = [];
-
-        while ($start->lte($end)) {
-            $date = $start->toDateString(); // Get date as "Y-m-d"
-
-            // Get daily clicks and points used
-            $clicks = DB::table('ad_clicks')
-                ->where('ad_id', $adId)
-                ->whereDate('created_at', $date)
-                ->count();
-
-            $totalClickPoints = DB::table('ad_clicks')
-                ->where('ad_id', $adId)
-                ->whereDate('created_at', $date)
-                ->sum('points_used'); // Assuming points_used is a field in the ad_clicks table
-
-            // Get daily impressions and points used
-            $impressions = DB::table('ad_impressions')
-                ->where('ad_id', $adId)
-                ->whereDate('created_at', $date)
-                ->count();
-
-            $totalImpressionPoints = DB::table('ad_impressions')
-                ->where('ad_id', $adId)
-                ->whereDate('created_at', $date)
-                ->sum('points_used'); // Assuming points_used is a field in the ad_impressions table
-
-            // Calculate cost using points (you can adjust the cost-per-point logic)
-            $cost = ($totalClickPoints + $totalImpressionPoints); // Example: $0.01 per point, adjust as needed
-
-            // Calculate CTR (Click-Through Rate) for the day
-            $ctr = ($impressions > 0) ? ($clicks / $impressions) * 100 : 0;
-
-            // Format the date as "Jun, 21"
-            $formattedDate = $start->format('M, d');
-
-            // Add the daily data to the array
-            $dailyData[] = [
-                'date' => $formattedDate,
-                'clicks' => (String) $clicks,
-                'impressions' => (String) $impressions,
-                'cost' => (String) $cost, // Round the cost to 2 decimal places
-                'ctr' => number_format($ctr, 0),  // Round the CTR to 2 decimal places
-            ];
-
-            $start->addDay(); // Move to the next day
-        }
-
-        $impressionscount = AdImpression::where('ad_id', $ad->id)->count();
-        $clickscount = AdClick::where('ad_id', $ad->id)->count();
-        // General metrics (overall CTR, cost-per-click, conversion rate)
-        $ctr = ($impressionscount > 0) ? ($clickscount / $impressionscount) * 100 : 0;
-        $costPerClick = ($ad->clicks > 0) ? ($ad->total_spent / $ad->clicks) : 0;
-
-        $conversions = DB::table('ad_cta_clicks')
-        ->where('ad_id', $ad->id)
-        ->count();
-
-        $conversionRate = ($clickscount > 0) ? ($conversions / $clickscount) * 100 : 0;
-
-        $total_spent = $ad->adboard->budget - $ad->adboard->points;
-
-        $album = $ad->adboard->album ?? null;
-        $defaultProfile = asset('images/default-profile.png');
-
-         $profileUrl = $defaultProfile;
-
-                if ($album) {
-                    if (in_array($album->type, ['personal', 'creator'])) {
-                        $profileUrl = $album->thumbnail_compressed
-                            ? Storage::disk('s3')->url($album->thumbnail_compressed)
-                            : ($album->thumbnail_original
-                                ? Storage::disk('s3')->url($album->thumbnail_original)
-                                : $defaultProfile);
-                    } elseif ($album->type === 'business') {
-                        $profileUrl = $album->business_logo_compressed
-                            ? Storage::disk('s3')->url($album->business_logo_compressed)
-                            : ($album->business_logo_original
-                                ? Storage::disk('s3')->url($album->business_logo_original)
-                                : $defaultProfile);
-                    }
-                }
-
-        return response()->json([
-            'ad_id' => $ad->id,
-            'ad_name' => $ad->adboard->name,
-            'album_name' => $ad->adboard->album->name,
-            'album_logo_url' => $profileUrl,
-            'status' => $ad->adboard->status,
-            'budget' => $ad->adboard->budget,
-            'total_spent' => (String) $total_spent,
-            'start_date' => $ad->created_at,
-            'end_date' => $ad->end_date,
-            'impressions' => (String) $impressionscount,
-            'clicks' => (String) $clickscount,
-            'conversions' => (String) $conversions,
-            'ctr' => number_format($ctr, 0),
-            'cost_per_click' => '2',
-            'conversion_rate' => number_format($conversionRate, 0),
-            'daily_performance' => $dailyData, // This contains all the days from start to today
         ]);
     }
 
