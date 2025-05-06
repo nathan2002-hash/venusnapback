@@ -1,2 +1,15 @@
 User-agent: *
-Disallow:
+Disallow: /.env
+Disallow: /db_backup.sql
+Disallow: /backup.sql
+Disallow: /config/
+Disallow: /logs/
+Disallow: /vendor/
+Disallow: /storage/
+Disallow: /app/
+Disallow: /core/
+Disallow: /composer.json
+Disallow: /package.json
+Disallow: /phpmyadmin/
+Disallow: /.git
+Disallow: /swagger-ui.html
