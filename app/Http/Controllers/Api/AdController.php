@@ -414,7 +414,7 @@ protected function processTargetData(Ad $ad, array $targetData)
                 'budget' => $ad->adboard->budget ?? 0,
                 'impressions' => (String) $impressions,
                 'clicks' => (String) $clicks,
-                'ctr' => $ctr,
+                'ctr' => (String) $ctr,
                 'start_date' => $ad->created_at->toDateString(),
                 'end_date' => 'Ongoing', // adjust if you have real end date
             ];
@@ -680,7 +680,7 @@ protected function processTargetData(Ad $ad, array $targetData)
         ]);
     }
 
-    
+
     public function update(Request $request, $id)
 {
     $ad = Ad::findOrFail($id);
@@ -775,7 +775,7 @@ protected function processTargetData(Ad $ad, array $targetData)
         foreach ($ad->targets as $target) {
             if ($target->country) {
                 $countries[] = $target->country;
-            } 
+            }
             if ($target->continent) {
                 $continents[] = $target->continent;
             }
