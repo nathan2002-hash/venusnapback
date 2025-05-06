@@ -80,7 +80,7 @@ class NotificationController extends Controller
 
     protected function getGroupingIdentifier($notification, $type)
     {
-        if ($type === 'post') {
+        if ($type === 'post' || $type === 'comment') {
             try {
                 $postMedia = PostMedia::find($notification->notifiable_id);
                 return $postMedia ? $postMedia->post_id : $notification->notifiable_id;
@@ -104,7 +104,7 @@ class NotificationController extends Controller
     protected function getProperNotifiableId($notification, $type)
     {
         // Only modify notifiable_id for post types
-        if ($type === 'post') {
+        if ($type === 'post' || $type === 'comment') {
             try {
                 $postMedia = PostMedia::find($notification->notifiable_id);
                 return $postMedia ? $postMedia->post_id : $notification->notifiable_id;
