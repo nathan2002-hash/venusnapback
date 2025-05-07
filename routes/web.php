@@ -1,9 +1,10 @@
 <?php
 
+use App\Jobs\CheckAdPointsJob;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 
 Route::get('/', function () {
     return view('user.welcome');
@@ -47,4 +48,10 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
      Route::get('/recommendations', 'Admin\RecommendationController@index');
      Route::get('/album/create', 'Admin\AlbumController@create');
      Route::post('/album/store', 'Admin\AlbumController@store');
+
+     Route::get('/start-ad-check', function() {
+        CheckAdPointsJob::dispatch()
+            ->delay(now()->addSeconds(10));
+        return response()->json(['message' => 'Ad points check job started']);
+    });
 });
