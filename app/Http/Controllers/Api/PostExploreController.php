@@ -260,6 +260,7 @@ class PostExploreController extends Controller
             ],
             'supporters' => $album ? $album->supporters->count() : 0,
             'support' => $supportstatus,
+            'backgroundimage' => env('adbg'),
             'album_id' => $album->id,
             'cta_name' => $ad->cta_name,
             'cta_link' => $ad->cta_link,
