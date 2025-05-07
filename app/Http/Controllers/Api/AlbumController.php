@@ -53,105 +53,56 @@ class AlbumController extends Controller
         return response()->json(['message' => 'Album created successfully', 'album' => $album], 200);
     }
 
-
-    public function getUffserAlbums()
-{
-    $user = Auth::user();
-
-    // Owned albums (Eloquent collection)
-    $ownedAlbums = Album::where('user_id', $user->id)
-        ->whereIn('type', ['creator', 'business', 'personal'])
-        ->select('id', 'name', 'type')
-        ->get();
-
-    // Shared albums (convert to Album models)
-    $sharedAlbumsRaw = DB::table('album_accesses')
-        ->join('albums', 'album_accesses.album_id', '=', 'albums.id')
-        ->where('album_accesses.user_id', $user->id)
-        ->where('album_accesses.status', 'approved')
-        ->whereIn('albums.type', ['creator', 'business'])
-        ->select('albums.id', 'albums.name', 'albums.type')
-        ->get();
-
-    $sharedAlbums = collect($sharedAlbumsRaw)->map(function ($album) {
-        return new Album([
-            'id' => $album->id,
-            'name' => $album->name,
-            'type' => $album->type,
-        ]);
-    });
-
-    // Now both are collections of Album models
-    $albums = $ownedAlbums->merge($sharedAlbums);
-
-    return response()->json([
-        'success' => true,
-        'data' => $albums->map(function ($album) {
-            $typeLabel = match($album->type) {
-                'personal' => 'Personal',
-                'creator' => 'Creator',
-                default => 'Business',
-            };
-
-            return [
-                'id' => $album->id,
-                'album_name' => "{$album->name} ($typeLabel)",
-            ];
-        }),
-    ]);
-}
-
     public function getUserAlbums()
-{
-    $user = Auth::user();
-
-    // Owned albums (Eloquent collection)
-    $ownedAlbums = Album::where('user_id', $user->id)
-        ->whereIn('type', ['creator', 'business', 'personal'])
-        ->select('id', 'name', 'type')
-        ->get()
-        ->map(function ($album) {
-            $typeLabel = match($album->type) {
-                'personal' => 'Personal',
-                'creator' => 'Creator',
-                default => 'Business',
-            };
-
-            return [
-                'id' => $album->id,
-                'album_name' => "{$album->name} ($typeLabel)",
-            ];
-        });
-
-    // Shared albums (direct array conversion)
-    $sharedAlbums = DB::table('album_accesses')
-        ->join('albums', 'album_accesses.album_id', '=', 'albums.id')
-        ->where('album_accesses.user_id', $user->id)
-        ->where('album_accesses.status', 'approved')
-        ->whereIn('albums.type', ['creator', 'business'])
-        ->select('albums.id', 'albums.name', 'albums.type')
-        ->get()
-        ->map(function ($album) {
-            $typeLabel = match($album->type) {
-                'creator' => 'Creator',
-                default => 'Business',
-            };
-
-            return [
-                'id' => $album->id,
-                'album_name' => "{$album->name} ($typeLabel)",
-            ];
-        });
-
-    // Merge both collections
-    $albums = $ownedAlbums->merge($sharedAlbums);
-
-    return response()->json([
-        'success' => true,
-        'data' => $albums->values() // This ensures sequential array keys
-    ]);
-}
-
+    {
+        $user = Auth::user();
+    
+        // Owned albums (Eloquent collection)
+        $ownedAlbums = Album::where('user_id', $user->id)
+            ->whereIn('type', ['creator', 'business', 'personal'])
+            ->select('id', 'name', 'type')
+            ->get()
+            ->map(function ($album) {
+                $typeLabel = match($album->type) {
+                    'personal' => 'Personal',
+                    'creator' => 'Creator',
+                    default => 'Business',
+                };
+    
+                return [
+                    'id' => $album->id,
+                    'album_name' => "{$album->name} ($typeLabel)",
+                ];
+            });
+    
+        // Shared albums (direct array conversion)
+        $sharedAlbums = DB::table('album_accesses')
+            ->join('albums', 'album_accesses.album_id', '=', 'albums.id')
+            ->where('album_accesses.user_id', $user->id)
+            ->where('album_accesses.status', 'approved')
+            ->whereIn('albums.type', ['creator', 'business'])
+            ->select('albums.id', 'albums.name', 'albums.type')
+            ->get()
+            ->map(function ($album) {
+                $typeLabel = match($album->type) {
+                    'creator' => 'Creator',
+                    default => 'Business',
+                };
+    
+                return [
+                    'id' => $album->id,
+                    'album_name' => "{$album->name} ($typeLabel)",
+                ];
+            });
+    
+        // Merge both collections
+        $albums = $ownedAlbums->merge($sharedAlbums);
+    
+        return response()->json([
+            'success' => true,
+            'data' => $albums->values() // This ensures sequential array keys
+        ]);
+    }
 
     public function personalstore(Request $request)
     {
