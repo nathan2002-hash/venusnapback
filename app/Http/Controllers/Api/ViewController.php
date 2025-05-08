@@ -6,6 +6,7 @@ use App\Models\View;
 use App\Models\Saved;
 use App\Models\Admire;
 use App\Models\Report;
+use App\Models\LinkShare;
 use App\Models\PostMedia;
 use App\Jobs\TrackViewJob;
 use Illuminate\Http\Request;
@@ -117,28 +118,7 @@ class ViewController extends Controller
         return response()->json(['message' => 'View duration tracked and recommendation marked as seen']);
     }
 
-
-    public function moredd(Request $request)
-    {
-        $mediaId = $request->query('media_id');
-        $userId = Auth::user()->id;
-
-        $postmedia = PostMedia::find($mediaId);
-        $post_id = $postmedia->post_id;
-
-        $isAdmired = Admire::where('post_media_id', $mediaId)->where('user_id', $userId)->exists();
-        $isSaved = Saved::where('post_id', $post_id)->where('user_id', $userId)->exists();
-        $isReported = Report::where('post_media_id', $mediaId)->where('user_id', $userId)->exists();
-
-        return response()->json([
-            'isAdmired' => $isAdmired,
-            'isSaved' => $isSaved,
-            'isReported' => $isReported,
-            'url' => "https://app.venusnap.com/post/$post_id",
-        ]);
-    }
-
-    public function more(Request $request)
+    public function dmore(Request $request)
     {
         $mediaId = $request->query('media_id');
         $userId = Auth::id();
@@ -167,4 +147,62 @@ class ViewController extends Controller
         ]);
     }
 
+    public function more(Request $request)
+    {
+        $mediaId = $request->query('media_id');
+        $userId = Auth::id();
+
+        $postmedia = PostMedia::find($mediaId);
+        if (!$postmedia) {
+            return response()->json(['error' => 'Post media not found'], 404);
+        }
+
+        $post_id = $postmedia->post_id;
+
+        $isAdmired = Admire::where('post_media_id', $mediaId)
+            ->where('user_id', $userId)
+            ->exists();
+
+        $isSaved = Saved::where('post_id', $post_id)
+            ->where('user_id', $userId)
+            ->exists();
+
+        $isReported = Report::where('resource_id', $mediaId)
+            ->where('target', 'post_media')
+            ->where('user_id', $userId)
+            ->exists();
+
+        // Generate share URL with tracking
+        $shareUrl = $this->generateTrackableLink($post_id, $mediaId, $userId);
+
+        return response()->json([
+            'isAdmired' => $isAdmired,
+            'isSaved' => $isSaved,
+            'isReported' => $isReported,
+            'url' => $shareUrl,
+        ]);
+    }
+
+    protected function generateTrackableLink($postId, $mediaId, $userId)
+    {
+        $share = LinkShare::create([
+            'user_id' => $userId,
+            'post_id' => $postId,
+            'post_media_id' => $mediaId,
+            'share_method' => 'direct', // Default, can be updated when shared via specific platform
+            'share_url' => "https://www.venusnap.com/post/$postId/media/$mediaId",
+        ]);
+
+        // Optionally generate a short URL
+        $shortCode = $this->generateShortCode();
+        $share->update(['short_code' => $shortCode]);
+
+        return "https://www.venusnap.com/post/$postId/media/$mediaId?ref=$shortCode";
+    }
+
+    protected function generateShortCode()
+    {
+        // Implement your short code generation logic
+        return substr(md5(uniqid()), 0, 8);
+    }
 }
