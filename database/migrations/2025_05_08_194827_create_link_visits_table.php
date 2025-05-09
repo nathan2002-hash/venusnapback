@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('link_visits', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('link_share_id')->constrained()->onDelete('cascade');
+            $table->foreignId('link_share_id')->nullable();
             $table->string('ip_address')->nullable();
             $table->string('user_id')->nullable();
+            $table->boolean('is_logged_in')->default(false);
             $table->string('user_agent')->nullable();
             $table->string('referrer')->nullable();
-            $table->string('device_type')->nullable();
+            $table->string('device_info')->nullable();
             $table->string('country')->nullable();
             $table->timestamps();
         });

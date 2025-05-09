@@ -69,6 +69,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/post/delete/{id}', 'Api\PostController@postdelete');
 
     Route::get('/post/media/state', 'Api\ViewController@more');
+    Route::post('/track/post/vist', 'Api\ViewController@trackVisit');
     Route::get('/ad/sponsored/{id}', 'Api\PostExploreController@getAdById');
 
 

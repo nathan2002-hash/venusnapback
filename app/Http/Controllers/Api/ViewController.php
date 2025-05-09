@@ -205,4 +205,43 @@ class ViewController extends Controller
         // Implement your short code generation logic
         return substr(md5(uniqid()), 0, 8);
     }
+
+    public function trackVisit(Request $request)
+    {
+        $request->validate([
+            'short_code' => 'string',
+            'is_logged_in' => 'sometimes|boolean',
+        ]);
+
+        $share = LinkShare::where('short_code', $request->short_code)->first();
+
+        if (!$share) {
+            return response()->json(['error' => 'Invalid short code'], 404);
+        }
+
+        if (Auth::check()) {
+            $userId = Auth::user()->id;
+        } else {
+            $userId = null;
+        }
+
+        $userAgent = $request->header('User-Agent');
+        $deviceinfo = $request->header('Device-Info');
+
+
+        $visit = $share->visits()->create([
+            'ip_address' => $request->ip(),
+            'user_agent' => $userAgent,
+            'device_info' => $deviceinfo,
+            'referrer' => $request->short_code,
+            'user_id' => $userId,
+            'link_share_id' => $share->id,
+            'is_logged_in' => $request->input('is_logged_in', false),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'visit_id' => $visit->id,
+        ]);
+    }
 }
