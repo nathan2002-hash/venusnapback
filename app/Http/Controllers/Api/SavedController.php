@@ -69,32 +69,32 @@ class SavedController extends Controller
         $user = $request->user();
         $defaultProfile = 'https://example.com/default-profile.jpg'; // Set your default profile URL
         $defaultMedia = 'https://example.com/default-media.jpg'; // Set your default media URL
-    
+
         $savedPosts = $user->saveds()
             ->with(['post.postmedias.admires', 'post.postmedias.comments', 'post.album'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($saved) use ($defaultProfile, $defaultMedia) {
                 $post = $saved->post;
-                
+
                 if (!$post) {
                     return null;
                 }
-    
+
                 // Calculate total admires and comments across all media
                 $totalAdmires = 0;
                 $totalComments = 0;
-                
+
                 if ($post->postmedias) {
                     foreach ($post->postmedias as $media) {
                         $totalAdmires += $media->admires->count();
                         $totalComments += $media->comments->count();
                     }
                 }
-    
+
                 $album = $post->album;
                 $profileUrl = $defaultProfile;
-    
+
                 if ($album) {
                     if (in_array($album->type, ['personal', 'creator'])) {
                         $profileUrl = $album->thumbnail_compressed
@@ -110,7 +110,7 @@ class SavedController extends Controller
                                 : $defaultProfile);
                     }
                 }
-                
+
                 return [
                     'post_id' => $post->id,
                     'post_description' => $post->description ?? '',
@@ -125,7 +125,7 @@ class SavedController extends Controller
                                 $mediaUrl = $defaultMedia;
                             }
                         }
-                        
+
                         return [
                             'media_url' => $mediaUrl,
                             'media_type' => 'webp',
@@ -136,14 +136,14 @@ class SavedController extends Controller
                     'album_id' => $album ? $album->id : null,
                     'album_name' => $album ? $album->name : 'Unknown',
                     'album_logo' => $profileUrl,
-                    'album_verified' => $album ? $album->is_verified : false,
+                    'album_verified' => (bool) $album->is_verified,
                     'total_admires' => $totalAdmires,
                     'total_comments' => $totalComments,
                 ];
             })
             ->filter()
             ->values();
-        
+
         return response()->json($savedPosts);
     }
 }

@@ -133,7 +133,6 @@ class PostExploreController extends Controller
                         'sequence_order' => $media->sequence_order,
                     ];
                 })->toArray(),
-                //'is_verified' => $album->is_verified ?? false,
                 'is_verified' => (bool) $album->is_verified,
                 'supporters_count' => (string) ($album->supporters->count() ?? 0),
                 'is_ad' => false,
