@@ -171,8 +171,10 @@ public function index(Request $request)
             'user' => $album ? $album->name : 'Unknown Album',
             'supporters' => (string) ($album ? $album->supporters->count() : 0),
             'album_id' => (string) $album->id,
+            'album_name' => (string) $album->name,
             'profile' => $profileUrl, // Profile based on album type
             'description' => $post->description ?: 'No description available provided by the creator',
+            'album_description' => $album->description ?: 'No description available provided by the creator',
             'post_media' => $postMediaData,
             'is_verified' => $album ? ($album->is_verified == 1) : false,
         ], 200);
