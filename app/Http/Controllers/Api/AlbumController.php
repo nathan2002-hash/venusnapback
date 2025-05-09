@@ -413,19 +413,20 @@ class AlbumController extends Controller
                     ? Storage::disk('s3')->url($album->cover_image_original)
                     : null);
 
-        $posts = $album->posts
-        ->where('status', 'active') // ← This filters only active posts
-         ->map(function ($post) {
-        $postThumbnail = $post->postmedias->first()
-            ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress)
-            : null;
-
-        return [
-            'id' => $post->id,
-            'title' => $post->title,
-            'thumbnail_url' => $postThumbnail,
-            'image_count' => $post->postmedias->count(),
-        ];
+       $posts = $album->posts
+        ->where('status', 'active')
+        ->values() // This resets keys to 0-based index
+        ->map(function ($post) {
+            $postThumbnail = $post->postmedias->first()
+                ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress)
+                : null;
+    
+            return [
+                'id' => $post->id,
+                'title' => $post->title,
+                'thumbnail_url' => $postThumbnail,
+                'image_count' => $post->postmedias->count(),
+            ];
     });
 
         return response()->json([
@@ -523,18 +524,19 @@ class AlbumController extends Controller
                 : null);
 
         $posts = $album->posts
-        ->where('status', 'active') // ← This filters only active posts
-         ->map(function ($post) {
-        $postThumbnail = $post->postmedias->first()
-            ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress)
-            : null;
-
-        return [
-            'id' => $post->id,
-            'title' => $post->title,
-            'thumbnail_url' => $postThumbnail,
-            'image_count' => $post->postmedias->count(),
-        ];
+        ->where('status', 'active')
+        ->values() // This resets keys to 0-based index
+        ->map(function ($post) {
+            $postThumbnail = $post->postmedias->first()
+                ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress)
+                : null;
+    
+            return [
+                'id' => $post->id,
+                'title' => $post->title,
+                'thumbnail_url' => $postThumbnail,
+                'image_count' => $post->postmedias->count(),
+            ];
     });
 
         return response()->json([
