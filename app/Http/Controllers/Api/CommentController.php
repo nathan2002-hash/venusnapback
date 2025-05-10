@@ -339,7 +339,9 @@ class CommentController extends Controller
                 'post_id' => $postMedia->post->id,
                 'media_id' => $postMedia->id,
                 'comment_id' => $comment->id,
-                'album_id' => $album->id
+                'reply_id' => $reply->id,
+                'album_id' => $album->id,
+                'is_reply' => true
             ]
         );
     }
