@@ -229,6 +229,6 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
 
     //app status
     Route::get('/app/status', 'Api\AppStatusController@checkAppStatus');
-    Route::get('/password/activities', 'Api\AuthController@fetchPasswordActivities');
+    Route::get('/app/message/track', 'Api\AppStatusController@trackMessageAction');
 
 });
