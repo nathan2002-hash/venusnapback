@@ -12,7 +12,7 @@ class AppStatusController extends Controller
    public function checkAppStatus(Request $request)
     {
         $currentVersion = $request->header('X-App-Version');
-        $platform = str_contains(strtolower($request->header('User-Agent')), 'android') ? 'android' : 'ios';
+        $platform = str_contains(strtolower($request->header('X-App-type')), 'android') ? 'android' : 'ios';
 
         // Check maintenance first
         if (config('app.maintenance_mode')) {
@@ -83,7 +83,7 @@ class AppStatusController extends Controller
             'device_id' => $request->header('X-Device-ID'),
             'action' => $validated['action'],
             'app_version' => $request->header('X-App-Version'),
-            'platform' => str_contains(strtolower($request->header('User-Agent')), 'android') ? 'android' : 'ios'
+            'platform' => str_contains(strtolower($request->header('X-App-Type')), 'android') ? 'android' : 'ios'
         ]);
 
         return response()->json(['success' => true]);
