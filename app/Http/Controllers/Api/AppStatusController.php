@@ -9,7 +9,7 @@ use App\Models\AppMessageUserAction;
 
 class AppStatusController extends Controller
 {
-    public function checkAppStatus(Request $request)
+   public function checkAppStatus(Request $request)
     {
         $currentVersion = $request->header('X-App-Version');
         $platform = str_contains(strtolower($request->header('User-Agent')), 'android') ? 'android' : 'ios';
@@ -27,24 +27,31 @@ class AppStatusController extends Controller
         // Only check messages for authenticated users
         if ($request->user()) {
             $message = AppMessage::query()
-                ->active() // Using the scope here
+                ->active()
                 ->where(function($q) use ($platform) {
                     $q->whereNull('platforms')
                     ->orWhereJsonContains('platforms', $platform);
                 })
                 ->whereDoesntHave('userActions', function($q) use ($request) {
+                    // Check for ANY action by this user, not just 'viewed'
                     $q->where('user_id', $request->user()->id);
                 })
                 ->first();
 
             if ($message) {
-                AppMessageUserAction::create([
-                    'app_message_id' => $message->id,
-                    'user_id' => $request->user()->id,
-                    'action' => 'viewed',
-                    'app_version' => $currentVersion,
-                    'platform' => $platform
-                ]);
+                // Only record 'viewed' if this is the first time seeing the message
+                if (!AppMessageUserAction::where('app_message_id', $message->id)
+                    ->where('user_id', $request->user()->id)
+                    ->exists()) {
+
+                    AppMessageUserAction::create([
+                        'app_message_id' => $message->id,
+                        'user_id' => $request->user()->id,
+                        'action' => 'viewed',
+                        'app_version' => $currentVersion,
+                        'platform' => $platform
+                    ]);
+                }
 
                 return response()->json([
                     'status' => $message->type,
