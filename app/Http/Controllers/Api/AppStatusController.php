@@ -10,59 +10,57 @@ use App\Models\AppMessageUserAction;
 class AppStatusController extends Controller
 {
     public function checkAppStatus(Request $request)
-{
-    $user = $request->user();
-    $deviceId = $request->header('X-Device-ID'); // From Flutter app
-    $currentVersion = $request->header('X-App-Version');
-    $platform = str_contains(strtolower($request->header('User-Agent')), 'android') ? 'android' : 'ios';
+    {
+        $currentVersion = $request->header('X-App-Version');
+        $platform = str_contains(strtolower($request->header('User-Agent')), 'android') ? 'android' : 'ios';
 
-    // Check maintenance first
-    if (config('app.maintenance_mode')) {
-        return $this->getMaintenanceResponse();
-    }
+        // Check maintenance first
+        if (config('app.maintenance_mode')) {
+            return $this->getMaintenanceResponse();
+        }
 
-    // Check version requirements
-    if ($versionResponse = $this->checkVersionRequirements($platform, $currentVersion)) {
-        return $versionResponse;
-    }
+        // Check version requirements
+        if ($versionResponse = $this->checkVersionRequirements($platform, $currentVersion)) {
+            return $versionResponse;
+        }
 
-    // Get active messages with tracking
-    $message = AppMessage::active()
-        ->where(function($q) use ($platform) {
-            $q->whereNull('platforms')
-              ->orWhereJsonContains('platforms', $platform);
-        })
-        ->whereDoesntHave('userActions', function($q) use ($user, $deviceId) {
-            $q->where('user_id', $user?->id)
-              ->orWhere('device_id', $deviceId);
-        })
-        ->first();
+        // Only check messages for authenticated users
+        if ($request->user()) {
+            $message = AppMessage::query()
+                ->active() // Using the scope here
+                ->where(function($q) use ($platform) {
+                    $q->whereNull('platforms')
+                    ->orWhereJsonContains('platforms', $platform);
+                })
+                ->whereDoesntHave('userActions', function($q) use ($request) {
+                    $q->where('user_id', $request->user()->id);
+                })
+                ->first();
 
-    if ($message) {
-        // Record view action
-        AppMessageUserAction::create([
-            'app_message_id' => $message->id,
-            'user_id' => $user?->id,
-            'device_id' => $deviceId,
-            'action' => 'viewed',
-            'app_version' => $currentVersion,
-            'platform' => $platform
-        ]);
+            if ($message) {
+                AppMessageUserAction::create([
+                    'app_message_id' => $message->id,
+                    'user_id' => $request->user()->id,
+                    'action' => 'viewed',
+                    'app_version' => $currentVersion,
+                    'platform' => $platform
+                ]);
 
-        return response()->json([
-            'status' => $message->type,
-            'title' => $message->title,
-            'message' => $message->content,
-            'image' => asset($message->image_path),
-            'button_text' => $message->button_text,
-            'button_action' => $message->button_action,
-            'show_skip' => $message->dismissible,
-            'app_store_url' => $this->getAppStoreUrl($platform),
-            'message_id' => $message->id // For tracking clicks
-        ]);
-    }
+                return response()->json([
+                    'status' => $message->type,
+                    'title' => $message->title,
+                    'message' => $message->content,
+                    'image' => asset($message->image_path),
+                    'button_text' => $message->button_text,
+                    'button_action' => $message->button_action,
+                    'show_skip' => $message->dismissible,
+                    'app_store_url' => $this->getAppStoreUrl($platform),
+                    'message_id' => $message->id
+                ]);
+            }
+        }
 
-    return response()->json(['status' => 'normal']);
+        return response()->json(['status' => 'normal']);
     }
 
     public function trackMessageAction(Request $request)
@@ -86,37 +84,33 @@ class AppStatusController extends Controller
 
     protected function getMaintenanceResponse()
     {
-        // Check for custom maintenance message in database
-        $maintenanceMessage = AppMessage::where('type', 'maintenance')
-            ->where('start_at', '<=', now())
-            ->where('end_at', '>=', now())
+        $message = AppMessage::where('type', 'maintenance')
+            ->active() // Using our scope
             ->first();
 
-        if ($maintenanceMessage) {
+        if ($message) {
             return response()->json([
                 'status' => 'maintenance',
-                'title' => $maintenanceMessage->title,
-                'message' => $maintenanceMessage->content,
-                'image' => asset($maintenanceMessage->image_path),
-                'button_text' => $maintenanceMessage->button_text,
-                'button_action' => $maintenanceMessage->button_action,
-                'show_skip' => $maintenanceMessage->dismissible,
+                'title' => $message->title,
+                'message' => $message->content,
+                'image' => asset($message->image_path),
+                'button_text' => $message->button_text,
+                'button_action' => $message->button_action,
+                'show_skip' => $message->dismissible,
                 'app_store_url' => null,
-                'estimated_restore_time' => $maintenanceMessage->end_at->toIso8601String()
+                'estimated_restore_time' => $message->end_at->toIso8601String()
             ]);
         }
 
-        // Default maintenance response
         return response()->json([
             'status' => 'maintenance',
             'title' => 'Maintenance in Progress',
-            'message' => 'We are performing scheduled maintenance to improve your experience. Please check back later.',
-            'image' => asset('images/system/maintenance.png'),
+            'message' => 'We are performing scheduled maintenance. Please check back later.',
+            'image' => null,
             'button_text' => null,
             'button_action' => null,
             'show_skip' => false,
-            'app_store_url' => null,
-            'estimated_restore_time' => null
+            'app_store_url' => null
         ]);
     }
 
