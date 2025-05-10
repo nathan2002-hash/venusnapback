@@ -23,6 +23,8 @@ Route::middleware('auth:api')->post('/logout', function (Request $request) {
     ]);
 });
 
+Route::post('/store-fcm-token', 'Api\NotificationController@storeFcmToken');
+
 Route::middleware('auth:api')->post('/support/ticket/submit', 'Api\ContactSupportController@store');
 Route::middleware('auth:api')->get('/support/tickets', 'Api\ContactSupportController@index');
 Route::middleware('auth:api')->post('/support/tickets/resolve/{id}', 'Api\ContactSupportController@updateStatus');
