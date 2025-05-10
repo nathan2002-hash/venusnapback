@@ -133,7 +133,7 @@ class AppStatusController extends Controller
                 'message' => $isCritical
                     ? 'This version is no longer supported. Please update to continue using the app.'
                     : 'A newer version with exciting features is available!',
-                'image' => asset('images/system/update-'.($isCritical ? 'required' : 'available').'.png'),
+                'image' => 'https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/update.jpg',
                 'button_text' => 'Update Now',
                 'button_action' => 'update',
                 'show_skip' => !$isCritical, // Only allow skip for non-critical updates
