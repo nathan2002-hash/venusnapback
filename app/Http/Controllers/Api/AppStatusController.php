@@ -85,7 +85,7 @@ class AppStatusController extends Controller
    protected function getMaintenanceResponse()
     {
         $messageId = env('MAINTENANCE_MESSAGE_ID');
-        $message = AppMessage::findOrFail($messageId);
+        $message = AppMessage::find($messageId);
 
         if ($message) {
             return response()->json([
@@ -116,57 +116,57 @@ class AppStatusController extends Controller
     }
 
     protected function checkVersionRequirements($platform, $currentVersion)
-    {
-        $minVersions = [
-            'android' => env('MIN_ANDROID_VERSION', '2.0'),
-            'ios' => env('MIN_IOS_VERSION', '2.0')
-        ];
+{
+    $minVersions = [
+        'android' => env('MIN_ANDROID_VERSION', '2.0'),
+        'ios' => env('MIN_IOS_VERSION', '2.0')
+    ];
 
-        $forceUpdateVersions = json_decode(env('FORCE_UPDATE_VERSIONS', '[]'), true);
+    $forceUpdateVersions = json_decode(env('FORCE_UPDATE_VERSIONS', '[]'), true);
 
-        // Check if current version is below minimum
-        if (version_compare($currentVersion, $minVersions[$platform], '<')) {
-            $isCritical = in_array($currentVersion, $forceUpdateVersions[$platform] ?? []);
-            $messageType = $isCritical ? 'update_required' : 'update_suggested';
-            $messageId = env(strtoupper($messageType).'_MESSAGE_ID');
+    // Check if current version is below minimum
+    if (version_compare($currentVersion, $minVersions[$platform], '<')) {
+        $isCritical = in_array($currentVersion, $forceUpdateVersions[$platform] ?? []);
+        $messageType = $isCritical ? 'update_required' : 'update_suggested';
+        $messageId = env(strtoupper($messageType).'_MESSAGE_ID');
 
-            $message = AppMessage::findOrFail($messageId);
+        $message = AppMessage::find($messageId);
 
-            if ($message) {
-                return response()->json([
-                    'status' => $messageType,
-                    'title' => $message->title,
-                    'message' => $message->content,
-                    'image' => asset($message->image_path),
-                    'button_text' => $message->button_text,
-                    'button_action' => $message->button_action,
-                    'show_skip' => !$isCritical,
-                    'app_store_url' => $this->getAppStoreUrl($platform),
-                    'current_version' => $currentVersion,
-                    'min_version' => $minVersions[$platform],
-                    'message_id' => $messageId,
-                ]);
-            }
-
-            // Fallback if no message configured
+        if ($message) {
             return response()->json([
                 'status' => $messageType,
-                'title' => $isCritical ? 'Update Required' : 'New Version Available',
-                'message' => $isCritical
-                    ? 'This version is no longer supported. Please update to continue using the app.'
-                    : 'A newer version with exciting features is available!',
-                'image' => 'https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/update.jpg',
-                'button_text' => 'Update Now',
-                'button_action' => 'update',
+                'title' => $message->title,
+                'message' => $message->content,
+                'image' => asset($message->image_path),
+                'button_text' => $message->button_text,
+                'button_action' => $message->button_action,
                 'show_skip' => !$isCritical,
                 'app_store_url' => $this->getAppStoreUrl($platform),
                 'current_version' => $currentVersion,
-                'min_version' => $minVersions[$platform]
+                'min_version' => $minVersions[$platform],
+                'message_id' => $messageId,
             ]);
         }
 
-        return null;
+        // Fallback if no message configured
+        return response()->json([
+            'status' => $messageType,
+            'title' => $isCritical ? 'Update Required' : 'New Version Available',
+            'message' => $isCritical
+                ? 'This version is no longer supported. Please update to continue using the app.'
+                : 'A newer version with exciting features is available!',
+            'image' => 'https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/update.jpg',
+            'button_text' => 'Update Now',
+            'button_action' => 'update',
+            'show_skip' => !$isCritical,
+            'app_store_url' => $this->getAppStoreUrl($platform),
+            'current_version' => $currentVersion,
+            'min_version' => $minVersions[$platform]
+        ]);
     }
+
+    return null;
+}
 
     protected function getAppStoreUrl($platform, $countryCode = null)
     {
