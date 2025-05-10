@@ -332,7 +332,7 @@ class CommentController extends Controller
         CreateNotificationJob::dispatch(
             $user,
             $postMedia,
-            'commented',
+            'replied',
             $albumOwnerId,
             [
                 'username' => $user->name,
