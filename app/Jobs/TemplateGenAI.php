@@ -45,11 +45,10 @@ class TemplateGenAI implements ShouldQueue
 
         try {
             $template->update(['status' => 'processing']);
-            $finalPrompt = "Create a background optimized for text quotes with:
-            - 60% empty space in the center for content
-            - Decorative elements only on the edges
-            - Light, non-distracting background patterns
-            - Based on this theme: " . $this->description;
+            $finalPrompt = $finalPrompt .= " Similar to these Freepik styles: 
+            - Modern abstract business templates 
+            - Clean social media post backgrounds 
+            - Professional report cover designs" . $this->description;
             $response = Http::withToken(env('OPENAI_API_KEY'))
             ->withHeaders([
                 'Content-Type' => 'application/json',
