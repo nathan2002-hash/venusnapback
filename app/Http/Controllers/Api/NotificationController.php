@@ -274,6 +274,15 @@ class NotificationController extends Controller
         return $icons[$action] ?? 'notifications';
     }
 
+    public function storeFcmToken(Request $request)
+    {
+        $user = $request->user();
+        $user->fcm_token = $request->fcm_token;
+        $user->save();
+        
+        return response()->json(['status' => 'success']);
+    }
+
 
    public function markAsRead(Request $request)
     {
