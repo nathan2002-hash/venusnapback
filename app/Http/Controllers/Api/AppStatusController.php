@@ -82,14 +82,16 @@ class AppStatusController extends Controller
         return response()->json(['success' => true]);
     }
 
-    protected function getMaintenanceResponse()
+   protected function getMaintenanceResponse()
     {
-        $message = AppMessage::where('type', 'maintenance')
-            ->active() // Using our scope
+        $messageId = env('MAINTENANCE_MESSAGE_ID');
+        $message = AppMessage::where('id', $messageId)
+            ->active()
             ->first();
 
         if ($message) {
             return response()->json([
+                'message_id' => $messageId,
                 'status' => 'maintenance',
                 'title' => $message->title,
                 'message' => $message->content,
@@ -98,10 +100,11 @@ class AppStatusController extends Controller
                 'button_action' => $message->button_action,
                 'show_skip' => $message->dismissible,
                 'app_store_url' => null,
-                'estimated_restore_time' => $message->end_at->toIso8601String()
+                'estimated_restore_time' => $message->end_at?->toIso8601String()
             ]);
         }
 
+        // Fallback if no message configured
         return response()->json([
             'status' => 'maintenance',
             'title' => 'Maintenance in Progress',
@@ -126,9 +129,32 @@ class AppStatusController extends Controller
         // Check if current version is below minimum
         if (version_compare($currentVersion, $minVersions[$platform], '<')) {
             $isCritical = in_array($currentVersion, $forceUpdateVersions[$platform] ?? []);
+            $messageType = $isCritical ? 'update_required' : 'update_suggested';
+            $messageId = env(strtoupper($messageType).'_MESSAGE_ID');
 
+            $message = AppMessage::where('id', $messageId)
+                ->active()
+                ->first();
+
+            if ($message) {
+                return response()->json([
+                    'status' => $messageType,
+                    'title' => $message->title,
+                    'message' => $message->content,
+                    'image' => asset($message->image_path),
+                    'button_text' => $message->button_text,
+                    'button_action' => $message->button_action,
+                    'show_skip' => !$isCritical,
+                    'app_store_url' => $this->getAppStoreUrl($platform),
+                    'current_version' => $currentVersion,
+                    'min_version' => $minVersions[$platform],
+                    'message_id' => $messageId,
+                ]);
+            }
+
+            // Fallback if no message configured
             return response()->json([
-                'status' => $isCritical ? 'update_required' : 'update_suggested',
+                'status' => $messageType,
                 'title' => $isCritical ? 'Update Required' : 'New Version Available',
                 'message' => $isCritical
                     ? 'This version is no longer supported. Please update to continue using the app.'
@@ -136,7 +162,7 @@ class AppStatusController extends Controller
                 'image' => 'https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/update.jpg',
                 'button_text' => 'Update Now',
                 'button_action' => 'update',
-                'show_skip' => !$isCritical, // Only allow skip for non-critical updates
+                'show_skip' => !$isCritical,
                 'app_store_url' => $this->getAppStoreUrl($platform),
                 'current_version' => $currentVersion,
                 'min_version' => $minVersions[$platform]
