@@ -85,9 +85,7 @@ class AppStatusController extends Controller
    protected function getMaintenanceResponse()
     {
         $messageId = env('MAINTENANCE_MESSAGE_ID');
-        $message = AppMessage::where('id', $messageId)
-            ->active()
-            ->first();
+        $message = AppMessage::findOrFail($messageId);
 
         if ($message) {
             return response()->json([
@@ -132,9 +130,7 @@ class AppStatusController extends Controller
             $messageType = $isCritical ? 'update_required' : 'update_suggested';
             $messageId = env(strtoupper($messageType).'_MESSAGE_ID');
 
-            $message = AppMessage::where('id', $messageId)
-                ->active()
-                ->first();
+            $message = AppMessage::findOrFail($messageId);
 
             if ($message) {
                 return response()->json([
