@@ -45,7 +45,7 @@ class TemplateGenAI implements ShouldQueue
 
         try {
             $template->update(['status' => 'processing']);
-            $finalPrompt = $finalPrompt .= " Similar to these Freepik styles: 
+            $finalPrompt = " Similar to these Freepik styles: 
             - Modern abstract business templates 
             - Clean social media post backgrounds 
             - Professional report cover designs" . $this->description;
