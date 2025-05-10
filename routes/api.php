@@ -226,4 +226,9 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
 
     //media download
     Route::post('/post/media/download', 'Api\MediaDownloadController@download');
+
+    //app status
+    Route::get('/app/status', 'Api\AppStatusController@checkAppStatus');
+    Route::get('/password/activities', 'Api\AuthController@fetchPasswordActivities');
+
 });
