@@ -333,7 +333,7 @@ class CommentController extends Controller
             $user,
             $postMedia,
             'replied',
-            $albumOwnerId,
+            $reply->user_id,
             [
                 'username' => $user->name,
                 'post_id' => $postMedia->post->id,
