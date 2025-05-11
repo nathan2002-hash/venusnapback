@@ -42,15 +42,25 @@ class CreateNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
+        // Ensure all array values are properly converted to strings
+        $mergedData = array_merge([
+            'username' => $this->sender->name,
+            'sender_id' => $this->sender->id,
+        ], $this->data);
+
+        // Convert any array values to JSON strings
+        foreach ($mergedData as $key => $value) {
+            if (is_array($value)) {
+                $mergedData[$key] = json_encode($value);
+            }
+        }
+
         $notification = NotificationModel::create([
             'user_id' => $this->targetUserId,
             'action' => $this->action,
             'notifiable_type' => get_class($this->notifiable),
             'notifiable_id' => $this->notifiable->id,
-            'data' => json_encode(array_merge([
-                'username' => $this->sender->name,
-                'sender_id' => $this->sender->id,
-            ], $this->data)),
+            'data' => json_encode($mergedData),  // Now properly handles arrays
             'group_count' => 0,
             'is_read' => false,
         ]);
