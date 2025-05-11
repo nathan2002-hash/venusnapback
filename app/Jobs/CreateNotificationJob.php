@@ -65,7 +65,7 @@ class CreateNotificationJob implements ShouldQueue
         }
 
         // Download Firebase credentials JSON from S3 public URL
-        $jsonContent = file_get_contents('https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/venusnap-54d5a-firebase-adminsdk-fbsvc-a8c7ca7868.json');
+        $jsonContent = file_get_contents('https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/venusnap-54d5a-firebase-adminsdk-fbsvc-b887c409e0.json');
 
         // Write to a temporary file in memory
         $tempFilePath = tempnam(sys_get_temp_dir(), 'firebase_cred_');
