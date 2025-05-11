@@ -8,6 +8,7 @@ use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class NotificationController extends Controller
 {
@@ -270,14 +271,103 @@ class NotificationController extends Controller
     public function storeFcmToken(Request $request)
     {
         $user = $request->user();
-        $user->fcm_token = $request->fcm_token;
+        $user->usersetting->fcm_token = $request->fcm_token;
         $user->save();
 
         return response()->json(['status' => 'success']);
     }
 
+    public function sendPushNotification(Request $request)
+    {
+        $user = $request->user();
+        $notificationData = $request->validate([
+            'type' => 'required|string',
+            'action' => 'required|string',
+            'notifiable_id' => 'required|integer',
+            'notifiablemedia_id' => 'nullable|integer',
+            'metadata' => 'nullable|array'
+        ]);
 
-   public function markAsRead(Request $request)
+        // Create the database notification (your existing logic)
+        $notification = Notification::create([
+            'user_id' => $user->id,
+            'type' => $notificationData['type'],
+            'action' => $notificationData['action'],
+            'notifiable_id' => $notificationData['notifiable_id'],
+            'data' => json_encode($notificationData['metadata'] ?? []),
+            'is_read' => false,
+        ]);
+
+        // Prepare the notification message (reuse your existing formatting)
+        $formattedNotification = $this->formatNotificationForPush($notification);
+
+        // Send via FCM if recipient has a token
+        if ($user->usersetting->fcm_token) {
+            $this->sendViaFcm($user->usersetting->fcm_token, $formattedNotification);
+        }
+
+        return response()->json(['status' => 'success']);
+    }
+
+    protected function formatNotificationForPush(Notification $notification)
+    {
+        // Reuse your existing notification formatting logic from index()
+        $data = json_decode($notification->data, true);
+        $username = $data['username'] ?? 'Someone';
+        $action = $notification->action;
+        $type = $notification->type ?? $this->determineTypeFromAction($action);
+
+        $ids = $this->getNotificationIds($notification, $type);
+
+        if ($type === 'album_request') {
+            $message = "$username invited you to collaborate on the album \"{$data['album_name']}\"";
+        } else {
+            $message = $this->buildGroupedMessage(
+                [$username],
+                1,
+                $action,
+                $type,
+                $notification,
+                collect([$notification])
+            );
+        }
+
+        return [
+            'title' => 'New Notification',
+            'body' => $message,
+            'data' => [
+                'type' => $type,
+                'action' => $action,
+                'notifiable_id' => $ids['notifiable_id'],
+                'notifiablemedia_id' => $ids['notifiablemedia_id'],
+                'metadata' => $data,
+                'notification_id' => $notification->id,
+            ]
+        ];
+    }
+
+    protected function sendViaFcm(string $fcmToken, array $notification)
+    {
+        $serverKey = config('services.fcm.server_key');
+
+        $response = Http::withHeaders([
+            'Authorization' => "key={$serverKey}",
+            'Content-Type' => 'application/json',
+        ])->post('https://fcm.googleapis.com/fcm/send', [
+            'to' => $fcmToken,
+            'notification' => [
+                'title' => $notification['title'],
+                'body' => $notification['body'],
+                'sound' => 'default',
+            ],
+            'data' => $notification['data'],
+            'priority' => 'high',
+        ]);
+
+        return $response->successful();
+    }
+
+    public function markAsRead(Request $request)
     {
         $request->validate([
             'notification_id' => 'required|integer',
