@@ -271,7 +271,7 @@ class NotificationController extends Controller
 
     public function storeFcmToken(Request $request)
     {
-        $user = $request->user();
+        $user = Auth::user();
 
         $settings = UserSetting::firstOrCreate(
             ['user_id' => $user->id],
