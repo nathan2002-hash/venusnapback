@@ -160,8 +160,6 @@ class CommentController extends Controller
         ]);
     }
 
-
-
     public function getCommentReplies($commentId, Request $request)
     {
         // Validate input
@@ -221,8 +219,6 @@ class CommentController extends Controller
             'has_more' => $replies->hasMorePages(),
         ]);
     }
-
-
 
     public function storeComment(Request $request, $id)
     {
@@ -287,77 +283,78 @@ class CommentController extends Controller
     }
 
     public function storeReply(Request $request, $id)
-{
-    $request->validate([
-        'reply' => 'required|string',
-    ]);
+    {
+        $request->validate([
+            'reply' => 'required|string',
+        ]);
 
-    $user = Auth::user();
+        $user = Auth::user();
 
-    // Create the reply
-    $reply = new CommentReply();
-    $reply->user_id = $user->id;
-    $reply->comment_id = $id;
-    $reply->reply = $request->reply;
-    $reply->status = 'active';
-    $reply->save();
+        // Create the reply
+        $reply = new CommentReply();
+        $reply->user_id = $user->id;
+        $reply->comment_id = $id;
+        $reply->reply = $request->reply;
+        $reply->status = 'active';
+        $reply->save();
 
-    $reply->load('user');
+        $reply->load('user');
 
-    // Load the comment and relationships
-    $comment = Comment::find($id);
-    if (!$comment) {
-        return response()->json(['message' => 'Comment not found'], 404);
+        // Load the comment and relationships
+        $comment = Comment::find($id);
+        if (!$comment) {
+            return response()->json(['message' => 'Comment not found'], 404);
+        }
+
+        $postMedia = PostMedia::with('post.album.user')->find($comment->post_media_id);
+        if (!$postMedia || !$postMedia->post || !$postMedia->post->album) {
+            return response()->json(['message' => 'Post media, post, or album not found'], 404);
+        }
+
+        $album = $postMedia->post->album;
+        $albumOwnerId = $album->user_id;
+
+        $isOwner = ($user->id == $albumOwnerId);
+
+        // Determine display name and profile picture
+        $displayName = $isOwner ? $album->name : $user->name;
+        $profilePictureUrl = $isOwner
+            ? $this->getProfileUrl($album)
+            : ($user->profile_compressed
+                ? Storage::disk('s3')->url($user->profile_compressed)
+                : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
+
+        // Send notification if not owner
+        if ($reply->user_id !== $user->id) {
+            CreateNotificationJob::dispatch(
+                $user,
+                $postMedia,
+                'replied',
+                $comment->user_id,
+                [
+                    'username' => $displayName,
+                    'post_id' => $postMedia->post->id,
+                    'media_id' => $postMedia->id,
+                    'comment_id' => $comment->id,
+                    'reply_id' => $reply->id,
+                    'album_id' => $album->id,
+                    'is_reply' => true,
+                    'is_album_owner' => $isOwner
+                ]
+            );
+        }
+
+        return response()->json([
+            'id' => $reply->id,
+            'reply' => $reply->reply,
+            'comment_id' => $reply->comment_id,
+            'user_id' => $user->id,
+            'username' => $displayName,  // Now shows album name if owner
+            'profile_picture_url' => $profilePictureUrl,  // Now shows album image if owner
+            'created_at' => Carbon::parse($reply->created_at)->diffForHumans(),
+            'is_owner' => $isOwner  // Helpful for frontend styling
+        ], 201);
     }
-
-    $postMedia = PostMedia::with('post.album.user')->find($comment->post_media_id);
-    if (!$postMedia || !$postMedia->post || !$postMedia->post->album) {
-        return response()->json(['message' => 'Post media, post, or album not found'], 404);
-    }
-
-    $album = $postMedia->post->album;
-    $albumOwnerId = $album->user_id;
-    $isOwner = ($user->id == $albumOwnerId);
-
-    // Determine display name and profile picture
-    $displayName = $isOwner ? $album->name : $user->name;
-    $profilePictureUrl = $isOwner
-        ? $this->getProfileUrl($album)
-        : ($user->profile_compressed
-            ? Storage::disk('s3')->url($user->profile_compressed)
-            : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
-
-    // Send notification if not owner
-    if (1 == 1) {
-        CreateNotificationJob::dispatch(
-            $user,
-            $postMedia,
-            'replied',
-            $comment->user_id,
-            [
-                'username' => $user->name,
-                'post_id' => $postMedia->post->id,
-                'media_id' => $postMedia->id,
-                'comment_id' => $comment->id,
-                'reply_id' => $reply->id,
-                'album_id' => $album->id,
-                'is_reply' => true
-            ]
-        );
-    }
-
-    return response()->json([
-        'id' => $reply->id,
-        'reply' => $reply->reply,
-        'comment_id' => $reply->comment_id,
-        'user_id' => $user->id,
-        'username' => $displayName,  // Now shows album name if owner
-        'profile_picture_url' => $profilePictureUrl,  // Now shows album image if owner
-        'created_at' => Carbon::parse($reply->created_at)->diffForHumans(),
-        'is_owner' => $isOwner  // Helpful for frontend styling
-    ], 201);
-}
-
 
     private function getProfileUrl($album)
     {
@@ -448,5 +445,4 @@ class CommentController extends Controller
             'message' => 'Comment reply deleted successfully.'
         ], 200);
     }
-
 }

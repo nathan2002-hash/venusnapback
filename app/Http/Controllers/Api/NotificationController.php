@@ -12,133 +12,134 @@ use Illuminate\Support\Facades\Auth;
 class NotificationController extends Controller
 {
     public function index(Request $request)
-{
-    $user = $request->user();
+    {
+        $user = $request->user();
 
-    $notifications = Notification::where('user_id', $user->id)
-        ->orderBy('created_at', 'desc')
-        ->get()
-        ->groupBy(function ($notification) {
-            $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
+        $notifications = Notification::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy(function ($notification) {
+                $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
 
-            // Special handling for album views
-            if ($type === 'album_view') {
-                $data = json_decode($notification->data, true);
-                $albumId = $data['album_id'] ?? $notification->notifiable_id;
-                $date = $notification->created_at->format('Y-m-d');
-                return "album_view-{$albumId}-{$date}";
-            }
-
-            // Default grouping for other types
-            $groupKey = $type . '-' . $this->getGroupingIdentifier($notification, $type);
-
-            if ($type !== 'album_view') {
-                $data = json_decode($notification->data, true);
-                if (isset($data['username'])) {
-                    $groupKey .= '-' . $data['username'];
+                // Special handling for album views
+                if ($type === 'album_view') {
+                    $data = json_decode($notification->data, true);
+                    $albumId = $data['album_id'] ?? $notification->notifiable_id;
+                    $date = $notification->created_at->format('Y-m-d');
+                    return "album_view-{$albumId}-{$date}";
                 }
-            }
 
-            return $groupKey;
-        })
-        ->map(function ($group) {
-            $firstNotification = $group->first();
-            $data = json_decode($firstNotification->data, true);
-            $username = $data['username'] ?? 'Someone';
+                // Default grouping for other types
+                $groupKey = $type . '-' . $this->getGroupingIdentifier($notification, $type);
 
-            $action = $firstNotification->action;
-            $type = $firstNotification->type ?? $this->determineTypeFromAction($action);
-            
-            // Get both notifiable_id and notifiablemedia_id
-            $ids = $this->getNotificationIds($firstNotification, $type);
-            $notifiableId = $ids['notifiable_id'];
-            $notifiableMediaId = $ids['notifiablemedia_id'];
-            
-            $userCount = $group->count();
+                if ($type !== 'album_view') {
+                    $data = json_decode($notification->data, true);
+                    if (isset($data['username'])) {
+                        $groupKey .= '-' . $data['username'];
+                    }
+                }
 
-            if ($type === 'album_request') {
-                $message = "$username invited you to collaborate on the album \"{$data['album_name']}\"";
-            } else {
-                $message = $this->buildGroupedMessage([$username], $userCount, $action, $type, $firstNotification, $group);
-            }
+                return $groupKey;
+            })
+            ->map(function ($group) {
+                $firstNotification = $group->first();
+                $data = json_decode($firstNotification->data, true);
+                $username = $data['username'] ?? 'Someone';
 
-            return [
-                'id' => $firstNotification->id,
-                'type' => $type,
-                'action' => $action,
-                'notifiable_id' => $notifiableId,
-                'notifiablemedia_id' => $notifiableMediaId,
-                'original_notifiable_id' => $firstNotification->notifiable_id,
-                'message' => $message,
-                'is_read' => $group->every->is_read,
-                'created_at' => $firstNotification->created_at,
-                'formatted_date' => $firstNotification->created_at->format('M d, Y - h:i A'),
-                'icon' => $this->getNotificationIcon($action),
-                'metadata' => $data
-            ];
-        })
-        ->values();
+                $action = $firstNotification->action;
+                $type = $firstNotification->type ?? $this->determineTypeFromAction($action);
 
-    return response()->json($notifications);
-}
+                // Get both notifiable_id and notifiablemedia_id
+                $ids = $this->getNotificationIds($firstNotification, $type);
+                $notifiableId = $ids['notifiable_id'];
+                $notifiableMediaId = $ids['notifiablemedia_id'];
+
+                $userCount = $group->count();
+
+                if ($type === 'album_request') {
+                    $message = "$username invited you to collaborate on the album \"{$data['album_name']}\"";
+                } else {
+                    $message = $this->buildGroupedMessage([$username], $userCount, $action, $type, $firstNotification, $group);
+                }
+
+                return [
+                    'id' => $firstNotification->id,
+                    'type' => $type,
+                    'action' => $action,
+                    'notifiable_id' => $notifiableId,
+                    'notifiablemedia_id' => $notifiableMediaId,
+                    'original_notifiable_id' => $firstNotification->notifiable_id,
+                    'message' => $message,
+                    'is_read' => $group->every->is_read,
+                    'created_at' => $firstNotification->created_at,
+                    'formatted_date' => $firstNotification->created_at->format('M d, Y - h:i A'),
+                    'icon' => $this->getNotificationIcon($action),
+                    'metadata' => $data
+                ];
+            })
+            ->values();
+
+        return response()->json($notifications);
+    }
 
    protected function getGroupingIdentifier($notification, $type)
-{
-    if ($type === 'post' || $type === 'comment') {
-        try {
-            $postMedia = PostMedia::find($notification->notifiable_id);
-            return $postMedia ? $postMedia->post_id : $notification->notifiable_id;
-        } catch (\Exception $e) {
-            return $notification->notifiable_id;
-        }
-    }
-
-    if ($type === 'album_view' || $type === 'album_request') {
-        $data = json_decode($notification->data, true);
-        $albumId = $data['album_id'] ?? $notification->notifiable_id;
-        
-        // For album_view, group by date as well
-        if ($type === 'album_view') {
-            $date = $notification->created_at->format('Y-m-d');
-            return $albumId . '-' . $date;
-        }
-        
-        return $albumId;
-    }
-
-    return $notification->notifiable_id;
-}
-
-
-   protected function getNotificationIds($notification, $type)
-{
-    $result = [
-        'notifiable_id' => $notification->notifiable_id,
-        'notifiablemedia_id' => null
-    ];
-
-    // For post and comment types, we need to get both the post_id and media_id
-    if ($type === 'post' || $type === 'comment') {
-        try {
-            $postMedia = PostMedia::find($notification->notifiable_id);
-            if ($postMedia) {
-                $result['notifiable_id'] = $postMedia->post_id;
-                $result['notifiablemedia_id'] = $postMedia->id;
+    {
+        if ($type === 'post' || $type === 'comment') {
+            try {
+                $postMedia = PostMedia::find($notification->notifiable_id);
+                return $postMedia ? $postMedia->post_id : $notification->notifiable_id;
+            } catch (\Exception $e) {
+                return $notification->notifiable_id;
             }
-        } catch (\Exception $e) {
-            // Keep original values if error occurs
         }
-    }
-    // For album access, ensure notifiable_id contains the album_id
-    elseif ($type === 'album_view' || $type === 'album_request') {
-        $data = json_decode($notification->data, true);
-        if (isset($data['album_id'])) {
-            $result['notifiable_id'] = $data['album_id'];
+
+        if ($type === 'album_view' || $type === 'album_request') {
+            $data = json_decode($notification->data, true);
+            $albumId = $data['album_id'] ?? $notification->notifiable_id;
+
+            // For album_view, group by date as well
+            if ($type === 'album_view') {
+                $date = $notification->created_at->format('Y-m-d');
+                return $albumId . '-' . $date;
+            }
+
+            return $albumId;
         }
+
+        return $notification->notifiable_id;
     }
 
-    return $result;
-}
+
+    protected function getNotificationIds($notification, $type)
+    {
+        $result = [
+            'notifiable_id' => $notification->notifiable_id,
+            'notifiablemedia_id' => null
+        ];
+
+        // For post and comment types, we need to get both the post_id and media_id
+        if ($type === 'post' || $type === 'comment') {
+            try {
+                $postMedia = PostMedia::find($notification->notifiable_id);
+                if ($postMedia) {
+                    $result['notifiable_id'] = $postMedia->post_id;
+                    $result['notifiablemedia_id'] = $postMedia->id;
+                }
+            } catch (\Exception $e) {
+                // Keep original values if error occurs
+            }
+        }
+        // For album access, ensure notifiable_id contains the album_id
+        elseif ($type === 'album_view' || $type === 'album_request') {
+            $data = json_decode($notification->data, true);
+            if (isset($data['album_id'])) {
+                $result['notifiable_id'] = $data['album_id'];
+            }
+        }
+
+        return $result;
+    }
+
     private function determineTypeFromAction($action)
     {
         $typeMap = [
@@ -160,27 +161,27 @@ class NotificationController extends Controller
             $album = \App\Models\Album::with('user')->find($data['album_id'] ?? null);
             $albumName = $album ? $album->name : 'your album';
             $ownerUsername = $album?->user?->name;
-    
+
             $notificationDate = $notification->created_at->timezone(config('app.timezone'))->startOfDay();
             $today = now()->timezone(config('app.timezone'))->startOfDay();
             $diffInDays = $notificationDate->diffInDays($today);
-    
+
             $timePhrase = match (true) {
                 $diffInDays === 0 => 'today',
                 $diffInDays === 1 => 'yesterday',
                 $diffInDays <= 6 => 'on ' . $notificationDate->format('l'),
                 default => 'on ' . $notificationDate->format('M j'),
             };
-    
+
             // Get all unique usernames from the group, excluding the owner
             $allUsernames = $group->map(function ($n) use ($ownerUsername) {
                 $data = json_decode($n->data, true);
                 $username = $data['username'] ?? null;
                 return $username && $username !== $ownerUsername ? $username : null;
             })->filter()->unique()->values()->toArray();
-    
+
             $filteredCount = count($allUsernames);
-    
+
             if (!empty($allUsernames)) {
                 if ($filteredCount === 1) {
                     return "{$allUsernames[0]} explored your album \"$albumName\" $timePhrase";
@@ -193,25 +194,25 @@ class NotificationController extends Controller
                 }
                 return "{$allUsernames[0]} and " . ($filteredCount - 1) . " others explored your album \"$albumName\" $timePhrase";
             }
-    
+
             // If all viewers were the owner
             return null;
         }
-    
+
         // Fallback for other types
         $actionPhrase = $this->getActionPhrase($action, $type, $notification);
-    
+
         // Filter out empty usernames and ensure we have unique values
         $usernames = array_filter(array_unique($usernames));
         $userCount = count($usernames);
-    
+
         if (empty($usernames)) {
             return "Someone $actionPhrase";
         }
-    
+
         // Get the first few usernames (up to 3)
         $displayUsernames = array_slice($usernames, 0, 3);
-    
+
         if ($userCount == 1) {
             return "{$displayUsernames[0]} $actionPhrase";
         }
@@ -221,30 +222,24 @@ class NotificationController extends Controller
         if ($userCount == 3) {
             return "{$displayUsernames[0]}, {$displayUsernames[1]}, and {$displayUsernames[2]} $actionPhrase";
         }
-    
+
         return "{$displayUsernames[0]} and " . ($userCount - 1) . " others $actionPhrase";
     }
 
     private function getActionPhrase($action, $type, $notification)
     {
         $data = json_decode($notification->data, true);
-
-        $albumName = null;
-        if (isset($data['album_id'])) {
-            $album = \App\Models\Album::find($data['album_id']);
-            if ($album) {
-                $albumName = $album->name;
-            }
-        }
+        $isAlbumOwner = $data['is_album_owner'] ?? false;
+        $albumName = $data['album_name'] ?? null;
 
         $phrases = [
             'comment' => [
-                'commented' => "commented on your snap on {$albumName} Album",
-                'replied' => 'replied to your comment',
+                'commented' => "commented on your snap" . ($albumName ? " in {$albumName}" : ""),
+                'replied' => $isAlbumOwner ? "replied to your comment in {$albumName}" : "replied to your comment",
             ],
             'post' => [
                 'liked' => 'liked your post',
-                'admired' => $albumName ? "admired your snap on {$albumName} Album" : 'admired your snap',
+                'admired' => $albumName ? "admired your snap in {$albumName}" : 'admired your snap',
                 'shared' => 'shared your post',
             ],
             'album_request' => [
@@ -255,8 +250,6 @@ class NotificationController extends Controller
 
         return $phrases[$type][$action] ?? $action;
     }
-
-
 
     private function getNotificationIcon($action)
     {
@@ -279,7 +272,7 @@ class NotificationController extends Controller
         $user = $request->user();
         $user->fcm_token = $request->fcm_token;
         $user->save();
-        
+
         return response()->json(['status' => 'success']);
     }
 
