@@ -325,7 +325,7 @@ class CommentController extends Controller
                 : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
 
         // Send notification if not owner
-        if ($reply->user_id !== $user->id) {
+        if ($comment->user_id !== $user->id) {
             CreateNotificationJob::dispatch(
                 $user,
                 $postMedia,
