@@ -252,7 +252,7 @@ class CommentController extends Controller
                 ? Storage::disk('s3')->url($user->profile_compressed)
                 : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
 
-        // Send notification if not owner
+            // Send notification if not owner
         if ($albumOwnerId !== $user->id) {
             CreateNotificationJob::dispatch(
                 $user,
@@ -263,7 +263,9 @@ class CommentController extends Controller
                     'username' => $user->name,
                     'post_id' => $postMedia->post->id,
                     'media_id' => $postMedia->id,
-                    'album_id' => $album->id
+                    'album_id' => $album->id,
+                    'album_name' => $album->name,
+                    'comment_id' => $comment->id
                 ]
             );
         }
@@ -324,8 +326,7 @@ class CommentController extends Controller
                 ? Storage::disk('s3')->url($user->profile_compressed)
                 : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
 
-        // Send notification if not owner
-        if ($comment->user_id !== $user->id) {
+           if ($comment->user_id !== $user->id) {
             CreateNotificationJob::dispatch(
                 $user,
                 $postMedia,
@@ -338,6 +339,7 @@ class CommentController extends Controller
                     'comment_id' => $comment->id,
                     'reply_id' => $reply->id,
                     'album_id' => $album->id,
+                    'album_name' => $album->name,
                     'is_reply' => true,
                     'is_album_owner' => $isOwner
                 ]

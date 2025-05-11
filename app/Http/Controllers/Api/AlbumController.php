@@ -56,7 +56,7 @@ class AlbumController extends Controller
     public function getUserAlbums()
     {
         $user = Auth::user();
-    
+
         // Owned albums (Eloquent collection)
         $ownedAlbums = Album::where('user_id', $user->id)
             ->whereIn('type', ['creator', 'business', 'personal'])
@@ -68,13 +68,13 @@ class AlbumController extends Controller
                     'creator' => 'Creator',
                     default => 'Business',
                 };
-    
+
                 return [
                     'id' => $album->id,
                     'album_name' => "{$album->name} ($typeLabel)",
                 ];
             });
-    
+
         // Shared albums (direct array conversion)
         $sharedAlbums = DB::table('album_accesses')
             ->join('albums', 'album_accesses.album_id', '=', 'albums.id')
@@ -88,16 +88,16 @@ class AlbumController extends Controller
                     'creator' => 'Creator',
                     default => 'Business',
                 };
-    
+
                 return [
                     'id' => $album->id,
                     'album_name' => "{$album->name} ($typeLabel)",
                 ];
             });
-    
+
         // Merge both collections
         $albums = $ownedAlbums->merge($sharedAlbums);
-    
+
         return response()->json([
             'success' => true,
             'data' => $albums->values() // This ensures sequential array keys
@@ -286,7 +286,7 @@ class AlbumController extends Controller
                 'thumbnail_compressed', 'type', 'is_verified', 'created_at'
             )
             ->get();
-        
+
         // 2. Albums the user has been granted access to (approved & active only)
         $accessedAlbums = Album::whereIn('id', function ($query) use ($userId) {
                 $query->select('album_id')
@@ -388,6 +388,8 @@ class AlbumController extends Controller
                     'album_id' => $album->id
                 ]
             );
+
+            $this->sendAlbumViewPushNotification($user, $album);
         }
 
         // Determine the album's thumbnail
@@ -420,7 +422,7 @@ class AlbumController extends Controller
             $postThumbnail = $post->postmedias->first()
                 ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress)
                 : null;
-    
+
             return [
                 'id' => $post->id,
                 'title' => $post->title,
@@ -480,22 +482,20 @@ class AlbumController extends Controller
 
          $receiver = $album->user_id;
 
-         if ($receiver !== $user->id) {
+        if ($receiver !== $user->id) {
             CreateNotificationJob::dispatch(
                 $user,
                 $album,
                 'viewed_album',
                 $receiver,
                 [
-                    'viewer' => $user->id,
-                    'album_id' => $album->id
+                    'username' => $user->name,
+                    'album_id' => $album->id,
+                    'album_name' => $album->name,
+                    'viewer_id' => $user->id
                 ]
             );
         }
-
-        // Check if current user is a supporter
-       //$isSupporter = $user ? $album->supporters->contains($user->id) : false;
-        //$isSupporter = $album->supporters->contains('id', $user->id);
         $isSupporter = $user ? $album->supporters()->where('user_id', Auth::user()->id)->exists() : false;
 
 
@@ -530,7 +530,7 @@ class AlbumController extends Controller
             $postThumbnail = $post->postmedias->first()
                 ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress)
                 : null;
-    
+
             return [
                 'id' => $post->id,
                 'title' => $post->title,
