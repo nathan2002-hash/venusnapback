@@ -9,7 +9,7 @@ use App\Models\AppMessageUserAction;
 
 class AppStatusController extends Controller
 {
-   public function checkAppStatus(Request $request)
+    public function checkAppStatus(Request $request)
     {
         $currentVersion = $request->header('X-App-Version');
         $platform = str_contains(strtolower($request->header('X-App-type')), 'android') ? 'android' : 'ios';
@@ -33,26 +33,41 @@ class AppStatusController extends Controller
                     ->orWhereJsonContains('platforms', $platform);
                 })
                 ->whereDoesntHave('userActions', function($q) use ($request) {
-                    // Check for ANY action by this user, not just 'viewed'
-                    $q->where('user_id', $request->user()->id);
+                    $q->where('user_id', $request->user()->id)
+                    ->whereIn('action', ['dismissed', 'clicked']); // Check for either dismissed or clicked
                 })
                 ->first();
 
             if ($message) {
-                // Only record 'viewed' if this is the first time seeing the message
+                // Check if user has never seen this message before
                 if (!AppMessageUserAction::where('app_message_id', $message->id)
                     ->where('user_id', $request->user()->id)
                     ->exists()) {
 
+                    // Record initial 'viewed' action
                     AppMessageUserAction::create([
                         'app_message_id' => $message->id,
                         'user_id' => $request->user()->id,
-                        'action' => 'viewed',
+                        'ip' => $request->ip(),
+                        'action' => 'viewed', // Changed from 'dismissed' to 'viewed'
                         'app_version' => $currentVersion,
                         'platform' => $platform
                     ]);
+
+                    return response()->json([
+                        'status' => $message->type,
+                        'title' => $message->title,
+                        'message' => $message->content,
+                        'image' => asset($message->image_path),
+                        'button_text' => $message->button_text,
+                        'button_action' => $message->button_action,
+                        'show_skip' => $message->dismissible,
+                        'app_store_url' => $this->getAppStoreUrl($platform),
+                        'message_id' => $message->id
+                    ]);
                 }
 
+                // If user has seen but not dismissed/clicked, show message again
                 return response()->json([
                     'status' => $message->type,
                     'title' => $message->title,
@@ -80,6 +95,7 @@ class AppStatusController extends Controller
         AppMessageUserAction::create([
             'app_message_id' => $validated['message_id'],
             'user_id' => $request->user()?->id,
+            'ip' => $request->ip(),
             'device_id' => $request->header('X-Device-ID'),
             'action' => $validated['action'],
             'app_version' => $request->header('X-App-Version'),
