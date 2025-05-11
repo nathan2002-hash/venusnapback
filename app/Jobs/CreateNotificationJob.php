@@ -10,6 +10,8 @@ use App\Models\Notification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
 
 class CreateNotificationJob implements ShouldQueue
 {
@@ -62,21 +64,31 @@ class CreateNotificationJob implements ShouldQueue
             return;
         }
 
+        // Download Firebase credentials JSON from S3 public URL
+        $jsonContent = file_get_contents('https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/venusnap-54d5a-firebase-adminsdk-fbsvc-a8c7ca7868.json');
+
+        // Write to a temporary file in memory
+        $tempFilePath = tempnam(sys_get_temp_dir(), 'firebase_cred_');
+        file_put_contents($tempFilePath, $jsonContent);
+
+        // Initialize Firebase with the temporary file
+        $factory = (new Factory)->withServiceAccount($tempFilePath);
+        $messaging = $factory->createMessaging();
+
+        // Prepare and send the message
+        $title = $this->getNotificationTitle($notification->action);
+        $body = $this->getNotificationBody($notification);
         $notificationData = $this->prepareNotificationData($notification);
 
-        Http::withHeaders([
-            'Authorization' => 'key=' . config('services.fcm.server_key'),
-            'Content-Type' => 'application/json',
-        ])->post('https://fcm.googleapis.com/v1/projects/venusnap-54d5a/messages:send', [
-            'to' => $receiverSettings->fcm_token,
-            'notification' => [
-                'title' => $this->getNotificationTitle($notification->action),
-                'body' => $this->getNotificationBody($notification),
-                'sound' => 'default',
-            ],
-            'data' => $notificationData,
-            'priority' => 'high',
-        ]);
+        $message = CloudMessage::withTarget('token', $receiverSettings->fcm_token)
+            ->withNotification(Notification::create($title, $body))
+            ->withHighestPossiblePriority()
+            ->withData($notificationData);
+
+        $messaging->send($message);
+
+        // Clean up
+        unlink($tempFilePath);
     }
 
     protected function prepareNotificationData($notification)
