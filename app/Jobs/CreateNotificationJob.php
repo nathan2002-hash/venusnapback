@@ -42,78 +42,111 @@ class CreateNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        // Ensure all array values are properly converted to strings
-        $mergedData = array_merge([
+        try {
+            $notificationData = [
+                'user_id' => $this->targetUserId,
+                'action' => $this->action,
+                'notifiable_type' => get_class($this->notifiable),
+                'notifiable_id' => $this->notifiable->id,
+                'data' => $this->prepareNotificationDataForStorage(),
+                'group_count' => 0,
+                'is_read' => false,
+            ];
+
+            $notification = NotificationModel::create($notificationData);
+            $this->sendPushNotification($notification);
+        } catch (\Exception $e) {
+            Log::error('Notification creation failed: ' . $e->getMessage(), [
+                'target_user' => $this->targetUserId,
+                'action' => $this->action,
+                'error' => $e->getTraceAsString()
+            ]);
+        }
+    }
+
+    protected function sanitizeData(array $data): array
+    {
+        array_walk_recursive($data, function (&$value) {
+            if (is_array($value)) {
+                $value = json_encode($value);
+            }
+            // Convert other non-scalar values to strings if needed
+            elseif (!is_scalar($value)) {
+                $value = (string)$value;
+            }
+        });
+        return $data;
+    }
+
+    protected function prepareNotificationDataForStorage(): string
+    {
+        $baseData = [
             'username' => $this->sender->name,
             'sender_id' => $this->sender->id,
-        ], $this->data);
+        ];
 
-        // Convert any array values to JSON strings
-        foreach ($mergedData as $key => $value) {
-            if (is_array($value)) {
-                $mergedData[$key] = json_encode($value);
-            }
+        $mergedData = array_merge($baseData, $this->data);
+        return json_encode($mergedData, JSON_UNESCAPED_UNICODE);
+    }
+
+    protected function sendPushNotification($notification)
+    {
+        $receiverSettings = UserSetting::where('user_id', $this->targetUserId)->first();
+
+        if (!$receiverSettings || !$receiverSettings->push_notifications || !$receiverSettings->fcm_token) {
+            return;
         }
 
-        $notification = NotificationModel::create([
-            'user_id' => $this->targetUserId,
-            'action' => $this->action,
-            'notifiable_type' => get_class($this->notifiable),
-            'notifiable_id' => $this->notifiable->id,
-            'data' => json_encode($mergedData),  // Now properly handles arrays
-            'group_count' => 0,
-            'is_read' => false,
-        ]);
+        try {
+            $jsonContent = file_get_contents('https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/venusnap-54d5a-firebase-adminsdk-fbsvc-b887c409e0.json');
 
-        $this->sendPushNotification($notification);
+            if ($jsonContent === false) {
+                throw new \Exception('Failed to fetch Firebase credentials');
+            }
+
+            $tempFilePath = tempnam(sys_get_temp_dir(), 'firebase_cred_');
+            file_put_contents($tempFilePath, $jsonContent);
+
+            $factory = (new Factory)->withServiceAccount($tempFilePath);
+            $messaging = $factory->createMessaging();
+
+            $message = CloudMessage::withTarget('token', $receiverSettings->fcm_token)
+                ->withNotification(FirebaseNotification::create(
+                    $this->getNotificationTitle($notification->action),
+                    $this->getNotificationBody($notification)
+                ))
+                ->withHighestPossiblePriority()
+                ->withData($this->preparePushData($notification));
+
+            $messaging->send($message);
+
+        } catch (\Exception $e) {
+            Log::error('Push notification failed: ' . $e->getMessage(), [
+                'user_id' => $this->targetUserId,
+                'error' => $e->getTraceAsString()
+            ]);
+        } finally {
+            if (isset($tempFilePath) && file_exists($tempFilePath)) {
+                unlink($tempFilePath);
+            }
+        }
     }
 
-   protected function sendPushNotification($notification)
-{
-    $receiverSettings = UserSetting::where('user_id', $this->targetUserId)->first();
+    protected function preparePushData($notification): array
+    {
+        $data = json_decode($notification->data, true);
+        $type = $this->determineTypeFromAction($notification->action);
 
-    if (!$receiverSettings || !$receiverSettings->push_notifications || !$receiverSettings->fcm_token) {
-        return;
+        return [
+            'type' => $type,
+            'action' => $notification->action,
+            'notifiable_id' => $notification->notifiable_id,
+            'notifiablemedia_id' => $data['media_id'] ?? null,
+            'metadata' => $data,
+            'notification_id' => $notification->id,
+        ];
     }
 
-    // Download Firebase credentials JSON from S3 public URL
-    $jsonContent = file_get_contents('https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/venusnap-54d5a-firebase-adminsdk-fbsvc-b887c409e0.json');
-
-    // Check if content was fetched successfully
-    if ($jsonContent === false) {
-        // Handle error, file could not be retrieved
-        return;
-    }
-
-    // Write to a temporary file in memory
-    $tempFilePath = tempnam(sys_get_temp_dir(), 'firebase_cred_');
-    file_put_contents($tempFilePath, $jsonContent);
-
-    // Initialize Firebase with the temporary file
-    $factory = (new Factory)->withServiceAccount($tempFilePath);
-    $messaging = $factory->createMessaging();
-
-    // Prepare and send the message
-    $title = $this->getNotificationTitle($notification->action);
-    $body = $this->getNotificationBody($notification);
-    $notificationData = $this->prepareNotificationData($notification);
-
-    $message = CloudMessage::withTarget('token', $receiverSettings->fcm_token)
-        ->withNotification(FirebaseNotification::create($title, $body))
-        ->withHighestPossiblePriority()
-        ->withData($notificationData);
-
-    // Send the message using Firebase Messaging
-    try {
-        $messaging->send($message);
-    } catch (\Exception $e) {
-        // Handle failure, maybe log the error
-        Log::error('Failed to send push notification: ' . $e->getMessage());
-    }
-
-    // Clean up - remove the temporary file after usage
-    unlink($tempFilePath);
-}
 
 
     protected function prepareNotificationData($notification)
