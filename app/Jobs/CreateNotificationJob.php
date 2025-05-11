@@ -90,60 +90,87 @@ class CreateNotificationJob implements ShouldQueue
     }
 
     protected function sendPushNotification($notification)
-    {
-        $receiverSettings = UserSetting::where('user_id', $this->targetUserId)->first();
+{
+    $receiverSettings = UserSetting::where('user_id', $this->targetUserId)->first();
 
-        if (!$receiverSettings || !$receiverSettings->push_notifications || !$receiverSettings->fcm_token) {
-            return;
+    if (!$receiverSettings || !$receiverSettings->push_notifications || !$receiverSettings->fcm_token) {
+        return;
+    }
+
+    try {
+        // Download Firebase credentials
+        $jsonContent = file_get_contents('https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/venusnap-54d5a-firebase-adminsdk-fbsvc-b887c409e0.json');
+
+        if ($jsonContent === false) {
+            throw new \Exception('Failed to fetch Firebase credentials');
         }
 
-        try {
-            $jsonContent = file_get_contents('https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/venusnap-54d5a-firebase-adminsdk-fbsvc-b887c409e0.json');
+        // Create temporary credentials file
+        $tempFilePath = tempnam(sys_get_temp_dir(), 'firebase_cred_');
+        file_put_contents($tempFilePath, $jsonContent);
 
-            if ($jsonContent === false) {
-                throw new \Exception('Failed to fetch Firebase credentials');
+        // Initialize Firebase
+        $factory = (new Factory)->withServiceAccount($tempFilePath);
+        $messaging = $factory->createMessaging();
+
+        // Prepare notification data
+        $title = $this->getNotificationTitle($notification->action);
+        $body = $this->getNotificationBody($notification);
+        $notificationData = $this->preparePushData($notification);
+
+        // Ensure all data values are strings
+        $stringData = [];
+        foreach ($notificationData as $key => $value) {
+            if (is_array($value)) {
+                $stringData[$key] = json_encode($value);
+            } else {
+                $stringData[$key] = (string)$value;
             }
+        }
 
-            $tempFilePath = tempnam(sys_get_temp_dir(), 'firebase_cred_');
-            file_put_contents($tempFilePath, $jsonContent);
+        // Create and send message
+        $message = CloudMessage::withTarget('token', $receiverSettings->fcm_token)
+            ->withNotification(FirebaseNotification::create($title, $body))
+            ->withHighestPossiblePriority()
+            ->withData($stringData);
 
-            $factory = (new Factory)->withServiceAccount($tempFilePath);
-            $messaging = $factory->createMessaging();
+        $messaging->send($message);
 
-            $message = CloudMessage::withTarget('token', $receiverSettings->fcm_token)
-                ->withNotification(FirebaseNotification::create(
-                    $this->getNotificationTitle($notification->action),
-                    $this->getNotificationBody($notification)
-                ))
-                ->withHighestPossiblePriority()
-                ->withData($this->preparePushData($notification));
-
-            $messaging->send($message);
-
-        } catch (\Exception $e) {
-            Log::error('Push notification failed: ' . $e->getMessage(), [
-                'user_id' => $this->targetUserId,
-                'error' => $e->getTraceAsString()
-            ]);
-        } finally {
-            if (isset($tempFilePath) && file_exists($tempFilePath)) {
-                unlink($tempFilePath);
-            }
+    } catch (\Exception $e) {
+        Log::error('Push notification failed: ' . $e->getMessage(), [
+            'user_id' => $this->targetUserId,
+            'notification_data' => $notification->data,
+            'error' => $e->getTraceAsString()
+        ]);
+    } finally {
+        if (isset($tempFilePath) && file_exists($tempFilePath)) {
+            unlink($tempFilePath);
         }
     }
+}
 
     protected function preparePushData($notification): array
     {
         $data = json_decode($notification->data, true);
         $type = $this->determineTypeFromAction($notification->action);
 
+        // Flatten the metadata to ensure no nested arrays
+        $metadata = [];
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $metadata[$key] = json_encode($value);
+            } else {
+                $metadata[$key] = $value;
+            }
+        }
+
         return [
             'type' => $type,
             'action' => $notification->action,
-            'notifiable_id' => $notification->notifiable_id,
-            'notifiablemedia_id' => $data['media_id'] ?? null,
-            'metadata' => $data,
-            'notification_id' => $notification->id,
+            'notifiable_id' => (string)$notification->notifiable_id,
+            'notifiablemedia_id' => isset($data['media_id']) ? (string)$data['media_id'] : null,
+            'metadata' => $metadata,
+            'notification_id' => (string)$notification->id,
         ];
     }
 
