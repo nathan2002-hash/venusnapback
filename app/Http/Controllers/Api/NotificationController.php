@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use Carbon\Carbon;
 use App\Models\PostMedia;
+use App\Models\UserSetting;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -271,11 +272,24 @@ class NotificationController extends Controller
     public function storeFcmToken(Request $request)
     {
         $user = $request->user();
-        $user->usersetting->fcm_token = $request->fcm_token;
-        $user->save();
+
+        $settings = UserSetting::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'sms_alert' => 0,
+                'email_notifications' => 1,
+                'tfa' => 0,
+                'push_notifications' => 1,
+                'dark_mode' => 0
+            ]
+        );
+
+        $settings->fcm_token = $request->fcm_token;
+        $settings->save();
 
         return response()->json(['status' => 'success']);
     }
+
 
     public function sendPushNotification(Request $request)
     {
@@ -288,7 +302,7 @@ class NotificationController extends Controller
             'metadata' => 'nullable|array'
         ]);
 
-        // Create the database notification (your existing logic)
+        // Create the notification
         $notification = Notification::create([
             'user_id' => $user->id,
             'type' => $notificationData['type'],
@@ -298,16 +312,27 @@ class NotificationController extends Controller
             'is_read' => false,
         ]);
 
-        // Prepare the notification message (reuse your existing formatting)
         $formattedNotification = $this->formatNotificationForPush($notification);
 
-        // Send via FCM if recipient has a token
-        if ($user->usersetting->fcm_token) {
-            $this->sendViaFcm($user->usersetting->fcm_token, $formattedNotification);
+        // Ensure user settings exist and send FCM push
+        $settings = UserSetting::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'sms_alert' => 0,
+                'email_notifications' => 1,
+                'tfa' => 0,
+                'push_notifications' => 1,
+                'dark_mode' => 0
+            ]
+        );
+
+        if ($settings->fcm_token) {
+            $this->sendViaFcm($settings->fcm_token, $formattedNotification);
         }
 
         return response()->json(['status' => 'success']);
     }
+
 
     protected function formatNotificationForPush(Notification $notification)
     {
