@@ -6,12 +6,14 @@ use App\Models\Post;
 use App\Models\User;
 use App\Models\PostMedia;
 use App\Models\UserSetting;
-use App\Models\Notification;
+use Kreait\Firebase\Factory;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
+use App\Models\Notification as NotificationModel;
 
 class CreateNotificationJob implements ShouldQueue
 {
@@ -40,7 +42,7 @@ class CreateNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $notification = Notification::create([
+        $notification = NotificationModel::create([
             'user_id' => $this->targetUserId,
             'action' => $this->action,
             'notifiable_type' => get_class($this->notifiable),
@@ -87,7 +89,7 @@ class CreateNotificationJob implements ShouldQueue
     $notificationData = $this->prepareNotificationData($notification);
 
     $message = CloudMessage::withTarget('token', $receiverSettings->fcm_token)
-        ->withNotification(Notification::create($title, $body))
+        ->withNotification(FirebaseNotification::create($title, $body))
         ->withHighestPossiblePriority()
         ->withData($notificationData);
 
@@ -96,7 +98,7 @@ class CreateNotificationJob implements ShouldQueue
         $messaging->send($message);
     } catch (\Exception $e) {
         // Handle failure, maybe log the error
-        \Log::error('Failed to send push notification: ' . $e->getMessage());
+        Log::error('Failed to send push notification: ' . $e->getMessage());
     }
 
     // Clean up - remove the temporary file after usage
