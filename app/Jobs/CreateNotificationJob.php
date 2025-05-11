@@ -67,7 +67,7 @@ class CreateNotificationJob implements ShouldQueue
         Http::withHeaders([
             'Authorization' => 'key=' . config('services.fcm.server_key'),
             'Content-Type' => 'application/json',
-        ])->post('https://fcm.googleapis.com/fcm/send', [
+        ])->post('https://fcm.googleapis.com/v1/projects/venusnap-54d5a/messages:send', [
             'to' => $receiverSettings->fcm_token,
             'notification' => [
                 'title' => $this->getNotificationTitle($notification->action),
