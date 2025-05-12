@@ -35,7 +35,7 @@ class PointController extends Controller
             'packages'   => $packages,
             'user_points'   => (int) Auth::user()->points,
             'min_points' => (int) config('points.min_points', 1000),
-            'stripekey'   => "pk_test_51Nz1SdCayxpYkaEq2v7GH0djzJNUeNB3u00HQ93mSJiGQO9l38Mm1Dm8wN8q2Bfg9Y82lW3OcaR8ormDIFfQxwvD00X111aGRg",
+            'stripekey'   => env('STRIPE_PUBLIC'),
         ]);
     }
 
