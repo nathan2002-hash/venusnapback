@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Category;
+use App\Models\UserSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -17,7 +18,13 @@ Route::post('/forgot/password/code', 'Api\AuthController@sendResetCode');
 Route::post('/reset/password', 'Api\AuthController@ResetPassword');
 
 Route::middleware('auth:api')->post('/logout', function (Request $request) {
-    $request->user()->token()->revoke();
+    $user = $request->user();
+    $settings = UserSetting::where('user_id', $user->id)->first();
+    if ($settings) {
+        $settings->fcm_token = null;
+        $settings->save();
+    }
+    $user->token()->revoke();
     return response()->json([
         'message' => 'Successfully logged out'
     ]);
