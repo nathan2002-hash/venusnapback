@@ -191,15 +191,14 @@ class CreateNotificationJob implements ShouldQueue
             $metadata[$key] = is_array($value) ? json_encode($value) : (string)$value;
         }
 
-        return [
-            'type' => $type,
+         return [
+            'type' => $this->determineTypeFromAction($notification->action),
             'action' => $notification->action,
             'notifiable_id' => (string)$notification->notifiable_id,
-            'notifiablemedia_id' => isset($data['media_id']) ? (string)$data['media_id'] : '0',
-            'metadata' => $metadata,
-            'notification_id' => (string)$notification->id,
-            'click_action' => 'FLUTTER_NOTIFICATION_CLICK', // Critical for click handling
-            'screen_to_open' => $this->getTargetScreen($notification->action), // New field
+            'notifiablemedia_id' => $data['media_id'] ?? '0',
+            'screen_to_open' => $this->getTargetScreen($notification->action),
+            'metadata' => $this->sanitizeData($data),
+            'click_action' => 'FLUTTER_NOTIFICATION_CLICK', // Critical
         ];
     }
 
