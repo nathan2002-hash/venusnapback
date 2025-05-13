@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('token');
             $table->string('device_info');
+            $table->string('user_agent')->nullable();
             $table->string('status')->default('active');
             $table->timestamps();
         });
