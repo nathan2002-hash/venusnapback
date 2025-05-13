@@ -44,6 +44,15 @@ class CreateNotificationJob implements ShouldQueue
     public function handle(): void
     {
         try {
+            // Check user settings first
+            $settings = UserSetting::where('user_id', $this->targetUserId)->first();
+
+            if (!$settings || !$settings->push_notifications) {
+                // User has disabled push notifications; skip sending
+                return;
+            }
+
+            // Store the notification
             $notificationData = [
                 'user_id' => $this->targetUserId,
                 'action' => $this->action,
@@ -55,7 +64,10 @@ class CreateNotificationJob implements ShouldQueue
             ];
 
             $notification = NotificationModel::create($notificationData);
+
+            // Now send the push notification
             $this->sendPushNotification($notification);
+
         } catch (\Exception $e) {
             Log::error('Notification creation failed: ' . $e->getMessage(), [
                 'target_user' => $this->targetUserId,
@@ -64,6 +76,8 @@ class CreateNotificationJob implements ShouldQueue
             ]);
         }
     }
+
+
 
     protected function sanitizeData(array $data): array
     {
