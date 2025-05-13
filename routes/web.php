@@ -15,15 +15,15 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/dashboard', function () {
+    Route::get('/restricted/welcome', function () {
         return view('dashboard');
-    })->name('dashboard');
+    })->name('dashrd');
 });
 
 Route::get('/test-backblaze-connection', 'Api\PostController@testConnection');
 
 Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
-    Route::get('/welcome', 'Admin\WelcomeController@index');
+    Route::get('/welcome', 'Admin\WelcomeController@index')->name('dashboard');
 
     //user routes
     Route::get('/users', 'Admin\UserController@index');
