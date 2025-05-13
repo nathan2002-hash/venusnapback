@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Carbon\Carbon;
+use App\Models\FcmToken;
 use App\Models\PostMedia;
 use App\Models\UserSetting;
 use App\Models\Notification;
@@ -272,23 +273,52 @@ class NotificationController extends Controller
     public function storeFcmToken(Request $request)
     {
         $user = Auth::user();
+        $token = $request->fcm_token;
+        $userAgent = $request->header('User-Agent');
+        $deviceInfo = $request->header('Device-Info');
 
-        $settings = UserSetting::firstOrCreate(
-            ['user_id' => $user->id],
-            [
-                'sms_alert' => 0,
-                'email_notifications' => 1,
-                'tfa' => 0,
-                'push_notifications' => 1,
-                'dark_mode' => 0
-            ]
-        );
+        // Step 1: Check if token exists for another user and is active
+        $conflict = FcmToken::where('token', $token)
+            ->where('user_id', '!=', $user->id)
+            ->where('status', 'active')
+            ->first();
 
-        $settings->fcm_token = $request->fcm_token;
-        $settings->save();
+        if ($conflict) {
+            // Mark the old token as expired
+            $conflict->status = 'expired';
+            $conflict->save();
+        }
+
+        // Step 2: Check if token exists for this user and is expired
+        $existing = FcmToken::where('user_id', $user->id)
+            ->where('token', $token)
+            ->first();
+
+        if ($existing && $existing->status === 'expired') {
+            // Create new row
+            FcmToken::create([
+                'user_id' => $user->id,
+                'token' => $token,
+                'device_info' => $deviceInfo ?? $userAgent,
+                'user_agent' => $userAgent,
+                'status' => 'active'
+            ]);
+        } else {
+            // Update or create
+            FcmToken::updateOrCreate(
+                ['user_id' => $user->id, 'token' => $token],
+                [
+                    'device_info' => $deviceInfo ?? $userAgent,
+                    'user_agent' => $userAgent,
+                    'status' => 'active'
+                ]
+            );
+        }
 
         return response()->json(['status' => 'success']);
     }
+
+
 
 
     public function sendPushNotification(Request $request)

@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Post;
 use App\Models\User;
+use App\Models\FcmToken;
 use App\Models\PostMedia;
 use App\Models\UserSetting;
 use Kreait\Firebase\Factory;
@@ -12,8 +13,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
 use App\Models\Notification as NotificationModel;
+use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
 
 class CreateNotificationJob implements ShouldQueue
 {
@@ -90,88 +91,112 @@ class CreateNotificationJob implements ShouldQueue
     }
 
     protected function sendPushNotification($notification)
-{
-    $receiverSettings = UserSetting::where('user_id', $this->targetUserId)->first();
+    {
+        // Get all active FCM tokens for the target user
+        $activeTokens = FcmToken::where('user_id', $this->targetUserId)
+                            ->where('status', 'active')
+                            ->pluck('token')
+                            ->toArray();
 
-    if (!$receiverSettings || !$receiverSettings->push_notifications || !$receiverSettings->fcm_token) {
-        return;
-    }
-
-    try {
-        // Download Firebase credentials
-        $jsonContent = file_get_contents('https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/venusnap-54d5a-firebase-adminsdk-fbsvc-b887c409e0.json');
-
-        if ($jsonContent === false) {
-            throw new \Exception('Failed to fetch Firebase credentials');
+        if (empty($activeTokens)) {
+            return;
         }
 
-        // Create temporary credentials file
-        $tempFilePath = tempnam(sys_get_temp_dir(), 'firebase_cred_');
-        file_put_contents($tempFilePath, $jsonContent);
+        try {
+            // Download Firebase credentials
+            $jsonContent = file_get_contents('https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/venusnap-54d5a-firebase-adminsdk-fbsvc-b887c409e0.json');
 
-        // Initialize Firebase
-        $factory = (new Factory)->withServiceAccount($tempFilePath);
-        $messaging = $factory->createMessaging();
+            if ($jsonContent === false) {
+                throw new \Exception('Failed to fetch Firebase credentials');
+            }
 
-        // Prepare notification data
-        $title = $this->getNotificationTitle($notification->action);
-        $body = $this->getNotificationBody($notification);
-        $notificationData = $this->preparePushData($notification);
+            // Create temporary credentials file
+            $tempFilePath = tempnam(sys_get_temp_dir(), 'firebase_cred_');
+            file_put_contents($tempFilePath, $jsonContent);
 
-        // Ensure all data values are strings
-        $stringData = [];
-        foreach ($notificationData as $key => $value) {
-            if (is_array($value)) {
-                $stringData[$key] = json_encode($value);
-            } else {
-                $stringData[$key] = (string)$value;
+            // Initialize Firebase
+            $factory = (new Factory)->withServiceAccount($tempFilePath);
+            $messaging = $factory->createMessaging();
+
+            // Prepare notification data
+            $title = $this->getNotificationTitle($notification->action);
+            $body = $this->getNotificationBody($notification);
+            $notificationData = $this->preparePushData($notification);
+
+            // Ensure all data values are strings
+            $stringData = [];
+            foreach ($notificationData as $key => $value) {
+                if (is_array($value)) {
+                    $stringData[$key] = json_encode($value);
+                } else {
+                    $stringData[$key] = (string)$value;
+                }
+            }
+
+            // Send to each active token
+            foreach ($activeTokens as $token) {
+                try {
+                    $message = CloudMessage::withTarget('token', $token)
+                        ->withNotification(FirebaseNotification::create($title, $body))
+                        ->withHighestPossiblePriority()
+                        ->withData($stringData);
+
+                    $messaging->send($message);
+                } catch (\Exception $e) {
+                    Log::error('Failed to send to token: ' . $token, [
+                        'error' => $e->getMessage(),
+                        'user_id' => $this->targetUserId
+                    ]);
+
+                    // Mark failed token as expired
+                    FcmToken::where('token', $token)->update(['status' => 'expired']);
+                }
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Push notification failed: ' . $e->getMessage(), [
+                'user_id' => $this->targetUserId,
+                'notification_data' => $notification->data,
+                'error' => $e->getTraceAsString()
+            ]);
+        } finally {
+            if (isset($tempFilePath) && file_exists($tempFilePath)) {
+                unlink($tempFilePath);
             }
         }
-
-        // Create and send message
-        $message = CloudMessage::withTarget('token', $receiverSettings->fcm_token)
-            ->withNotification(FirebaseNotification::create($title, $body))
-            ->withHighestPossiblePriority()
-            ->withData($stringData);
-
-        $messaging->send($message);
-
-    } catch (\Exception $e) {
-        Log::error('Push notification failed: ' . $e->getMessage(), [
-            'user_id' => $this->targetUserId,
-            'notification_data' => $notification->data,
-            'error' => $e->getTraceAsString()
-        ]);
-    } finally {
-        if (isset($tempFilePath) && file_exists($tempFilePath)) {
-            unlink($tempFilePath);
-        }
     }
-}
 
     protected function preparePushData($notification): array
     {
         $data = json_decode($notification->data, true);
         $type = $this->determineTypeFromAction($notification->action);
 
-        // Flatten the metadata to ensure no nested arrays
+        // Ensure all metadata values are strings
         $metadata = [];
         foreach ($data as $key => $value) {
-            if (is_array($value)) {
-                $metadata[$key] = json_encode($value);
-            } else {
-                $metadata[$key] = $value;
-            }
+            $metadata[$key] = is_array($value) ? json_encode($value) : (string)$value;
         }
 
         return [
             'type' => $type,
             'action' => $notification->action,
             'notifiable_id' => (string)$notification->notifiable_id,
-            'notifiablemedia_id' => isset($data['media_id']) ? (string)$data['media_id'] : null,
+            'notifiablemedia_id' => isset($data['media_id']) ? (string)$data['media_id'] : '0',
             'metadata' => $metadata,
             'notification_id' => (string)$notification->id,
+            'click_action' => 'FLUTTER_NOTIFICATION_CLICK', // Critical for click handling
+            'screen_to_open' => $this->getTargetScreen($notification->action), // New field
         ];
+    }
+
+    protected function getTargetScreen($action): string
+    {
+        return match($action) {
+            'viewed_album' => 'album_analytics',
+            'commented', 'replied', 'liked', 'admired' => 'post',
+            'shared_album', 'invited' => 'album_requests',
+            default => 'notifications'
+        };
     }
 
 
