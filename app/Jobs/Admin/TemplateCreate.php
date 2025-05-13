@@ -54,8 +54,8 @@ class TemplateCreate implements ShouldQueue
 
             // Compress the image
             $manager = new ImageManager(new GdDriver());
-        $image = $manager->read($originalImage);
-        $compressedImage = $image->encode(new WebpEncoder(quality: 75));
+            $image = $manager->read($originalImage);
+            $compressedImage = $image->encode(new WebpEncoder(quality: 75));
 
             // Save the compressed image to S3
             $compressedPath = 'uploads/templates/compressed/' . basename($path);
@@ -63,6 +63,11 @@ class TemplateCreate implements ShouldQueue
 
             // Update the template with the compressed path
             $template->update(['compressed_template' => $compressedPath]);
+
+            $template->update([
+                'compressed_template' => $compressedPath,
+                'status' => 'completed',
+            ]);
 
             Log::info("Successfully compressed and saved template ID: {$this->templateId} to {$compressedPath}");
         } catch (Exception $e) {

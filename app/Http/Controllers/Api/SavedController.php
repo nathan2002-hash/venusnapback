@@ -32,6 +32,7 @@ class SavedController extends Controller
         $saved = new Saved();
         $saved->user_id = $user_id;
         $saved->post_id = $post_id;
+        $saved->status = 'saved';
         $saved->save();
         // Return the simplified response
         return response()->json([
@@ -56,7 +57,9 @@ class SavedController extends Controller
         }
 
         // Delete the record
-        $saved->delete();
+        $saved->update([
+            'status' => 'unsaved',
+        ]);
 
         return response()->json([
             'success' => true,
@@ -70,7 +73,8 @@ class SavedController extends Controller
         $defaultProfile = 'https://example.com/default-profile.jpg'; // Set your default profile URL
         $defaultMedia = 'https://example.com/default-media.jpg'; // Set your default media URL
 
-        $savedPosts = $user->saveds()
+       $savedPosts = $user->saveds()
+            ->where('status', 'saved')
             ->with(['post.postmedias.admires', 'post.postmedias.comments', 'post.album'])
             ->orderBy('created_at', 'desc')
             ->get()

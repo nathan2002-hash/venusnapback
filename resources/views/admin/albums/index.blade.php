@@ -3,7 +3,7 @@
 
 
 @section('title')
-    Templates
+    Albums
 @endsection
 
 
@@ -20,7 +20,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Templates</h4>
+                    <h4 class="mb-sm-0 font-size-18">Albums</h4>
 
                 </div>
             </div>
@@ -30,9 +30,6 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="col-4">
-                        <a href="/restricted/template/create" class="btn btn-primary waves-effect waves-light">New Template</a>
-                    </div>
                     <div class="card-body">
                         <table id="datatable" class="table table-bordered dt-responsive  nowrap w-100">
                             <thead class="table-light">
@@ -41,6 +38,7 @@
                                     <th>Name</th>
                                     <th>Category</th>
                                     <th>Owner</th>
+                                    <th>Status</th>
                                     <th class="text-center">View Details</th>
                                 </tr>
                             </thead>
@@ -51,12 +49,18 @@
                                     <td>{{ $album->name }}</td>
                                     <td>{{ $album->type }}</td>
                                     <td>{{ $album->user->name }}</td>
+                                    <td>
+                                        @if ($album->status == 'active')
+                                        <span class="badge-soft-success font-size-11">Active</span>
+                                        @elseif ($album->status == 'deleted')
+                                        <span class="badge-soft-danger font-size-11">Deleted</span>
+                                        @elseif ($album->status == 'suspended')
+                                        <span class="badge-soft-warning font-size-11">Suspended</span>
+                                        @endif
+                                    </td>
                                     <td class="text-center">
                                         <!-- Button trigger modal -->
-                                        <a href="/restricted/album/{{ $album->id }}" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
-                                            View Details
-                                        </a>
-                                        <a href="/restricted/album/{{ $album->id }}" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
+                                        <a href="#" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
                                             View Details
                                         </a>
                                     </td>

@@ -10,7 +10,11 @@ class Category extends Model
         return $this->hasMany(AdCategory::class);
     }
 
-     public function albums(){
+    public function albums(){
         return $this->hasMany(Category::class);
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class);
     }
 }

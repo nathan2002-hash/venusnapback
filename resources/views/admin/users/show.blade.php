@@ -112,9 +112,9 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="d-flex">
-                    <h4 class="card-title mb-4 flex-grow-1">Posts</h4>
+                    <h4 class="card-title mb-4 flex-grow-1">Albums</h4>
                     <div>
-                        <a href="job-list.html" class="btn btn-primary btn-sm">View All <i class="bx bx-right-arrow-alt"></i></a>
+                        <a href="#" class="btn btn-primary btn-sm">View All <i class="bx bx-right-arrow-alt"></i></a>
                     </div>
                 </div>
             </div><!--end col-->
@@ -144,17 +144,17 @@
         </div><!--end row-->
 
         <div class="row">
-            <div class="col-lg-4">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title mb-4">Recent Added Jobs</h4>
+                        <h4 class="card-title mb-4">Personal Albums</h4>
                         <div data-simplebar style="max-height: 376px;">
-                            <div class="vstack gap-4">
+                             @forelse ($personalAlbums as $album)
                                 <div class="d-flex">
-                                    <img src="assets/images/companies/wechat.svg" alt="" height="40" class="rounded">
+                                    <img src="{{ asset('assets/images/companies/wechat.svg') }}" alt="" height="40" class="rounded">
                                     <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Marketing Director</a></h6>
-                                        <p class="text-muted mb-0">Themesbrand, USA - <b>53</b> sec ago</p>
+                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">{{ $album->name }}</a></h6>
+                                        <p class="text-muted mb-0">Status: {{ $album->status }}</p>
                                     </div>
                                     <div class="dropdown">
                                         <button class="btn btn-light" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -166,136 +166,24 @@
                                         </ul>
                                     </div>
                                 </div>
-
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/sass.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Frontend Developer</a></h6>
-                                        <p class="text-muted mb-0">Themesbrand, Hong-Kong - <b>47</b> min ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/adobe.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">React Developer</a></h6>
-                                        <p class="text-muted mb-0">Creative Agency, Danemark - <b>1</b> hrs ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton3" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/airbnb.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">NodeJs Developer</a></h6>
-                                        <p class="text-muted mb-0">Skote Themes, Louisiana - <b>2</b> hrs ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton4" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton4">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/flutter.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Digital Marketing</a></h6>
-                                        <p class="text-muted mb-0">Web Technology pvt.Ltd, Danemark - <b>8</b> hrs ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton5" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton5">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/mailchimp.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Marketing Director</a></h6>
-                                        <p class="text-muted mb-0">Skote Technology, Dominica - <b>1</b> days ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton6" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton6">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/spotify.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Business Associate</a></h6>
-                                        <p class="text-muted mb-0">Themesbrand, Russia - <b>2</b> days ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton7" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton7">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/reddit.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Backend Developer</a></h6>
-                                        <p class="text-muted mb-0">Adobe Agency, Malaysia - <b>3</b> days ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton8" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton8">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
+                            @empty
+                                <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">No personal albums</h8>
+                            @endforelse
                         </div>
                     </div>
                 </div><!--end card-->
             </div><!--end col-->
-            <div class="col-lg-4">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title mb-4">Recent Added Jobs</h4>
+                        <h4 class="card-title mb-4">Creators Album</h4>
                         <div data-simplebar style="max-height: 376px;">
-                            <div class="vstack gap-4">
+                            @forelse ($creatorAlbums as $album)
                                 <div class="d-flex">
-                                    <img src="assets/images/companies/wechat.svg" alt="" height="40" class="rounded">
+                                    <img src="{{ asset('assets/images/companies/wechat.svg') }}" alt="" height="40" class="rounded">
                                     <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Marketing Director</a></h6>
-                                        <p class="text-muted mb-0">Themesbrand, USA - <b>53</b> sec ago</p>
+                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">{{ $album->name }}</a></h6>
+                                        <p class="text-muted mb-0">Status: {{ $album->status }}</p>
                                     </div>
                                     <div class="dropdown">
                                         <button class="btn btn-light" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -307,136 +195,24 @@
                                         </ul>
                                     </div>
                                 </div>
-
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/sass.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Frontend Developer</a></h6>
-                                        <p class="text-muted mb-0">Themesbrand, Hong-Kong - <b>47</b> min ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/adobe.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">React Developer</a></h6>
-                                        <p class="text-muted mb-0">Creative Agency, Danemark - <b>1</b> hrs ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton3" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/airbnb.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">NodeJs Developer</a></h6>
-                                        <p class="text-muted mb-0">Skote Themes, Louisiana - <b>2</b> hrs ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton4" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton4">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/flutter.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Digital Marketing</a></h6>
-                                        <p class="text-muted mb-0">Web Technology pvt.Ltd, Danemark - <b>8</b> hrs ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton5" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton5">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/mailchimp.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Marketing Director</a></h6>
-                                        <p class="text-muted mb-0">Skote Technology, Dominica - <b>1</b> days ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton6" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton6">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/spotify.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Business Associate</a></h6>
-                                        <p class="text-muted mb-0">Themesbrand, Russia - <b>2</b> days ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton7" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton7">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/reddit.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Backend Developer</a></h6>
-                                        <p class="text-muted mb-0">Adobe Agency, Malaysia - <b>3</b> days ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton8" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton8">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
+                            @empty
+                                <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">No creators albums</h8>
+                            @endforelse
                         </div>
                     </div>
                 </div><!--end card-->
             </div><!--end col-->
-            <div class="col-lg-4">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title mb-4">Recent Added Jobs</h4>
+                        <h4 class="card-title mb-4">Creators Album</h4>
                         <div data-simplebar style="max-height: 376px;">
-                            <div class="vstack gap-4">
+                            @forelse ($creatorAlbums as $album)
                                 <div class="d-flex">
-                                    <img src="assets/images/companies/wechat.svg" alt="" height="40" class="rounded">
+                                    <img src="{{ asset('assets/images/companies/wechat.svg') }}" alt="" height="40" class="rounded">
                                     <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Marketing Director</a></h6>
-                                        <p class="text-muted mb-0">Themesbrand, USA - <b>53</b> sec ago</p>
+                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">{{ $album->name }}</a></h6>
+                                        <p class="text-muted mb-0">Status: {{ $album->status }}</p>
                                     </div>
                                     <div class="dropdown">
                                         <button class="btn btn-light" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -448,121 +224,9 @@
                                         </ul>
                                     </div>
                                 </div>
-
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/sass.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Frontend Developer</a></h6>
-                                        <p class="text-muted mb-0">Themesbrand, Hong-Kong - <b>47</b> min ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/adobe.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">React Developer</a></h6>
-                                        <p class="text-muted mb-0">Creative Agency, Danemark - <b>1</b> hrs ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton3" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/airbnb.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">NodeJs Developer</a></h6>
-                                        <p class="text-muted mb-0">Skote Themes, Louisiana - <b>2</b> hrs ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton4" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton4">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/flutter.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Digital Marketing</a></h6>
-                                        <p class="text-muted mb-0">Web Technology pvt.Ltd, Danemark - <b>8</b> hrs ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton5" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton5">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/mailchimp.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Marketing Director</a></h6>
-                                        <p class="text-muted mb-0">Skote Technology, Dominica - <b>1</b> days ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton6" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton6">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/spotify.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Business Associate</a></h6>
-                                        <p class="text-muted mb-0">Themesbrand, Russia - <b>2</b> days ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton7" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton7">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <img src="assets/images/companies/reddit.svg" alt="" height="40" class="rounded">
-                                    <div class="ms-2 flex-grow-1">
-                                        <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">Backend Developer</a></h6>
-                                        <p class="text-muted mb-0">Adobe Agency, Malaysia - <b>3</b> days ago</p>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light" type="button" id="dropdownMenuButton8" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton8">
-                                            <li><a class="dropdown-item" href="job-details.html">View Details</a></li>
-                                            <li><a class="dropdown-item" href="#">Apply Now</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
+                            @empty
+                                <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">No creators albums</h8>
+                            @endforelse
                         </div>
                     </div>
                 </div><!--end card-->

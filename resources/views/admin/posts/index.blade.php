@@ -3,7 +3,7 @@
 
 
 @section('title')
-    Users
+    Posts
 @endsection
 
 
@@ -20,7 +20,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Users</h4>
+                    <h4 class="mb-sm-0 font-size-18">Posts</h4>
 
                 </div>
             </div>
@@ -34,36 +34,40 @@
                         <table id="datatable" class="table table-bordered dt-responsive  nowrap w-100">
                             <thead class="table-light">
                                 <tr>
-                                    <th>User ID</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Date Joined</th>
+                                    <th>ID</th>
+                                    <th>Album</th>
+                                    <th>User</th>
+                                    <th>Date</th>
                                     <th>Status</th>
-                                    <th>Region</th>
-                                    <th>View Details</th>
+                                    <th>Media Count</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($users as $user)
+                                @foreach ($posts as $post)
                                 <tr>
-                                    <td><a href="javascript: void(0);" class="text-body fw-bold">{{ $user->id }}</a> </td>
-                                    <td>{{ $user->name }}</td>
+                                    <td><a href="javascript: void(0);" class="text-body fw-bold">{{ $post->id }}</a> </td>
+                                    <td>{{ $post->album->name }}</td>
                                     <td>
-                                        {{ $user->email }}
+                                        {{ $post->user->name }}
                                     </td>
                                     <td>
-                                        {{ $user->created_at->format('d M, Y') }}
+                                        {{ $post->created_at->format('d M, Y') }}
                                     </td>
                                     <td>
+                                        @if ($post->status == 'active')
                                         <span class="badge-soft-success font-size-11">Active</span>
+                                        @else
+                                        <span class="badge-soft-warning font-size-11">{{ $post->status }}</span>
+                                        @endif
                                     </td>
                                     <td>
-                                        {{ $user->country }}
+                                        {{ $post->postmedias->count() }}
                                     </td>
                                     <td>
                                         <!-- Button trigger modal -->
-                                        <a href="/restricted/user/{{ $user->id }}" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
-                                            View Details
+                                        <a href="/restricted/post/{{ $post->id }}" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
+                                            View
                                         </a>
                                     </td>
                                 </tr>

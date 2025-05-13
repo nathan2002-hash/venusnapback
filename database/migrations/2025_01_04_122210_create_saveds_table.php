@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('user_id');
             $table->string('post_id');
+            $table->string('status');
             $table->timestamps();
         });
     }

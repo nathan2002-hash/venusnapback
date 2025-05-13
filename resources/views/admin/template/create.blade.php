@@ -55,8 +55,7 @@
                                                 <label for="validationCustom03" class="form-label">Type</label>
                                                 <select class="form-select" name="type" id="validationCustom03" required>
                                                     <option selected disabled value="">Choose Type...</option>
-                                                    <option value="free">Free</option>
-                                                    <option value="premium">Premium</option>
+                                                    <option value="open">Open</option>
                                                 </select>
                                                 <div class="invalid-feedback">
                                                     Please select a valid tpye.

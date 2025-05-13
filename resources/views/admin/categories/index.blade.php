@@ -3,7 +3,7 @@
 
 
 @section('title')
-    Categories
+    Post Categories
 @endsection
 
 
@@ -20,7 +20,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Categories</h4>
+                    <h4 class="mb-sm-0 font-size-18">Post Categories</h4>
 
                 </div>
             </div>
@@ -31,7 +31,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="col-4">
-                        <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#category">New Category</button>
+                        <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#category">New Post Category</button>
                     </div>
                     <div class="card-body">
                         <table id="datatable" class="table table-bordered dt-responsive  nowrap w-100">
@@ -39,6 +39,7 @@
                                 <tr>
                                     <th>Category ID</th>
                                     <th>Name</th>
+                                    <th>Entered By</th>
                                     <th>View Details</th>
                                 </tr>
                             </thead>
@@ -47,10 +48,11 @@
                                 <tr>
                                     <td><a href="javascript: void(0);" class="text-body fw-bold">{{ $category->id }}</a> </td>
                                     <td>{{ $category->name }}</td>
+                                    <td>{{ $category->user->name }}</td>
                                     <td>
                                         <!-- Button trigger modal -->
-                                        <a href="/restricted/category/{{ $category->id }}" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
-                                            View Details
+                                        <a href="#" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
+                                            No Details
                                         </a>
                                     </td>
                                 </tr>
@@ -69,7 +71,7 @@
                         <h5 class="modal-title" id="category">New Unique Category</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="/restricted/category/store" method="POST">
+                    <form action="/restricted/post/category/store" method="POST">
                         @csrf
                         <div class="modal-body">
                                 <div class="mb-3">

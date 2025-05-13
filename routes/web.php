@@ -29,9 +29,19 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     Route::get('/users', 'Admin\UserController@index');
     Route::get('/user/{id}', 'Admin\UserController@show');
 
+    //posts routes
+    Route::get('/posts', 'Admin\PostController@index');
+    Route::get('/post/{id}', 'Admin\PostController@show');
+
+    //posts routes
+    Route::get('/saveds', 'Admin\SavedController@index');
+    Route::get('/saved/{id}', 'Admin\SavedController@show');
+
     //category routes
-    Route::get('/categories', 'Admin\CategoryController@index');
-    Route::post('/category/store', 'Admin\CategoryController@store');
+    Route::get('/post/categories', 'Admin\CategoryController@post');
+    Route::get('/album/categories', 'Admin\CategoryController@album');
+    Route::post('/post/category/store', 'Admin\CategoryController@poststore');
+    Route::post('/album/category/store', 'Admin\CategoryController@albumstore');
     Route::get('/category/{id}', 'Admin\CategoryController@show');
 
     //templates routes

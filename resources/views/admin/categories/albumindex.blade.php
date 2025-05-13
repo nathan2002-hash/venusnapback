@@ -3,7 +3,7 @@
 
 
 @section('title')
-    Users
+    Album Categories
 @endsection
 
 
@@ -20,7 +20,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Users</h4>
+                    <h4 class="mb-sm-0 font-size-18">Album Categories</h4>
 
                 </div>
             </div>
@@ -30,40 +30,31 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
+                    <div class="col-4">
+                        <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#category">New Album Category</button>
+                    </div>
                     <div class="card-body">
                         <table id="datatable" class="table table-bordered dt-responsive  nowrap w-100">
                             <thead class="table-light">
                                 <tr>
-                                    <th>User ID</th>
+                                    <th>Category ID</th>
                                     <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Date Joined</th>
-                                    <th>Status</th>
-                                    <th>Region</th>
+                                    <th>Type</th>
+                                    <th>Entered By</th>
                                     <th>View Details</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($users as $user)
+                                @foreach ($categories as $category)
                                 <tr>
-                                    <td><a href="javascript: void(0);" class="text-body fw-bold">{{ $user->id }}</a> </td>
-                                    <td>{{ $user->name }}</td>
-                                    <td>
-                                        {{ $user->email }}
-                                    </td>
-                                    <td>
-                                        {{ $user->created_at->format('d M, Y') }}
-                                    </td>
-                                    <td>
-                                        <span class="badge-soft-success font-size-11">Active</span>
-                                    </td>
-                                    <td>
-                                        {{ $user->country }}
-                                    </td>
+                                    <td><a href="javascript: void(0);" class="text-body fw-bold">{{ $category->id }}</a> </td>
+                                    <td>{{ $category->name }}</td>
+                                    <td>{{ $category->type }}</td>
+                                    <td>{{ $category->user->name }}</td>
                                     <td>
                                         <!-- Button trigger modal -->
-                                        <a href="/restricted/user/{{ $user->id }}" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
-                                            View Details
+                                        <a href="#" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
+                                            No Details
                                         </a>
                                     </td>
                                 </tr>
@@ -71,6 +62,43 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="category" tabindex="-1" aria-labelledby="category" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="category">New Album Category</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="/restricted/album/category/store" method="POST">
+                        @csrf
+                        <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="recipient-name" class="col-form-label">Name:</label>
+                                    <input type="text" name="name" class="form-control" id="recipient-name">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="recipient-name" class="col-form-label">Type:</label>
+                                    <select name="type" class="form-control" id="">
+                                        <option selected disabled>Select Type</option>
+                                        <option value="personal">Personal Album</option>
+                                        <option value="creator">Creator Album</option>
+                                        <option value="Business">Business Album</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="message-text" class="col-form-label">Description:</label>
+                                    <textarea class="form-control" name="description" id="message-text"></textarea>
+                                </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Submit New</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

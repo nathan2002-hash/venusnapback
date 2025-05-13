@@ -163,4 +163,8 @@ class User extends Authenticatable
             ->wherePivot('status', 'approved');
     }
 
+    public function albumcategories(){
+        return $this->hasMany(AlbumCategory::class);
+    }
+
 }

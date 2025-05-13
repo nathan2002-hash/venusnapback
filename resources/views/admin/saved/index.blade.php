@@ -3,7 +3,7 @@
 
 
 @section('title')
-    Users
+    Saveds
 @endsection
 
 
@@ -20,7 +20,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Users</h4>
+                    <h4 class="mb-sm-0 font-size-18">Saveds</h4>
 
                 </div>
             </div>
@@ -34,35 +34,35 @@
                         <table id="datatable" class="table table-bordered dt-responsive  nowrap w-100">
                             <thead class="table-light">
                                 <tr>
+                                    <th>Post ID</th>
                                     <th>User ID</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Date Joined</th>
+                                    <th>User Name</th>
+                                    <th>Date</th>
                                     <th>Status</th>
-                                    <th>Region</th>
                                     <th>View Details</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($users as $user)
+                                @foreach ($saveds as $saved)
                                 <tr>
-                                    <td><a href="javascript: void(0);" class="text-body fw-bold">{{ $user->id }}</a> </td>
-                                    <td>{{ $user->name }}</td>
+                                    <td><a href="/restricted/post/{{ $saved->post_id }}" class="text-body fw-bold">{{ $saved->post_id }}</a> </td>
+                                    <td><a href="/restricted/user/{{ $saved->user_id }}" class="text-body fw-bold">{{ $saved->user_id }}</a></td>
                                     <td>
-                                        {{ $user->email }}
+                                        {{ $saved->user->name}}
+                                    </td>
+                                     <td>
+                                        {{ $saved->created_at->format('d M, Y') }}
                                     </td>
                                     <td>
-                                        {{ $user->created_at->format('d M, Y') }}
-                                    </td>
-                                    <td>
-                                        <span class="badge-soft-success font-size-11">Active</span>
-                                    </td>
-                                    <td>
-                                        {{ $user->country }}
+                                        @if ($saved->status == 'saved')
+                                        <span class="badge-soft-success font-size-11">Saved</span>
+                                        @else
+                                        <span class="badge-soft-warning font-size-11">Unsaved</span>
+                                        @endif
                                     </td>
                                     <td>
                                         <!-- Button trigger modal -->
-                                        <a href="/restricted/user/{{ $user->id }}" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
+                                        <a href="/restricted/saved/{{ $saved->id }}" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
                                             View Details
                                         </a>
                                     </td>

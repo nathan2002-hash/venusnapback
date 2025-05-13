@@ -23,4 +23,12 @@ class PostMedia extends Model
     public function views(){
         return $this->hasMany(View::class);
     }
+
+    public function shares(){
+        return $this->hasMany(LinkShare::class);
+    }
+
+    public function mediaDownloads(){
+        return $this->hasMany(MediaDownload::class);
+    }
 }

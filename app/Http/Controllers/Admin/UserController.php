@@ -25,6 +25,10 @@ class UserController extends Controller
         $supporters = $user->supporters->count();
         $artworks = $user->artworks->count();
         $posts = $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(6);
+
+        $creatorAlbums = $user->albums()->where('type', 'creator')->get();
+        $businessAlbums = $user->albums()->where('type', 'business')->get();
+        $personalAlbums = $user->albums()->where('type', 'personal')->get();
         return view('admin.users.show', [
            'user' => $user,
            'totalposts' => $totalposts,
@@ -32,6 +36,9 @@ class UserController extends Controller
            'supporters' => $supporters,
            'artworks' => $artworks,
            'posts' => $posts,
+           'creatorAlbums' => $creatorAlbums,
+           'businessAlbums' => $businessAlbums,
+           'personalAlbums' => $personalAlbums,
         ]);
     }
 }

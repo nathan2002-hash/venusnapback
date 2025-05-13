@@ -48,7 +48,7 @@
                         <span key="t-crypto">Posts</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="#" key="t-wallet">Posts</a></li>
+                        <li><a href="/restricted/posts" key="t-wallet">Posts</a></li>
                         <li><a href="#" key="t-wallet">Post Medias</a></li>
                         <li><a href="#" key="t-buy">Demographic</a></li>
                     </ul>
@@ -93,7 +93,7 @@
                         <span key="t-blog">Saved</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="#" key="t-blog-list">Saved</a></li>
+                        <li><a href="/restricted/saveds" key="t-blog-list">Saved</a></li>
                         <li><a href="#" key="t-blog-grid">Demographic</a></li>
                     </ul>
                 </li>
@@ -148,8 +148,8 @@
                         <span key="t-contacts">Categories</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="/restricted/categories" key="t-user-grid">Categories</a></li>
-                        <li><a href="/restricted/category/add" key="t-user-list">Add Category</a></li>
+                        <li><a href="/restricted/post/categories" key="t-user-grid">Post Categories</a></li>
+                        <li><a href="/restricted/album/categories" key="t-user-list">Album Categories</a></li>
                     </ul>
                 </li>
 
