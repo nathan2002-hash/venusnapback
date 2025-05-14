@@ -31,8 +31,8 @@ class TemplateController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:free,premium',
-            'tempfile' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'type' => 'required|in:open,premium',
+            'tempfile' => 'required|image|mimes:jpeg,png,jpg,webp|max:5048',
             'author' => 'required|string|max:255',
         ]);
         $user = Auth::user();
