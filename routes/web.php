@@ -38,7 +38,7 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     Route::get('/saved/{id}', 'Admin\SavedController@show');
 
     //category routes
-    Route::get('/post/categories', 'Admin\CategoryController@post');
+    Route::get('/posts/categories', 'Admin\CategoryController@post');
     Route::get('/album/categories', 'Admin\CategoryController@album');
     Route::post('/post/category/store', 'Admin\CategoryController@poststore');
     Route::post('/album/category/store', 'Admin\CategoryController@albumstore');
