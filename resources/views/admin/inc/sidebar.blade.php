@@ -148,7 +148,7 @@
                         <span key="t-contacts">Categories</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="/restricted/post/categories" key="t-user-grid">Post Categories</a></li>
+                        <li><a href="/restricted/posts/categories" key="t-user-grid">Post Categories</a></li>
                         <li><a href="/restricted/album/categories" key="t-user-list">Album Categories</a></li>
                     </ul>
                 </li>
