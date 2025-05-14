@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Tax;
+use App\Models\Account;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -54,7 +55,21 @@ class TaxController extends Controller
         //     'country' => 'required|string|max:255',
         // ]);
 
+        $account = Account::firstOrCreate(
+            ['user_id' => Auth::user()->id],
+            [
+                'user_id' => Auth::user()->id,
+                'account_balance' => 0.00,
+                'available_balance' => 0.00,
+                'monetization_status' => 'inactive',
+                'payout_method' => 'paypal',
+                'country' => Auth::user()->country,
+                'currency' => 'USD',
+                'paypal_email' => Auth::user()->email
+            ]
+        );
         $accountId = Auth::user()->account->id;
+
 
         $taxInfo = Tax::where('account_id', $accountId)->first();
 
