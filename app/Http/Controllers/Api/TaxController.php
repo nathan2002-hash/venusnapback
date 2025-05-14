@@ -54,20 +54,6 @@ class TaxController extends Controller
         //     'zip_code' => 'required|string|max:255',
         //     'country' => 'required|string|max:255',
         // ]);
-
-        $account = Account::firstOrCreate(
-            ['user_id' => Auth::user()->id],
-            [
-                'user_id' => Auth::user()->id,
-                'account_balance' => 0.00,
-                'available_balance' => 0.00,
-                'monetization_status' => 'inactive',
-                'payout_method' => 'paypal',
-                'country' => Auth::user()->country,
-                'currency' => 'USD',
-                'paypal_email' => Auth::user()->email
-            ]
-        );
         $accountId = Auth::user()->account->id;
 
 

@@ -21,6 +21,7 @@ class AccountController extends Controller
     {
         $user = $request->user();
 
+
         // Check monetization status
         if ($user->account->monetization_status !== 'active') {
             return response()->json([
