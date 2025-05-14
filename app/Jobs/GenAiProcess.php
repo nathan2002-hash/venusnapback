@@ -42,6 +42,7 @@ class GenAiProcess implements ShouldQueue
             $finalPrompt = "Create a professional advertisement image based on: " . $this->description;
 
             $response = Http::withToken(env('OPENAI_API_KEY'))
+            ->timeout(200)
             ->withHeaders([
                 'Content-Type' => 'application/json',
             ])
