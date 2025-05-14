@@ -326,7 +326,7 @@ class CommentController extends Controller
                 ? Storage::disk('s3')->url($user->profile_compressed)
                 : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
 
-           if ($comment->user_id !== $user->id) {
+           if ((int)$comment->user_id !== (int)$user->id)
             CreateNotificationJob::dispatch(
                 $user,
                 $postMedia,
