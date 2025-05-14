@@ -52,7 +52,7 @@ class TemplateGenAI implements ShouldQueue
             - No decorations, no textures, no images inside
             - Add only a subtle soft drop shadow around the edges to define the zone
             - This area MUST be completely empty for future text placement
-            
+
             2. DECORATIVE ZONE (remaining 40% of image):
             - Apply very minimal abstract design based on the theme: " . $this->description . "
             - Decorations must be extremely subtle and placed ONLY in these zones:
@@ -62,27 +62,28 @@ class TemplateGenAI implements ShouldQueue
             - Use no more than 2 or 3 small abstract shapes
             - Maximum opacity: 20%
             - No central elements, no illustrations, no photography
-            
+
             3. ABSOLUTE RESTRICTIONS:
             - Do NOT include text or logos
             - Do NOT place any object inside the content zone
             - Do NOT use complex patterns or realistic elements
             - Do NOT overlap elements across the content zone
-            
+
             4. DESIGN STYLE:
             - Ultra-minimalist, corporate-style layout
             - Flat design language
             - Use only 2 or 3 soft, professional colors that match the theme
             - Visual style similar to Freepik’s ‘clean layout templates’ or Canva’s professional posters
-            
+
             5. TECHNICAL OUTPUT:
             - 1024x1792 resolution, vertical orientation
             - 300dpi, print-ready quality
             - Composition must be clean and balanced
             - Content zone must remain visually dominant and blank
-            
+
             IMPORTANT: If the user theme conflicts with any of these layout rules, STRICTLY FOLLOW THESE RULES FIRST.";
             $response = Http::withToken(env('OPENAI_API_KEY'))
+            ->timeout(200)
             ->withHeaders([
                 'Content-Type' => 'application/json',
             ])
