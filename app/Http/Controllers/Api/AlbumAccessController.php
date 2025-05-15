@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\User;
 use App\Models\Album;
 use App\Models\AlbumAccess;
+use App\Models\AlbumCategory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -79,6 +80,31 @@ class AlbumAccessController extends Controller
                 'website' => $album->website,
             ]
         ], 200);
+    }
+
+    public function getCategoriesByAlbum(Request $request)
+    {
+        $albumId = $request->header('albumId');
+
+        if (!$albumId) {
+            return response()->json(['error' => 'albumId header is missing'], 400);
+        }
+
+        $album = Album::find($albumId);
+
+        if (!$album) {
+            return response()->json(['error' => 'Album not found'], 404);
+        }
+
+        $type = $album->type;
+
+        if (!in_array($type, ['personal', 'creator', 'business'])) {
+            return response()->json(['error' => 'Invalid album type'], 400);
+        }
+
+        $categories = AlbumCategory::where('type', $type)->get();
+
+        return response()->json($categories);
     }
 
     public function albumupdate(Request $request, $id)
