@@ -9,7 +9,7 @@ class Album extends Model
     protected $fillable = ['name', 'description', 'tags', 'allow_comments', 'enable_rating', 'visibility',
       'user_id', 'thumbnail_original', 'business_logo_original', 'cover_image_compressed', 'monetization_status',
       'thumbnail_compressed', 'business_logo_compressed', 'cover_image_original', 'type',
-      'phone', 'email', 'location', 'website', 'facebook', 'linkedin', 'is_paid_access', 'business_category', 'category_id'
+      'phone', 'email', 'location', 'website', 'facebook', 'linkedin', 'is_paid_access', 'business_category', 'album_category_id'
     ];
 
     public function user(){
@@ -58,9 +58,9 @@ class Album extends Model
             ->where('status', 'pending');
     }
 
-    public function category()
+    public function albumcategory()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(AlbumCategory::class);
     }
 
     public function monetizationrequests()
