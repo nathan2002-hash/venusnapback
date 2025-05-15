@@ -86,7 +86,7 @@
                                         <option selected disabled>Select Type</option>
                                         <option value="personal">Personal Album</option>
                                         <option value="creator">Creator Album</option>
-                                        <option value="Business">Business Album</option>
+                                        <option value="business">Business Album</option>
                                     </select>
                                 </div>
                                 <div class="mb-3">
