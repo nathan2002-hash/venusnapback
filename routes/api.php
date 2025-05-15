@@ -2,6 +2,7 @@
 
 use App\Models\Category;
 use App\Models\UserSetting;
+use App\Models\FcmToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -19,12 +20,16 @@ Route::post('/reset/password', 'Api\AuthController@ResetPassword');
 
 Route::middleware('auth:api')->post('/logout', function (Request $request) {
     $user = $request->user();
-    $settings = UserSetting::where('user_id', $user->id)->first();
-    if ($settings) {
-        $settings->fcm_token = null;
-        $settings->save();
+    $currentFcmToken = $request->header('Fcm-Token');
+
+    if ($currentFcmToken) {
+        FcmToken::where('user_id', $user->id)
+            ->where('token', $currentFcmToken)
+            ->update(['status' => 'expired']);
     }
+
     $user->token()->revoke();
+
     return response()->json([
         'message' => 'Successfully logged out'
     ]);
