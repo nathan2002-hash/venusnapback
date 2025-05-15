@@ -11,6 +11,6 @@ class AlbumCategory extends Model
     }
 
     public function albums(){
-        return $this->hasMany(Album::class);
+        return $this->hasMany(Album::class, 'album_category_id');
     }
 }
