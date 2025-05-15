@@ -142,10 +142,12 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/user/settings', 'Api\SettingController@getUserSettings');
     Route::patch('/user/update/setting', 'Api\SettingController@updateUserSetting');
     Route::get('/user/login/activities', 'Api\AuthController@getLoginActivities');
-
+   
     Route::get('/categories', function () {
         return response()->json(Category::all());
     });
+
+    Route::get('/album/categories', 'Api\AlbumAccessController@getCategoriesByAlbum');
 
     Route::post('/post/view', 'Api\ViewController@view');
     Route::post('/post/marking/view/batch', 'Api\ViewController@viewpost');
