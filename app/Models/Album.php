@@ -60,7 +60,7 @@ class Album extends Model
 
     public function albumcategory()
     {
-        return $this->belongsTo(AlbumCategory::class);
+        return $this->belongsTo(AlbumCategory::class, 'album_category_id');
     }
 
     public function monetizationrequests()
