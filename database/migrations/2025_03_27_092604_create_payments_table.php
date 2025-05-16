@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('purpose');
             $table->longText('description');
             $table->longText('status_reason')->nullable();
+            $table->json('metadata')->nullable();
             $table->timestamps();
         });
     }
