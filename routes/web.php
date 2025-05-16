@@ -33,6 +33,10 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     Route::get('/posts', 'Admin\PostController@index');
     Route::get('/post/{id}', 'Admin\PostController@show');
 
+    //comments routes
+    Route::get('/comments', 'Admin\CommentController@comments');
+    //Route::get('/post/{id}', 'Admin\PostController@show');
+
     //posts routes
     Route::get('/saveds', 'Admin\SavedController@index');
     Route::get('/saved/{id}', 'Admin\SavedController@show');

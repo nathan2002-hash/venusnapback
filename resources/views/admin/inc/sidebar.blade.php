@@ -60,8 +60,8 @@
                         <span key="t-email">Comments</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="#" key="t-inbox">Comments</a></li>
-                        <li><a href="#" key="t-read-email">Replies</a></li>
+                        <li><a href="/restricted/comments" key="t-inbox">Comments</a></li>
+                        <li><a href="/restricted/replies" key="t-read-email">Replies</a></li>
                     </ul>
                 </li>
 
