@@ -18,7 +18,11 @@ class ContactSupportController extends Controller
         $support->user_id = $user_id;
         $support->category = $request->category;
         $support->topic = $request->topic;
-        $support->priority = $request->priority;
+        if ($request->priority == "Urgent (Service Down)") {
+            $support->priority = "urgent";
+        } else {
+           $support->priority = $request->priority;
+        }
         $support->description = $request->description;
         $support->status = "Open";
         $support->save();

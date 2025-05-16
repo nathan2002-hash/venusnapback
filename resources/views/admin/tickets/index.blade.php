@@ -45,9 +45,8 @@
                                     <td>{{ $contactsupport->id }}</td>
                                     <td>{{ $contactsupport->user->name }}</td>
                                     <td>{{ $contactsupport->category }}</td>
-                                    <td>{{ \Illuminate\Support\Str::limit($contactsupport->topic, 50) }}</td>
-                                    <td>{{ $contactsupport->priority }}
-
+                                    <td>{{ \Illuminate\Support\Str::limit($contactsupport->topic, 20) }}</td>
+                                    <td>
                                         @if ($contactsupport->priority == 'low')
                                             <span class="badge-soft-success font-size-13">Low</span>
                                         @elseif ($contactsupport->priority == 'medium')
@@ -59,14 +58,16 @@
                                         @endif
                                     </td>
                                     <td>{{ $contactsupport->created_at->format('M d, Y H:i') }}</td>
-                                    <td>{{ $contactsupport->priority }}
+                                    <td>
                                         @if ($contactsupport->status == 'Resolved')
                                             <span class="badge-soft-success font-size-13">Resolved</span>
                                         @else
                                             <span class="badge-soft-danger font-size-13">Pending</span>
                                         @endif
                                     </td>
-                                     <td>{{ $contactsupport->resolved_at->format('M d, Y H:i') }}</td>
+                                    <td>
+                                        {{ $contactsupport->resolved_at ? $contactsupport->resolved_at->format('M d, Y H:i') : 'Pending' }}
+                                    </td>
                                     <td>
                                         <button type="button" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light view-comment"
                                             data-bs-toggle="modal" data-bs-target="#commentModal"
@@ -93,22 +94,14 @@
                         <h5 class="modal-title" id="commentModalLabel">Support Needed for <span id="commentUserName"></span></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="/restricted/comment/hold" method="POST">
+                    <form>
                         @csrf
                         <input type="hidden" name="comment_id" id="modalCommentId">
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="commentText" class="col-form-label">Comment:</label>
+                                <label for="commentText" class="col-form-label">Request:</label>
                                 <textarea class="form-control" readonly name="comment" id="commentText" rows="5"></textarea>
                             </div>
-                            <div class="mb-3">
-                                <label for="flagReason" class="col-form-label">Reason for Flagging</label>
-                                <textarea type="text" name="reason" class="form-control" rows="5" id="flagReason"></textarea>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-danger">Flag as suspicious</button>
                         </div>
                     </form>
                 </div>
