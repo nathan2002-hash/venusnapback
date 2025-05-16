@@ -53,7 +53,7 @@
                 <div class="card">
                     <div class="card-body">
                         <p class="card-title-desc">Points Management for the user</p>
-                        <form action="/restricted/point/manage/user" method="POST" enctype="multipart/form-data" id="submitdata" class="needs-validation" novalidate>
+                        <form action="/restricted/points/manage/user" method="POST" enctype="multipart/form-data" id="submitdata" class="needs-validation" novalidate>
                             @csrf
                             <div class="row">
                                 <div class="col-md-6">
