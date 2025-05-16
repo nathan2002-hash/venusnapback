@@ -44,7 +44,7 @@ class PointManageController extends Controller
             $user = User::findOrFail($request->user_id);
             $currentPoints = $user->points ?? 0;
 
-            $newBalance = $request->type === 'add'
+            $newBalance = $request->type == 'add'
                 ? $currentPoints + $request->points
                 : $currentPoints - $request->points;
 
@@ -52,7 +52,7 @@ class PointManageController extends Controller
             $metadata = [];
 
             // Handle insufficient balance
-            if ($request->type === 'remove' && $currentPoints < $request->points) {
+            if ($request->type == 'remove' && $currentPoints < $request->points) {
                 $isFailed = true;
                 $metadata['reason'] = 'Insufficient balance';
                 $metadata['current_points'] = $currentPoints;
