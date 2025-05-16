@@ -101,70 +101,75 @@ class PayController extends Controller
         }
     }
 
-   public function capture(Request $request)
-{
-    $request->validate([
-        'order_id' => 'required|integer',
-    ]);
+    public function capture(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer',
+        ]);
 
-    $payment = Payment::find($request->input('order_id'));
+        $payment = Payment::find($request->order_id);
 
-    if (!$payment) {
-        return response()->json(['message' => 'Payment not found'], 404);
-    }
+        if (!$payment) {
+            return response()->json(['message' => 'Payment not found'], 404);
+        }
 
-    $paypalOrderId = $payment->payment_no;
-    $client = $this->getPayPalClient();
-    $paypalRequest = new OrdersCaptureRequest($paypalOrderId);
-
-    try {
-        $response = $client->execute($paypalRequest);
-        Log::info('PayPal Capture Response: '.json_encode($response));
-
-        if ($response->result->status === 'COMPLETED') {
-            // Debug metadata before update
-            Log::info('Payment Metadata Before: '.json_encode($payment->metadata));
-
-            // Update payment status
-            $updated = $payment->update([
-                'status' => 'completed',
-                'metadata->paypal_response' => json_encode($response->result),
-            ]);
-
-            Log::info('Payment Update Result: '.$updated);
-
-            // Refresh payment data
-            $payment->refresh();
-
-            // Add points to user - fixed metadata access
-            $metadata = $payment->metadata ?? [];
-            $points = is_array($metadata) ? ($metadata['points'] ?? 0) : 0;
-
-            Log::info("Attempting to add points: ".$points);
-
-            if ($points > 0) {
-                $user = $payment->user;
-                if ($user) {
-                    $user->increment('points', $points);
-                    Log::info("Successfully added $points points to user {$user->id}");
-                } else {
-                    Log::error("No user associated with payment {$payment->id}");
-                }
-            }
-
+        // Check if already completed
+        if ($payment->status === 'completed') {
             return response()->json([
-                'status' => 'completed',
-                'points_added' => $points
+                'status' => 'already_completed',
+                'message' => 'Payment was already processed'
             ]);
         }
 
-        return response()->json(['status' => 'failed'], 400);
+        try {
+            $client = $this->getPayPalClient();
+            $paypalRequest = new OrdersCaptureRequest($payment->payment_no);
+            $response = $client->execute($paypalRequest);
 
-    } catch (\Exception $e) {
-        Log::error('PayPal Capture Error: '.$e->getMessage());
-        return response()->json(['error' => $e->getMessage()], 400);
+            if ($response->result->status === 'COMPLETED') {
+                // Successful payment processing...
+                $metadata = $payment->metadata;
+                $points = $metadata['points'] ?? 0;
+
+                $payment->update([
+                    'status' => 'completed',
+                    'metadata->paypal_response' => $response->result,
+                ]);
+
+                if ($points > 0 && $payment->user) {
+                    $payment->user->increment('points', $points);
+                }
+
+                return response()->json([
+                    'status' => 'completed',
+                    'points_added' => $points
+                ]);
+            }
+
+            // Payment failed at PayPal side
+            $payment->update([
+                'status' => 'failed',
+                'metadata->failure_reason' => 'PayPal status: ' . $response->result->status,
+            ]);
+
+            return response()->json([
+                'status' => 'failed',
+                'reason' => 'Payment not completed at PayPal'
+            ], 400);
+
+        } catch (\Exception $e) {
+            // Mark as failed on any exception
+            $payment->update([
+                'status' => 'failed',
+                'metadata->failure_reason' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'status' => 'failed',
+                'error' => $e->getMessage()
+            ], 400);
+        }
     }
-}
 
     private function getPayPalClient()
     {
