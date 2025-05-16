@@ -12,7 +12,7 @@ class CommentController extends Controller
     public function comments()
     {
         $comments = Comment::orderBy('created_at', 'desc')->paginate(100);
-        return view('admin.comments.comments', [
+        return view('admin.comments.comment', [
            'comments' => $comments,
         ]);
     }
