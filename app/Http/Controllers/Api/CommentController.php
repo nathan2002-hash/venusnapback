@@ -344,7 +344,6 @@ class CommentController extends Controller
                     'is_album_owner' => $isOwner
                 ]
             );
-        }
 
         return response()->json([
             'id' => $reply->id,
