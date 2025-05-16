@@ -174,4 +174,8 @@ class User extends Authenticatable
     public function pointtransactions(){
         return $this->hasMany(PointTransaction::class);
     }
+
+    public function pointmanagements(){
+        return $this->hasMany(PointManage::class);
+    }
 }
