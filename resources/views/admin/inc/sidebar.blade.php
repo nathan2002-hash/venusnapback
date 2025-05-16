@@ -168,10 +168,10 @@
                     <a href="javascript: void(0);" class="waves-effect">
                         <i class="bx bxs-eraser"></i>
                         <span class="badge rounded-pill bg-danger float-end">Hot</span>
-                        <span key="t-forms">Reports</span>
+                        <span key="t-forms">Support Tickets</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="#" key="t-job-list">Reports</a></li>
+                        <li><a href="/restricted/support/tickets" key="t-job-list">Tickets</a></li>
                         <li><a href="#" key="t-job-grid">Demographic</a></li>
                     </ul>
                 </li>

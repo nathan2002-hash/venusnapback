@@ -43,10 +43,12 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
 
     //payments routes
     Route::get('/payments', 'Admin\PaymentController@index');
-    //Route::get('/saved/{id}', 'Admin\SavedController@show');
 
     //payments routes
     Route::get('/activities', 'Admin\UserAuthController@index');
+
+    //payments routes
+    Route::get('/support/tickets', 'Admin\TicketController@index');
 
     //category routes
     Route::get('/posts/categories', 'Admin\CategoryController@post');
