@@ -53,7 +53,7 @@ class PointManageController extends Controller
                 'points'        => $request->points,
                 'reason'        => $request->reason,
                 'type'          => $request->type,
-                'status'        => 'Completed',
+                'status'        => 'completed',
                 'metadata'      => json_encode([]),
                 'balance_after' => $newBalance,
                 'description'   => $request->description,
@@ -65,7 +65,7 @@ class PointManageController extends Controller
                 'resource_id'   => $pointManage->id,
                 'points'        => $request->points,
                 'type'          => $request->type,
-                'status'        => 'Completed',
+                'status'        => 'completed',
                 'metadata'      => json_encode([
                     'managed_by' => Auth::user()->email,
                     'reason' => $request->reason,
