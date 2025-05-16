@@ -20,6 +20,14 @@ class PointManageController extends Controller
         ]);
     }
 
+    public function allocations()
+    {
+        $pointmanagements = PointManage::orderBy('created_at', 'desc')->paginate(30);
+        return view('admin.points.manage.allocations', [
+           'pointmanagements' => $pointmanagements,
+        ]);
+    }
+
     public function manageUserPoints(Request $request)
     {
         $request->validate([
@@ -36,54 +44,66 @@ class PointManageController extends Controller
             $user = User::findOrFail($request->user_id);
             $currentPoints = $user->points ?? 0;
 
-            // Calculate new balance
             $newBalance = $request->type === 'add'
                 ? $currentPoints + $request->points
                 : $currentPoints - $request->points;
 
-            // Prevent negative balance
-            if ($newBalance < 0) {
-                return back()->withErrors(['points' => 'User does not have enough points.']);
+            $isFailed = false;
+            $metadata = [];
+
+            // Handle insufficient balance
+            if ($request->type === 'remove' && $currentPoints < $request->points) {
+                $isFailed = true;
+                $metadata['reason'] = 'Insufficient balance';
+                $metadata['current_points'] = $currentPoints;
+                $metadata['requested_points'] = $request->points;
             }
 
-            // Create point_manages record
+            // Create point_manages record regardless
             $pointManage = PointManage::create([
                 'user_id'       => $user->id,
                 'manage_by'     => Auth::id(),
                 'points'        => $request->points,
                 'reason'        => $request->reason,
                 'type'          => $request->type,
-                'status'        => 'completed',
-                'metadata'      => json_encode([]),
-                'balance_after' => $newBalance,
+                'status'        => $isFailed ? 'failed' : 'completed',
+                'metadata'      => json_encode($metadata),
+                'balance_after' => $isFailed ? $currentPoints : $newBalance,
                 'description'   => $request->description,
             ]);
 
-            // Create point_transactions record
-            PointTransaction::create([
-                'user_id'       => $user->id,
-                'resource_id'   => $pointManage->id,
-                'points'        => $request->points,
-                'type'          => $request->type,
-                'status'        => 'completed',
-                'metadata'      => json_encode([
-                    'managed_by' => Auth::user()->email,
-                    'reason' => $request->reason,
-                ]),
-                'balance_after' => $newBalance,
-                'description'   => $request->description,
-            ]);
+            if (!$isFailed) {
+                // Only create transaction and update user if successful
+                PointTransaction::create([
+                    'user_id'       => $user->id,
+                    'resource_id'   => $pointManage->id,
+                    'points'        => $request->points,
+                    'type'          => $request->type,
+                    'status'        => 'completed',
+                    'metadata'      => json_encode([
+                        'managed_by' => Auth::user()->email,
+                        'reason' => $request->reason,
+                    ]),
+                    'balance_after' => $newBalance,
+                    'description'   => $request->description,
+                ]);
 
-            // Update user's points
-            $user->points = $newBalance;
-            $user->save();
+                // Update user's points
+                $user->points = $newBalance;
+                $user->save();
+            }
 
             DB::commit();
-            return back()->with('success', 'User points updated successfully.');
+
+            return back()->with(
+                $isFailed ? ['error' => 'User has insufficient points. Action recorded as failed.'] :
+                            ['success' => 'User points updated successfully.']
+            );
 
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Something went wrong.']);
         }
     }
+
 }

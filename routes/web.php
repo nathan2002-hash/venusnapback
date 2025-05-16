@@ -58,6 +58,7 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     //points routes
     Route::get('/points/transactions', 'Admin\PointTransactionController@index');
     Route::get('/points/manage', 'Admin\PointManageController@manage');
+    Route::get('/points/allocations', 'Admin\PointManageController@allocations');
     Route::post('/points/manage/user', 'Admin\PointManageController@manageUserPoints');
 
     //category routes
