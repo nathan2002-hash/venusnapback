@@ -53,15 +53,14 @@
                         <li><a href="#" key="t-buy">Demographic</a></li>
                     </ul>
                 </li>
-
                 <li>
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
-                        <i class="bx bx-envelope"></i>
-                        <span key="t-email">Comments</span>
+                        <i class="bx bx-list-ul"></i>
+                        <span key="t-tables">Comments</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="/restricted/comments" key="t-inbox">Comments</a></li>
-                        <li><a href="/restricted/replies" key="t-read-email">Replies</a></li>
+                        <li><a href="/restricted/comments" key="t-data-tables">Comments</a></li>
+                         <li><a href="/restricted/replies" key="t-data-tables">Replies</a></li>
                     </ul>
                 </li>
 
@@ -211,6 +210,15 @@
                     <ul class="sub-menu" aria-expanded="false">
                         <li><a href="/restricted/template/create" key="t-basic-tables">Add Template</a></li>
                         <li><a href="/restricted/templates" key="t-data-tables">Templates</a></li>
+                    </ul>
+                </li>
+                 <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="bx bx-list-ul"></i>
+                        <span key="t-tables">Payments</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="/restricted/payments" key="t-data-tables">Payments</a></li>
                     </ul>
                 </li>
             </ul>

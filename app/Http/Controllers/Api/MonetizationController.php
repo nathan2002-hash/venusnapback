@@ -36,11 +36,11 @@ class MonetizationController extends Controller
         $perPage = $request->input('per_page', 20);
 
         $albums = Auth::user()->albums()
-            ->where('status', 'active') // ✅ status = 'active'
-            ->whereIn('type', ['creator', 'business']) // ✅ type filter
+            ->where('status', 'active')
+            ->whereIn('type', ['creator', 'business'])
             ->where(function ($query) {
                 $query->where('monetization_status', 0)
-                    ->orWhereNull('monetization_status'); // ✅ monetization_status is 0 or null
+                    ->orWhereNull('monetization_status');
             })
             ->select(['id', 'name', 'type', 'monetization_status', 'status']) // optional fields
             ->orderBy('created_at', 'desc')
@@ -206,12 +206,12 @@ class MonetizationController extends Controller
 
         // Get all album IDs that belong to the current user
         $albumIds = $user->albums()->pluck('id');
-        
+
         // Current month earnings
         $currentMonthEarnings = Earning::whereIn('album_id', $albumIds)
             ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
             ->sum('earning');
-        
+
         // Last month earnings
         $lastMonthEarnings = Earning::whereIn('album_id', $albumIds)
             ->whereBetween('created_at', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()])

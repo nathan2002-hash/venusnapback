@@ -68,9 +68,6 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/user/profile', 'Api\ProfileController@index');
     Route::get('/user/profile/change', 'Api\ProfileController@changeprofile');
 
-
-    Route::get('/post/comments/{postMediaId}', 'Api\CommentController@getCommentsAndReplies');
-
     Route::get('/post/comments/basic/{postMediaId}', 'Api\CommentController@getBasicComments');
     Route::get('/post/comments/replies/{commentId}', 'Api\CommentController@getCommentReplies');
 
@@ -198,9 +195,6 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
 
     Route::post('/ad/seen', 'Api\PostExploreController@sendAdSeenRequest');
     Route::post('/ad/cta/click/{id}', 'Api\PostExploreController@sendAdCtaClick');
-
-    Route::post('/create/payment/intent', 'Api\PaymentController@payment');
-    Route::post('/payment/confirm', 'Api\PaymentController@confirmPayment');
 
     Route::post('/create/paypal/order', 'Api\PayController@payment');
     Route::post('/capture/paypal/order', 'Api\PayController@capture');

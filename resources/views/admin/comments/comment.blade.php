@@ -1,15 +1,13 @@
 @extends('layouts.admin')
 
+
+
 @section('title')
     Post Comments
 @endsection
 
 @section('content')
 
-
-<link href="{{ asset('assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-<link href="{{ asset('assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-<link href="{{ asset('assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
 
 <div class="page-content">
     <div class="container-fluid">
@@ -80,7 +78,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="flagReason" class="col-form-label">Reason for Flagging</label>
-                                <textarea type="text" name="reason" class="form-control" rows="5" id="flagReason"><textarea
+                                <textarea type="text" name="reason" class="form-control" rows="5" id="flagReason"></textarea>
                             </div>
                         </div>
                         <div class="modal-footer">

@@ -24,78 +24,26 @@
         <!-- end page title -->
 
         <div class="row">
-            <div class="col-xl-4">
+            <div class="col-md-12">
                 <div class="card overflow-hidden">
-                    <div class="bg-primary bg-soft">
-                        <div class="row">
-                            <div class="col-7">
-                                <div class="text-primary p-3">
-                                    <h5 class="text-primary">Welcome Back !</h5>
-                                    <p>Venusnap Dashboard</p>
-                                </div>
-                            </div>
-                            <div class="col-5 align-self-end">
-                                <img src="assets/images/profile-img.png" alt="" class="img-fluid">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body pt-0">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <div class="avatar-md profile-user-wid mb-4">
-                                    <img src="{{ asset('assets/images/users/avatar-1.jpg') }}" alt="" class="img-thumbnail rounded-circle">
-                                </div>
-                                <h5 class="font-size-15 text-truncate">{{ Auth::user()->name }}</h5>
-                                <p class="text-muted mb-0 text-truncate">Admin</p>
-                            </div>
-
-                            <div class="col-sm-8">
-                                <div class="pt-4">
-
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <h5 class="font-size-15">0</h5>
-                                            <p class="text-muted mb-0">Projects</p>
-                                        </div>
-                                        <div class="col-6">
-                                            <h5 class="font-size-15">$0</h5>
-                                            <p class="text-muted mb-0">Revenue</p>
-                                        </div>
-                                    </div>
-                                    <div class="mt-4">
-                                        <a href="javascript: void(0);" class="btn btn-primary waves-effect waves-light btn-sm">View Profile <i class="mdi mdi-arrow-right ms-1"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
                     <div class="card-body">
                         <h4 class="card-title mb-4">Monthly Earning</h4>
                         <div class="row">
                             <div class="col-sm-6">
                                 <p class="text-muted">This month</p>
-                                <h3>$0</h3>
-                                <p class="text-muted"><span class="text-success me-2"> 12% <i class="mdi mdi-arrow-up"></i> </span> From previous period</p>
-
-                                <div class="mt-4">
-                                    <a href="javascript: void(0);" class="btn btn-primary waves-effect waves-light btn-sm">View More <i class="mdi mdi-arrow-right ms-1"></i></a>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="mt-4 mt-sm-0">
-                                    <div id="radialBar-chart" data-colors='["--bs-primary"]' class="apex-charts"></div>
-                                </div>
+                                <h3>${{ $paymentsComplete }}</h3>
                             </div>
                         </div>
-                        <p class="text-muted mb-0">We craft digital, graphic and dimensional thinking.</p>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-8">
+
+        </div>
+
+        <div class="row">
+             <div class="col-md-12">
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="card mini-stats-wid">
                             <div class="card-body">
                                 <div class="d-flex">
@@ -115,7 +63,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="card mini-stats-wid">
                             <div class="card-body">
                                 <div class="d-flex">
@@ -135,7 +83,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="card mini-stats-wid">
                             <div class="card-body">
                                 <div class="d-flex">
@@ -155,96 +103,324 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <!-- end row -->
+                     <div class="col-md-3">
+                        <div class="card mini-stats-wid">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted fw-medium">Post Medias</p>
+                                        <h4 class="mb-0">{{ $postmedias }}</h4>
+                                    </div>
 
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-sm-flex flex-wrap">
-                            <h4 class="card-title mb-4">Posts</h4>
-                            <div class="ms-auto">
-                                <ul class="nav nav-pills">
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="#">Week</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="#">Month</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link active" href="#">Year</a>
-                                    </li>
-                                </ul>
+                                    <div class="flex-shrink-0 align-self-center">
+                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
+                                            <span class="avatar-title rounded-circle bg-primary">
+                                                <i class="bx bx-purchase-tag-alt font-size-24"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <!-- end row -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card mini-stats-wid">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted fw-medium">Artworks</p>
+                                        <h4 class="mb-0">{{ $ads }}</h4>
+                                    </div>
 
-                        <div id="stacked-column-chart" class="apex-charts" data-colors='["--bs-primary", "--bs-warning", "--bs-success"]' dir="ltr"></div>
+                                    <div class="flex-shrink-0 align-self-center">
+                                        <div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
+                                            <span class="avatar-title">
+                                                <i class="bx bx-copy-alt font-size-24"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card mini-stats-wid">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted fw-medium">User Templates</p>
+                                        <h4 class="mb-0">{{ $usertemplates }}</h4>
+                                    </div>
+
+                                    <div class="flex-shrink-0 align-self-center ">
+                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
+                                            <span class="avatar-title rounded-circle bg-primary">
+                                                <i class="bx bx-archive-in font-size-24"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card mini-stats-wid">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted fw-medium">Venusnap Templates</p>
+                                        <h4 class="mb-0">{{ $venusnaptemplates }}</h4>
+                                    </div>
+
+                                    <div class="flex-shrink-0 align-self-center">
+                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
+                                            <span class="avatar-title rounded-circle bg-primary">
+                                                <i class="bx bx-purchase-tag-alt font-size-24"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card mini-stats-wid">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted fw-medium">Total Templates</p>
+                                        <h4 class="mb-0">{{ $venusnaptemplates + $usertemplates }}</h4>
+                                    </div>
+
+                                    <div class="flex-shrink-0 align-self-center">
+                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
+                                            <span class="avatar-title rounded-circle bg-primary">
+                                                <i class="bx bx-purchase-tag-alt font-size-24"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                 <div class="row">
+                    <div class="col-md-3">
+                        <div class="card mini-stats-wid">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted fw-medium"> Adboards</p>
+                                        <h4 class="mb-0">{{ $adboards }}</h4>
+                                    </div>
+
+                                    <div class="flex-shrink-0 align-self-center">
+                                        <div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
+                                            <span class="avatar-title">
+                                                <i class="bx bx-copy-alt font-size-24"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card mini-stats-wid">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted fw-medium">Running Ads</p>
+                                        <h4 class="mb-0">{{ $runningads }}</h4>
+                                    </div>
+
+                                    <div class="flex-shrink-0 align-self-center">
+                                        <div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
+                                            <span class="avatar-title">
+                                                <i class="bx bx-copy-alt font-size-24"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card mini-stats-wid">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted fw-medium">Paused Ads</p>
+                                        <h4 class="mb-0">{{ $pausedads }}</h4>
+                                    </div>
+
+                                    <div class="flex-shrink-0 align-self-center ">
+                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
+                                            <span class="avatar-title rounded-circle bg-primary">
+                                                <i class="bx bx-archive-in font-size-24"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card mini-stats-wid">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted fw-medium">Total Ads</p>
+                                        <h4 class="mb-0">{{ $ads }}</h4>
+                                    </div>
+
+                                    <div class="flex-shrink-0 align-self-center">
+                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
+                                            <span class="avatar-title rounded-circle bg-primary">
+                                                <i class="bx bx-purchase-tag-alt font-size-24"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card mini-stats-wid">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted fw-medium">User Points</p>
+                                        <h4 class="mb-0">{{ $totalpoints }}</h4>
+                                    </div>
+
+                                    <div class="flex-shrink-0 align-self-center">
+                                        <div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
+                                            <span class="avatar-title">
+                                                <i class="bx bx-copy-alt font-size-24"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card mini-stats-wid">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted fw-medium">User Points Amount</p>
+                                        <h4 class="mb-0">${{ $pointamount }}</h4>
+                                    </div>
+
+                                    <div class="flex-shrink-0 align-self-center ">
+                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
+                                            <span class="avatar-title rounded-circle bg-primary">
+                                                <i class="bx bx-archive-in font-size-24"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card mini-stats-wid">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted fw-medium">Templates</p>
+                                        <h4 class="mb-0">{{ $templates }}</h4>
+                                    </div>
+
+                                    <div class="flex-shrink-0 align-self-center">
+                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
+                                            <span class="avatar-title rounded-circle bg-primary">
+                                                <i class="bx bx-purchase-tag-alt font-size-24"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                 <div class="row">
+                    <div class="col-md-4">
+                        <div class="card mini-stats-wid">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted fw-medium">Completed Amount </p>
+                                        <h4 class="mb-0">${{ $paymentsComplete }}</h4>
+                                    </div>
+
+                                    <div class="flex-shrink-0 align-self-center">
+                                        <div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
+                                            <span class="avatar-title">
+                                                <i class="bx bx-copy-alt font-size-24"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card mini-stats-wid">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted fw-medium">Pending Amount</p>
+                                        <h4 class="mb-0">${{ $paymentsPending }}</h4>
+                                    </div>
+
+                                    <div class="flex-shrink-0 align-self-center ">
+                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
+                                            <span class="avatar-title rounded-circle bg-primary">
+                                                <i class="bx bx-archive-in font-size-24"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card mini-stats-wid">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted fw-medium">Failed Amount</p>
+                                        <h4 class="mb-0">${{ $paymentsFailed }}</h4>
+                                    </div>
+
+                                    <div class="flex-shrink-0 align-self-center">
+                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
+                                            <span class="avatar-title rounded-circle bg-primary">
+                                                <i class="bx bx-purchase-tag-alt font-size-24"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <!-- end row -->
 
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title mb-4">Latest Users</h4>
-                        <div class="table-responsive">
-                            <table class="table align-middle table-nowrap mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th style="width: 20px;">
-                                            <div class="form-check font-size-16 align-middle">
-                                                <input class="form-check-input" type="checkbox" id="transactionCheck01">
-                                                <label class="form-check-label" for="transactionCheck01"></label>
-                                            </div>
-                                        </th>
-                                        <th class="align-middle">User ID</th>
-                                        <th class="align-middle">Name</th>
-                                        <th class="align-middle">Email</th>
-                                        <th class="align-middle">Date Joined</th>
-                                        <th class="align-middle">Status</th>
-                                        <th class="align-middle">Region</th>
-                                        <th class="align-middle">View Details</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($users as $user)
-                                    <tr>
-                                        <td>
-                                            <div class="form-check font-size-16">
-                                                <input class="form-check-input" type="checkbox" id="transactionCheck02">
-                                                <label class="form-check-label" for="transactionCheck02"></label>
-                                            </div>
-                                        </td>
-                                        <td><a href="javascript: void(0);" class="text-body fw-bold">{{ $user->id }}</a> </td>
-                                        <td>{{ $user->name }}</td>
-                                        <td>
-                                            {{ $user->email }}
-                                        </td>
-                                        <td>
-                                            {{ $user->created_at->format('d M, Y') }}
-                                        </td>
-                                        <td>
-                                            <span class="badge-soft-success font-size-11">{{ $user->status }}</span>
-                                        </td>
-                                        <td>
-                                            {{ $user->country }}
-                                        </td>
-                                        <td>
-                                            <!-- Button trigger modal -->
-                                            <button type="button" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light" data-bs-toggle="modal" data-bs-target=".transaction-detailModal">
-                                                View Details
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- end table-responsive -->
-                    </div>
-                </div>
+         <!-- end row -->
+
             </div>
         </div>
         <!-- end row -->
