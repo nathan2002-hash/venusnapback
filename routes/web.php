@@ -49,7 +49,7 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
 
     //support routes
     Route::get('/support/tickets', 'Admin\TicketController@index');
-    Route::get('/support/ticket/state', 'Admin\TicketController@markstate');
+    Route::post('/support/ticket/state', 'Admin\TicketController@markstate');
 
     //ads routes
     Route::get('/ads', 'Admin\AdController@index');
