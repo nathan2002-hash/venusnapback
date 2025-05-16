@@ -16,4 +16,8 @@ class PointTransaction extends Model
         'metadata',
         'status'
     ];
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
 }

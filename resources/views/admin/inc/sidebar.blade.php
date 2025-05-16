@@ -197,7 +197,8 @@
                         <span key="t-ui-elements">Ads</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="#" key="t-alerts">Ads</a></li>
+                        <li><a href="/restricted/ads" key="t-alerts">Ads</a></li>
+                        <li><a href="/restricted/adboards" key="t-alerts">Adboards</a></li>
                         <li><a href="#" key="t-buttons">Demographic</a></li>
                     </ul>
                 </li>
@@ -219,6 +220,30 @@
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
                         <li><a href="/restricted/payments" key="t-data-tables">Payments</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="bx bx-list-ul"></i>
+                        <span key="t-tables">Transactions</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="/restricted/points/transactions" key="t-data-tables">Point Transactions</a></li>
+                    </ul>
+                </li>
+
+                  <li class="menu-title" key="t-components">Point Management</li>
+                   <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="bx bx-list-ul"></i>
+                        <span key="t-tables">User Points</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="/restricted/points/manage" key="t-data-tables">Manage</a></li>
+                    </ul>
+                     <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="/restricted/points/allocations" key="t-data-tables">Allocations</a></li>
                     </ul>
                 </li>
             </ul>

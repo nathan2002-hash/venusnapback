@@ -47,9 +47,18 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     //payments routes
     Route::get('/activities', 'Admin\UserAuthController@index');
 
-    //payments routes
+    //support routes
     Route::get('/support/tickets', 'Admin\TicketController@index');
     Route::get('/support/ticket/state', 'Admin\TicketController@markstate');
+
+    //ads routes
+    Route::get('/ads', 'Admin\AdController@index');
+    Route::get('/adboards', 'Admin\AdController@adboards');
+
+    //points routes
+    Route::get('/points/transactions', 'Admin\PointTransactionController@index');
+    Route::get('/points/manage', 'Admin\PointManageController@manage');
+    Route::post('/points/manage/user', 'Admin\PointManageController@manageUserPoints');
 
     //category routes
     Route::get('/posts/categories', 'Admin\CategoryController@post');
