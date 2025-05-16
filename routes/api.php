@@ -147,7 +147,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/user/settings', 'Api\SettingController@getUserSettings');
     Route::patch('/user/update/setting', 'Api\SettingController@updateUserSetting');
     Route::get('/user/login/activities', 'Api\AuthController@getLoginActivities');
-   
+
     Route::get('/categories', function () {
         return response()->json(Category::all());
     });
@@ -201,6 +201,9 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
 
     Route::post('/create/payment/intent', 'Api\PaymentController@payment');
     Route::post('/payment/confirm', 'Api\PaymentController@confirmPayment');
+
+    Route::post('/create/paypal/order', 'Api\PayController@payment');
+    Route::post('/capture/paypal/order', 'Api\PayController@capture');
 
     Route::get('/payments', 'Api\PaymentController@fetchUserPayments');
     Route::get('/payouts', 'Api\PayoutController@fetchUserPayouts');
