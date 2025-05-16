@@ -7,4 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Activity extends Model
 {
     protected $fillable = ['title', 'description', 'source', 'user_id', 'status', 'user_agent', 'ip_address', 'device_info'];
+
+     public function user(){
+        return $this->belongsTo(User::class);
+    }
 }

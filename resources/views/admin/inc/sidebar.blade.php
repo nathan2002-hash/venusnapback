@@ -184,7 +184,7 @@
                         <span key="t-authentication">Authentication</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="#" key="t-login">Sessions</a></li>
+                        <li><a href="/restricted/activities" key="t-login">Sessions</a></li>
                         <li><a href="#" key="t-login-2">Resets</a></li>
                     </ul>
                 </li>

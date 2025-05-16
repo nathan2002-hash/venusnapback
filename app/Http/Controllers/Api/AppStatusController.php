@@ -12,6 +12,8 @@ class AppStatusController extends Controller
     public function checkAppStatus(Request $request)
     {
         $currentVersion = $request->header('X-App-Version');
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+        $ipaddress = $realIp;
         $platform = str_contains(strtolower($request->header('X-App-type')), 'android') ? 'android' : 'ios';
 
         // Check maintenance first
@@ -48,7 +50,7 @@ class AppStatusController extends Controller
                     AppMessageUserAction::create([
                         'app_message_id' => $message->id,
                         'user_id' => $request->user()->id,
-                        'ip' => $request->ip(),
+                        'ip' => $ipaddress,
                         'action' => 'viewed', // Changed from 'dismissed' to 'viewed'
                         'app_version' => $currentVersion,
                         'platform' => $platform
@@ -92,10 +94,13 @@ class AppStatusController extends Controller
             'action' => 'required|in:clicked,dismissed'
         ]);
 
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+        $ipaddress = $realIp;
+
         AppMessageUserAction::create([
             'app_message_id' => $validated['message_id'],
             'user_id' => $request->user()?->id,
-            'ip' => $request->ip(),
+            'ip' => $ipaddress,
             'device_id' => $request->header('X-Device-ID'),
             'action' => $validated['action'],
             'app_version' => $request->header('X-App-Version'),

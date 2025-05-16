@@ -199,6 +199,8 @@ class PostExploreController extends Controller
         $ad = Ad::find($id);
 
         $user = Auth::user();
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+        $ipaddress = $realIp;
 
         // Check if ad exists
         if (!$ad) {
@@ -244,7 +246,7 @@ class PostExploreController extends Controller
 
         AdClickJob::dispatch(
             $ad->id,
-            $request->ip(),
+            $ipaddress,
             $request->header('Device-Info'),
             $request->header('User-Agent'),
             Auth::user()->id
@@ -272,6 +274,8 @@ class PostExploreController extends Controller
     public function sendAdSeenRequest(Request $request)
     {
         $ad = Ad::find($request->ad_id);
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+        $ipaddress = $realIp;
 
         $adboard = Adboard::find($ad->adboard_id);
         if (!$adboard || $adboard->points <= 0) {
@@ -282,7 +286,7 @@ class PostExploreController extends Controller
 
         //session
         $session = new AdSession();
-        $session->ip_address = $request->ip();
+        $session->ip_address = $ipaddress;
         $session->user_id = Auth::user()->id;
         $session->device_info = $request->header('Device-Info');
         $session->user_agent = $request->header('User-Agent');
@@ -301,6 +305,8 @@ class PostExploreController extends Controller
     public function sendAdCtaClick(Request $request, $id)
     {
         $ad = Ad::find($id);
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+        $ipaddress = $realIp;
 
         $adboard = Adboard::find($ad->adboard_id);
         if (!$adboard || $adboard->points <= 0) {
@@ -311,7 +317,7 @@ class PostExploreController extends Controller
 
         //session
         $session = new AdSession();
-        $session->ip_address = $request->ip();
+        $session->ip_address = $ipaddress;
         $session->user_id = Auth::user()->id;
         $session->device_info = $request->header('Device-Info');
         $session->user_agent = $request->header('User-Agent');

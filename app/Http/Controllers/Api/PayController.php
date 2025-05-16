@@ -27,11 +27,13 @@ class PayController extends Controller
         ]);
 
         $user = Auth::user();
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+        $ipaddress = $realIp;
 
         // Create payment session
         $paymentsession = PaymentSession::create([
             'user_id' => $user->id,
-            'ip_address' => $request->ip(),
+            'ip_address' => $ipaddress,
             'device_info' => $request->header('Device-Info'),
             'user_agent' => $request->header('User-Agent'),
         ]);

@@ -340,10 +340,10 @@ class AlbumController extends Controller
     }
 
 
-    public function show($albumId)
+    public function show($albumId, Request $request)
     {
         $album = Album::with(['posts.postmedias'])->find($albumId);
-
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
         if (!$album) {
             return response()->json([
                 'message' => 'Album not found'
@@ -351,8 +351,8 @@ class AlbumController extends Controller
         }
 
         $user = Auth::user();
-         $ip = request()->ip();
-         $userAgent = request()->header('User-Agent');
+        $ip = $realIp;
+        $userAgent = request()->header('User-Agent');
 
          // Optional: prevent duplicate views in short span
          $alreadyViewed = AlbumView::where('album_id', $albumId)
@@ -388,8 +388,6 @@ class AlbumController extends Controller
                     'album_id' => $album->id
                 ]
             );
-
-            $this->sendAlbumViewPushNotification($user, $album);
         }
 
         // Determine the album's thumbnail
@@ -445,7 +443,7 @@ class AlbumController extends Controller
         ], 200);
     }
 
-    public function showviewer($albumId)
+    public function showviewer($albumId, Request $request)
     {
         $album = Album::with(['posts.postmedias', 'supporters'])->find($albumId);
 
@@ -455,8 +453,10 @@ class AlbumController extends Controller
             ], 404);
         }
 
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+
          $user = Auth::user();
-         $ip = request()->ip();
+         $ip = $realIp;
          $userAgent = request()->header('User-Agent');
 
          // Optional: prevent duplicate views in short span

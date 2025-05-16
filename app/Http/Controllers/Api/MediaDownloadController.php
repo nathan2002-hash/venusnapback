@@ -13,13 +13,15 @@ class MediaDownloadController extends Controller
     {
         $userAgent = $request->header('User-Agent');
         $deviceinfo = $request->header('Device-Info');
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+        $ipaddress = $realIp;
 
         $download = new MediaDownload();
         $download->post_media_id = $request->post_media_id;
         $download->user_agent = $userAgent;
         $download->device_info = $deviceinfo;
         $download->user_id = Auth::user()->id;
-        $download->ip_address = $request->ip();
+        $download->ip_address = $ipaddress;
         $download->save();
         return response()->json(['success' => true]);
     }

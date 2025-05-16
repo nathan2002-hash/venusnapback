@@ -167,4 +167,8 @@ class User extends Authenticatable
         return $this->hasMany(AlbumCategory::class);
     }
 
+    public function activities(){
+        return $this->hasMany(Activity::class);
+    }
+
 }

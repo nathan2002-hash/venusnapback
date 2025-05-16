@@ -72,6 +72,8 @@ class MonetizationController extends Controller
     public function applyForMonetization(Request $request)
     {
         $user = Auth::user();
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+        $ipaddress = $realIp;
 
         // Validate the request
         $validated = $request->validate([
@@ -111,7 +113,7 @@ class MonetizationController extends Controller
             'status' => 'pending',
             'device_info' => $request->header('Device-Info'),
             'user_agent' => $request->header('User-Agent'),
-            'ip_address' => $request->ip()
+            'ip_address' => $ipaddress
         ]);
 
         // Send notifications if needed

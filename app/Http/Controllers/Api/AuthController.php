@@ -37,7 +37,8 @@ class AuthController extends Controller
         ]);
         $userAgent = $request->header('User-Agent');
         $deviceinfo = $request->header('Device-Info');
-        $ipaddress = $request->ip();
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+        $ipaddress = $realIp;
 
         if (!Auth::attempt($request->only('email', 'password'))) {
             $user = User::where('email', $request->email)->first();
@@ -98,7 +99,8 @@ class AuthController extends Controller
         ]);
         $userAgent = $request->header('User-Agent');
         $deviceinfo = $request->header('Device-Info');
-        $ipaddress = $request->ip();
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+        $ipaddress = $realIp;
 
         $user = User::create([
             'name' => $request->full_name,
@@ -129,7 +131,8 @@ class AuthController extends Controller
         $user = Auth::user();
         $userAgent = $request->header('User-Agent');
         $deviceinfo = $request->header('Device-Info');
-        $ipaddress = $request->ip();
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+        $ipaddress = $realIp;
 
         if (!Hash::check($request->current_password, $user->password)) {
             ChangePasswordJob::dispatch($user, $request->current_password, $request->new_password, $userAgent, $ipaddress, $deviceinfo);
@@ -369,23 +372,23 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email'
         ]);
-    
+
         $user = User::where('email', $request->email)->first();
-    
+
         if (!$user) {
             return response()->json(['message' => 'Email not found'], 404);
         }
-    
+
         $code = random_int(100000, 999999);
         $expiry = Carbon::now()->addMinutes(10);
-    
+
         $user->reset_code = $code;
         $user->reset_code_expire = $expiry;
         $user->save();
-    
+
         // Dispatch the email sending job
         SendPasswordRestCode::dispatch($user->email, $code);
-    
+
         return response()->json([
             'message' => 'Reset code sent successfully',
             'email' => $user->email,
@@ -399,25 +402,25 @@ class AuthController extends Controller
             'reset_code' => 'required|numeric',
             'password' => 'required|min:6|confirmed', // expects password_confirmation too
         ]);
-    
+
         $user = User::where('email', $request->email)
                     ->where('reset_code', $request->reset_code)
                     ->first();
-    
+
         if (!$user) {
             return response()->json(['message' => 'Invalid email or code'], 404);
         }
-    
+
         if (!$user->reset_code_expire || Carbon::now()->greaterThan($user->reset_code_expire)) {
             return response()->json(['message' => 'Reset code has expired'], 410);
         }
-    
+
         // Update password
         $user->password = Hash::make($request->password);
         $user->reset_code = null;
         $user->reset_code_expire = null;
         $user->save();
-    
+
         return response()->json(['message' => 'Password reset successfully'], 200);
     }
 }
