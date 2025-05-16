@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('priority');
             $table->string('status');
             $table->string('resolved_at');
+            $table->string('resolved_by');
             $table->timestamps();
         });
     }

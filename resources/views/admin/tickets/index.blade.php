@@ -94,14 +94,18 @@
                         <h5 class="modal-title" id="commentModalLabel">Support Needed for <span id="commentUserName"></span></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form>
+                    <form action="/restricted/support/ticket/state" method="POST">
                         @csrf
-                        <input type="hidden" name="comment_id" id="modalCommentId">
+                        <input type="hidden" name="support_id" id="modalCommentId">
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label for="commentText" class="col-form-label">Request:</label>
                                 <textarea class="form-control" readonly name="comment" id="commentText" rows="5"></textarea>
                             </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-success">Mark as Resolved</button>
                         </div>
                     </form>
                 </div>

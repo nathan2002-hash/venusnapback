@@ -14,6 +14,7 @@ class ContactSupport extends Model
         'priority',
         'status',
         'resolved_at',
+        'resolved_by',
     ];
 
     protected $casts = [

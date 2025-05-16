@@ -49,6 +49,7 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
 
     //payments routes
     Route::get('/support/tickets', 'Admin\TicketController@index');
+    Route::get('/support/ticket/state', 'Admin\TicketController@markstate');
 
     //category routes
     Route::get('/posts/categories', 'Admin\CategoryController@post');
