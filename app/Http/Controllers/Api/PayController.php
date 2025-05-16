@@ -144,12 +144,10 @@ class PayController extends Controller
 
     private function getPayPalClient()
     {
-        $clientId = config('services.paypal.client_id');
-        $clientSecret = config('services.paypal.secret');
-        $environment = config('services.paypal.env') === 'production'
-            ? new ProductionEnvironment($clientId, $clientSecret)
-            : new SandboxEnvironment($clientId, $clientSecret);
-
-        return new PayPalHttpClient($environment);
+        $clientId = "Adb3ojL6yMqZLSxj8N7ajNCw793eurD7IbX-r8LrDCLmKsmJCJiAxEw7JpKxi6YbXHCbygFBmXeoqhkG";
+        $clientSecret = "ECxrbuAcYFpqmkRLvj_sCMnyKBnxQzuITku9q91GQ2OABtCByFBKp8sXziJQyZmYWcnjH32RVLGw8Tdn";
+        return new PayPalHttpClient(
+            new SandboxEnvironment($clientId, $clientSecret)
+        );
     }
 }
