@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\PaymentSession;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use PayPalCheckoutSdk\Core\PayPalHttpClient;
 use PayPalCheckoutSdk\Core\SandboxEnvironment;
 use PayPalCheckoutSdk\Core\ProductionEnvironment;
@@ -100,47 +101,70 @@ class PayController extends Controller
         }
     }
 
-    public function capture(Request $request)
-    {
-        $request->validate([
-            'order_id' => 'required|integer',
-        ]);
+   public function capture(Request $request)
+{
+    $request->validate([
+        'order_id' => 'required|integer',
+    ]);
 
-        $payment = Payment::find($request->input('order_id'));
+    $payment = Payment::find($request->input('order_id'));
 
-        if (!$payment) {
-            return response()->json(['message' => 'Payment not found'], 404);
-        }
+    if (!$payment) {
+        return response()->json(['message' => 'Payment not found'], 404);
+    }
 
-        $paypalOrderId = $payment->payment_no;
-        $client = $this->getPayPalClient();
-        $paypalRequest = new OrdersCaptureRequest($paypalOrderId);
+    $paypalOrderId = $payment->payment_no;
+    $client = $this->getPayPalClient();
+    $paypalRequest = new OrdersCaptureRequest($paypalOrderId);
 
-        try {
-            $response = $client->execute($paypalRequest);
+    try {
+        $response = $client->execute($paypalRequest);
+        Log::info('PayPal Capture Response: '.json_encode($response));
 
-            if ($response->result->status === 'COMPLETED') {
-                // Update payment status
-                $payment->update([
-                    'status' => 'completed',
-                    'metadata->paypal_response' => json_encode($response->result),
-                ]);
+        if ($response->result->status === 'COMPLETED') {
+            // Debug metadata before update
+            Log::info('Payment Metadata Before: '.json_encode($payment->metadata));
 
-                // Add points to user
-                $points = $payment->metadata['points'] ?? 0;
-                if ($points > 0) {
-                    $payment->user->increment('points', $points);
+            // Update payment status
+            $updated = $payment->update([
+                'status' => 'completed',
+                'metadata->paypal_response' => json_encode($response->result),
+            ]);
+
+            Log::info('Payment Update Result: '.$updated);
+
+            // Refresh payment data
+            $payment->refresh();
+
+            // Add points to user - fixed metadata access
+            $metadata = $payment->metadata ?? [];
+            $points = is_array($metadata) ? ($metadata['points'] ?? 0) : 0;
+
+            Log::info("Attempting to add points: ".$points);
+
+            if ($points > 0) {
+                $user = $payment->user;
+                if ($user) {
+                    $user->increment('points', $points);
+                    Log::info("Successfully added $points points to user {$user->id}");
+                } else {
+                    Log::error("No user associated with payment {$payment->id}");
                 }
-
-                return response()->json(['status' => 'completed']);
             }
 
-            return response()->json(['status' => 'failed'], 400);
-
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
+            return response()->json([
+                'status' => 'completed',
+                'points_added' => $points
+            ]);
         }
+
+        return response()->json(['status' => 'failed'], 400);
+
+    } catch (\Exception $e) {
+        Log::error('PayPal Capture Error: '.$e->getMessage());
+        return response()->json(['error' => $e->getMessage()], 400);
     }
+}
 
     private function getPayPalClient()
     {
