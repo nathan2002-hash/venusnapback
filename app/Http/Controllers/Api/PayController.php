@@ -175,10 +175,33 @@ class PayController extends Controller
 
     private function getPayPalClient()
     {
-        $clientId = "Adb3ojL6yMqZLSxj8N7ajNCw793eurD7IbX-r8LrDCLmKsmJCJiAxEw7JpKxi6YbXHCbygFBmXeoqhkG";
-        $clientSecret = "ECxrbuAcYFpqmkRLvj_sCMnyKBnxQzuITku9q91GQ2OABtCByFBKp8sXziJQyZmYWcnjH32RVLGw8Tdn";
-        return new PayPalHttpClient(
-            new SandboxEnvironment($clientId, $clientSecret)
-        );
+        $environment = env('PAYPAL_ENV', 'sandbox');
+
+        if ($environment === 'production') {
+            $clientId = env('LIVE_PAYPAL_CLIENT_ID');
+            $clientSecret = env('LIVE_PAYPAL_SECRET');
+            $envInstance = new ProductionEnvironment($clientId, $clientSecret);
+        } else {
+            $clientId = env('SANDBOX_PAYPAL_CLIENT_ID');
+            $clientSecret = env('SANDBOX_PAYPAL_SECRET');
+            $envInstance = new SandboxEnvironment($clientId, $clientSecret);
+        }
+
+        // Validate credentials
+        if (empty($clientId) || empty($clientSecret)) {
+            Log::error('PayPal credentials missing for ' . $environment);
+            throw new \RuntimeException('PayPal credentials not configured properly.');
+        }
+
+        return new PayPalHttpClient($envInstance);
     }
+
+    // private function getPayPalClient()
+    // {
+    //     $clientId = "Adb3ojL6yMqZLSxj8N7ajNCw793eurD7IbX-r8LrDCLmKsmJCJiAxEw7JpKxi6YbXHCbygFBmXeoqhkG";
+    //     $clientSecret = "ECxrbuAcYFpqmkRLvj_sCMnyKBnxQzuITku9q91GQ2OABtCByFBKp8sXziJQyZmYWcnjH32RVLGw8Tdn";
+    //     return new PayPalHttpClient(
+    //         new SandboxEnvironment($clientId, $clientSecret)
+    //     );
+    // }
 }
