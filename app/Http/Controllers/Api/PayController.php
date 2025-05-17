@@ -195,13 +195,4 @@ class PayController extends Controller
 
         return new PayPalHttpClient($envInstance);
     }
-
-    // private function getPayPalClient()
-    // {
-    //     $clientId = "Adb3ojL6yMqZLSxj8N7ajNCw793eurD7IbX-r8LrDCLmKsmJCJiAxEw7JpKxi6YbXHCbygFBmXeoqhkG";
-    //     $clientSecret = "ECxrbuAcYFpqmkRLvj_sCMnyKBnxQzuITku9q91GQ2OABtCByFBKp8sXziJQyZmYWcnjH32RVLGw8Tdn";
-    //     return new PayPalHttpClient(
-    //         new SandboxEnvironment($clientId, $clientSecret)
-    //     );
-    // }
 }
