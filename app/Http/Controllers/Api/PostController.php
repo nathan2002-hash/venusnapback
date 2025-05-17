@@ -128,6 +128,9 @@ public function index(Request $request)
             return response()->json(['error' => 'Post not found'], 404);
         }
 
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+        $ipaddress = $realIp;
+
         $album = $post->album;
 
         if ($album) {
@@ -150,7 +153,7 @@ public function index(Request $request)
         LogPostMediaView::dispatch(
             $id,
             Auth::user()->id,
-            $request->ip(),
+            $ipaddress,
             $request->header('User-Agent'),
             $request->header('Device-Info'),
             6 // Initial duration, can be updated later
