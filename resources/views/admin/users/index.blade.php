@@ -37,6 +37,7 @@
                                     <th>User ID</th>
                                     <th>Name</th>
                                     <th>Email</th>
+                                    <th>Albums</th>
                                     <th>Date Joined</th>
                                     <th>Status</th>
                                     <th>Region</th>
@@ -50,6 +51,9 @@
                                     <td>{{ $user->name }}</td>
                                     <td>
                                         {{ $user->email }}
+                                    </td>
+                                    <td>
+                                        {{ $user->albums->count() }}
                                     </td>
                                     <td>
                                         {{ $user->created_at->format('d M, Y') }}

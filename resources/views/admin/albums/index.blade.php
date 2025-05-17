@@ -38,6 +38,7 @@
                                     <th>Name</th>
                                     <th>Category</th>
                                     <th>Owner</th>
+                                    <th>Supporters</th>
                                     <th>Status</th>
                                     <th class="text-center">View Details</th>
                                 </tr>
@@ -48,7 +49,8 @@
                                     <td><a href="javascript: void(0);" class="text-body fw-bold">{{ $album->id }}</a> </td>
                                     <td>{{ $album->name }}</td>
                                     <td>{{ $album->type }}</td>
-                                    <td>{{ $album->user->name }}</td>
+                                    <td>{{ $album->user->email }}</td>
+                                    <td>{{ $album->supporters->count() }}</td>
                                     <td>
                                         @if ($album->status == 'active')
                                         <span class="badge-soft-success font-size-11">Active</span>

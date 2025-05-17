@@ -49,7 +49,7 @@
                                     <td><a href="javascript: void(0);" class="text-body fw-bold">{{ $payment->id }}</a> </td>
                                     <td>${{ $payment->amount }}</td>
                                     <td>
-                                        {{ $payment->user->name }}
+                                        {{ $payment->user->email }}
                                     </td>
                                     <td>
                                         {{ $payment->created_at->format('d M, Y') }}
