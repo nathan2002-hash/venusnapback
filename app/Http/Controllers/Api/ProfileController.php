@@ -66,8 +66,8 @@ class ProfileController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . Auth::id(),
             'full_name' => 'required|string|max:255',
             'country' => 'required|string|max:500',
-            'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'cover_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20000',
+            'cover_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20000',
         ]);
 
         $user = User::find($user->id);
