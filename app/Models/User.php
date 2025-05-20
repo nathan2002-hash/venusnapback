@@ -35,7 +35,11 @@ class User extends Authenticatable
         'points',
         'status',
         'tfa_code',
-        'tfa_expires_at'
+        'tfa_expires_at',
+        'phone_code',
+        'phone_code_expires_at',
+        'email_code',
+        'email_code_expires_at'
     ];
 
     /**

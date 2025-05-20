@@ -35,6 +35,13 @@ return new class extends Migration
             $table->string('profile_compressed', 2048)->nullable();
             $table->string('cover_original', 2048)->nullable();
             $table->string('cover_compressed', 2048)->nullable();
+            $table->string('reset_code')->nullable();
+            $table->string('reset_expires_at')->nullable();
+            $table->string('phone_code')->nullable();
+            $table->string('phone_code_expires_at')->nullable();
+            $table->string('email_code')->nullable();
+            $table->string('email_code_expires_at')->nullable();
+            $table->string('phone_verified_at')->nullable();
             $table->timestamps();
         });
 

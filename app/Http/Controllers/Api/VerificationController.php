@@ -1,0 +1,145 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
+class VerificationController extends Controller
+{
+    public function sendPhoneVerificationCode($user)
+    {
+        try {
+            // Generate a 6-digit code
+            $code = Str::random(6); // or mt_rand(100000, 999999) for numeric code
+
+            // Set expiration time (e.g., 15 minutes from now)
+            $expiresAt = Carbon::now()->addMinutes(15)->toDateTimeString();
+
+            // Update user record with the code and expiration time
+            DB::table('users')
+                ->where('id', $user->id)
+                ->update([
+                    'phone_code' => $code,
+                    'phone_code_expires_at' => $expiresAt,
+                    // Don't reset phone_verified_at here - only when actually verified
+                ]);
+
+            // Here you would typically send the code via SMS
+            // This is where you'd integrate with your SMS service
+            // Example: $this->sendSms($user->phone, "Your verification code is: $code");
+
+            return true;
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('Failed to send phone verification code: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Send email verification code
+     */
+    public function sendEmailVerificationCode($user)
+    {
+        try {
+            // Generate a 6-digit code
+            $code = Str::random(6); // or mt_rand(100000, 999999) for numeric code
+
+            // Set expiration time (e.g., 15 minutes from now)
+            $expiresAt = Carbon::now()->addMinutes(15)->toDateTimeString();
+
+            // Update user record with the code and expiration time
+            DB::table('users')
+                ->where('id', $user->id)
+                ->update([
+                    'email_code' => $code,
+                    'email_code_expires_at' => $expiresAt,
+                ]);
+
+            // Here you would typically send the email
+            // This is where you'd implement your email sending logic
+            // Example:
+            // Mail::to($user->email)->send(new VerificationEmail($code));
+
+            return true;
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('Failed to send email verification code: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Verify phone code
+     */
+    public function verifyPhone(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string|size:6',
+        ]);
+
+        $user = $request->user();
+        $now = Carbon::now()->toDateTimeString();
+
+        // Check if code matches and isn't expired
+        $verified = DB::table('users')
+            ->where('id', $user->id)
+            ->where('phone_code', $request->code)
+            ->where('phone_code_expires_at', '>', $now)
+            ->exists();
+
+        if ($verified) {
+            // Update verification status
+            DB::table('users')
+                ->where('id', $user->id)
+                ->update([
+                    'phone_verified_at' => $now,
+                    'phone_code' => null,
+                    'phone_code_expires_at' => null,
+                ]);
+
+            return response()->json(['message' => 'Phone number verified successfully']);
+        }
+
+        return response()->json(['message' => 'Invalid or expired verification code'], 400);
+    }
+
+    /**
+     * Verify email code
+     */
+    public function verifyEmail(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string|size:6',
+        ]);
+
+        $user = $request->user();
+        $now = Carbon::now()->toDateTimeString();
+
+        // Check if code matches and isn't expired
+        $verified = DB::table('users')
+            ->where('id', $user->id)
+            ->where('email_code', $request->code)
+            ->where('email_code_expires_at', '>', $now)
+            ->exists();
+
+        if ($verified) {
+            // Update verification status
+            DB::table('users')
+                ->where('id', $user->id)
+                ->update([
+                    'email_verified_at' => $now,
+                    'email_code' => null,
+                    'email_code_expires_at' => null,
+                ]);
+
+            return response()->json(['message' => 'Email verified successfully']);
+        }
+
+        return response()->json(['message' => 'Invalid or expired verification code'], 400);
+    }
+}

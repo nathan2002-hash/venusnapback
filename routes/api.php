@@ -53,6 +53,11 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/send-otp', 'Api\AuthController@sendOTP');
     Route::post('/verify-otp', 'Api\AuthController@verifyOTP');
 
+    //user verification
+    Route::post('/verify/email/send', 'Api\VerificationController@sendEmailVerificationCode');
+    Route::post('/verify/phone/send', 'Api\VerificationController@sendPhoneVerificationCode');
+    Route::post('/verify/email/confirm', 'Api\VerificationController@verifyEmail');
+    Route::post('/verify/phone/confirm', 'Api\VerificationController@verifyPhone');
     //profile routes
     //Route::get('/user/profile', 'Api\ProfileController@index');
 

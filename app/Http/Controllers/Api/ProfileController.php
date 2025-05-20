@@ -133,6 +133,8 @@ class ProfileController extends Controller
                 'cover_photo' => $coverUrl,
                 'gender' => $user->gender,
                 'dob' => $user->dob,
+                'email_verified' => !is_null($user->email_verified_at),
+                'phone_verified' => !is_null($user->phone_verified_at),
             ]
         ]);
     }
