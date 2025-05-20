@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class VerificationController extends Controller
 {
-    public function sendPhoneVerificationCode($user)
+    public function sendPhoneVerificationCode()
     {
+        $user = Auth::user();
         try {
             // Generate a 6-digit code
             $code = Str::random(6); // or mt_rand(100000, 999999) for numeric code
@@ -43,8 +45,9 @@ class VerificationController extends Controller
     /**
      * Send email verification code
      */
-    public function sendEmailVerificationCode($user)
+    public function sendEmailVerificationCode()
     {
+        $user = Auth::user();
         try {
             // Generate a 6-digit code
             $code = Str::random(6); // or mt_rand(100000, 999999) for numeric code
