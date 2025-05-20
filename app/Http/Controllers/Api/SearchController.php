@@ -24,6 +24,7 @@ class SearchController extends Controller
         // Search posts
         $posts = Post::with(['album'])
             ->where('description', 'like', "%$query%")
+            ->where('visibility', 'public')
             ->limit(10)
             ->get()
             ->map(function ($post) {
@@ -45,6 +46,7 @@ class SearchController extends Controller
 
         // Search albums
         $albums = Album::where('name', 'like', "%$query%")
+            ->where('visibility', 'public')
             ->limit(10)
             ->get()
             ->map(function ($album) {
