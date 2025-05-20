@@ -12,6 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Intervention\Image\Encoders\PngEncoder;
 use Intervention\Image\Encoders\WebpEncoder;
 use Intervention\Image\Encoders\JpegEncoder;
+use Log;
 
 class CompressImageJob implements ShouldQueue
 {
@@ -110,53 +111,107 @@ class CompressImageJob implements ShouldQueue
     //     $this->checkPostCompletion();
     // }
 
-    // protected function calculateOptimalQuality(Image $image): int
-    // {
-    //     // Base quality matrix
-    //     return match(true) {
-    //         ($image->width() > 1800 || $image->height() > 1800) => 90, // Large images get higher quality
-    //         ($image->width() < 800 && $image->height() < 800) => 80,   // Small images can tolerate more compression
-    //         default => 85                                             // Default balanced quality
-    //     };
-    // }
-
     public function handle()
     {
-        $path = $this->postMedia->file_path;
-        $originalImage = Storage::disk('s3')->get($path);
+        try {
+            $path = $this->postMedia->file_path;
+            $originalImage = Storage::disk('s3')->get($path);
 
-        $manager = new ImageManager(new GdDriver());
-        $image = $manager->read($originalImage);
+            $manager = new ImageManager(new GdDriver());
 
-        // Detect if image contains text (simple heuristic)
-        $hasText = $this->detectText($image);
+            // Validate image before processing
+            if (!$this->isValidImage($originalImage)) {
+                throw new \Exception("Invalid image file");
+            }
 
-        // Smart resizing with text consideration
-        $maxDimension = $hasText ? 1600 : 2000; // Lower max for text images
-        $targetDimension = $hasText ? 1000 : 1200;
+            $image = $manager->read($originalImage);
 
-        if ($image->width() > $maxDimension || $image->height() > $maxDimension) {
-            $image->scaleDown($maxDimension, $maxDimension);
-        } elseif ($image->width() > $targetDimension || $image->height() > $targetDimension) {
-            $image->scaleDown($targetDimension, $targetDimension);
+            // Handle animated GIFs differently
+            if ($this->isAnimatedGif($originalImage)) {
+                return $this->handleAnimatedImage($path, $originalImage);
+            }
+
+            // Detect if image contains text
+            $hasText = $this->detectText($image);
+
+            // Smart resizing
+            $maxDimension = $hasText ? 1600 : 2000;
+            $targetDimension = $hasText ? 1000 : 1200;
+
+            if ($image->width() > $maxDimension || $image->height() > $maxDimension) {
+                $image->scaleDown($maxDimension, $maxDimension);
+            } elseif ($image->width() > $targetDimension || $image->height() > $targetDimension) {
+                $image->scaleDown($targetDimension, $targetDimension);
+            }
+
+            // Format selection
+            if ($hasText) {
+                $compressedImage = $image->encode(new PngEncoder());
+                $extension = 'png';
+            } else {
+                $compressedImage = $image->encode(new JpegEncoder(
+                    quality: $this->calculateOptimalQuality($image),
+                    progressive: true
+                ));
+                $extension = 'jpg';
+            }
+
+            $this->saveCompressedImage($path, $extension, $compressedImage);
+
+        } catch (\Exception $e) {
+            Log::error("Image compression failed: " . $e->getMessage());
+            $this->postMedia->update(['status' => 'failed']);
+        }
+    }
+
+    protected function isValidImage($imageData): bool
+    {
+        return @imagecreatefromstring($imageData) !== false;
+    }
+
+    protected function isAnimatedGif($imageData): bool
+    {
+        return strpos($imageData, "\x00\x21\xF9\x04") !== false;
+    }
+
+    protected function handleAnimatedImage($path, $imageData)
+    {
+        // For animated GIFs, we'll just copy the original
+        $compressedPath = 'uploads/posts/compressed/' . pathinfo($path, PATHINFO_FILENAME) . '_opt.gif';
+        Storage::disk('s3')->put($compressedPath, $imageData);
+
+        $this->postMedia->update([
+            'status' => 'compressed',
+            'file_path_compress' => $compressedPath,
+        ]);
+    }
+
+    protected function detectText(Image $image): bool
+    {
+        // More efficient text detection using sampling
+        $sampleSize = 10; // Check every 10th pixel
+        $edgeCount = 0;
+        $totalPixels = 0;
+
+        for ($y = 0; $y < $image->height(); $y += $sampleSize) {
+            for ($x = 0; $x < $image->width(); $x += $sampleSize) {
+                $pixel = $image->pickColor($x, $y);
+                $contrast = max($pixel['r'], $pixel['g'], $pixel['b']) -
+                        min($pixel['r'], $pixel['g'], $pixel['b']);
+                if ($contrast > 76) { // 0.3 * 255
+                    $edgeCount++;
+                }
+                $totalPixels++;
+            }
         }
 
-        // Format selection logic
-        if ($hasText) {
-            // Use PNG for text-heavy images
-            $compressedImage = $image->encode(new PngEncoder());
-            $extension = 'png';
-        } else {
-            // Use optimized JPEG for other images
-            $compressedImage = $image->encode(new JpegEncoder(
-                quality: $this->calculateOptimalQuality($image),
-                progressive: true // Better perceived loading
-            ));
-            $extension = 'jpg';
-        }
+        return ($totalPixels > 0) && (($edgeCount / $totalPixels) > 0.15);
+    }
 
-        $compressedPath = 'uploads/posts/compressed/' . pathinfo($path, PATHINFO_FILENAME) . '_opt.' . $extension;
-        Storage::disk('s3')->put($compressedPath, (string) $compressedImage);
+    protected function saveCompressedImage($originalPath, $extension, $imageData)
+    {
+        $compressedPath = 'uploads/posts/compressed/' . pathinfo($originalPath, PATHINFO_FILENAME) . '_opt.' . $extension;
+        Storage::disk('s3')->put($compressedPath, (string) $imageData);
 
         $this->postMedia->update([
             'status' => 'compressed',
@@ -166,34 +221,6 @@ class CompressImageJob implements ShouldQueue
         $this->checkPostCompletion();
     }
 
-    protected function detectText(Image $image): bool
-    {
-        // Simple text detection (adjust thresholds as needed)
-        $edgeCount = 0;
-        $pixels = $image->pickColor(0, 0, $image->width(), $image->height());
-
-        // Count high-contrast edges (crude text indicator)
-        foreach ($pixels as $row) {
-            foreach ($row as $pixel) {
-                if ($pixel['contrast'] > 0.3) { // Threshold adjustable
-                    $edgeCount++;
-                }
-            }
-        }
-
-        return ($edgeCount / ($image->width() * $image->height())) > 0.15;
-    }
-
-    protected function calculateOptimalQuality(Image $image): int
-    {
-        // Quality matrix for JPEG
-        return match(true) {
-            ($image->width() > 1800 || $image->height() > 1800) => 82,
-            ($image->width() < 800 && $image->height() < 800) => 75,
-            default => 80
-        };
-    }
-
     protected function checkPostCompletion()
     {
         if ($this->postMedia->post->postmedias()
@@ -201,5 +228,15 @@ class CompressImageJob implements ShouldQueue
             ->doesntExist()) {
             $this->postMedia->post->update(['status' => 'active']);
         }
+    }
+
+    protected function calculateOptimalQuality(Image $image): int
+    {
+        // Base quality matrix
+        return match(true) {
+            ($image->width() > 1800 || $image->height() > 1800) => 90, // Large images get higher quality
+            ($image->width() < 800 && $image->height() < 800) => 80,   // Small images can tolerate more compression
+            default => 85                                             // Default balanced quality
+        };
     }
 }
