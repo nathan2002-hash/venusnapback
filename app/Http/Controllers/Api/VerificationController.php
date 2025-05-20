@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class VerificationController extends Controller
 {
@@ -16,7 +15,7 @@ class VerificationController extends Controller
         $user = Auth::user();
         try {
             // Generate a 6-digit code
-            $code = Str::random(6); // or mt_rand(100000, 999999) for numeric code
+            $code = mt_rand(100000, 999999);
 
             // Set expiration time (e.g., 15 minutes from now)
             $expiresAt = Carbon::now()->addMinutes(15)->toDateTimeString();
@@ -50,7 +49,7 @@ class VerificationController extends Controller
         $user = Auth::user();
         try {
             // Generate a 6-digit code
-            $code = Str::random(6); // or mt_rand(100000, 999999) for numeric code
+            $code = mt_rand(100000, 999999);
 
             // Set expiration time (e.g., 15 minutes from now)
             $expiresAt = Carbon::now()->addMinutes(15)->toDateTimeString();
