@@ -186,27 +186,38 @@ class CompressImageJob implements ShouldQueue
         ]);
     }
 
-    protected function detectText(Image $image): bool
-    {
-        // More efficient text detection using sampling
-        $sampleSize = 10; // Check every 10th pixel
-        $edgeCount = 0;
-        $totalPixels = 0;
+   protected function detectText(Image $image): bool
+{
+    // More efficient text detection using sampling
+    $sampleSize = 10; // Check every 10th pixel
+    $edgeCount = 0;
+    $totalPixels = 0;
 
-        for ($y = 0; $y < $image->height(); $y += $sampleSize) {
-            for ($x = 0; $x < $image->width(); $x += $sampleSize) {
-                $pixel = $image->pickColor($x, $y);
-                $contrast = max($pixel['r'], $pixel['g'], $pixel['b']) -
-                        min($pixel['r'], $pixel['g'], $pixel['b']);
-                if ($contrast > 76) { // 0.3 * 255
+    for ($y = 0; $y < $image->height(); $y += $sampleSize) {
+        for ($x = 0; $x < $image->width(); $x += $sampleSize) {
+            try {
+                // Pick color and convert to RGB format
+                $pixel = $image->pickColor($x, $y)->toRgb();
+
+                $red = $pixel->red();
+                $green = $pixel->green();
+                $blue = $pixel->blue();
+
+                $contrast = max($red, $green, $blue) - min($red, $green, $blue);
+
+                if ($contrast > 76) { // 0.3 * 255 threshold for contrast
                     $edgeCount++;
                 }
                 $totalPixels++;
+            } catch (\Exception $e) {
+                Log::warning("Color sampling failed at ($x, $y): " . $e->getMessage());
             }
         }
-
-        return ($totalPixels > 0) && (($edgeCount / $totalPixels) > 0.15);
     }
+
+    return ($totalPixels > 0) && (($edgeCount / $totalPixels) > 0.15);
+}
+
 
     protected function saveCompressedImage($originalPath, $extension, $imageData)
     {
