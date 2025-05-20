@@ -140,12 +140,16 @@ class PointController extends Controller
     public function paymentinfo(Request $request)
     {
         return response()->json([
-            'info' => "Here's how payments are processed:\n\n" .
-                    "1. All payments are processed securely through PayPal\n" .
-                    "2. Points are added to your account immediately after successful payment\n" .
-                    "3. If you experience any issues, points will be added within 24 hours\n" .
-                    "4. For custom amounts, 1000 points = \$1 USD\n\n" .
-                    "For any payment issues, please contact support@venusnap.com"
+            'info' => "Venusnap Payment Information:\n\n" .
+                "1. All payments are processed securely through PayPal.\n" .
+                "2. Venusnap uses a point-based system: 1000 points = \$1 USD.\n" .
+                "3. Points are credited to your account immediately after successful payment.\n" .
+                "4. In rare cases where there's a delay, your points will be credited within 24 hours.\n" .
+                "5. All purchases are **final and non-refundable**. Once you buy points, they **cannot be converted back** to real money or refunded.\n" .
+                "6. Points cannot be transferred to another user or exchanged for goods outside Venusnap.\n" .
+                "7. Misuse, fraud, or abuse of the payment system may result in suspension of your account.\n\n" .
+                "For any payment-related issues, contact our support team at: support@venusnap.com"
         ]);
     }
+
 }
