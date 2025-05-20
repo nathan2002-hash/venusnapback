@@ -113,56 +113,6 @@ class ProfileController extends Controller
     }
 
 
-    public function upate(Request $request)
-    {
-        $user = Auth::user();
-
-        if (!$user) {
-            return response()->json([
-                'error' => 'Unauthenticated user'
-            ], 401);
-        }
-
-        // Validate the request
-        $request->validate([
-            'username' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . Auth::id(),
-            'full_name' => 'required|string|max:255',
-            'country' => 'required|string|max:500',
-            'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20000',
-            'cover_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20000',
-        ]);
-
-        $user = User::find($user->id);
-        // Update user data
-        $user->username = $request->username;
-        $user->email = $request->email;
-        $user->phone = $request->phone_number;
-        $user->name = $request->full_name;
-        $user->country = $request->country;
-        $user->dob = $request->dob;
-        $user->gender = $request->gender;
-
-        // Save profile image
-        if ($request->hasFile('profile')) {
-            $profilePath = $request->file('profile')->store('uploads/profiles/originals/profile', 's3');
-            $user->profile_original = $profilePath;
-        }
-
-        if ($request->hasFile('cover_photo')) {
-            $coverPath = $request->file('cover_photo')->store('uploads/profiles/originals/cover', 's3');
-            $user->cover_original = $coverPath;
-        }
-
-        $user->save();
-
-        ProfileUpdate::dispatch($user);
-
-        return response()->json([
-            'message' => 'Updated Successfully'
-        ], 200);
-    }
-
     private function formatNumber($number) {
         if ($number >= 1000000) {
             return round($number / 1000000, 1) . 'M';
