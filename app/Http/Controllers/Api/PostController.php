@@ -274,7 +274,7 @@ public function index(Request $request)
     public function update(Request $request, $id)
 {
     $post = Post::with('album')->findOrFail($id);
-    $userId = auth()->id();
+    $userId = Auth::user()->id;
 
     // Check if the user owns the album
     $isOwner = $post->album->user_id == $userId;
