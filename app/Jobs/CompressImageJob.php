@@ -186,38 +186,38 @@ class CompressImageJob implements ShouldQueue
         ]);
     }
 
-   protected function detectText(Image $image): bool
-{
-    // Sample every 10 pixels
-    $sampleSize = 10;
-    $edgeCount = 0;
-    $totalPixels = 0;
+    protected function detectText(Image $image): bool
+    {
+        // Sample every 10 pixels
+        $sampleSize = 10;
+        $edgeCount = 0;
+        $totalPixels = 0;
 
-    for ($y = 0; $y < $image->height(); $y += $sampleSize) {
-        for ($x = 0; $x < $image->width(); $x += $sampleSize) {
-            try {
-                /** @var \Intervention\Image\Colors\Rgb\Color $pixel */
-                $pixel = $image->pickColor($x, $y);
+        for ($y = 0; $y < $image->height(); $y += $sampleSize) {
+            for ($x = 0; $x < $image->width(); $x += $sampleSize) {
+                try {
+                    /** @var \Intervention\Image\Colors\Rgb\Color $pixel */
+                    $pixel = $image->pickColor($x, $y);
 
-                $red = $pixel->red();
-                $green = $pixel->green();
-                $blue = $pixel->blue();
+                    $red = $pixel->red();
+                    $green = $pixel->green();
+                    $blue = $pixel->blue();
 
-                $contrast = max($red, $green, $blue) - min($red, $green, $blue);
+                    $contrast = max($red, $green, $blue) - min($red, $green, $blue);
 
-                if ($contrast > 76) {
-                    $edgeCount++;
+                    if ($contrast > 76) {
+                        $edgeCount++;
+                    }
+
+                    $totalPixels++;
+                } catch (\Throwable $e) {
+                    Log::warning("Color sampling failed at ($x, $y): " . $e->getMessage());
                 }
-
-                $totalPixels++;
-            } catch (\Throwable $e) {
-                Log::warning("Color sampling failed at ($x, $y): " . $e->getMessage());
             }
         }
-    }
 
-    return ($totalPixels > 0) && (($edgeCount / $totalPixels) > 0.15);
-}
+        return ($totalPixels > 0) && (($edgeCount / $totalPixels) > 0.15);
+    }
 
 
 
