@@ -162,7 +162,7 @@ public function index(Request $request)
         $postMediaData = $post->postMedias->map(function ($media) {
             return [
                 'id' => $media->id,
-                'filepath' => Storage::disk('s3')->url($media->file_path_compress),
+                'filepath' => Storage::disk('s3')->url($media->file_path),
                 'sequence_order' => $media->sequence_order,
                 'comments_count' => $media->comments->count(),
                 'likes_count' => $media->admires->count(),
