@@ -63,6 +63,69 @@ class ProfileController extends Controller
         // Validate the request
         $request->validate([
             'username' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'full_name' => 'required|string|max:255',
+            'country' => 'required|string|max:500',
+            'phone_number' => 'required|string|max:20',
+            'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20000',
+            'cover_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20000',
+        ]);
+
+        $user = User::find($user->id);
+
+        // Check if phone/email have changed
+        if ($request->email !== $user->email) {
+            $user->email_verified_at = null;
+        }
+
+        if ($request->phone_number !== $user->phone) {
+            $user->phone_verified_at = null;
+        }
+
+        // Update user data
+        $user->username = $request->username;
+        $user->email = $request->email;
+        $user->phone = $request->phone_number;
+        $user->name = $request->full_name;
+        $user->country = $request->country;
+        $user->dob = $request->dob;
+        $user->gender = $request->gender;
+
+        // Save profile image
+        if ($request->hasFile('profile')) {
+            $profilePath = $request->file('profile')->store('uploads/profiles/originals/profile', 's3');
+            $user->profile_original = $profilePath;
+        }
+
+        // Save cover photo
+        if ($request->hasFile('cover_photo')) {
+            $coverPath = $request->file('cover_photo')->store('uploads/profiles/originals/cover', 's3');
+            $user->cover_original = $coverPath;
+        }
+
+        $user->save();
+
+        ProfileUpdate::dispatch($user);
+
+        return response()->json([
+            'message' => 'Updated Successfully'
+        ], 200);
+    }
+
+
+    public function upate(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'error' => 'Unauthenticated user'
+            ], 401);
+        }
+
+        // Validate the request
+        $request->validate([
+            'username' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . Auth::id(),
             'full_name' => 'required|string|max:255',
             'country' => 'required|string|max:500',
@@ -138,49 +201,4 @@ class ProfileController extends Controller
             ]
         ]);
     }
-
-    public function changeprofsile(Request $request)
-    {
-        // Get the currently authenticated user
-        $user = Auth::user();
-        if (!$user) {
-            return response()->json([
-                'error' => 'Unauthenticated user'
-            ], 401);
-        }
-        $artboard = $user->artboard;
-
-        $profileUrl = $user->profile_photo_path ? Storage::disk('s3')->url($user->profile_photo_path) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
-
-    // Check if artboard logo exists, otherwise use default 100x100 avatar
-    $logoUrl = $artboard && $artboard->logo ? Storage::disk('s3')->url($artboard->logo) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
-        // Return the user profile data
-        return response()->json([
-            'user' => [
-                'fullname' => $user->name,
-                'username' => $user->username,
-                'email' => $user->email,
-                'profile' => $profileUrl,
-                'date_joined' => $user->created_at->format('j F, Y'),
-                'total_posts' => (string) $user->posts->count(), // Count user's posts
-                'total_admires' => (string) $this->formatNumber(
-                        $user->posts->sum(fn($post) =>
-                            $post->postmedias->sum(fn($media) => $media->admires->count())
-                        )
-                    ),
-                'artboard' => $artboard ? [
-                    'name' => $artboard->name,
-                    'slug' => $artboard->slug,
-                    'description' => $artboard->description,
-                    'type' => $artboard->type,
-                    'supporters' => $artboard->supporters->count(),
-                    'is_verified' => (bool) $artboard->is_verified,
-                    'visibility' => $artboard->visibility,
-                    'logo' => $logoUrl,
-                ] : null
-            ]
-        ]);
-    }
-
-
 }
