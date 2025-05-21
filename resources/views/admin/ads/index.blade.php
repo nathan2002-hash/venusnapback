@@ -81,20 +81,22 @@
                                         {{ $ad->adboard->points }}
                                     </td>
                                    <td>
-    <a href="#" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light view-details"
-       data-ad-id="{{ $ad->id }}"
-       data-adboard="{{ $ad->adboard->name }}"
-       data-album="{{ $ad->adboard->album->name }}"
-       data-date="{{ $ad->created_at->format('d M, Y') }}"
-       data-status="{{ $ad->status }}"
-       data-points="{{ $ad->adboard->points }}"
-       data-cta-name="{{ $ad->cta_name }}"
-       data-cta-link="{{ $ad->cta_link }}"
-       data-media="{{ json_encode($ad->media->map(function($m) {
-           return ['filepath' => Storage::disk('s3')->url($m->file_path)];
-       })) }}">
-        View Details
-    </a>
+                                    <a href="javascript:void(0);"
+                                        class="btn btn-sm btn-primary view-details"
+                                        data-ad-id="{{ $ad->id }}"
+                                        data-adboard="{{ $ad->adboard->name }}"
+                                        data-album="{{ $ad->adboard->album->name }}"
+                                        data-date="{{ $ad->created_at->format('d M, Y') }}"
+                                        data-status="{{ $ad->status }}"
+                                        data-points="{{ $ad->adboard->points }}"
+                                        data-cta-name="{{ $ad->cta_name }}"
+                                        data-cta-link="{{ $ad->cta_link }}"
+                                        data-media='@json($ad->media->map(function($m) {
+                                            return ['filepath' => Storage::disk('s3')->url($m->file_path)];
+                                        }))'
+                                        data-id="{{ $ad->id }}">
+                                        View Details
+                                        </a>
 </td>
                                 </tr>
                                 @endforeach
