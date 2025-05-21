@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendVerificationCodeJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -29,9 +30,13 @@ class VerificationController extends Controller
                     // Don't reset phone_verified_at here - only when actually verified
                 ]);
 
-            // Here you would typically send the code via SMS
-            // This is where you'd integrate with your SMS service
-            // Example: $this->sendSms($user->phone, "Your verification code is: $code");
+            // Dispatch the job
+            SendVerificationCodeJob::dispatch(
+                $user,
+                $code,
+                'phone',
+                "Your verification code is: {$code}"
+            )->onQueue('verifications');
 
             return true;
         } catch (\Exception $e) {
@@ -62,10 +67,12 @@ class VerificationController extends Controller
                     'email_code_expires_at' => $expiresAt,
                 ]);
 
-            // Here you would typically send the email
-            // This is where you'd implement your email sending logic
-            // Example:
-            // Mail::to($user->email)->send(new VerificationEmail($code));
+            // Dispatch the job
+            SendVerificationCodeJob::dispatch(
+                $user,
+                $code,
+                'email'
+            )->onQueue('verifications');
 
             return true;
         } catch (\Exception $e) {
