@@ -3,7 +3,7 @@
 
 
 @section('title')
-    User
+    User Info
 @endsection
 
 
@@ -24,7 +24,6 @@
                     </div>
                     <div>
                         <a href="javascript:void(0);" class="btn btn-danger"><i class="bx bx-pause align-middle"></i> Suspend Account</a>
-                        <a href="javascript:void(0);" class="btn btn-danger"><i class="bx bx-stop-circle align-middle"></i> Suspend Album</a>
                     </div>
                 </div>
             </div><!--end col-->
@@ -112,22 +111,22 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="d-flex">
-                    <h4 class="card-title mb-4 flex-grow-1">Albums</h4>
+                    <h4 class="card-title mb-4 flex-grow-1">Posts</h4>
                     <div>
-                        <a href="#" class="btn btn-primary btn-sm">View All <i class="bx bx-right-arrow-alt"></i></a>
+                        <a href="/posts" class="btn btn-primary btn-sm">View All <i class="bx bx-right-arrow-alt"></i></a>
                     </div>
                 </div>
             </div><!--end col-->
             @foreach ($posts as $post)
-            <div class="col-lg-2">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body p-4">
                         <div class="text-center mb-3">
                             <img src="{{ asset('assets/images/companies/airbnb.svg') }}" alt="" class="avatar-sm">
-                            <a href="job-details.html" class="text-body">
-                                <h5 class="mt-4 mb-2 font-size-15">{{ substr($post->description, 0, 12) }}....</h5>
+                            <a href="/post/{{ $post->id }}" class="text-body">
+                                <h5 class="mt-4 mb-2 font-size-15">{{ substr($post->description, 0, 12) }}..</h5>
                             </a>
-                            <p class="mb-0 text-muted">{{ $post->type }}</p>
+                            <p class="mb-0 text-muted">{{ $post->category->name }}</p>
                         </div>
 
                         <div class="d-flex">
@@ -165,7 +164,7 @@
                                             <li><a class="dropdown-item" href="#">Apply Now</a></li>
                                         </ul>
                                     </div>
-                                </div>
+                                </div><br>
                             @empty
                                 <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">No personal albums</h8>
                             @endforelse
@@ -194,7 +193,7 @@
                                             <li><a class="dropdown-item" href="#">Apply Now</a></li>
                                         </ul>
                                     </div>
-                                </div>
+                                </div><br>
                             @empty
                                 <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">No creators albums</h8>
                             @endforelse
@@ -223,7 +222,7 @@
                                             <li><a class="dropdown-item" href="#">Apply Now</a></li>
                                         </ul>
                                     </div>
-                                </div>
+                                </div><br>
                             @empty
                                 <h6 class="mb-1 font-size-15"><a href="job-details.html" class="text-body">No creators albums</h8>
                             @endforelse
