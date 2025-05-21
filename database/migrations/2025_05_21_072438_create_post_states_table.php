@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('post_id');
             $table->string('state');
             $table->string('title');
+            $table->string('initiator');
             $table->longText('reason');
             $table->timestamps();
         });

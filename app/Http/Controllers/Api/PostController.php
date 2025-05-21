@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\Artwork;
+use App\Models\PostState;
 
 class PostController extends Controller
 {
@@ -260,16 +261,46 @@ public function index(Request $request)
         ]);
     }
 
-    public function postdelete($id)
-    {
-        $post = Post::findOrFail($id);
-        $post->status = "deletion";
-        $post->save();
+   public function postdelete(Request $request, $id)
+{
+    $user = Auth::user(); // Assuming you're using Laravel auth
 
-        return response()->json([
-            'id' => $post->id,
-        ], 200);
+    $post = Post::findOrFail($id);
+
+    // Check if the user owns the album or has been granted access
+    $albumId = $post->album_id;
+
+    $hasAccess = DB::table('album_accesses')
+        ->where('album_id', $albumId)
+        ->where('user_id', $user->id)
+        ->where('status', 'approved')
+        ->exists();
+
+    // Optionally allow post owner or admin to delete without access entry
+    $isOwner = $post->user_id === $user->id;
+
+    if (!($hasAccess || $isOwner)) {
+        return response()->json(['error' => 'Unauthorized'], 403);
     }
+
+    // Proceed with deletion request
+    $post->status = 'deletion';
+    $post->save();
+
+    $poststate = new PostState();
+    $poststate->user_id = $user->id;
+    $poststate->post_id = $post->id;
+    $poststate->title = $request->title;
+    $poststate->initiator = $isOwner ? 'owner' : 'shared_user';
+    $poststate->reason = $request->reason;
+    $poststate->state = $request->state;
+    $poststate->save();
+
+    return response()->json([
+        'id' => $post->id,
+    ], 200);
+}
+
 
     public function update(Request $request, $id)
 {

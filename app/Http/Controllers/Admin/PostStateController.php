@@ -26,6 +26,7 @@ class PostStateController extends Controller
         $poststate->user_id = $user->id;
         $poststate->post_id = $post->id;
         $poststate->title = $request->title;
+        $poststate->initiator = 'venusnap_admin';
         $poststate->reason = $request->reason;
         $poststate->state = $request->state;
         $poststate->save();
