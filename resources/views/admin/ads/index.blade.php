@@ -80,25 +80,22 @@
                                     <td>
                                         {{ $ad->adboard->points }}
                                     </td>
-                                    <td>
-                                        <!-- Button trigger modal -->
-                                       <td>
-                                            <a href="#" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light view-details"
-                                            data-ad-id="{{ $ad->id }}"
-                                            data-adboard="{{ $ad->adboard->name }}"
-                                            data-album="{{ $ad->adboard->album->name }}"
-                                            data-date="{{ $ad->created_at->format('d M, Y') }}"
-                                            data-status="{{ $ad->status }}"
-                                            data-points="{{ $ad->adboard->points }}"
-                                            data-cta-name="{{ $ad->cta_name }}"
-                                            data-cta-link="{{ $ad->cta_link }}"
-                                            data-media="{{ json_encode($ad->media->map(function($m) {
-                                                return ['filepath' => Storage::disk('s3')->url($m->file_path)];
-                                            })) }}">
-                                                View Details
-                                            </a>
-                                        </td>
-                                    </td>
+                                   <td>
+    <a href="#" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light view-details"
+       data-ad-id="{{ $ad->id }}"
+       data-adboard="{{ $ad->adboard->name }}"
+       data-album="{{ $ad->adboard->album->name }}"
+       data-date="{{ $ad->created_at->format('d M, Y') }}"
+       data-status="{{ $ad->status }}"
+       data-points="{{ $ad->adboard->points }}"
+       data-cta-name="{{ $ad->cta_name }}"
+       data-cta-link="{{ $ad->cta_link }}"
+       data-media="{{ json_encode($ad->media->map(function($m) {
+           return ['filepath' => Storage::disk('s3')->url($m->file_path)];
+       })) }}">
+        View Details
+    </a>
+</td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -263,7 +260,7 @@
    <script src="{{ asset('assets/libs/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
    <script src="{{ asset('assets/libs/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
    <script src="{{ asset('assets/libs/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
-
+ <script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
    <!-- Responsive examples -->
    <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
    <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
