@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('initiator');
             $table->longText('reason');
+            $table->json('meta')->nullable();
             $table->timestamps();
         });
     }

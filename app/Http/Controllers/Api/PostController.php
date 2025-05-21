@@ -262,47 +262,145 @@ public function index(Request $request)
     }
 
    public function postdelete(Request $request, $id)
-{
-    $user = Auth::user(); // Assuming you're using Laravel auth
+    {
+        $user = Auth::user(); // Assuming you're using Laravel auth
 
-    $post = Post::findOrFail($id);
+        $post = Post::findOrFail($id);
 
-    // Check if the user owns the album or has been granted access
-    $albumId = $post->album_id;
+        // Check if the user owns the album or has been granted access
+        $albumId = $post->album_id;
 
-    $hasAccess = DB::table('album_accesses')
-        ->where('album_id', $albumId)
-        ->where('user_id', $user->id)
-        ->where('status', 'approved')
-        ->exists();
+        $hasAccess = DB::table('album_accesses')
+            ->where('album_id', $albumId)
+            ->where('user_id', $user->id)
+            ->where('status', 'approved')
+            ->exists();
 
-    // Optionally allow post owner or admin to delete without access entry
-    $isOwner = $post->user_id === $user->id;
+        // Optionally allow post owner or admin to delete without access entry
+        $isOwner = $post->user_id === $user->id;
 
-    if (!($hasAccess || $isOwner)) {
-        return response()->json(['error' => 'Unauthorized'], 403);
+        if (!($hasAccess || $isOwner)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Proceed with deletion request
+        $post->status = 'deletion';
+        $post->save();
+
+        $poststate = new PostState();
+        $poststate->user_id = $user->id;
+        $poststate->post_id = $post->id;
+        $poststate->title = $request->title;
+        $poststate->initiator = $isOwner ? 'owner' : 'shared_user';
+        $poststate->reason = $request->reason;
+        $poststate->state = 'deletion';
+        $poststate->save();
+
+        return response()->json([
+            'id' => $post->id,
+        ], 200);
     }
 
-    // Proceed with deletion request
-    $post->status = 'deletion';
-    $post->save();
-
-    $poststate = new PostState();
-    $poststate->user_id = $user->id;
-    $poststate->post_id = $post->id;
-    $poststate->title = $request->title;
-    $poststate->initiator = $isOwner ? 'owner' : 'shared_user';
-    $poststate->reason = $request->reason;
-    $poststate->state = $request->state;
-    $poststate->save();
-
-    return response()->json([
-        'id' => $post->id,
-    ], 200);
-}
-
-
     public function update(Request $request, $id)
+    {
+        $post = Post::with('album')->findOrFail($id);
+        $userId = Auth::user()->id;
+
+        // Check if the user owns the album
+        $isOwner = $post->album->user_id == $userId;
+
+        // Check if the user has access to the album
+        $hasAccess = AlbumAccess::where('album_id', $post->album_id)
+            ->where('user_id', $userId)
+            ->where('status', 'active')
+            ->exists();
+
+        if (!($isOwner || $hasAccess)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        // Update post details
+        $post->update([
+            'description' => $request->description,
+            'type' => $request->type,
+            'album_id' => $request->album_id,
+            'visibility' => $request->visibility,
+        ]);
+
+        // Handle media deletions
+        $mediaToDelete = $request->media_to_delete ?? [];
+        if (!empty($mediaToDelete)) {
+            PostMedia::whereIn('id', $mediaToDelete)
+                ->where('post_id', $post->id)
+                ->delete();
+        }
+
+        // Update sequence orders for existing media and log old/new values
+        $sequenceLog = [];
+        if ($request->existing_media) {
+            foreach ($request->existing_media as $mediaId => $newOrder) {
+                $media = PostMedia::where('id', $mediaId)
+                    ->where('post_id', $post->id)
+                    ->first();
+
+                if ($media && $media->sequence_order != $newOrder) {
+                    $sequenceLog[] = [
+                        'media_id' => $media->id,
+                        'old_sequence_order' => $media->sequence_order,
+                        'new_sequence_order' => $newOrder,
+                    ];
+
+                    $media->sequence_order = $newOrder;
+                    $media->save();
+                }
+            }
+        }
+
+        // Handle new media uploads
+        $newMediaCount = 0;
+        if ($request->hasFile('post_medias')) {
+            foreach ($request->post_medias as $media) {
+                $path = $media['file']->store('uploads/posts/originals', 's3');
+
+                $postMedia = PostMedia::create([
+                    'post_id' => $post->id,
+                    'file_path' => $path,
+                    'sequence_order' => $media['sequence_order'],
+                    'status' => 'original',
+                ]);
+
+                CompressImageJob::dispatch($postMedia->fresh());
+                $newMediaCount++;
+            }
+        }
+
+        // Log the change in post_states
+        $postState = new PostState();
+        $postState->user_id = $userId;
+        $postState->post_id = $post->id;
+        $postState->title = $post->title ?? 'Post Update';
+        $postState->initiator = $isOwner ? 'owner' : 'shared_user';
+        $postState->reason = $request->reason ?? 'Post content edited';
+        $postState->state = 'edit';
+        $postState->meta = [
+            'description' => $request->description,
+            'type' => $request->type,
+            'album_id' => $request->album_id,
+            'visibility' => $request->visibility,
+            'sequence_log' => $sequenceLog,
+            'media_deleted' => $mediaToDelete,
+            'new_media_count' => $newMediaCount,
+        ];
+        $postState->save();
+
+        return response()->json([
+            'message' => 'Post updated successfully',
+            'post' => $post->load('postmedias'),
+            'sequence_changes' => $sequenceLog,
+        ]);
+    }
+
+    public function updatel(Request $request, $id)
 {
     $post = Post::with('album')->findOrFail($id);
     $userId = Auth::user()->id;
