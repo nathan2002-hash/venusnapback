@@ -35,7 +35,7 @@ class AdImageCompress implements ShouldQueue
         $image = $manager->read($originalImage);
 
         // Set a max width for resizing while keeping aspect ratio
-        $maxWidth = 1200; // Adjust based on Venusnap's needs
+        $maxWidth = 2000; // Adjust based on Venusnap's needs
 
         // Resize only if the image is larger than maxWidth
         if ($image->width() > $maxWidth) {
@@ -43,7 +43,7 @@ class AdImageCompress implements ShouldQueue
         }
 
         // Compress to WebP with a lower quality for better performance
-        $compressedImage = $image->encode(new WebpEncoder(quality: 75)); // Reduce quality for smaller file size
+        $compressedImage = $image->encode(new WebpEncoder(quality: 85)); // Reduce quality for smaller file size
 
         // Store compressed image
         $compressedPath = 'ads/media/compressed/' . basename($path);

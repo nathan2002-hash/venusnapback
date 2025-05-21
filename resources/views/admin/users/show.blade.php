@@ -11,9 +11,6 @@
 
 <div class="page-content">
     <div class="container-fluid">
-
-
-
         <div class="row mb-4">
             <div class="col-lg-12">
                 <div class="d-flex align-items-center">
