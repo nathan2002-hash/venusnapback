@@ -224,6 +224,12 @@
                 updateAdStatus(adId, 'rejected');
             });
 
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                }
+            });
+
             // Function to update ad status
             function updateAdStatus(adId, status) {
                 if (confirm(`Are you sure you want to ${status} this ad?`)) {
@@ -231,7 +237,6 @@
                         url: "{{ route('ads.updateStatus') }}",
                         method: 'POST',
                         data: {
-                            _token: "{{ csrf_token() }}",
                             ad_id: adId,
                             status: status
                         },
