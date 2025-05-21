@@ -36,7 +36,7 @@ class VerificationController extends Controller
                 $code,
                 'phone',
                 "Your verification code is: {$code}"
-            )->onQueue('verifications');
+            );
 
             return true;
         } catch (\Exception $e) {
@@ -72,7 +72,7 @@ class VerificationController extends Controller
                 $user,
                 $code,
                 'email'
-            )->onQueue('verifications');
+            );
 
             return true;
         } catch (\Exception $e) {
