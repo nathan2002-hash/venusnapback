@@ -57,4 +57,23 @@ class AdController extends Controller
            'adboards' => $adboards,
         ]);
     }
+
+    public function updateStatus(Request $request)
+    {
+        $request->validate([
+            'ad_id' => 'required|exists:ads,id',
+            'status' => 'required|in:active,rejected',
+        ]);
+
+        $ad = Ad::findOrFail($request->ad_id);
+        $ad->status = $request->status;
+        $ad->save();
+
+        // Optional: You can update the adboard status or log this change if needed
+        $ad->adboard->update([
+            'status' => $request->status,
+        ]);
+
+        return redirect()->back()->with('success', 'Ad status updated successfully.');
+    }
 }

@@ -228,7 +228,7 @@
             function updateAdStatus(adId, status) {
                 if (confirm(`Are you sure you want to ${status} this ad?`)) {
                     $.ajax({
-                        url: "{{ route('dashboard') }}",
+                        url: "{{ route('ads.updateStatus') }}",
                         method: 'POST',
                         data: {
                             _token: "{{ csrf_token() }}",

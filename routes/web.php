@@ -57,6 +57,7 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     //ads routes
     Route::get('/ads', 'Admin\AdController@index');
     Route::get('/adboards', 'Admin\AdController@adboards');
+    Route::post('/ads/update-status', 'Admin\AdController@updateStatus')->name('ads.updateStatus');
 
     //points routes
     Route::get('/points/transactions', 'Admin\PointTransactionController@index');
@@ -85,6 +86,7 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
      Route::get('/recommendations', 'Admin\RecommendationController@index');
      Route::get('/album/create', 'Admin\AlbumController@create');
      Route::post('/album/store', 'Admin\AlbumController@store');
+
 
      Route::get('/start-ad-check', function() {
         CheckAdPointsJob::dispatch()
