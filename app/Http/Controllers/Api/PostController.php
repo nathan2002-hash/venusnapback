@@ -28,95 +28,97 @@ use App\Models\PostState;
 class PostController extends Controller
 {
 
-public function index(Request $request)
-{
-    $userId = Auth::user()->id;
-    $limit = 6; // Default to 3 posts per fetch
+    public function index(Request $request)
+    {
+        $userId = Auth::user()->id;
+        $limit = 6; // Default to 3 posts per fetch
 
-    // Get available active recommendations
-    $recommendations = Recommendation::where('user_id', $userId)
-        ->where('status', 'active')
-        ->inRandomOrder()
-        ->take($limit)
-        ->get();
-
-    // If not enough active recommendations, recycle some fetched ones
-    if ($recommendations->count() < $limit) {
-        $needed = $limit - $recommendations->count();
-
-        Recommendation::where('user_id', $userId)
-            ->where('status', 'fetched')
-            ->orderBy('updated_at', 'asc') // Oldest first
-            ->limit($needed)
-            ->update(['status' => 'active']);
-
-        // Get the newly activated recommendations
-        $additionalRecs = Recommendation::where('user_id', $userId)
+        // Get available active recommendations
+        $recommendations = Recommendation::where('user_id', $userId)
             ->where('status', 'active')
             ->inRandomOrder()
-            ->take($needed)
+            ->take($limit)
             ->get();
 
-        $recommendations = $recommendations->merge($additionalRecs);
-    }
+        // If not enough active recommendations, recycle some fetched ones
+        if ($recommendations->count() < $limit) {
+            $needed = $limit - $recommendations->count();
 
-    // Mark these as fetched
-    Recommendation::whereIn('id', $recommendations->pluck('id'))
-        ->update(['status' => 'fetched']);
+            Recommendation::where('user_id', $userId)
+                ->where('status', 'fetched')
+                ->orderBy('updated_at', 'asc') // Oldest first
+                ->limit($needed)
+                ->update(['status' => 'active']);
 
-    // Get the posts
-    $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
-        ->whereIn('id', $recommendations->pluck('post_id'))
-        ->where('status', 'active')
-        ->get();
-    $postsData = $posts->map(function ($post) {
-        $album = $post->album;
+            // Get the newly activated recommendations
+            $additionalRecs = Recommendation::where('user_id', $userId)
+                ->where('status', 'active')
+                ->inRandomOrder()
+                ->take($needed)
+                ->get();
 
-        if ($album) {
-            if ($album->type == 'personal' || $album->type == 'creator') {
-                $profileUrl = $album->thumbnail_compressed
-                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
-                    : ($album->thumbnail_original
-                        ? Storage::disk('s3')->url($album->thumbnail_original)
-                        : asset('default/profile.png'));
-            } elseif ($album->type == 'business') {
-                $profileUrl = $album->business_logo_compressed
-                    ? Storage::disk('s3')->url($album->business_logo_compressed)
-                    : ($album->business_logo_original
-                        ? Storage::disk('s3')->url($album->business_logo_original)
-                        : asset('default/profile.png'));
-            }
+            $recommendations = $recommendations->merge($additionalRecs);
         }
 
-        $postMediaData = $post->postMedias->map(function ($media) {
+        // Mark these as fetched
+        Recommendation::whereIn('id', $recommendations->pluck('id'))
+            ->update(['status' => 'fetched']);
+
+        // Get the posts
+        $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
+            ->whereIn('id', $recommendations->pluck('post_id'))
+            ->where('status', 'active')
+            ->get();
+
+        $postsData = $posts->map(function ($post) {
+            $album = $post->album;
+
+            if ($album) {
+                if ($album->type == 'personal' || $album->type == 'creator') {
+                    $profileUrl = $album->thumbnail_compressed
+                        ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                        : ($album->thumbnail_original
+                            ? Storage::disk('s3')->url($album->thumbnail_original)
+                            : asset('default/profile.png'));
+                } elseif ($album->type == 'business') {
+                    $profileUrl = $album->business_logo_compressed
+                        ? Storage::disk('s3')->url($album->business_logo_compressed)
+                        : ($album->business_logo_original
+                            ? Storage::disk('s3')->url($album->business_logo_original)
+                            : asset('default/profile.png'));
+                }
+            }
+
+            // Sort post media by sequence_order before mapping
+            $postMediaData = $post->postMedias->sortBy('sequence_order')->map(function ($media) {
+                return [
+                    'id' => $media->id,
+                    'filepath' => Storage::disk('s3')->url($media->file_path_compress),
+                    'sequence_order' => $media->sequence_order,
+                    'comments_count' => $media->comments->count(),
+                    'likes_count' => $media->admires->count(),
+                ];
+            })->values()->toArray(); // Use values() to reset array keys after sorting
+
             return [
-                'id' => $media->id,
-                'filepath' => Storage::disk('s3')->url($media->file_path_compress),
-                'sequence_order' => $media->sequence_order,
-                'comments_count' => $media->comments->count(),
-                'likes_count' => $media->admires->count(),
+                'id' => $post->id,
+                'user' => $album ? $album->name : 'Unknown Album',
+                'supporters' => (string) ($album ? $album->supporters->count() : 0),
+                'album_name' => (string) $album->name,
+                'album_id' => (string) $album->id,
+                'profile' => $profileUrl ?? asset('default/profile.png'),
+                'description' => $post->description ?: 'No description available provided by the creator',
+                'album_description' => $album->description ?? 'No description available provided by the creator',
+                'post_media' => $postMediaData,
+                'is_verified' => $album ? ($album->is_verified == 1) : false,
             ];
-        })->values()->toArray();
+        });
 
-        return [
-            'id' => $post->id,
-            'user' => $album ? $album->name : 'Unknown Album',
-            'supporters' => (string) ($album ? $album->supporters->count() : 0),
-            'album_name' => (string) $album->name,
-            'album_id' => (string) $album->id,
-            'profile' => $profileUrl,
-            'description' => $post->description ?: 'No description available provided by the creator',
-            'album_description' => $album->description ?: 'No description available provided by the creator',
-            'post_media' => $postMediaData,
-            'is_verified' => $album ? ($album->is_verified == 1) : false,
-        ];
-    });
-
-    return response()->json([
-        'posts' => $postsData,
-        'total_available' => $postsData->count(),
-    ], 200);
-}
+        return response()->json([
+            'posts' => $postsData,
+            'total_available' => $postsData->count(),
+        ], 200);
+    }
 
     public function show(Request $request, $id)
     {
