@@ -74,6 +74,6 @@ class AdController extends Controller
             'status' => $request->status,
         ]);
 
-        return redirect()->back()->with('success', 'Ad status updated successfully.');
+        return response()->json(['success' => true, 'message' => 'Ad status updated successfully.']);
     }
 }
