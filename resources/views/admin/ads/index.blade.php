@@ -168,7 +168,8 @@
                 const points = $(this).data('points');
                 const ctaName = $(this).data('cta-name');
                 const ctaLink = $(this).data('cta-link');
-                const media = JSON.parse($(this).data('media'));
+                 const media = $(this).data('media');
+                //const media = JSON.parse($(this).data('media'));
 
                 // Set modal content
                 $('#modalAdId').text(adId);
