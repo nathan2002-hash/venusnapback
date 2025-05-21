@@ -30,85 +30,44 @@ class CompressImageJob implements ShouldQueue
     /**
      * Execute the job.
      */
+    public function handle()
+    {
+        $path = $this->postMedia->file_path;
+        $originalImage = Storage::disk('s3')->get($path);
 
-     public function handle()
-{
-    $path = $this->postMedia->file_path;
-    $originalImage = Storage::disk('s3')->get($path);
+        $manager = new ImageManager(new GdDriver());
+        $image = $manager->read($originalImage);
 
-    $manager = new ImageManager(new GdDriver());
-    $image = $manager->read($originalImage);
+        // Set a max width for resizing while keeping aspect ratio
+        $maxWidth = 2000; // Adjust based on Venusnap's needs
 
-    // Set a max width for resizing while keeping aspect ratio
-    $maxWidth = 1200; // Adjust based on Venusnap's needs
+        // Resize only if the image is larger than maxWidth
+        if ($image->width() > $maxWidth) {
+            $image = $image->scale(width: $maxWidth);
+        }
 
-    // Resize only if the image is larger than maxWidth
-    if ($image->width() > $maxWidth) {
-        $image = $image->scale(width: $maxWidth);
+        // Compress to WebP with a lower quality for better performance
+        $compressedImage = $image->encode(new WebpEncoder(quality: 80)); // Reduce quality for smaller file size
+
+        // Store compressed image
+        $compressedPath = 'uploads/posts/compressed/' . basename($path);
+        Storage::disk('s3')->put($compressedPath, (string) $compressedImage);
+
+        // Update media record
+        $this->postMedia->update([
+            'status' => 'compressed',
+            'file_path_compress' => $compressedPath,
+        ]);
+
+        // Check if all media for the post are compressed
+        $post = $this->postMedia->post; // Assuming PostMedia belongsTo Post
+
+        $allCompressed = $post->postmedias()->where('status', '!=', 'compressed')->doesntExist();
+
+        if ($allCompressed) {
+            $post->update(['status' => 'active']);
+        }
     }
-
-    // Compress to JPEG with a lower quality for better performance
-    $compressedImage = $image->encode(new JpegEncoder(quality: 75, progressive: true)); // Lower quality = smaller size
-
-    // Store compressed image
-    $filename = pathinfo($path, PATHINFO_FILENAME) . '.jpg';
-    $compressedPath = 'uploads/posts/compressed/' . $filename;
-    Storage::disk('s3')->put($compressedPath, (string) $compressedImage);
-
-    // Update media record
-    $this->postMedia->update([
-        'status' => 'compressed',
-        'file_path_compress' => $compressedPath,
-    ]);
-
-    // Check if all media for the post are compressed
-    $post = $this->postMedia->post;
-
-    $allCompressed = $post->postmedias()->where('status', '!=', 'compressed')->doesntExist();
-
-    if ($allCompressed) {
-        $post->update(['status' => 'active']);
-    }
-}
-
-    // public function handle()
-    // {
-    //     $path = $this->postMedia->file_path;
-    //     $originalImage = Storage::disk('s3')->get($path);
-
-    //     $manager = new ImageManager(new GdDriver());
-    //     $image = $manager->read($originalImage);
-
-    //     // Set a max width for resizing while keeping aspect ratio
-    //     $maxWidth = 1200; // Adjust based on Venusnap's needs
-
-    //     // Resize only if the image is larger than maxWidth
-    //     if ($image->width() > $maxWidth) {
-    //         $image = $image->scale(width: $maxWidth);
-    //     }
-
-    //     // Compress to WebP with a lower quality for better performance
-    //     $compressedImage = $image->encode(new WebpEncoder(quality: 80)); // Reduce quality for smaller file size
-
-    //     // Store compressed image
-    //     $compressedPath = 'uploads/posts/compressed/' . basename($path);
-    //     Storage::disk('s3')->put($compressedPath, (string) $compressedImage);
-
-    //     // Update media record
-    //     $this->postMedia->update([
-    //         'status' => 'compressed',
-    //         'file_path_compress' => $compressedPath,
-    //     ]);
-
-    //     // Check if all media for the post are compressed
-    //     $post = $this->postMedia->post; // Assuming PostMedia belongsTo Post
-
-    //     $allCompressed = $post->postmedias()->where('status', '!=', 'compressed')->doesntExist();
-
-    //     if ($allCompressed) {
-    //         $post->update(['status' => 'active']);
-    //     }
-    // }
 
     // public function handle()
     // {
