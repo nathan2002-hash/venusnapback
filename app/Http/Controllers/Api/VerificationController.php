@@ -35,7 +35,7 @@ class VerificationController extends Controller
                 $user,
                 $code,
                 'phone',
-                "Your verification code is: {$code}"
+                "Your Venusnap verification code is: {$code}"
             );
 
             return true;

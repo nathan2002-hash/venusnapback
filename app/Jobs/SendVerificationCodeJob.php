@@ -25,7 +25,7 @@ class SendVerificationCodeJob implements ShouldQueue
         $this->user = $user;
         $this->code = $code;
         $this->type = $type;
-        $this->message = $message ?? "Your verification code is: {$code}";
+        $this->message = $message ?? "Your Venusnap verification code is: {$code}";
     }
 
     /**

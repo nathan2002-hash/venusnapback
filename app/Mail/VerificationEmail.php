@@ -30,7 +30,7 @@ class VerificationEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Verification Code',
+            subject: 'Venusnap Verification Code',
         );
     }
 
