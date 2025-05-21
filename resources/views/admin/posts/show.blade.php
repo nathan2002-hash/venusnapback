@@ -59,21 +59,36 @@
                 <h5 class="modal-title" id="hold">Post State</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="/restricted/post/state" method="POST">
+            <form action="/restricted/post/state/{{ $post->id }}" method="POST">
                 @csrf
                 <div class="modal-body">
                         <div class="mb-3">
                             <label for="recipient-name" class="col-form-label">Title</label>
                             <input type="text" name="title" class="form-control" id="recipient-name" required>
                         </div>
+                         @if ($post->status == 'hold')
+                            <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label"></label>
+                            <input type="hidden" name="state" class="form-control" value="active" required>
+                        </div>
+                        @else
+                            <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label"></label>
+                            <input type="hidden" name="state" class="form-control" value="hold" required>
+                        </div>
+                        @endif
                         <div class="mb-3">
-                            <label for="message-text" class="col-form-label">Reason for hold:</label>
+                            <label for="message-text" class="col-form-label">Reason for hold</label>
                             <textarea class="form-control" name="reason" id="message-text" required></textarea>
                         </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-warning">Hold</button>
+                    @if ($post->status == 'deletion')
+                        <button type="submit" class="btn btn-success">Restore</button>
+                    @else
+                         <button type="submit" class="btn btn-warning">Hold</button>
+                    @endif
                 </div>
             </form>
         </div>
@@ -88,21 +103,36 @@
                 <h5 class="modal-title" id="delete">Post State</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="/restricted/post/state" method="POST">
+            <form action="/restricted/post/state/{{ $post->id }}" method="POST">
                 @csrf
                 <div class="modal-body">
                         <div class="mb-3">
                             <label for="recipient-name" class="col-form-label">Title</label>
                             <input type="text" name="title" class="form-control" id="recipient-name" required>
                         </div>
+                        @if ($post->status == 'deletion')
+                            <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label"></label>
+                            <input type="hidden" name="state" class="form-control" value="active" required>
+                        </div>
+                        @else
+                            <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label"></label>
+                            <input type="hidden" name="state" class="form-control" value="deletion" required>
+                        </div>
+                        @endif
                         <div class="mb-3">
-                            <label for="message-text" class="col-form-label">Reason for Deletion:</label>
+                            <label for="message-text" class="col-form-label">Reason for Deletion</label>
                             <textarea class="form-control" name="reason" id="message-text" required></textarea>
                         </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-warning">Delete</button>
+                    @if ($post->status == 'deletion')
+                        <button type="submit" class="btn btn-success">Restore</button>
+                    @else
+                         <button type="submit" class="btn btn-warning">Delete</button>
+                    @endif
                 </div>
             </form>
         </div>

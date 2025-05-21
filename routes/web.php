@@ -33,6 +33,9 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     Route::get('/posts', 'Admin\PostController@index');
     Route::get('/post/{id}', 'Admin\PostController@show');
 
+    //posts routes
+    Route::post('/post/state/{id}', 'Admin\PostStateController@state');
+
     //comments routes
     Route::get('/comments', 'Admin\CommentController@comments');
     //Route::get('/post/{id}', 'Admin\PostController@show');

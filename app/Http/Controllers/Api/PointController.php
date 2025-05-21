@@ -145,7 +145,7 @@ class PointController extends Controller
                 "2. Venusnap uses a point-based system: 1000 points = \$1 USD.\n" .
                 "3. Points are credited to your account immediately after successful payment.\n" .
                 "4. In rare cases where there's a delay, your points will be credited within 24 hours.\n" .
-                "5. All purchases are **final and non-refundable**. Once you buy points, they **cannot be converted back** to real money or refunded.\n" .
+                "5. All purchases are final and non-refundable. Once you buy points, they cannot be converted back to real money or refunded.\n" .
                 "6. Points cannot be transferred to another user or exchanged for goods outside Venusnap.\n" .
                 "7. Misuse, fraud, or abuse of the payment system may result in suspension of your account.\n\n" .
                 "For any payment-related issues, contact our support team at: support@venusnap.com"
