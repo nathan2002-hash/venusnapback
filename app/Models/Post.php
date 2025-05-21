@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
-    protected $fillable = ['description', 'type', 'status', 'visibility'];
+    protected $fillable = ['description', 'category_id', 'type', 'status', 'visibility'];
 
     public function postmedias(){
         return $this->hasMany(PostMedia::class, 'post_id');
@@ -26,5 +26,9 @@ class Post extends Model
 
     public function recommendations(){
         return $this->hasMany(Recommendation::class, 'post_id');
+    }
+
+    public function category(){
+        return $this->belongsTo(Category::class);
     }
 }

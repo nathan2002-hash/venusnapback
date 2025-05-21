@@ -151,6 +151,7 @@ public function index(Request $request)
                         : asset('default/profile.png'));
             }
         }
+
         LogPostMediaView::dispatch(
             $id,
             Auth::user()->id,
@@ -159,8 +160,12 @@ public function index(Request $request)
             $request->header('Device-Info'),
             6 // Initial duration, can be updated later
         );
+
+        // Sort post media by sequence_order before mapping
+        $sortedMedia = $post->postMedias->sortBy('sequence_order');
+
         // Transform post media data
-        $postMediaData = $post->postMedias->map(function ($media) {
+        $postMediaData = $sortedMedia->map(function ($media) {
             return [
                 'id' => $media->id,
                 'filepath' => Storage::disk('s3')->url($media->file_path_compress),
@@ -168,7 +173,7 @@ public function index(Request $request)
                 'comments_count' => $media->comments->count(),
                 'likes_count' => $media->admires->count(),
             ];
-        })->toArray();
+        })->values()->toArray(); // Use values() to reset array keys after sorting
 
         return response()->json([
             'id' => $post->id,
@@ -176,9 +181,9 @@ public function index(Request $request)
             'supporters' => (string) ($album ? $album->supporters->count() : 0),
             'album_id' => (string) $album->id,
             'album_name' => (string) $album->name,
-            'profile' => $profileUrl, // Profile based on album type
+            'profile' => $profileUrl ?? asset('default/profile.png'), // Fallback if no album
             'description' => $post->description ?: 'No description available provided by the creator',
-            'album_description' => $album->description ?: 'No description available provided by the creator',
+            'album_description' => $album->description ?? 'No description available provided by the creator',
             'post_media' => $postMediaData,
             'is_verified' => $album ? ($album->is_verified == 1) : false,
         ], 200);
@@ -211,6 +216,7 @@ public function index(Request $request)
         $post->user_id = Auth::user()->id; // Assign authenticated user's ID
         $post->description = $request->description;
         $post->type = $request->type;
+        $post->category_id = $request->type;
         $post->album_id = $request->album_id;
         $post->visibility = $request->visibility;
         $post->save();
@@ -240,13 +246,11 @@ public function index(Request $request)
     {
         $post = Post::with(['postmedias', 'album'])
                     ->findOrFail($id);
-        $category = Category::find($post->type);
-
         return response()->json([
             'id' => $post->id,
             'description' => $post->description,
-            'type' => $category->name,
-            'type_id' => $category->id,
+            'type' => $post->category->name,
+            'type_id' => $post->category->id,
             'album_id' => $post->album_id,
             'album' => $post->album->name,
             'visibility' => $post->visibility,
@@ -323,6 +327,7 @@ public function index(Request $request)
         $post->update([
             'description' => $request->description,
             'type' => $request->type,
+            'categoy_id' => $request->type,
             'album_id' => $request->album_id,
             'visibility' => $request->visibility,
         ]);
@@ -401,144 +406,142 @@ public function index(Request $request)
     }
 
     public function updatel(Request $request, $id)
-{
-    $post = Post::with('album')->findOrFail($id);
-    $userId = Auth::user()->id;
+    {
+        $post = Post::with('album')->findOrFail($id);
+        $userId = Auth::user()->id;
 
-    // Check if the user owns the album
-    $isOwner = $post->album->user_id == $userId;
+        // Check if the user owns the album
+        $isOwner = $post->album->user_id == $userId;
 
-    // Check if the user has access to the album
-    $hasAccess = AlbumAccess::where('album_id', $post->album_id)
-        ->where('user_id', $userId)
-        ->where('status', 'active')
-        ->exists();
+        // Check if the user has access to the album
+        $hasAccess = AlbumAccess::where('album_id', $post->album_id)
+            ->where('user_id', $userId)
+            ->where('status', 'active')
+            ->exists();
 
-    if (!($isOwner || $hasAccess)) {
-        return response()->json(['message' => 'Unauthorized'], 403);
-    }
+        if (!($isOwner || $hasAccess)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
-    // Update post details
-    $post->update([
-        'description' => $request->description,
-        'type' => $request->type,
-        'album_id' => $request->album_id,
-        'visibility' => $request->visibility
-    ]);
+        // Update post details
+        $post->update([
+            'description' => $request->description,
+            'type' => $request->type,
+            'album_id' => $request->album_id,
+            'visibility' => $request->visibility
+        ]);
 
-    // Handle media deletions
-    if ($request->media_to_delete) {
-        PostMedia::whereIn('id', $request->media_to_delete)
-            ->where('post_id', $post->id)
-            ->delete();
-    }
+        // Handle media deletions
+        if ($request->media_to_delete) {
+            PostMedia::whereIn('id', $request->media_to_delete)
+                ->where('post_id', $post->id)
+                ->delete();
+        }
 
-    // Update sequence orders for existing media and log old/new values
-    $sequenceLog = [];
-    if ($request->existing_media) {
-        foreach ($request->existing_media as $mediaId => $newOrder) {
-            $media = PostMedia::where('id', $mediaId)
-                            ->where('post_id', $post->id)
-                            ->first();
+        // Update sequence orders for existing media and log old/new values
+        $sequenceLog = [];
+        if ($request->existing_media) {
+            foreach ($request->existing_media as $mediaId => $newOrder) {
+                $media = PostMedia::where('id', $mediaId)
+                                ->where('post_id', $post->id)
+                                ->first();
 
-            if ($media) {
-                $sequenceLog[] = [
-                    'media_id' => $media->id,
-                    'old_sequence_order' => $media->sequence_order,
-                    'new_sequence_order' => $newOrder
-                ];
+                if ($media) {
+                    $sequenceLog[] = [
+                        'media_id' => $media->id,
+                        'old_sequence_order' => $media->sequence_order,
+                        'new_sequence_order' => $newOrder
+                    ];
 
-                $media->sequence_order = $newOrder;
-                $media->save();
+                    $media->sequence_order = $newOrder;
+                    $media->save();
+                }
             }
         }
-    }
 
-    // Handle new media
-    if ($request->hasFile('post_medias')) {
-        foreach ($request->post_medias as $media) {
-            $path = $media['file']->store('uploads/posts/originals', 's3');
+        // Handle new media
+        if ($request->hasFile('post_medias')) {
+            foreach ($request->post_medias as $media) {
+                $path = $media['file']->store('uploads/posts/originals', 's3');
 
-            $postMedia = PostMedia::create([
-                'post_id' => $post->id,
-                'file_path' => $path,
-                'sequence_order' => $media['sequence_order'],
-                'status' => 'original'
-            ]);
+                $postMedia = PostMedia::create([
+                    'post_id' => $post->id,
+                    'file_path' => $path,
+                    'sequence_order' => $media['sequence_order'],
+                    'status' => 'original'
+                ]);
 
-            CompressImageJob::dispatch($postMedia->fresh());
+                CompressImageJob::dispatch($postMedia->fresh());
+            }
         }
-    }
 
-    return response()->json([
-        'message' => 'Post updated successfully',
-        'post' => $post->load('postmedias'),
-        'sequence_changes' => $sequenceLog, // 👈 log of changes
-        'existing_media_input' => $request->existing_media, // 👈 raw input
-    ]);
-}
+        return response()->json([
+            'message' => 'Post updated successfully',
+            'post' => $post->load('postmedias'),
+            'sequence_changes' => $sequenceLog, // 👈 log of changes
+            'existing_media_input' => $request->existing_media, // 👈 raw input
+        ]);
+    }
 
 
     public function storecloud(Request $request)
-{
-    $user = Auth::user();
-    if (!$user) {
-        return response()->json(['message' => 'Unauthorized'], 401);
-    }
-
-    DB::beginTransaction();
-    try {
-        // Create the post
-        $post = new Post();
-        $post->user_id = $user->id;
-        $post->description = $request->description;
-        $post->type = $request->type;
-        $post->status = 'active';
-        $post->album_id = $request->album_id;
-        $post->visibility = $request->visibility;
-        $post->save();
-
-        // Get all artwork IDs from the request
-        $artworkIds = collect($request->post_medias)->pluck('artwork_id');
-
-        // Fetch all artworks at once for efficiency
-        $artworks = Artwork::whereIn('id', $artworkIds)
-            ->where('user_id', $user->id)
-            ->get()
-            ->keyBy('id');
-
-        // Create post media entries in the order specified by Flutter
-        foreach ($request->post_medias as $media) {
-            $artwork = $artworks->get($media['artwork_id']);
-
-            if (!$artwork) {
-                throw new \Exception("Artwork not found or doesn't belong to user");
-            }
-
-            PostMedia::create([
-                'post_id' => $post->id,
-                'file_path' => $artwork->file_path,
-                'file_path_compress' => $artwork->thumbnail,
-                'sequence_order' => $media['sequence_order'], // Use the sequence from Flutter
-                'status' => 'compressed',
-            ]);
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        DB::commit();
+        DB::beginTransaction();
+        try {
+            // Create the post
+            $post = new Post();
+            $post->user_id = $user->id;
+            $post->description = $request->description;
+            $post->type = $request->type;
+            $post->status = 'active';
+            $post->album_id = $request->album_id;
+            $post->visibility = $request->visibility;
+            $post->save();
 
-        return response()->json([
-            'message' => 'Post created successfully',
-            'post' => $post,
-        ], 200);
+            // Get all artwork IDs from the request
+            $artworkIds = collect($request->post_medias)->pluck('artwork_id');
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error('Post creation failed: ' . $e->getMessage());
-        return response()->json(['message' => 'Post creation failed: ' . $e->getMessage()], 500);
+            // Fetch all artworks at once for efficiency
+            $artworks = Artwork::whereIn('id', $artworkIds)
+                ->where('user_id', $user->id)
+                ->get()
+                ->keyBy('id');
+
+            // Create post media entries in the order specified by Flutter
+            foreach ($request->post_medias as $media) {
+                $artwork = $artworks->get($media['artwork_id']);
+
+                if (!$artwork) {
+                    throw new \Exception("Artwork not found or doesn't belong to user");
+                }
+
+                PostMedia::create([
+                    'post_id' => $post->id,
+                    'file_path' => $artwork->file_path,
+                    'file_path_compress' => $artwork->thumbnail,
+                    'sequence_order' => $media['sequence_order'], // Use the sequence from Flutter
+                    'status' => 'compressed',
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Post created successfully',
+                'post' => $post,
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Post creation failed: ' . $e->getMessage());
+            return response()->json(['message' => 'Post creation failed: ' . $e->getMessage()], 500);
+        }
     }
-}
-
-
 
     public function save(Request $request, $id)
     {

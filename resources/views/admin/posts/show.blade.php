@@ -154,16 +154,16 @@
 
             <div class="d-flex flex-wrap gap-5">
                 @if ($post->status == 'hold')
-                <button type="button" class="btn btn-primary waves-effect waves-light w-sm" data-bs-toggle="modal" data-bs-target="#hold">
+                <button type="button" class="btn btn-success waves-effect waves-light w-sm" data-bs-toggle="modal" data-bs-target="#hold">
                     <i class="mdi mdi-pause d-block font-size-16"></i> UnHold
                 </button>
                 @else
-                    <button type="button" class="btn btn-primary waves-effect waves-light w-sm" data-bs-toggle="modal" data-bs-target="#hold">
+                    <button type="button" class="btn btn-warning waves-effect waves-light w-sm" data-bs-toggle="modal" data-bs-target="#hold">
                     <i class="mdi mdi-pause d-block font-size-16"></i> Hold
                 </button>
                 @endif
                @if ($post->status == 'deletion')
-                <button type="button" class="btn btn-danger waves-effect waves-light w-sm" data-bs-toggle="modal" data-bs-target="#delete">
+                <button type="button" class="btn btn-success waves-effect waves-light w-sm" data-bs-toggle="modal" data-bs-target="#delete">
                     <i class="mdi mdi-trash-can d-block font-size-16"></i> Reversal
                 </button>
                @else
