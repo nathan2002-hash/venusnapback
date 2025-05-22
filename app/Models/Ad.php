@@ -38,6 +38,6 @@ class Ad extends Model
         $removed = $this->states()->where('action', 'removed_points')->sum('points');
         $used = $this->states()->where('action', 'published')->sum('points');
 
-        return $added - $removed - $used; // available balance
+        return $added - $removed - $used;
     }
 }

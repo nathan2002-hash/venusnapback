@@ -10,6 +10,9 @@ Route::get('/', function () {
     return view('user.welcome');
 });
 
+ //terms routes
+Route::get('/terms', 'HomeController@terms');
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
