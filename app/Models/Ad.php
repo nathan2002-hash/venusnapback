@@ -26,4 +26,18 @@ class Ad extends Model
     public function adboard(){
         return $this->belongsTo(Adboard::class);
     }
+
+    public function states()
+    {
+        return $this->hasMany(AdState::class);
+    }
+
+    public function getTotalAdboardPoints()
+    {
+        $added = $this->states()->where('action', 'added_points')->sum('points');
+        $removed = $this->states()->where('action', 'removed_points')->sum('points');
+        $used = $this->states()->where('action', 'published')->sum('points');
+
+        return $added - $removed - $used; // available balance
+    }
 }

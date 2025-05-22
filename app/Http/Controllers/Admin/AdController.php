@@ -69,7 +69,6 @@ class AdController extends Controller
         $ad->status = $request->status;
         $ad->save();
 
-        // Optional: You can update the adboard status or log this change if needed
         $ad->adboard->update([
             'status' => $request->status,
         ]);

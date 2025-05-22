@@ -138,12 +138,12 @@ class AdController extends Controller
             // Decode JSON fields
             $categories = json_decode($request->categories, true);
             $targetData = json_decode($request->target_data, true);
-    
+
             // Validate target data structure
             if (!isset($targetData['type'])) {
                 throw new \Exception("Target type is required");
             }
-    
+
             // Create ad
             $ad = Ad::create([
                 'adboard_id' => $request->adboard_id,
@@ -154,17 +154,17 @@ class AdController extends Controller
                 'status' => 'active',
                 'target' => $targetData['type'], // Set target type from the data
             ]);
-    
+
             // Attach categories
             $ad->categories()->attach($categories);
-    
+
             // Process target data
             $this->processTargetData($ad, $targetData);
-    
+
             // Process media files
             foreach ($request->media as $media) {
                 $path = $media['file']->store('ads/media/original', 's3');
-    
+
                 $media = AdMedia::create([
                     'ad_id' => $ad->id,
                     'file_path' => $path,
@@ -174,11 +174,11 @@ class AdController extends Controller
                 ]);
                 AdImageCompress::dispatch($media->fresh());
             }
-    
+
             DB::commit();
-    
+
             return response()->json(['id' => $ad->id], 201);
-    
+
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 500);
@@ -189,7 +189,7 @@ class AdController extends Controller
     protected function processTargetData(Ad $ad, array $targetData)
     {
         Log::debug('Processing target data', ['target_type' => $targetData['type'] ?? 'none']);
-    
+
         if ($targetData['type'] === 'all_region') {
             Log::debug('Creating all-region target');
             $target = $ad->targets()->create([
@@ -214,7 +214,7 @@ class AdController extends Controller
                     ]);
                 }
             }
-    
+
             // Process countries if they exist
             if (!empty($targetData['countries'])) {
                 Log::debug('Processing country targets', ['count' => count($targetData['countries'])]);
@@ -235,7 +235,7 @@ class AdController extends Controller
         }
         Log::info('Target data processing completed');
     }
-    
+
     protected function getContinentForCountry(string $country): ?string
     {
         $continentMap = [
@@ -344,6 +344,74 @@ class AdController extends Controller
 
     public function publish(Request $request)
     {
+        DB::beginTransaction();
+
+        try {
+            $user = Auth::user();
+            $ad = Ad::findOrFail($request->ad_id);
+            $adboard = $ad->adboard;
+
+            if (in_array($ad->status, ['review', 'active'])) {
+                return response()->json([
+                    'message' => 'Ad is already under review or published.'
+                ], 200);
+            }
+
+            // Determine total usable points from ad state
+            $availablePoints = $ad->getTotalAdboardPoints(); // e.g. 130
+            $requiredPoints = $adboard->points;              // e.g. 160
+
+            if ($availablePoints >= $requiredPoints) {
+                // Just publish — no need to deduct
+            } else {
+                $shortfall = $requiredPoints - $availablePoints;
+
+                if ($user->points < $shortfall) {
+                    return response()->json([
+                        'message' => "Insufficient points. You need {$shortfall} more points."
+                    ], 400);
+                }
+
+                // Deduct the missing points from user
+                $user->decrement('points', $shortfall);
+
+                // Record top-up in ad_states
+                $ad->states()->create([
+                    'action' => 'added_points',
+                    'points' => $shortfall,
+                    'meta' => json_encode(['source' => 'user_wallet', 'user_id' => $user->id])
+                ]);
+            }
+
+            // Record publish action (always log it)
+            $ad->states()->create([
+                'action' => 'published',
+                'points' => $requiredPoints,
+                'meta' => json_encode(['published_by' => $user->id])
+            ]);
+
+            $ad->update(['status' => 'review']);
+            $adboard->update(['status' => 'review']);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Ad published successfully!',
+                'remaining_points' => $user->points,
+                'ad' => $ad
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Failed to publish ad',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function publishg(Request $request)
+    {
         DB::beginTransaction(); // Start transaction
 
         try {
@@ -387,7 +455,7 @@ class AdController extends Controller
 
     public function getAds()
     {
-        $userId = auth()->id();
+        $userId = Auth::user()->id;
 
       $ads = Ad::whereNotIn('status', ['deleted', 'draft'])
         ->whereHas('adboard', function ($query) use ($userId) {
@@ -429,14 +497,14 @@ class AdController extends Controller
     public function getAdPerformance($adId)
     {
         $ad = Ad::findOrFail($adId);
-    
+
         // Check if ad status is "review"
         if ($ad->adboard->status === 'review') {
             $album = $ad->adboard->album ?? null;
             $defaultProfile = asset('images/default-profile.png');
-    
+
             $profileUrl = $defaultProfile;
-    
+
             if ($album) {
                 if (in_array($album->type, ['personal', 'creator'])) {
                     $profileUrl = $album->thumbnail_compressed
@@ -452,15 +520,15 @@ class AdController extends Controller
                             : $defaultProfile);
                 }
             }
-    
+
             $total_spent = $ad->adboard->budget - $ad->adboard->points;
             $impressionscount = AdImpression::where('ad_id', $ad->id)->count();
             $clickscount = AdClick::where('ad_id', $ad->id)->count();
             $conversions = DB::table('ad_cta_clicks')->where('ad_id', $ad->id)->count();
-    
+
             $ctr = ($impressionscount > 0) ? ($clickscount / $impressionscount) * 100 : 0;
             $conversionRate = ($clickscount > 0) ? ($conversions / $clickscount) * 100 : 0;
-    
+
             return response()->json([
                 'ad_id' => $ad->id,
                 'ad_name' => $ad->adboard->name,
@@ -480,40 +548,40 @@ class AdController extends Controller
                 'daily_performance' => [],
             ]);
         }
-    
+
         $start = Carbon::parse($ad->created_at)->startOfDay();
         $end = Carbon::today();
-    
+
         $dailyData = [];
-    
+
         while ($start->lte($end)) {
             $date = $start->toDateString(); // Get date as "Y-m-d"
-    
+
             $clicks = DB::table('ad_clicks')
                 ->where('ad_id', $adId)
                 ->whereDate('created_at', $date)
                 ->count();
-    
+
             $totalClickPoints = DB::table('ad_clicks')
                 ->where('ad_id', $adId)
                 ->whereDate('created_at', $date)
                 ->sum('points_used');
-    
+
             $impressions = DB::table('ad_impressions')
                 ->where('ad_id', $adId)
                 ->whereDate('created_at', $date)
                 ->count();
-    
+
             $totalImpressionPoints = DB::table('ad_impressions')
                 ->where('ad_id', $adId)
                 ->whereDate('created_at', $date)
                 ->sum('points_used');
-    
+
             $cost = ($totalClickPoints + $totalImpressionPoints);
             $ctr = ($impressions > 0) ? ($clicks / $impressions) * 100 : 0;
-    
+
             $formattedDate = $start->format('M, d');
-    
+
             $dailyData[] = [
                 'date' => $formattedDate,
                 'clicks' => (String) $clicks,
@@ -521,29 +589,29 @@ class AdController extends Controller
                 'cost' => (String) $cost,
                 'ctr' => number_format($ctr, 0),
             ];
-    
+
             $start->addDay();
         }
-    
+
         $impressionscount = AdImpression::where('ad_id', $ad->id)->count();
         $clickscount = AdClick::where('ad_id', $ad->id)->count();
-    
+
         $ctr = ($impressionscount > 0) ? ($clickscount / $impressionscount) * 100 : 0;
         $costPerClick = ($ad->clicks > 0) ? ($ad->total_spent / $ad->clicks) : 0;
-    
+
         $conversions = DB::table('ad_cta_clicks')
             ->where('ad_id', $ad->id)
             ->count();
-    
+
         $conversionRate = ($clickscount > 0) ? ($conversions / $clickscount) * 100 : 0;
-    
+
         $total_spent = $ad->adboard->budget - $ad->adboard->points;
-    
+
         $album = $ad->adboard->album ?? null;
         $defaultProfile = asset('images/default-profile.png');
-    
+
         $profileUrl = $defaultProfile;
-    
+
         if ($album) {
             if (in_array($album->type, ['personal', 'creator'])) {
                 $profileUrl = $album->thumbnail_compressed
@@ -559,7 +627,7 @@ class AdController extends Controller
                         : $defaultProfile);
             }
         }
-    
+
         return response()->json([
             'ad_id' => $ad->id,
             'ad_name' => $ad->adboard->name,
@@ -707,7 +775,7 @@ class AdController extends Controller
         $adBoard = AdBoard::with('album')->findOrFail($ad->adboard_id);
 
         // Authorization check - ensure user owns this ad board
-        if (auth()->id() !== $adBoard->album->user_id) {
+        if (Auth::user() ->id !== $adBoard->album->user_id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -733,7 +801,7 @@ class AdController extends Controller
     $album = Album::findOrFail($adBoard->album_id);
 
     // Authorization check
-    if (auth()->id() !== $album->user_id) {
+    if (Auth::user()->id !== $album->user_id) {
         return response()->json(['message' => 'Unauthorized'], 403);
     }
 
@@ -745,7 +813,7 @@ class AdController extends Controller
         'album_id' => 'required|exists:albums,id',
     ]);
 
-    $user = auth()->user();
+    $user = Auth::user();
     $pointsDifference = $validated['points'] - $adBoard->points;
 
     if ($pointsDifference > 0) {
