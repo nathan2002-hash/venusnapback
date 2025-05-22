@@ -18,4 +18,15 @@ class HomeController extends Controller
             'terms' => $terms
         ]);
     }
+
+    public function home()
+    {
+        $terms = File::get(resource_path('markdown/terms.md'));
+
+        // If you want to convert Markdown to HTML (optional)
+        $terms = Str::markdown($terms);
+        return view('welcome', [
+            'terms' => $terms
+        ]);
+    }
 }

@@ -12,6 +12,7 @@ Route::get('/', function () {
 
  //terms routes
 Route::get('/terms', 'HomeController@terms');
+Route::get('/home', 'HomeController@home');
 
 Route::middleware([
     'auth:sanctum',
