@@ -3,14 +3,19 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class HomeController extends Controller
 {
     public function terms()
     {
-        //$categories = Category::orderBy('created_at', 'desc')->paginate(30);
+        $terms = File::get(resource_path('markdown/terms.md'));
+
+        // If you want to convert Markdown to HTML (optional)
+        $terms = Str::markdown($terms);
         return view('terms', [
-           //'categories' => $categories,
+            'terms' => $terms
         ]);
     }
 }
