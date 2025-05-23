@@ -43,7 +43,6 @@
     <div class="container position-relative d-flex align-items-center justify-content-between">
 
       <a href="/" class="logo d-flex align-items-center me-auto me-xl-0">
-        <!-- Uncomment the line below if you also wish to use an image logo -->
         <img src="{{ asset('assets1/img/logo.png') }}" alt="">
         <h1 class="sitename">Venusnap</h1><span>.</span>
       </a>
@@ -55,7 +54,6 @@
           <li><a href="#services">Services</a></li>
           <li><a href="#portfolio">Portfolio</a></li>
           <li><a href="#download">Download</a></li>
-          <li><a href="#team">Team</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
