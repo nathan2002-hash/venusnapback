@@ -626,15 +626,16 @@
         <div class="pricing-card">
           <h3>Android App</h3>
           <div class="price">
-            <i class="bi bi-android2" style="font-size: 48px;"></i>
+            <i class="bi bi-android2" style="font-size: 48px; color:#7C4DFF"></i>
           </div>
           <p class="description">Download the official Venusnap app for Android and explore all the features with ease.</p>
 
           <h4>Permissions Required:</h4>
           <ul class="features-list">
             <li><i class="bi bi-check-circle-fill"></i> Internet Access</li>
+            <li><i class="bi bi-check-circle-fill"></i> Access to Photos</li>
             <li><i class="bi bi-check-circle-fill"></i> Storage (for saving media)</li>
-            <li><i class="bi bi-check-circle-fill"></i> Notifications</li>
+            <li><i class="bi bi-check-circle-fill"></i> Push Notifications</li>
           </ul>
 
           <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" class="btn btn-primary" target="_blank">
@@ -648,15 +649,16 @@
         <div class="pricing-card">
           <h3>iOS App</h3>
           <div class="price">
-            <i class="bi bi-apple" style="font-size: 48px;"></i>
+            <i class="bi bi-apple" style="font-size: 48px; color:#7C4DFF"></i>
           </div>
           <p class="description">Coming soon to the App Store. Stay tuned for iOS support.</p>
 
           <h4>Expected Permissions:</h4>
           <ul class="features-list">
             <li><i class="bi bi-check-circle"></i> Internet Access</li>
-            <li><i class="bi bi-check-circle"></i> Storage Access</li>
-            <li><i class="bi bi-check-circle"></i> Notifications</li>
+            <li><i class="bi bi-check-circle"></i> Access to Photos</li>
+            <li><i class="bi bi-check-circle"></i> Storage (for saving media)</li>
+            <li><i class="bi bi-check-circle"></i> Push Notifications</li>
           </ul>
 
           <a href="#" class="btn btn-outline-secondary disabled">
@@ -670,7 +672,7 @@
         <div class="pricing-card">
           <h3>Desktop App</h3>
           <div class="price">
-            <i class="bi bi-laptop" style="font-size: 48px;"></i>
+            <i class="bi bi-laptop" style="font-size: 48px; color:#7C4DFF"></i>
           </div>
           <p class="description">A powerful desktop version is on its way for Windows, macOS, and Linux users.</p>
 
@@ -678,6 +680,7 @@
           <ul class="features-list">
             <li><i class="bi bi-check-circle"></i> Internet Connection</li>
             <li><i class="bi bi-check-circle"></i> Media Storage</li>
+            <li><i class="bi bi-check-circle"></i> Push Notifications</li>
           </ul>
 
           <a href="#" class="btn btn-outline-secondary disabled">
