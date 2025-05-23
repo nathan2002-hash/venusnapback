@@ -54,14 +54,14 @@
           <li><a href="#about">About</a></li>
           <li><a href="#services">Services</a></li>
           <li><a href="#portfolio">Portfolio</a></li>
-          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#download">download</a></li>
           <li><a href="#team">Team</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
 
-      <a class="btn-getstarted" href="#about">Download</a>
+      <a class="btn-getstarted" href="#download">Download</a>
 
     </div>
   </header>
@@ -90,7 +90,7 @@
                 Venusnap is where visual creators share powerful content, build authentic communities, and monetize through engagement. Whether you're an artist, photographer, or storyteller — your creativity belongs here.
             </p>
             <div class="cta-wrapper">
-              <a href="#" class="btn btn-primary">Download</a>
+              <a href="#download" class="btn btn-primary">Download</a>
             </div>
           </div>
 
