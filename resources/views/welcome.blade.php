@@ -10,8 +10,8 @@
   <meta name="keywords" content="">
 
   <!-- Favicons -->
-  <link href="{{ asset('assets1/img/favicon.png') }}" rel="icon">
-  <link href="{{ asset('assets1/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+  <link href="{{ asset('assets1/img/logo.png') }}" rel="icon">
+  <link href="{{ asset('assets1/img/logo.png') }}" rel="apple-touch-icon">
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
@@ -54,7 +54,7 @@
           <li><a href="#about">About</a></li>
           <li><a href="#services">Services</a></li>
           <li><a href="#portfolio">Portfolio</a></li>
-          <li><a href="#download">download</a></li>
+          <li><a href="#download">Download</a></li>
           <li><a href="#team">Team</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
@@ -501,84 +501,87 @@
     <!-- Portfolio Section -->
     <section id="portfolio" class="portfolio section">
 
-      <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
-        <h2>Portfolio</h2>
-        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
-      </div><!-- End Section Title -->
+        <h2>Venusnap Gallery</h2>
+        <p>A showcase of image art, AI-generated visuals, and advertising creatives from the Venusnap community.</p>
+      </div>
+
 
       <div class="container" data-aos="fade-up" data-aos-delay="100">
 
         <div class="isotope-layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">
 
           <div class="portfolio-filters-container" data-aos="fade-up" data-aos-delay="200">
-            <ul class="portfolio-filters isotope-filters">
-              <li data-filter="*" class="filter-active">All Work</li>
-              <li data-filter=".filter-web">Web Design</li>
-              <li data-filter=".filter-graphics">Graphics</li>
-              <li data-filter=".filter-motion">Motion</li>
-              <li data-filter=".filter-brand">Branding</li>
-            </ul>
+          <ul class="portfolio-filters isotope-filters">
+  <li data-filter="*" class="filter-active">All</li>
+  <li data-filter=".filter-creator">Creators</li>
+  <li data-filter=".filter-ai">AI Generated</li>
+  <li data-filter=".filter-ads">Ad Creatives</li>
+</ul>
+
           </div>
 
           <div class="row g-4 isotope-container" data-aos="fade-up" data-aos-delay="300">
 
-            <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-web">
-              <div class="portfolio-card">
-                <div class="portfolio-image">
-                  <img src="{{ asset('assets1/img/portfolio/portfolio-1.webp') }}" class="img-fluid" alt="" loading="lazy">
-                  <div class="portfolio-overlay">
-                    <div class="portfolio-actions">
-                      <a href="{{ asset('assets1/img/portfolio/portfolio-1.webp') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-web"><i class="bi bi-eye"></i></a>
-                      <a href="portfolio-details.html" class="details-link"><i class="bi bi-arrow-right"></i></a>
-                    </div>
-                  </div>
-                </div>
-                <div class="portfolio-content">
-                  <span class="category">Web Design</span>
-                  <h3>Modern Dashboard Interface</h3>
-                  <p>Maecenas faucibus mollis interdum sed posuere consectetur est at lobortis.</p>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
+           <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-creator">
+  <div class="portfolio-card">
+    <div class="portfolio-image">
+      <img src="{{ asset('venusnap/images/posts/creator-sample1.webp') }}" class="img-fluid" alt="Creator Artwork" loading="lazy">
+      <div class="portfolio-overlay">
+        <div class="portfolio-actions">
+          <a href="{{ asset('venusnap/images/posts/creator-sample1.webp') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-creator"><i class="bi bi-eye"></i></a>
+          <a href="https://venusnap.com/posts/123" class="details-link"><i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="portfolio-content">
+      <span class="category">Creator</span>
+      <h3>Nature Aesthetic by @zoe_art</h3>
+      <p>A serene collection exploring light and color in nature.</p>
+    </div>
+  </div>
+</div>
 
-            <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-graphics">
-              <div class="portfolio-card">
-                <div class="portfolio-image">
-                  <img src="{{ asset('assets1/img/portfolio/portfolio-10.webp') }}" class="img-fluid" alt="" loading="lazy">
-                  <div class="portfolio-overlay">
-                    <div class="portfolio-actions">
-                      <a href="{{ asset('assets1/img/portfolio/portfolio-10.webp') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-graphics"><i class="bi bi-eye"></i></a>
-                      <a href="portfolio-details.html" class="details-link"><i class="bi bi-arrow-right"></i></a>
-                    </div>
-                  </div>
-                </div>
-                <div class="portfolio-content">
-                  <span class="category">Graphics</span>
-                  <h3>Creative Brand Identity</h3>
-                  <p>Vestibulum id ligula porta felis euismod semper at vulputate.</p>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
 
-            <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-motion">
-              <div class="portfolio-card">
-                <div class="portfolio-image">
-                  <img src="{{ asset('assets1/img/portfolio/portfolio-7.webp') }}" class="img-fluid" alt="" loading="lazy">
-                  <div class="portfolio-overlay">
-                    <div class="portfolio-actions">
-                      <a href="{{ asset('assets1/img/portfolio/portfolio-7.webp') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-motion"><i class="bi bi-eye"></i></a>
-                      <a href="portfolio-details.html" class="details-link"><i class="bi bi-arrow-right"></i></a>
-                    </div>
-                  </div>
-                </div>
-                <div class="portfolio-content">
-                  <span class="category">Motion</span>
-                  <h3>Product Animation Reel</h3>
-                  <p>Donec ullamcorper nulla non metus auctor fringilla dapibus.</p>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
+           <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-ai">
+  <div class="portfolio-card">
+    <div class="portfolio-image">
+      <img src="{{ asset('venusnap/images/ai/ai-sample1.webp') }}" class="img-fluid" alt="AI Art" loading="lazy">
+      <div class="portfolio-overlay">
+        <div class="portfolio-actions">
+          <a href="{{ asset('venusnap/images/ai/ai-sample1.webp') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
+          <a href="https://venusnap.com/ai-gallery" class="details-link"><i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="portfolio-content">
+      <span class="category">AI Generated</span>
+      <h3>Cyber Dreams</h3>
+      <p>Created with Venusnap's AI image generator — futuristic portrait collection.</p>
+    </div>
+  </div>
+</div>
+
+
+           <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-ads">
+  <div class="portfolio-card">
+    <div class="portfolio-image">
+      <img src="{{ asset('venusnap/images/ads/coffee-brand-ad.webp') }}" class="img-fluid" alt="Ad Creative" loading="lazy">
+      <div class="portfolio-overlay">
+        <div class="portfolio-actions">
+          <a href="{{ asset('venusnap/images/ads/coffee-brand-ad.webp') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ads"><i class="bi bi-eye"></i></a>
+          <a href="https://venusnap.com/ads/coffee-brand" class="details-link"><i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="portfolio-content">
+      <span class="category">Ad Creative</span>
+      <h3>Java Beans Campaign</h3>
+      <p>Advertising image made using Venusnap's AD generator tool.</p>
+    </div>
+  </div>
+</div>
+
 
             <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-brand">
               <div class="portfolio-card">
@@ -595,44 +598,6 @@
                   <span class="category">Branding</span>
                   <h3>Luxury Brand Package</h3>
                   <p>Aenean lacinia bibendum nulla sed consectetur elit.</p>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-web">
-              <div class="portfolio-card">
-                <div class="portfolio-image">
-                  <img src="{{ asset('assets1/img/portfolio/portfolio-2.webp') }}" class="img-fluid" alt="" loading="lazy">
-                  <div class="portfolio-overlay">
-                    <div class="portfolio-actions">
-                      <a href="{{ asset('assets1/img/portfolio/portfolio-2.webp') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-web"><i class="bi bi-eye"></i></a>
-                      <a href="portfolio-details.html" class="details-link"><i class="bi bi-arrow-right"></i></a>
-                    </div>
-                  </div>
-                </div>
-                <div class="portfolio-content">
-                  <span class="category">Web Design</span>
-                  <h3>E-commerce Platform</h3>
-                  <p>Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-graphics">
-              <div class="portfolio-card">
-                <div class="portfolio-image">
-                  <img src="{{ asset('assets1/img/portfolio/portfolio-11.webp') }}" class="img-fluid" alt="" loading="lazy">
-                  <div class="portfolio-overlay">
-                    <div class="portfolio-actions">
-                      <a href="{{ asset('assets1/img/portfolio/portfolio-11.webp') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-graphics"><i class="bi bi-eye"></i></a>
-                      <a href="portfolio-details.html" class="details-link"><i class="bi bi-arrow-right"></i></a>
-                    </div>
-                  </div>
-                </div>
-                <div class="portfolio-content">
-                  <span class="category">Graphics</span>
-                  <h3>Digital Art Collection</h3>
-                  <p>Cras mattis consectetur purus sit amet fermentum.</p>
                 </div>
               </div>
             </div><!-- End Portfolio Item -->
@@ -829,7 +794,7 @@
 
 
     <!-- Team Section -->
-    <section id="team" class="team section light-background">
+    {{-- <section id="team" class="team section light-background">
 
       <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
@@ -877,8 +842,8 @@
                 </div>
               </div>
               <div class="team-content">
-                <h4>Rebecca Taylor</h4>
-                <span class="position">Lead Developer</span>
+                <h4>Nathan Mwamba</h4>
+                <span class="position">Founder and CEO</span>
               </div>
             </div>
           </div><!-- End Team Member -->
@@ -929,7 +894,8 @@
 
       </div>
 
-    </section><!-- /Team Section -->
+    </section> --}}
+    <!-- /Team Section -->
 
     <!-- Testimonials Section -->
     <section id="testimonials" class="testimonials section">
@@ -1143,7 +1109,7 @@
       <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
         <h2>Contact</h2>
-        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+        <p>Contact us if you have questions</p>
       </div><!-- End Section Title -->
 
       <div class="container" data-aos="fade-up" data-aos-delay="100">
@@ -1185,7 +1151,7 @@
         <div class="row">
           <div class="col-lg-12">
             <div class="form-wrapper" data-aos="fade-up" data-aos-delay="400">
-              <form action="forms/contact.php" method="post" role="form" class="php-email-form">
+              <form action="#" method="post" role="form" class="php-email-form">
                 <div class="row">
                   <div class="col-md-6 form-group">
                     <div class="input-group">
@@ -1260,12 +1226,12 @@
             <p class="mt-3"><strong>Phone:</strong> <span>+1 681 435 4816</span></p>
             <p><strong>Email:</strong> <span>support@venusnap.com</span></p>
           </div>
-          <div class="social-links d-flex mt-4">
+          {{-- <div class="social-links d-flex mt-4">
             <a href=""><i class="bi bi-twitter-x"></i></a>
             <a href=""><i class="bi bi-facebook"></i></a>
             <a href=""><i class="bi bi-instagram"></i></a>
             <a href=""><i class="bi bi-linkedin"></i></a>
-          </div>
+          </div> --}}
         </div>
 
         <div class="col-lg-2 col-md-3 footer-links">
@@ -1282,7 +1248,7 @@
        <div class="col-lg-2 col-md-3 footer-links">
         <h4>Our Services</h4>
         <ul>
-          <li><a href="#">Post & Share Visual Content</a></li>
+          <li><a href="#">Post Visual Content</a></li>
           <li><a href="#">Album Support</a></li>
           <li><a href="#">Admire</a></li>
           <li><a href="#">Venusnap Points</a></li>
@@ -1294,7 +1260,7 @@
         <h4>Features of App</h4>
         <ul>
           <li><a href="#">Vertical Image Feed</a></li>
-          <li><a href="#">Swipeable Multi-Image Posts</a></li>
+          <li><a href="#">Swipeable Snaps</a></li>
           <li><a href="#">Customizable Albums</a></li>
           <li><a href="#">Built-in Design Tools</a></li>
           <li><a href="#">Verified Albums Priority</a></li>
