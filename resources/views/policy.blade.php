@@ -6,7 +6,7 @@
     <title>Privacy Policy</title>
     <style>
         :root {
-            --primary-color: #4f46e5;
+            --primary-color: #7C4DFF;
             --text-color: #374151;
             --light-bg: #f9fafb;
             --border-color: #e5e7eb;

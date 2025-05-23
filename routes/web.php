@@ -12,7 +12,7 @@ Route::get('/', function () {
 
  //terms routes
 Route::get('/terms/conditions', 'HomeController@terms');
-Route::get('/privacy/policy', 'HomeController@policy');
+Route::get('/privacy/policy', 'HomeController@privacy');
 Route::get('/home', 'HomeController@home');
 
 Route::middleware([
