@@ -1274,7 +1274,7 @@
             <li><a href="#home">Home</a></li>
             <li><a href="#about">About us</a></li>
             <li><a href="#services">Services</a></li>
-            <li><a href="/terms/condition">Terms of service</a></li>
+            <li><a href="/terms/of/service">Terms of service</a></li>
             <li><a href="/privacy/policy">Privacy policy</a></li>
           </ul>
         </div>
