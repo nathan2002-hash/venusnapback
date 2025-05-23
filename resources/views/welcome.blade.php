@@ -61,7 +61,7 @@
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
 
-      <a class="btn-getstarted" href="#about">Get Started</a>
+      <a class="btn-getstarted" href="#about">Download</a>
 
     </div>
   </header>
@@ -80,16 +80,17 @@
                 <div class="icon-circle me-2">
                   <i class="bi bi-bell"></i>
                 </div>
-                <span class="badge-text me-3">Innovative Solutions</span>
+                <span class="badge-text me-3">Empowering Creators</span>
               </div>
             </div>
 
-            <h1 class="hero-title mb-4">Accelerating business growth through innovative technology</h1>
+            <h1 class="hero-title mb-4">Inspire. Create. Earn. All in One Platform.</h1>
 
-            <p class="hero-description mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas varius tortor nibh, sit amet tempor nibh finibus et. Aenean eu enim justo.</p>
-
+            <p class="hero-description mb-4">
+                Venusnap is where visual creators share powerful content, build authentic communities, and monetize through engagement. Whether you're an artist, photographer, or storyteller — your creativity belongs here.
+            </p>
             <div class="cta-wrapper">
-              <a href="#" class="btn btn-primary">Discover More</a>
+              <a href="#" class="btn btn-primary">Download</a>
             </div>
           </div>
 
@@ -107,9 +108,9 @@
                 <i class="bi bi-gear"></i>
               </div>
               <div class="feature-content">
-                <h3 class="feature-title">Rapid Deployment</h3>
-                <p class="feature-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis.</p>
-              </div>
+                <h3 class="feature-title">Instant Publishing</h3>
+                <p class="feature-text">Upload your images, tell your story, and share with the world in seconds — no hassle, no noise.</p>
+            </div>
             </div>
           </div>
 
@@ -118,10 +119,10 @@
               <div class="feature-icon me-sm-4 mb-3 mb-sm-0">
                 <i class="bi bi-window"></i>
               </div>
-              <div class="feature-content">
-                <h3 class="feature-title">Advanced Security</h3>
-                <p class="feature-text">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-              </div>
+               <div class="feature-content">
+                    <h3 class="feature-title">Your Content, Protected</h3>
+                    <p class="feature-text">Every post is secured and backed by modern infrastructure to keep your work safe and respected.</p>
+                </div>
             </div>
           </div>
 
@@ -130,10 +131,10 @@
               <div class="feature-icon me-sm-4 mb-3 mb-sm-0">
                 <i class="bi bi-headset"></i>
               </div>
-              <div class="feature-content">
-                <h3 class="feature-title">Dedicated Support</h3>
-                <p class="feature-text">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-              </div>
+               <div class="feature-content">
+                    <h3 class="feature-title">Earn from Supporters</h3>
+                    <p class="feature-text">Turn likes into earnings with Venusnap Points. Fans can support you directly, one snap at a time.</p>
+                </div>
             </div>
           </div>
         </div>
@@ -151,15 +152,14 @@
 
           <div class="col-lg-6 content" data-aos="fade-up" data-aos-delay="100">
             <p class="who-we-are">Who We Are</p>
-            <h3>Unleashing Potential with Creative Strategy</h3>
+            <h3>Empowering Visual Creators to Inspire, Connect, and Earn</h3>
             <p class="fst-italic">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-              magna aliqua.
+            Venusnap is a creator-first platform designed to help individuals share meaningful visual stories, grow their following, and monetize through engagement.
             </p>
             <ul>
-              <li><i class="bi bi-check-circle"></i> <span>Ullamco laboris nisi ut aliquip ex ea commodo consequat.</span></li>
-              <li><i class="bi bi-check-circle"></i> <span>Duis aute irure dolor in reprehenderit in voluptate velit.</span></li>
-              <li><i class="bi bi-check-circle"></i> <span>Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate trideta storacalaperda mastiro dolore eu fugiat nulla pariatur.</span></li>
+            <li><i class="bi bi-check-circle"></i> <span>Share images, art, and designs in beautifully crafted albums.</span></li>
+            <li><i class="bi bi-check-circle"></i> <span>Get supported through likes, subscriptions, and Venusnap Points.</span></li>
+            <li><i class="bi bi-check-circle"></i> <span>Join a vibrant community of artists, photographers, and creatives who believe in the power of visual expression.</span></li>
             </ul>
             <a href="#" class="read-more"><span>Read More</span><i class="bi bi-arrow-right"></i></a>
           </div>
@@ -194,7 +194,7 @@
       <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
         <h2>How We Work</h2>
-        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+        <p>We make it simple for creators to share, grow, and earn — all in one place.</p>
       </div><!-- End Section Title -->
 
       <div class="container" data-aos="fade-up" data-aos-delay="100">
@@ -210,8 +210,8 @@
                     <i class="bi bi-pencil-square"></i>
                   </div>
                   <div class="step-content">
-                    <h3>Project Planning</h3>
-                    <p>Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim.</p>
+                    <h3>Create Your Account</h3>
+                    <p>Sign up for free and set up your Venusnap profile as a creator, artist, or business.</p>
                   </div>
                 </div>
               </div>
@@ -224,10 +224,10 @@
                   <div class="step-icon">
                     <i class="bi bi-gear"></i>
                   </div>
-                  <div class="step-content">
-                    <h3>Development Phase</h3>
-                    <p>Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus.</p>
-                  </div>
+                   <div class="step-content">
+                        <h3>Post to Albums</h3>
+                        <p>Upload your photos, designs, or visuals and organize them into Albums that reflect your style and story.</p>
+                    </div>
                 </div>
               </div>
             </div><!-- End Process Item -->
@@ -240,9 +240,9 @@
                     <i class="bi bi-search"></i>
                   </div>
                   <div class="step-content">
-                    <h3>Testing &amp; QA</h3>
-                    <p>Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero.</p>
-                  </div>
+                        <h3>Grow Your Audience</h3>
+                        <p>Gain followers, engage with admirers, and build your creative community on Venusnap.</p>
+                    </div>
                 </div>
               </div>
             </div><!-- End Process Item -->
@@ -254,10 +254,10 @@
                   <div class="step-icon">
                     <i class="bi bi-rocket-takeoff"></i>
                   </div>
-                  <div class="step-content">
-                    <h3>Launch &amp; Support</h3>
-                    <p>Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt.</p>
-                  </div>
+                 <div class="step-content">
+                    <h3>Monetize Your Content</h3>
+                    <p>Receive multiple likes, supporters, and points that convert into real earnings. Monetize your visuals effortlessly.</p>
+                </div>
                 </div>
               </div>
             </div><!-- End Process Item -->
@@ -274,8 +274,8 @@
 
       <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
-        <h2>Services</h2>
-        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+        <h2>What Venusnap Offers</h2>
+        <p>Empowering creators, businesses, and everyday users through visual storytelling and meaningful support.</p>
       </div><!-- End Section Title -->
 
       <div class="container" data-aos="fade-up" data-aos-delay="100">
@@ -288,13 +288,13 @@
                 <i class="bi bi-code-slash"></i>
               </div>
               <div class="service-content">
-                <h3>Custom Web Development</h3>
-                <p>Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Nulla quis lorem ut libero malesuada feugiat. Curabitur non nulla sit amet nisl tempus convallis. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                <h3>Visual Albums</h3>
+                <p>Create stunning albums—whether personal, business, or creative—and share your story with your audience through captivating visuals.</p>
                 <a href="#" class="service-link">
-                  <span>Learn More</span>
-                  <i class="bi bi-arrow-right"></i>
+                <span>Explore Albums</span>
+                <i class="bi bi-arrow-right"></i>
                 </a>
-              </div>
+            </div>
             </div>
           </div><!-- End Service Item -->
 
@@ -304,13 +304,13 @@
                 <i class="bi bi-phone-fill"></i>
               </div>
               <div class="service-content">
-                <h3>Mobile App Solutions</h3>
-                <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Vivamus magna justo, lacinia eget consectetur sed. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Donec rutrum congue leo eget malesuada.</p>
+                <h3>Monetization Through Likes</h3>
+                <p>Users can support your content with paid likes, turning admiration into earnings. Every like has real value.</p>
                 <a href="#" class="service-link">
-                  <span>Learn More</span>
-                  <i class="bi bi-arrow-right"></i>
+                <span>Learn More</span>
+                <i class="bi bi-arrow-right"></i>
                 </a>
-              </div>
+            </div>
             </div>
           </div><!-- End Service Item -->
 
@@ -319,14 +319,14 @@
               <div class="service-icon">
                 <i class="bi bi-palette2"></i>
               </div>
-              <div class="service-content">
-                <h3>UI/UX Design</h3>
-                <p>Pellentesque in ipsum id orci porta dapibus. Proin eget tortor risus. Vivamus suscipit tortor eget felis porttitor volutpat. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui.</p>
+               <div class="service-content">
+                <h3>Follow & Support Creators</h3>
+                <p>Follow creators or brands you admire. Subscribe to albums and stay updated on their latest content while showing your support.</p>
                 <a href="#" class="service-link">
-                  <span>Learn More</span>
-                  <i class="bi bi-arrow-right"></i>
+                <span>Support a Creator</span>
+                <i class="bi bi-arrow-right"></i>
                 </a>
-              </div>
+            </div>
             </div>
           </div><!-- End Service Item -->
 
@@ -335,14 +335,14 @@
               <div class="service-icon">
                 <i class="bi bi-bar-chart-line"></i>
               </div>
-              <div class="service-content">
-                <h3>Digital Marketing</h3>
-                <p>Donec rutrum congue leo eget malesuada. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Nulla porttitor accumsan tincidunt. Curabitur aliquet quam id dui posuere blandit.</p>
-                <a href="#" class="service-link">
-                  <span>Learn More</span>
-                  <i class="bi bi-arrow-right"></i>
-                </a>
-              </div>
+               <div class="service-content">
+                    <h3>Adboard for Businesses</h3>
+                    <p>Advertise your products through image-based ads that stay active until your points run out. Pay only per view or click.</p>
+                    <a href="#" class="service-link">
+                    <span>Advertise on Venusnap</span>
+                    <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
             </div>
           </div><!-- End Service Item -->
 
@@ -352,13 +352,13 @@
                 <i class="bi bi-cloud-check"></i>
               </div>
               <div class="service-content">
-                <h3>Cloud Computing</h3>
-                <p>Curabitur aliquet quam id dui posuere blandit. Sed porttitor lectus nibh. Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Nulla quis lorem ut libero malesuada feugiat.</p>
+                <h3>Creator Tools</h3>
+                <p>Design eye-catching visuals directly in the app using customizable templates, themed backgrounds, and typography tools—no Photoshop needed.</p>
                 <a href="#" class="service-link">
-                  <span>Learn More</span>
-                  <i class="bi bi-arrow-right"></i>
+                <span>Get Creative</span>
+                <i class="bi bi-arrow-right"></i>
                 </a>
-              </div>
+            </div>
             </div>
           </div><!-- End Service Item -->
 
@@ -368,13 +368,13 @@
                 <i class="bi bi-shield-lock"></i>
               </div>
               <div class="service-content">
-                <h3>Cybersecurity Solutions</h3>
-                <p>Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Donec sollicitudin molestie malesuada. Curabitur arcu erat, accumsan id imperdiet et. Proin eget tortor risus.</p>
+                <h3>Global Reach</h3>
+                <p>Venusnap is a worldwide platform, enabling anyone—from Lusaka to Los Angeles—to connect, express, and earn through photos.</p>
                 <a href="#" class="service-link">
-                  <span>Learn More</span>
-                  <i class="bi bi-arrow-right"></i>
+                <span>Join the Community</span>
+                <i class="bi bi-arrow-right"></i>
                 </a>
-              </div>
+            </div>
             </div>
           </div><!-- End Service Item -->
 
@@ -392,13 +392,13 @@
         <div class="row">
           <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
             <div class="content-block">
-              <h6 class="subtitle">Our innovative services</h6>
-              <h2 class="title">Our customers excel in technology management</h2>
+              <h6 class="subtitle">Advertise Smarter</h6>
+              <h2 class="title">Empowering Businesses to Reach the Right Audience</h2>
               <p class="description">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum tincidunt diam et gravida consequat. Sed nec mauris quis lacus commodo lobortis. Suspendisse euismod commodo sem, in finibus purus bibendum et. Morbi eu neque sed velit convallis vestibulum a vel odio.
-              </p>
+                Venusnap is more than just a social platform — it's your next advertising powerhouse. Businesses can now create engaging photo Snaps, target the right audiences, and track performance in real time. Whether you're launching a product, promoting an event, or building your brand, Venusnap gives you the tools to connect directly with people who care.
+            </p>
               <div class="button-wrapper">
-                <a class="btn" href="services.html"><span>Explore All Services</span></a>
+                <a class="btn" href="services.html"><span>Explore Ad Tools</span></a>
               </div>
             </div>
           </div>
@@ -409,8 +409,8 @@
                   <i class="bi bi-code-square"></i>
                 </div>
                 <div class="service-content">
-                  <h4><a href="service-details.html">Software Engineering</a></h4>
-                  <p>Lorem ipsum dolor sit amet consectetur adipiscing.</p>
+                <h4><a href="service-details.html">Ad Snaps</a></h4>
+                <p>Create image ads automatically using AI from a simple description—no designer needed.</p>
                 </div>
               </div><!-- End Service Item -->
 
@@ -419,8 +419,8 @@
                   <i class="bi bi-graph-up"></i>
                 </div>
                 <div class="service-content">
-                  <h4><a href="service-details.html">Business Analytics</a></h4>
-                  <p>Lorem ipsum dolor sit amet consectetur adipiscing.</p>
+                <h4><a href="service-details.html">Targeted Reach</a></h4>
+                <p>Your ads are shown to the right audience based on interests, categories, and behavior.</p>
                 </div>
               </div><!-- End Service Item -->
 
@@ -429,8 +429,8 @@
                   <i class="bi bi-phone"></i>
                 </div>
                 <div class="service-content">
-                  <h4><a href="service-details.html">Mobile Solutions</a></h4>
-                  <p>Lorem ipsum dolor sit amet consectetur adipiscing.</p>
+                <h4><a href="service-details.html">Ad Performance Tracking</a></h4>
+                <p>Track views, clicks, and engagement in real-time. Optimize campaigns with ease.</p>
                 </div>
               </div><!-- End Service Item -->
 
@@ -439,8 +439,8 @@
                   <i class="bi bi-gear"></i>
                 </div>
                 <div class="service-content">
-                  <h4><a href="service-details.html">Tech Infrastructure</a></h4>
-                  <p>Lorem ipsum dolor sit amet consectetur adipiscing.</p>
+                <h4><a href="service-details.html">Fast Activation</a></h4>
+                <p>Launch your ad in minutes. No setup hassle. Just Snap and Go.</p>
                 </div>
               </div><!-- End Service Item -->
             </div>
@@ -466,28 +466,30 @@
 
           <div class="col-lg-6" data-aos="fade-left" data-aos-delay="300">
             <div class="cta-content">
-              <h2>Transform Your Vision Into Reality Today</h2>
-              <p class="lead">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.</p>
+              <h2>Create Powerful Ads from Just a Description</h2>
+              <p class="lead">
+                    No graphic designer? No problem. Venusnap helps businesses generate eye-catching ad Snaps instantly—just describe your offer, and you're ready to go.
+                </p>
 
               <div class="cta-features">
                 <div class="feature-item" data-aos="zoom-in" data-aos-delay="400">
-                  <i class="bi bi-check-circle-fill"></i>
-                  <span>Lorem ipsum dolor sit amet consectetur</span>
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Instant image generation for ads</span>
                 </div>
                 <div class="feature-item" data-aos="zoom-in" data-aos-delay="450">
-                  <i class="bi bi-check-circle-fill"></i>
-                  <span>Praesent eget risus vitae massa</span>
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Smart targeting to reach the right audience</span>
                 </div>
                 <div class="feature-item" data-aos="zoom-in" data-aos-delay="500">
-                  <i class="bi bi-check-circle-fill"></i>
-                  <span>Aenean pretium nisi vel pulvinar</span>
+                <i class="bi bi-check-circle-fill"></i>
+                <span>No design skills needed—just type and go</span>
                 </div>
-              </div>
+            </div>
 
-              <div class="cta-action mt-5">
-                <a href="#" class="btn btn-primary btn-lg me-3">Get Started</a>
-                <a href="#" class="btn btn-outline-primary btn-lg">Learn More</a>
-              </div>
+            <div class="cta-action mt-5">
+                <a href="/ads" class="btn btn-primary btn-lg me-3">Start Creating Ads</a>
+                <a href="/learn-more" class="btn btn-outline-primary btn-lg">How It Works</a>
+            </div>
             </div>
           </div>
         </div>
@@ -643,228 +645,188 @@
 
     </section><!-- /Portfolio Section -->
 
-    <!-- Pricing Section -->
-    <section id="pricing" class="pricing section light-background">
+   <!-- App Download Section -->
+<section id="download" class="pricing section light-background">
 
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
-        <h2>Pricing</h2>
-        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
-      </div><!-- End Section Title -->
+  <!-- Section Title -->
+  <div class="container section-title" data-aos="fade-up">
+    <h2>Download Venusnap</h2>
+    <p>Experience Venusnap on your preferred platform. Start creating, sharing, and growing your influence today.</p>
+  </div><!-- End Section Title -->
 
-      <div class="container" data-aos="fade-up" data-aos-delay="100">
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
 
-        <div class="row g-4 justify-content-center">
+    <div class="row g-4 justify-content-center">
 
-          <!-- Basic Plan -->
-          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
-            <div class="pricing-card">
-              <h3>Basic Plan</h3>
-              <div class="price">
-                <span class="currency">$</span>
-                <span class="amount">9.9</span>
-                <span class="period">/ month</span>
-              </div>
-              <p class="description">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium totam.</p>
+      <!-- Android App -->
+      <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="pricing-card">
+          <h3>Android App</h3>
+          <div class="price">
+            <i class="bi bi-android2" style="font-size: 48px;"></i>
+          </div>
+          <p class="description">Download the official Venusnap app for Android and explore all the features with ease.</p>
 
-              <h4>Featured Included:</h4>
-              <ul class="features-list">
-                <li>
-                  <i class="bi bi-check-circle-fill"></i>
-                  Duis aute irure dolor
-                </li>
-                <li>
-                  <i class="bi bi-check-circle-fill"></i>
-                  Excepteur sint occaecat
-                </li>
-                <li>
-                  <i class="bi bi-check-circle-fill"></i>
-                  Nemo enim ipsam voluptatem
-                </li>
-              </ul>
+          <h4>Permissions Required:</h4>
+          <ul class="features-list">
+            <li><i class="bi bi-check-circle-fill"></i> Internet Access</li>
+            <li><i class="bi bi-check-circle-fill"></i> Storage (for saving media)</li>
+            <li><i class="bi bi-check-circle-fill"></i> Notifications</li>
+          </ul>
 
-              <a href="#" class="btn btn-primary">
-                Buy Now
-                <i class="bi bi-arrow-right"></i>
+          <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" class="btn btn-primary" target="_blank">
+            Download Now <i class="bi bi-arrow-down-circle"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- iOS App -->
+      <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="pricing-card">
+          <h3>iOS App</h3>
+          <div class="price">
+            <i class="bi bi-apple" style="font-size: 48px;"></i>
+          </div>
+          <p class="description">Coming soon to the App Store. Stay tuned for iOS support.</p>
+
+          <h4>Expected Permissions:</h4>
+          <ul class="features-list">
+            <li><i class="bi bi-check-circle"></i> Internet Access</li>
+            <li><i class="bi bi-check-circle"></i> Storage Access</li>
+            <li><i class="bi bi-check-circle"></i> Notifications</li>
+          </ul>
+
+          <a href="#" class="btn btn-outline-secondary disabled">
+            Coming Soon
+          </a>
+        </div>
+      </div>
+
+      <!-- Desktop App -->
+      <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+        <div class="pricing-card">
+          <h3>Desktop App</h3>
+          <div class="price">
+            <i class="bi bi-laptop" style="font-size: 48px;"></i>
+          </div>
+          <p class="description">A powerful desktop version is on its way for Windows, macOS, and Linux users.</p>
+
+          <h4>Expected Permissions:</h4>
+          <ul class="features-list">
+            <li><i class="bi bi-check-circle"></i> Internet Connection</li>
+            <li><i class="bi bi-check-circle"></i> Media Storage</li>
+          </ul>
+
+          <a href="#" class="btn btn-outline-secondary disabled">
+            Coming Soon
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</section><!-- /App Download Section -->
+
+
+   <!-- Faq Section -->
+<section id="faq" class="faq section">
+
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+    <div class="row gy-5">
+      <!-- Contact Info Card -->
+      <div class="col-lg-6" data-aos="zoom-out" data-aos-delay="200">
+        <div class="faq-contact-card">
+          <div class="card-icon">
+            <i class="bi bi-question-circle"></i>
+          </div>
+          <div class="card-content">
+            <h3>Still Have Questions?</h3>
+            <p>We’re here to help! If you have any issues installing the app or using our platform, feel free to reach out to us directly.</p>
+            <div class="contact-options">
+              <a href="mailto:support@yourapp.com" class="contact-option">
+                <i class="bi bi-envelope"></i>
+                <span>Email Support</span>
+              </a>
+              <a href="#" class="contact-option">
+                <i class="bi bi-chat-dots"></i>
+                <span>Live Chat</span>
+              </a>
+              <a href="tel:+123456789" class="contact-option">
+                <i class="bi bi-telephone"></i>
+                <span>Call Us</span>
               </a>
             </div>
           </div>
+        </div>
+      </div>
 
-          <!-- Standard Plan -->
-          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
-            <div class="pricing-card popular">
-              <div class="popular-badge">Most Popular</div>
-              <h3>Standard Plan</h3>
-              <div class="price">
-                <span class="currency">$</span>
-                <span class="amount">19.9</span>
-                <span class="period">/ month</span>
-              </div>
-              <p class="description">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum.</p>
+      <!-- FAQ Accordion -->
+      <div class="col-lg-6" data-aos="fade-up" data-aos-delay="300">
+        <div class="faq-accordion">
 
-              <h4>Featured Included:</h4>
-              <ul class="features-list">
-                <li>
-                  <i class="bi bi-check-circle-fill"></i>
-                  Lorem ipsum dolor sit amet
-                </li>
-                <li>
-                  <i class="bi bi-check-circle-fill"></i>
-                  Consectetur adipiscing elit
-                </li>
-                <li>
-                  <i class="bi bi-check-circle-fill"></i>
-                  Sed do eiusmod tempor
-                </li>
-                <li>
-                  <i class="bi bi-check-circle-fill"></i>
-                  Ut labore et dolore magna
-                </li>
-              </ul>
-
-              <a href="#" class="btn btn-light">
-                Buy Now
-                <i class="bi bi-arrow-right"></i>
-              </a>
+          <!-- Question 1 -->
+          <div class="faq-item faq-active">
+            <div class="faq-header">
+              <h3>Which platforms is the app available on?</h3>
+              <i class="bi bi-chevron-down faq-toggle"></i>
+            </div>
+            <div class="faq-content">
+              <p>
+                The app is currently available for Android users. iOS and Desktop versions are under development and will be released soon.
+              </p>
             </div>
           </div>
 
-          <!-- Premium Plan -->
-          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
-            <div class="pricing-card">
-              <h3>Premium Plan</h3>
-              <div class="price">
-                <span class="currency">$</span>
-                <span class="amount">39.9</span>
-                <span class="period">/ month</span>
-              </div>
-              <p class="description">Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae.</p>
+          <!-- Question 2 -->
+          <div class="faq-item">
+            <div class="faq-header">
+              <h3>What permissions does the Android app require?</h3>
+              <i class="bi bi-chevron-down faq-toggle"></i>
+            </div>
+            <div class="faq-content">
+              <p>
+                Our Android app may request the following permissions to enhance your experience: Internet Access, Notifications, Storage Access (for media), and Network State. We do not collect personal data without your consent.
+              </p>
+            </div>
+          </div>
 
-              <h4>Featured Included:</h4>
-              <ul class="features-list">
-                <li>
-                  <i class="bi bi-check-circle-fill"></i>
-                  Temporibus autem quibusdam
-                </li>
-                <li>
-                  <i class="bi bi-check-circle-fill"></i>
-                  Saepe eveniet ut et voluptates
-                </li>
-                <li>
-                  <i class="bi bi-check-circle-fill"></i>
-                  Nam libero tempore soluta
-                </li>
-                <li>
-                  <i class="bi bi-check-circle-fill"></i>
-                  Cumque nihil impedit quo
-                </li>
-                <li>
-                  <i class="bi bi-check-circle-fill"></i>
-                  Maxime placeat facere possimus
-                </li>
-              </ul>
+          <!-- Question 3 -->
+          <div class="faq-item">
+            <div class="faq-header">
+              <h3>Will I need to create an account to use the app?</h3>
+              <i class="bi bi-chevron-down faq-toggle"></i>
+            </div>
+            <div class="faq-content">
+              <p>
+                Yes, to get the best experience and access to all features, we recommend creating a free account. It helps us personalize your experience and keep your data secure.
+              </p>
+            </div>
+          </div>
 
-              <a href="#" class="btn btn-primary">
-                Buy Now
-                <i class="bi bi-arrow-right"></i>
-              </a>
+          <!-- Question 4 -->
+          <div class="faq-item">
+            <div class="faq-header">
+              <h3>Is there any cost to download or use the app?</h3>
+              <i class="bi bi-chevron-down faq-toggle"></i>
+            </div>
+            <div class="faq-content">
+              <p>
+                The app is free to download and use. In the future, we may introduce optional premium features, but core functionality will always remain free.
+              </p>
             </div>
           </div>
 
         </div>
-
       </div>
+    </div>
 
-    </section><!-- /Pricing Section -->
+  </div>
 
-    <!-- Faq Section -->
-    <section id="faq" class="faq section">
+</section>
 
-      <div class="container" data-aos="fade-up" data-aos-delay="100">
-
-        <div class="row gy-5">
-          <div class="col-lg-6" data-aos="zoom-out" data-aos-delay="200">
-            <div class="faq-contact-card">
-              <div class="card-icon">
-                <i class="bi bi-question-circle"></i>
-              </div>
-              <div class="card-content">
-                <h3>Still Have Questions?</h3>
-                <p>Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Vestibulum ac diam sit amet quam vehicula elementum.</p>
-                <div class="contact-options">
-                  <a href="#" class="contact-option">
-                    <i class="bi bi-envelope"></i>
-                    <span>Email Support</span>
-                  </a>
-                  <a href="#" class="contact-option">
-                    <i class="bi bi-chat-dots"></i>
-                    <span>Live Chat</span>
-                  </a>
-                  <a href="#" class="contact-option">
-                    <i class="bi bi-telephone"></i>
-                    <span>Call Us</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="300">
-            <div class="faq-accordion">
-              <div class="faq-item faq-active">
-                <div class="faq-header">
-                  <h3>Vivamus suscipit tortor eget felis porttitor volutpat?</h3>
-                  <i class="bi bi-chevron-down faq-toggle"></i>
-                </div>
-                <div class="faq-content">
-                  <p>
-                    Nulla quis lorem ut libero malesuada feugiat. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Curabitur aliquet quam id dui posuere blandit. Nulla porttitor accumsan tincidunt.
-                  </p>
-                </div>
-              </div><!-- End FAQ Item-->
-
-              <div class="faq-item" data-aos="zoom-in" data-aos-delay="200">
-                <div class="faq-header">
-                  <h3>Curabitur aliquet quam id dui posuere blandit?</h3>
-                  <i class="bi bi-chevron-down faq-toggle"></i>
-                </div>
-                <div class="faq-content">
-                  <p>
-                    Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Proin eget tortor risus. Mauris blandit aliquet elit, eget tincidunt nibh pulvinar.
-                  </p>
-                </div>
-              </div><!-- End FAQ Item-->
-
-              <div class="faq-item">
-                <div class="faq-header">
-                  <h3>Sed porttitor lectus nibh ullamcorper sit amet?</h3>
-                  <i class="bi bi-chevron-down faq-toggle"></i>
-                </div>
-                <div class="faq-content">
-                  <p>
-                    Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Donec sollicitudin molestie malesuada. Vestibulum ac diam sit amet quam vehicula elementum.
-                  </p>
-                </div>
-              </div><!-- End FAQ Item-->
-
-              <div class="faq-item">
-                <div class="faq-header">
-                  <h3>Nulla quis lorem ut libero malesuada feugiat?</h3>
-                  <i class="bi bi-chevron-down faq-toggle"></i>
-                </div>
-                <div class="faq-content">
-                  <p>
-                    Donec sollicitudin molestie malesuada. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel.
-                  </p>
-                </div>
-              </div><!-- End FAQ Item-->
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-    </section><!-- /Faq Section -->
 
     <!-- Team Section -->
     <section id="team" class="team section light-background">
@@ -1193,7 +1155,7 @@
                 <i class="bi bi-geo-alt"></i>
               </div>
               <h3>Our Address</h3>
-              <p>2847 Rainbow Road, Springfield, IL 62701, USA</p>
+              <p>444 Alaska Avenue, California, Suite #CEC468</p>
             </div>
           </div>
 
@@ -1203,8 +1165,8 @@
                 <i class="bi bi-telephone"></i>
               </div>
               <h3>Contact Number</h3>
-              <p>Mobile: +1 (555) 123-4567<br>
-                Email: info@example.com</p>
+              <p>Mobile: +1 681 435 4816<br>
+                Email: support@venusnap.com</p>
             </div>
           </div>
 
@@ -1213,9 +1175,9 @@
               <div class="icon-box">
                 <i class="bi bi-clock"></i>
               </div>
-              <h3>Opening Hour</h3>
-              <p>Monday - Saturday: 9:00 - 18:00<br>
-                Sunday: Closed</p>
+              <h3>Opening Hours</h3>
+              <p>24/7<br>
+                </p>
             </div>
           </div>
         </div>
