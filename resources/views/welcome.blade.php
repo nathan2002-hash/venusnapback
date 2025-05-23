@@ -544,10 +544,10 @@
            <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-ai">
   <div class="portfolio-card">
     <div class="portfolio-image">
-      <img src="{{ asset('assets1/img/portfolio/portfolio-2.webp') }}" class="img-fluid" alt="AI Art" loading="lazy">
+      <img src="{{ asset('assets1/img/portfolio/1.jpeg') }}" class="img-fluid" alt="AI Art" loading="lazy">
       <div class="portfolio-overlay">
         <div class="portfolio-actions">
-          <a href="{{ asset('assets1/img/portfolio/portfolio-2.webp') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
+          <a href="{{ asset('assets1/img/portfolio/1.jpeg') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
           <a href="https://venusnap.com/ai-gallery" class="details-link"><i class="bi bi-arrow-right"></i></a>
         </div>
       </div>
@@ -564,10 +564,10 @@
            <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-ads">
   <div class="portfolio-card">
     <div class="portfolio-image">
-      <img src="{{ asset('assets1/img/portfolio/portfolio-4.webp') }}" class="img-fluid" alt="Ad Creative" loading="lazy">
+      <img src="{{ asset('assets1/img/portfolio/2.jpeg') }}" class="img-fluid" alt="Ad Creative" loading="lazy">
       <div class="portfolio-overlay">
         <div class="portfolio-actions">
-          <a href="{{ asset('assets1/img/portfolio/portfolio-4.webp') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ads"><i class="bi bi-eye"></i></a>
+          <a href="{{ asset('assets1/img/portfolio/2.jpeg') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ads"><i class="bi bi-eye"></i></a>
           <a href="https://venusnap.com/ads/coffee-brand" class="details-link"><i class="bi bi-arrow-right"></i></a>
         </div>
       </div>
@@ -587,7 +587,7 @@
                   <img src="{{ asset('assets1/img/portfolio/portfolio-5.webp') }}" class="img-fluid" alt="" loading="lazy">
                   <div class="portfolio-overlay">
                     <div class="portfolio-actions">
-                      <a href="{{ asset('assets1/img/portfolio/portfolio-5.webp') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-brand"><i class="bi bi-eye"></i></a>
+                      <a href="{{ asset('assets1/img/portfolio/portfolio-7.webp') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-brand"><i class="bi bi-eye"></i></a>
                       <a href="portfolio-details.html" class="details-link"><i class="bi bi-arrow-right"></i></a>
                     </div>
                   </div>
