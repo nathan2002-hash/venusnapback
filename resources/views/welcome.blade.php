@@ -131,7 +131,7 @@
               </div>
                <div class="feature-content">
                     <h3 class="feature-title">Earn from Supporters</h3>
-                    <p class="feature-text">Turn likes into earnings with Venusnap Points. Fans can support you directly, one snap at a time.</p>
+                    <p class="feature-text">Turn admiration into earnings with Venusnap Points. Fans can support you directly, one snap at a time.</p>
                 </div>
             </div>
           </div>

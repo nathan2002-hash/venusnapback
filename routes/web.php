@@ -10,18 +10,21 @@ Route::get('/', function () {
     return view('user.welcome');
 });
 
- //terms routes
+$host = request()->header('host');
+$host = explode(':', $host)[0];
+
+if ($host === 'app.venusnap.com') {
+    Route::get('/home', 'HomeController@home');
+} else {
+    //Route::resource('home', MarketingHomeController::class);
+}
+
+//terms routes
 Route::get('/terms/of/service', 'HomeController@terms');
 Route::get('/terms/conditions', function () {
     return redirect('/terms/of/service');
 });
-
-// Route::get('/terms/conditions', function () {
-//     return redirect('/terms/of/service', 301); // 301 is permanent redirect
-// });
-
 Route::get('/privacy/policy', 'HomeController@privacy');
-Route::get('/home', 'HomeController@home');
 
 Route::middleware([
     'auth:sanctum',
