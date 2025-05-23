@@ -105,11 +105,11 @@
           <div class="col-lg-4 mb-4 mb-lg-0" data-aos="fade-up" data-aos-delay="200">
             <div class="feature-box">
               <div class="feature-icon me-sm-4 mb-3 mb-sm-0">
-                <i class="bi bi-gear"></i>
+                <i class="bi bi-lightning-charge"></i>
               </div>
               <div class="feature-content">
                 <h3 class="feature-title">Instant Publishing</h3>
-                <p class="feature-text">Upload your images, tell your story, and share with the world in seconds — no hassle, no noise.</p>
+                <p class="feature-text">Upload your snaps, tell your story, and share with the world in seconds — no hassle, no noise.</p>
             </div>
             </div>
           </div>
@@ -117,7 +117,7 @@
           <div class="col-lg-4 mb-4 mb-lg-0" data-aos="fade-up" data-aos-delay="300">
             <div class="feature-box">
               <div class="feature-icon me-sm-4 mb-3 mb-sm-0">
-                <i class="bi bi-window"></i>
+                <i class="bi bi-shield-lock"></i>
               </div>
                <div class="feature-content">
                     <h3 class="feature-title">Your Content, Protected</h3>
@@ -129,7 +129,7 @@
           <div class="col-lg-4" data-aos="fade-up" data-aos-delay="400">
             <div class="feature-box">
               <div class="feature-icon me-sm-4 mb-3 mb-sm-0">
-                <i class="bi bi-headset"></i>
+                <i class="bi bi-heart"></i>
               </div>
                <div class="feature-content">
                     <h3 class="feature-title">Earn from Supporters</h3>
@@ -157,8 +157,8 @@
             Venusnap is a creator-first platform designed to help individuals share meaningful visual stories, grow their following, and monetize through engagement.
             </p>
             <ul>
-            <li><i class="bi bi-check-circle"></i> <span>Share images, art, and designs in beautifully crafted albums.</span></li>
-            <li><i class="bi bi-check-circle"></i> <span>Get supported through likes, subscriptions, and Venusnap Points.</span></li>
+            <li><i class="bi bi-check-circle"></i> <span>Share snaps, art, and designs in beautifully crafted albums.</span></li>
+            <li><i class="bi bi-check-circle"></i> <span>Get supported through admires, subscriptions, and Venusnap Points.</span></li>
             <li><i class="bi bi-check-circle"></i> <span>Join a vibrant community of artists, photographers, and creatives who believe in the power of visual expression.</span></li>
             </ul>
             <a href="#" class="read-more"><span>Read More</span><i class="bi bi-arrow-right"></i></a>
@@ -194,7 +194,7 @@
       <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
         <h2>How We Work</h2>
-        <p>We make it simple for creators to share, grow, and earn — all in one place.</p>
+        <p>We make it simple for creators to share, grow, and preserve memories — all in one place.</p>
       </div><!-- End Section Title -->
 
       <div class="container" data-aos="fade-up" data-aos-delay="100">
@@ -207,11 +207,11 @@
                 <span class="step-number">01</span>
                 <div class="card-body">
                   <div class="step-icon">
-                    <i class="bi bi-pencil-square"></i>
+                    <i class="bi bi-person-plus"></i>
                   </div>
                   <div class="step-content">
                     <h3>Create Your Account</h3>
-                    <p>Sign up for free and set up your Venusnap profile as a creator, artist, or business.</p>
+                    <p>Sign up for free and set up your Venusnap profile as a creator, business, or personal album.</p>
                   </div>
                 </div>
               </div>
@@ -222,11 +222,11 @@
                 <span class="step-number">02</span>
                 <div class="card-body">
                   <div class="step-icon">
-                    <i class="bi bi-gear"></i>
+                    <i class="bi bi-images"></i>
                   </div>
                    <div class="step-content">
                         <h3>Post to Albums</h3>
-                        <p>Upload your photos, designs, or visuals and organize them into Albums that reflect your style and story.</p>
+                        <p>Upload your snaps, designs, or visuals and organize them into Albums that reflect your style and story.</p>
                     </div>
                 </div>
               </div>
@@ -237,7 +237,7 @@
                 <span class="step-number">03</span>
                 <div class="card-body">
                   <div class="step-icon">
-                    <i class="bi bi-search"></i>
+                    <i class="bi bi-people"></i>
                   </div>
                   <div class="step-content">
                         <h3>Grow Your Audience</h3>
@@ -256,7 +256,7 @@
                   </div>
                  <div class="step-content">
                     <h3>Monetize Your Content</h3>
-                    <p>Receive multiple likes, supporters, and points that convert into real earnings. Monetize your visuals effortlessly.</p>
+                    <p>Receive multiple admirers, supporters, and points that convert into real earnings. Monetize your visuals effortlessly.</p>
                 </div>
                 </div>
               </div>
@@ -292,7 +292,7 @@
                 <p>Create stunning albums—whether personal, business, or creative—and share your story with your audience through captivating visuals.</p>
                 <a href="#" class="service-link">
                 <span>Explore Albums</span>
-                <i class="bi bi-arrow-right"></i>
+                <i class="bi bi-images"></i>
                 </a>
             </div>
             </div>
@@ -301,11 +301,11 @@
           <div class="col-md-6" data-aos="fade-left" data-aos-delay="100">
             <div class="service-item">
               <div class="service-icon">
-                <i class="bi bi-phone-fill"></i>
+                <i class="bi bi-star"></i>
               </div>
               <div class="service-content">
-                <h3>Monetization Through Likes</h3>
-                <p>Users can support your content with paid likes, turning admiration into earnings. Every like has real value.</p>
+                <h3>Monetization Through visual</h3>
+                <p>Users can support your content with paid visuals, turning admiration into earnings. Every like has real value.</p>
                 <a href="#" class="service-link">
                 <span>Learn More</span>
                 <i class="bi bi-arrow-right"></i>
@@ -317,11 +317,11 @@
           <div class="col-md-6" data-aos="fade-right" data-aos-delay="200">
             <div class="service-item">
               <div class="service-icon">
-                <i class="bi bi-palette2"></i>
+                <i class="bi bi-people"></i>
               </div>
                <div class="service-content">
                 <h3>Follow & Support Creators</h3>
-                <p>Follow creators or brands you admire. Subscribe to albums and stay updated on their latest content while showing your support.</p>
+                <p>Follow creators or brands you admire. Support albums and stay updated on their latest content while showing your support.</p>
                 <a href="#" class="service-link">
                 <span>Support a Creator</span>
                 <i class="bi bi-arrow-right"></i>
@@ -333,11 +333,11 @@
           <div class="col-md-6" data-aos="fade-left" data-aos-delay="200">
             <div class="service-item">
               <div class="service-icon">
-                <i class="bi bi-bar-chart-line"></i>
+                <i class="bi bi-megaphone"></i>
               </div>
                <div class="service-content">
                     <h3>Adboard for Businesses</h3>
-                    <p>Advertise your products through image-based ads that stay active until your points run out. Pay only per view or click.</p>
+                    <p>Advertise your products through snap-based ads that stay active until your points run out. Pay only per view or click.</p>
                     <a href="#" class="service-link">
                     <span>Advertise on Venusnap</span>
                     <i class="bi bi-arrow-right"></i>
@@ -349,7 +349,7 @@
           <div class="col-md-6" data-aos="fade-right" data-aos-delay="300">
             <div class="service-item">
               <div class="service-icon">
-                <i class="bi bi-cloud-check"></i>
+                <i class="bi bi-tools"></i>
               </div>
               <div class="service-content">
                 <h3>Creator Tools</h3>
@@ -365,7 +365,7 @@
           <div class="col-md-6" data-aos="fade-left" data-aos-delay="300">
             <div class="service-item">
               <div class="service-icon">
-                <i class="bi bi-shield-lock"></i>
+                <i class="bi bi-globe2"></i>
               </div>
               <div class="service-content">
                 <h3>Global Reach</h3>
@@ -406,7 +406,7 @@
             <div class="services-list">
               <div class="service-item d-flex align-items-center" data-aos="fade-up" data-aos-delay="200">
                 <div class="service-icon">
-                  <i class="bi bi-code-square"></i>
+                  <i class="bi bi-megaphone-fill"></i>
                 </div>
                 <div class="service-content">
                 <h4><a href="service-details.html">Ad Snaps</a></h4>
@@ -416,7 +416,7 @@
 
               <div class="service-item d-flex align-items-center" data-aos="fade-up" data-aos-delay="300">
                 <div class="service-icon">
-                  <i class="bi bi-graph-up"></i>
+                  <i class="bi bi-bullseye"></i>
                 </div>
                 <div class="service-content">
                 <h4><a href="service-details.html">Targeted Reach</a></h4>
@@ -426,7 +426,7 @@
 
               <div class="service-item d-flex align-items-center" data-aos="fade-up" data-aos-delay="400">
                 <div class="service-icon">
-                  <i class="bi bi-phone"></i>
+                  <i class="bi bi-bar-chart"></i>
                 </div>
                 <div class="service-content">
                 <h4><a href="service-details.html">Ad Performance Tracking</a></h4>
@@ -436,7 +436,7 @@
 
               <div class="service-item d-flex align-items-center" data-aos="fade-up" data-aos-delay="500">
                 <div class="service-icon">
-                  <i class="bi bi-gear"></i>
+                  <i class="bi bi-lightning-charge"></i>
                 </div>
                 <div class="service-content">
                 <h4><a href="service-details.html">Fast Activation</a></h4>
@@ -1279,38 +1279,38 @@
           </ul>
         </div>
 
-        <div class="col-lg-2 col-md-3 footer-links">
-          <h4>Our Services</h4>
-          <ul>
-            <li><a href="#">Web Design</a></li>
-            <li><a href="#">Web Development</a></li>
-            <li><a href="#">Product Management</a></li>
-            <li><a href="#">Marketing</a></li>
-            <li><a href="#">Graphic Design</a></li>
-          </ul>
-        </div>
+       <div class="col-lg-2 col-md-3 footer-links">
+        <h4>Our Services</h4>
+        <ul>
+          <li><a href="#">Post & Share Visual Content</a></li>
+          <li><a href="#">Album Support</a></li>
+          <li><a href="#">Admire</a></li>
+          <li><a href="#">Venusnap Points</a></li>
+          <li><a href="#">Business Promotions</a></li>
+        </ul>
+      </div>
 
         <div class="col-lg-2 col-md-3 footer-links">
-          <h4>Hic solutasetp</h4>
-          <ul>
-            <li><a href="#">Molestiae accusamus iure</a></li>
-            <li><a href="#">Excepturi dignissimos</a></li>
-            <li><a href="#">Suscipit distinctio</a></li>
-            <li><a href="#">Dilecta</a></li>
-            <li><a href="#">Sit quas consectetur</a></li>
-          </ul>
-        </div>
+        <h4>Features of App</h4>
+        <ul>
+          <li><a href="#">Vertical Image Feed</a></li>
+          <li><a href="#">Swipeable Multi-Image Posts</a></li>
+          <li><a href="#">Customizable Albums</a></li>
+          <li><a href="#">Built-in Design Tools</a></li>
+          <li><a href="#">Verified Albums Priority</a></li>
+        </ul>
+      </div>
 
         <div class="col-lg-2 col-md-3 footer-links">
-          <h4>Nobis illum</h4>
-          <ul>
-            <li><a href="#">Ipsam</a></li>
-            <li><a href="#">Laudantium dolorum</a></li>
-            <li><a href="#">Dinera</a></li>
-            <li><a href="#">Trodelas</a></li>
-            <li><a href="#">Flexo</a></li>
-          </ul>
-        </div>
+        <h4>Permissions of App</h4>
+        <ul>
+          <li><a href="#">Access to Photos</a></li>
+          <li><a href="#">Camera Usage</a></li>
+          <li><a href="#">Internet Access</a></li>
+          <li><a href="#">Push Notifications</a></li>
+          <li><a href="#">Storage Access</a></li>
+        </ul>
+      </div>
 
       </div>
     </div>
@@ -1318,10 +1318,6 @@
     <div class="container copyright text-center mt-4">
       <p>© <span>Copyright</span> <strong class="px-1 sitename">Venusnap</strong> <span>All Rights Reserved</span></p>
       <div class="credits">
-        <!-- All the links in the footer should remain intact. -->
-        <!-- You can delete the links only if you've purchased the pro version. -->
-        <!-- Licensing information: https://bootstrapmade.com/license/ -->
-        <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
         Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
       </div>
     </div>
