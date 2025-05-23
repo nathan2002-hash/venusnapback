@@ -32,44 +32,62 @@ class CompressImageJob implements ShouldQueue
      */
     public function handle()
     {
-        $path = $this->postMedia->file_path;
-        $originalImage = Storage::disk('s3')->get($path);
+        try {
+            $path = $this->postMedia->file_path;
+            $originalImage = Storage::disk('s3')->get($path);
 
-        $manager = new ImageManager(new GdDriver());
-        $image = $manager->read($originalImage);
+            $manager = new ImageManager(new GdDriver());
+            $image = $manager->read($originalImage);
 
-        // Set a max width for resizing while keeping aspect ratio
-        $maxWidth = 2000; // Adjust based on Venusnap's needs
+            // Optimization parameters
+            $maxWidth = 2000;
+            $jpegQuality = 85; // Optimal balance for JPEG
+            $webpQuality = 90; // WebP can handle higher quality at smaller sizes
 
-        // Resize only if the image is larger than maxWidth
-        if ($image->width() > $maxWidth) {
-            $image = $image->scale(width: $maxWidth);
-        }
+            // Resize logic
+            if ($image->width() > $maxWidth) {
+                $image = $image->scale(width: $maxWidth);
+            }
 
-        // Compress to WebP with a lower quality for better performance
-        $compressedImage = $image->encode(new WebpEncoder(quality: 90)); // Reduce quality for smaller file size
+            // Generate both WebP and JPEG versions
+            $webpImage = $image->encode(new WebpEncoder(quality: $webpQuality));
+            $jpegImage = $image->encode(new JpegEncoder(quality: $jpegQuality));
 
-        // Store compressed image
-        $compressedPath = 'uploads/posts/compressed/' . basename($path);
-        Storage::disk('s3')->put($compressedPath, (string) $compressedImage);
+            // Generate unique filenames
+            $filename = pathinfo($path, PATHINFO_FILENAME);
+            $webpPath = "uploads/posts/compressed/{$filename}.webp";
+            $jpegPath = "uploads/posts/compressed/{$filename}.jpg";
 
-        // Update media record
-        $this->postMedia->update([
-            'status' => 'compressed',
-            'file_path_compress' => $compressedPath,
-        ]);
+            // Store compressed versions
+            //Storage::disk('s3')->put($webpPath, (string) $webpImage);
+            Storage::disk('s3')->put($jpegPath, (string) $jpegImage);
 
-        // Check if all media for the post are compressed
-        $post = $this->postMedia->post; // Assuming PostMedia belongsTo Post
+            // Update media record with both formats
+            $this->postMedia->update([
+                'status' => 'compressed',
+                'file_path_compress' => $jpegPath,
+                // 'file_path_jpg' => $jpegPath,
+                // 'original_filesize' => strlen($originalImage),
+                // 'compressed_filesize' => min(strlen((string) $webpImage), strlen((string) $jpegImage)),
+            ]);
 
-        $allCompressed = $post->postmedias()->where('status', '!=', 'compressed')->doesntExist();
+            $this->checkPostCompletion();
 
-        if ($allCompressed) {
-            $post->update(['status' => 'active']);
+        } catch (\Exception $e) {
+            Log::error("Image compression failed for media {$this->postMedia->id}: " . $e->getMessage());
+            $this->postMedia->update(['status' => 'failed']);
         }
     }
 
-    // public function handle()
+    protected function checkPostCompletion()
+    {
+        $post = $this->postMedia->post;
+
+        if ($post->postmedias()->where('status', '!=', 'compressed')->doesntExist()) {
+            $post->update(['status' => 'active']);
+        }
+    }
+        // public function handle()
     // {
     //     $path = $this->postMedia->file_path;
     //     $originalImage = Storage::disk('s3')->get($path);
