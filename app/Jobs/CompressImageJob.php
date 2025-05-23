@@ -47,7 +47,7 @@ class CompressImageJob implements ShouldQueue
         }
 
         // Compress to WebP with a lower quality for better performance
-        $compressedImage = $image->encode(new WebpEncoder(quality: 80)); // Reduce quality for smaller file size
+        $compressedImage = $image->encode(new WebpEncoder(quality: 90)); // Reduce quality for smaller file size
 
         // Store compressed image
         $compressedPath = 'uploads/posts/compressed/' . basename($path);
