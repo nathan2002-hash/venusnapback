@@ -58,13 +58,14 @@ class ProcessBatchEarningsJob implements ShouldQueue
 
             if ($user && $user->account && $amountToAdd > 0) {
                 $user->account->increment('available_balance', $amountToAdd);
-            }  
+            }
 
             // Step 4: Log earning entry with points or 0 if no points earned
             Earning::create([
                 'album_id' => $albumId,
                 'batch_id' => $this->batchId,
-                'earning' => $pointsEarned,
+                'earning' => $amountToAdd,
+                'points' => $pointsEarned,
                 'type' => 'ad_revenue',
                 'meta' => json_encode([
                     'fetched_post_ids' => $this->fetchedPosts,
