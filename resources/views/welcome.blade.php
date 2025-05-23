@@ -584,7 +584,7 @@
             <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-brand">
               <div class="portfolio-card">
                 <div class="portfolio-image">
-                  <img src="{{ asset('assets1/img/portfolio/portfolio-5.webp') }}" class="img-fluid" alt="" loading="lazy">
+                  <img src="{{ asset('assets1/img/portfolio/portfolio-7.webp') }}" class="img-fluid" alt="" loading="lazy">
                   <div class="portfolio-overlay">
                     <div class="portfolio-actions">
                       <a href="{{ asset('assets1/img/portfolio/portfolio-7.webp') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-brand"><i class="bi bi-eye"></i></a>
