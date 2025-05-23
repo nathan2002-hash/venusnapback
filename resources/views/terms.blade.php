@@ -131,7 +131,8 @@
 </head>
 <body>
     <header>
-        <h1>Terms and Conditions</h1>
+        <img src="{{ asset('assets1/img/logo.png') }}" width="50" alt="">
+        <h1>Venusnap Terms and Conditions</h1>
         <div class="last-updated">Last updated: June 15, 2025</div>
     </header>
 

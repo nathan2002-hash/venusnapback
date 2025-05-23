@@ -180,7 +180,8 @@
 </head>
 <body>
     <header>
-        <h1>Privacy Policy</h1>
+        <img src="{{ asset('assets1/img/logo.png') }}" width="50" alt="">
+        <h1>Venusnap Privacy Policy</h1>
         <div class="effective-date">Effective Date: June 15, 2025</div>
     </header>
 
