@@ -132,7 +132,7 @@
 <body>
     <header>
         <h1>Terms and Conditions</h1>
-        <div class="last-updated">Last updated: June 10, 2023</div>
+        <div class="last-updated">Last updated: June 15, 2025</div>
     </header>
 
     <div class="toc-container">
@@ -194,7 +194,7 @@
 
      <section id="content">
         <h2>5. User Content</h2>
-        <p> You retain ownership of the photos, videos, and other content you upload to Venusnap ("User
+        <p> You retain ownership of the photos, and other content you upload to Venusnap ("User
  Content"). However, by uploading content, you grant Venusnap a non-exclusive, royalty-free,
  worldwide license to use, display, and distribute your content on the platform for the purposes of
  operation and promotion.</p>

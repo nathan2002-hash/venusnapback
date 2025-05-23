@@ -181,12 +181,12 @@
 <body>
     <header>
         <h1>Privacy Policy</h1>
-        <div class="effective-date">Effective Date: June 15, 2023</div>
+        <div class="effective-date">Effective Date: June 15, 2025</div>
     </header>
 
     <div class="summary-box">
         <div class="summary-title">Policy Summary</div>
-        <p>This privacy policy explains how we collect, use, and protect your personal information when you use our services. We are committed to protecting your privacy and handling your data transparently and securely.</p>
+        <p>Venusnap respects your privacy and is committed to protecting the personal information you share with us. This Privacy Policy outlines how we collect, use, disclose, and safeguard your information when you use our platform and services, in accordance with the <b>Data Protection Act No. 3 of 2021 of Zambia</b>.</p>
     </div>
 
     <div class="toc-container">
@@ -194,9 +194,9 @@
         <ol class="toc-list">
             <li><a href="#information-we-collect">Information We Collect</a></li>
             <li><a href="#how-we-use-info">How We Use Information</a></li>
-            <li><a href="#cookies">Cookies and Tracking</a></li>
+            <li><a href="#legal-basis">Legal Basis for Processing</a></li>
             <li><a href="#data-sharing">Data Sharing</a></li>
-            <li><a href="#data-security">Data Security</a></li>
+            <li><a href="#data-storage">Data Storage and Security</a></li>
             <li><a href="#your-rights">Your Rights</a></li>
             <li><a href="#children">Children's Privacy</a></li>
             <li><a href="#changes">Policy Changes</a></li>
@@ -206,15 +206,17 @@
 
     <section id="information-we-collect">
         <h2>1. Information We Collect</h2>
-        <p>We collect several types of information from and about users of our services:</p>
+        <p>We collect the following types of personal data when you use Venusnap:</p>
 
         <h3>Personal Information</h3>
         <p>This may include:</p>
         <ul>
-            <li>Name and contact details (email, phone number, address)</li>
-            <li>Account credentials (username and password)</li>
-            <li>Payment information (for paid services)</li>
-            <li>Demographic information</li>
+            <li>Account Information: Name, username, email address, phone number, date of birth, country, password.</li>
+            <li>Photo and Media Content: Images, captions, and metadata associated with uploads.</li>
+            <li>Payment information (for payout services)</li>
+            <li>Usage Information: IP address, browser type, device information, and how you use our platform.</li>
+            <li>Location Data: If you enable location sharing, we may collect GPS data or approximate location based on IP.</li>
+            <li>Communications: Any correspondence with our support team or other users through the platform.</li>
         </ul>
 
         <h3>Usage Data</h3>
@@ -248,47 +250,84 @@
         <p>We use the information we collect for the following purposes:</p>
 
         <ul>
+            <li>To create and manage your account</li>
             <li>To provide and maintain our services</li>
-            <li>To improve and personalize user experience</li>
+            <li>To personalize your user experience</li>
             <li>To process transactions and send service-related communications</li>
-            <li>For security and fraud prevention</li>
-            <li>To comply with legal obligations</li>
+            <li>To ensure the safety and security of our platform</li>
+            <li>To comply with legal obligations under Zambian law</li>
+            <li>To improve our services and develop new features.</li>
         </ul>
 
         <p class="highlight">We will never sell your personal information to third parties.</p>
     </section>
 
-    <section id="cookies">
-        <h2>3. Cookies and Tracking Technologies</h2>
-        <p>We use cookies and similar tracking technologies to track activity on our service.</p>
+     <section id="legal-basis">
+        <h2>3. Legal Basis for Processing</h2>
+        <p class="highlight">We will never sell your personal information to third parties.</p>
 
-        <h3>Types of Cookies</h3>
         <ul>
-            <li><strong>Essential Cookies:</strong> Necessary for the website to function</li>
-            <li><strong>Performance Cookies:</strong> Help us understand how visitors interact</li>
-            <li><strong>Functional Cookies:</strong> Enable enhanced functionality</li>
-            <li><strong>Marketing Cookies:</strong> Used for advertising purposes</li>
+            <li>Your consent.</li>
+            <li>Fulfillment of a contract (e.g., account registration).</li>
+            <li>Legitimate interests (e.g., improving the platform, preventing fraud).</li>
+            <li>Compliance with legal obligations (e.g., responding to lawful requests).</li>
         </ul>
+    </section>
 
-        <p>You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent.</p>
+     <section id="sharing-disclosure">
+        <h2>4. Sharing and Disclosure</h2>
+        <p>We do not sell or rent your personal information. We may share your information:</p>
+
+        <ul>
+            <li>With service providers who assist us in operating Venusnap.</li>
+            <li>When required by law, court order, or legal process under Zambian jurisdiction.</li>
+            <li>To protect the rights, safety, or property of Venusnap, its users, or the public.</li>
+        </ul>
+    </section>
+
+    <section id="data-storage">
+        <h2>5. Data Storage and Security</h2>
+        <p>We implement reasonable and appropriate security measures to protect your personal data against unauthorized access, disclosure, alteration, or destruction. Data is stored on secure servers, and access is restricted to authorized personnel.</p>
+    </section>
+
+     <section id="your-rights">
+        <h2>6. Your Rights</h2>
+        <p>Under the Zambian Data Protection Act, you have the right to:</p>
+
+        <ul>
+            <li>Access your personal data.</li>
+            <li>Request correction or deletion of inaccurate data.</li>
+            <li>Object to processing under certain circumstances.</li>
+            <li>Withdraw consent at any time (without affecting past processing).</li>
+        </ul>
+        <p class="highlight">To exercise any of these rights, contact us at <a href="mailto:legal@venusnap.com">legal@venusnap.com</a></p>
+    </section>
+
+     <section id="retention-data">
+        <h2>7. Retention of Data</h2>
+        <p>We retain your personal data only as long as necessary to fulfill the purposes outlined in this policy, or as required by law.</p>
+    </section>
+
+    <section id="childrens">
+        <h2>8. Children's Privacy</h2>
+        <p>Venusnap is not intended for children under the age of 18. We do not knowingly collect personal data from individuals under 18. If we become aware of such collection, we will delete it immediately.</p>
+    </section>
+
+    <section id="changes">
+        <h2>9. Changes to This Privacy Policy</h2>
+        <p>We may update this policy from time to time. If significant changes are made, we will notify users via the platform or email.</p>
     </section>
 
     <!-- Additional sections would continue here -->
 
     <section id="contact">
-        <h2>9. Contact Us</h2>
+        <h2>10. Contact Us</h2>
         <p>If you have any questions about this privacy policy or our data practices:</p>
 
         <div class="contact-card">
             <p><strong>Data Protection Officer</strong><br>
-            Email: privacy@example.com<br>
-            Phone: +1 (555) 123-4567<br>
-            Address: 123 Privacy Lane, Data City, DC 12345</p>
-
-            <p>For EU residents, you may contact our EU representative:<br>
-            EU-Rep GmbH<br>
-            Privacy Avenue 1<br>
-            10115 Berlin, Germany</p>
+            Email: legal@venusnap.com<br>
+            Address: 444 Alaska Avenue, California, Suite #CEC468</p>
         </div>
     </section>
 
