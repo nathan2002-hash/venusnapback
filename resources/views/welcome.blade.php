@@ -44,7 +44,7 @@
 
       <a href="/" class="logo d-flex align-items-center me-auto me-xl-0">
         <!-- Uncomment the line below if you also wish to use an image logo -->
-        <!-- <img src="assets/img/logo.webp" alt=""> -->
+        <img src="{{ asset('assets1/img/logo.png') }}" alt="">
         <h1 class="sitename">Venusnap</h1><span>.</span>
       </a>
 
@@ -285,14 +285,14 @@
           <div class="col-md-6" data-aos="fade-right" data-aos-delay="100">
             <div class="service-item">
               <div class="service-icon">
-                <i class="bi bi-code-slash"></i>
+                <i class="bi bi-images"></i>
               </div>
               <div class="service-content">
                 <h3>Visual Albums</h3>
                 <p>Create stunning albums—whether personal, business, or creative—and share your story with your audience through captivating visuals.</p>
                 <a href="#" class="service-link">
                 <span>Explore Albums</span>
-                <i class="bi bi-images"></i>
+                <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
             </div>
@@ -320,8 +320,8 @@
                 <i class="bi bi-people"></i>
               </div>
                <div class="service-content">
-                <h3>Follow & Support Creators</h3>
-                <p>Follow creators or brands you admire. Support albums and stay updated on their latest content while showing your support.</p>
+                <h3>Support Creators</h3>
+                <p>Support creators or brands you admire. Support albums and stay updated on their latest content while showing your support.</p>
                 <a href="#" class="service-link">
                 <span>Support a Creator</span>
                 <i class="bi bi-arrow-right"></i>
@@ -395,7 +395,7 @@
               <h6 class="subtitle">Advertise Smarter</h6>
               <h2 class="title">Empowering Businesses to Reach the Right Audience</h2>
               <p class="description">
-                Venusnap is more than just a social platform — it's your next advertising powerhouse. Businesses can now create engaging photo Snaps, target the right audiences, and track performance in real time. Whether you're launching a product, promoting an event, or building your brand, Venusnap gives you the tools to connect directly with people who care.
+                Venusnap is more than just a social platform it's your next advertising powerhouse. Businesses can now create engaging Snaps, target the right audiences, and track performance in real time. Whether you're launching a product, promoting an event, or building your brand, Venusnap gives you the tools to connect directly with people who care.
             </p>
               <div class="button-wrapper">
                 <a class="btn" href="services.html"><span>Explore Ad Tools</span></a>
@@ -410,7 +410,7 @@
                 </div>
                 <div class="service-content">
                 <h4><a href="service-details.html">Ad Snaps</a></h4>
-                <p>Create image ads automatically using AI from a simple description—no designer needed.</p>
+                <p>Create image ads automatically using AI from a simple description no designer needed.</p>
                 </div>
               </div><!-- End Service Item -->
 
@@ -468,7 +468,7 @@
             <div class="cta-content">
               <h2>Create Powerful Ads from Just a Description</h2>
               <p class="lead">
-                    No graphic designer? No problem. Venusnap helps businesses generate eye-catching ad Snaps instantly—just describe your offer, and you're ready to go.
+                    No graphic designer? No problem. Venusnap helps businesses generate eye-catching ad Snaps instantly just describe your offer, and you're ready to go.
                 </p>
 
               <div class="cta-features">
@@ -482,7 +482,7 @@
                 </div>
                 <div class="feature-item" data-aos="zoom-in" data-aos-delay="500">
                 <i class="bi bi-check-circle-fill"></i>
-                <span>No design skills needed—just type and go</span>
+                <span>No design skills needed just type and go</span>
                 </div>
             </div>
 
@@ -1271,11 +1271,11 @@
         <div class="col-lg-2 col-md-3 footer-links">
           <h4>Useful Links</h4>
           <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">About us</a></li>
-            <li><a href="#">Services</a></li>
-            <li><a href="#">Terms of service</a></li>
-            <li><a href="#">Privacy policy</a></li>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About us</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="/terms/condition">Terms of service</a></li>
+            <li><a href="/privacy/policy">Privacy policy</a></li>
           </ul>
         </div>
 

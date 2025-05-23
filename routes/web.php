@@ -11,7 +11,8 @@ Route::get('/', function () {
 });
 
  //terms routes
-Route::get('/terms', 'HomeController@terms');
+Route::get('/terms/conditions', 'HomeController@terms');
+Route::get('/privacy/policy', 'HomeController@policy');
 Route::get('/home', 'HomeController@home');
 
 Route::middleware([
