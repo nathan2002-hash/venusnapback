@@ -328,8 +328,8 @@ class PostController extends Controller
         // Update post details
         $post->update([
             'description' => $request->description,
-            'type' => $request->type,
-            'categoy_id' => $request->type,
+            'type' => $request->type_id,
+            'categoy_id' => $request->type_id,
             'album_id' => $request->album_id,
             'visibility' => $request->visibility,
         ]);
