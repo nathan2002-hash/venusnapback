@@ -75,6 +75,7 @@
 	<div class="form-container sign-in-container">
 		<form method="POST" action="{{ route('login') }}">
             @csrf
+            <center><img src="{{ asset('assets1/img/logo.png') }}" width="50" alt=""></center>
 			<h3>Venusnap Sign in</h3>
 			<input name="email" type="email" placeholder="Email" />
 			<input name="password" type="password" placeholder="Password" />
