@@ -75,16 +75,9 @@
 	<div class="form-container sign-in-container">
 		<form method="POST" action="{{ route('login') }}">
             @csrf
-			<h1>Venusnap Sign in</h1>
-			<div class="social-container">
-				<a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
-				<a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
-				<a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
-			</div>
-			<span>or use your account</span>
-			<input type="email" placeholder="Email" />
-			<input type="password" placeholder="Password" />
-			<a href="#">Forgot your password?</a>
+			<h3>Venusnap Sign in</h3>
+			<input name="email" type="email" placeholder="Email" />
+			<input name="password" type="password" placeholder="Password" />
 			<button type="submit">Sign In</button>
 		</form>
 	</div>
@@ -93,7 +86,7 @@
 			<div class="overlay-panel overlay-left">
 				<h1>Welcome Back!</h1>
 				<p>To keep connected with us please login with your personal info</p>
-				<button class="ghost" id="signIn">Sign In</button>
+				<button class="ghost">Venusnap</button>
 			</div>
 			<div class="overlay-panel overlay-right">
 				<h1>Hello, Friend!</h1>
@@ -152,8 +145,8 @@ a {
 
 button {
 	border-radius: 20px;
-	border: 1px solid #FF4B2B;
-	background-color: #FF4B2B;
+	border: 1px solid #7C4DFF;
+	background-color: #7C4DFF;
 	color: #FFFFFF;
 	font-size: 12px;
 	font-weight: bold;
@@ -266,9 +259,9 @@ input {
 }
 
 .overlay {
-	background: #FF416C;
-	background: -webkit-linear-gradient(to right, #FF4B2B, #FF416C);
-	background: linear-gradient(to right, #FF4B2B, #FF416C);
+	background: #7C4DFF;
+	background: -webkit-linear-gradient(to right, #7C4DFF, #7C4DFF);
+	background: linear-gradient(to right, #7C4DFF, #7C4DFF);
 	background-repeat: no-repeat;
 	background-size: cover;
 	background-position: 0 0;
