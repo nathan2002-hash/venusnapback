@@ -10,15 +10,6 @@ Route::get('/', function () {
     return view('user.welcome');
 });
 
-$host = request()->header('host');
-$host = explode(':', $host)[0];
-
-if ($host === 'app.venusnap.com') {
-    Route::get('/home', 'HomeController@home');
-} else {
-    //Route::resource('home', MarketingHomeController::class);
-}
-
 //terms routes
 Route::get('/terms/of/service', 'HomeController@terms');
 Route::get('/terms/conditions', function () {
@@ -39,6 +30,13 @@ Route::middleware([
 Route::get('/test-backblaze-connection', 'Api\PostController@testConnection');
 
 Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
+    $host = request()->header('host');
+    $host = explode(':', $host)[0];
+    if ($host === 'app.venusnap.com') {
+        Route::get('/home', 'HomeController@home');
+    } else {
+        //Route::resource('home', MarketingHomeController::class);
+    }
     Route::get('/welcome', 'Admin\WelcomeController@index')->name('dashboard');
 
     //user routes
