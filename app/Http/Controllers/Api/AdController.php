@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Ad;
 use Carbon\Carbon;
 use App\Models\Adboard;
-use App\Models\User;
+use App\Models\AdState;
 use App\Models\Album;
 use App\Models\AdClick;
 use App\Models\AdMedia;
@@ -153,6 +153,17 @@ class AdController extends Controller
                 'description' => $request->description,
                 'status' => 'active',
                 'target' => $targetData['type'], // Set target type from the data
+            ]);
+
+            AdState::create([
+                'ad_id' => $ad->id,
+                'action' => 'ad_created',
+                'user_id' => Auth::user()->id,
+                'initiator' => 'user',
+                'points' => $ad->adboard->points,
+                'meta' => json_encode([
+                    'note' => 'Adboard created but not published yet.'
+                ]),
             ]);
 
             // Attach categories
@@ -684,6 +695,17 @@ class AdController extends Controller
             $adboard->status = $request->status;
             $adboard->save();
 
+            AdState::create([
+                'ad_id' => $ad->id,
+                'action' => $request->status,
+                'user_id' => Auth::user()->id,
+                'initiator' => 'user',
+                'points' => $ad->adboard->points,
+                'meta' => json_encode([
+                    'note' => 'Adboard created but not published yet.'
+                ]),
+            ]);
+
             DB::commit();
 
             return response()->json([
@@ -736,6 +758,16 @@ class AdController extends Controller
             $adboard->status = 'deleted';
             $adboard->save();
 
+            AdState::create([
+                'ad_id' => $ad->id,
+                'action' => 'deleted',
+                'user_id' => Auth::user()->id,
+                'initiator' => 'user',
+                'points' => $ad->adboard->points,
+                'meta' => json_encode([
+                    'note' => 'Adboard and Ad Deleted by User'
+                ]),
+            ]);
             // Record transaction
             PointTransaction::create([
                 'user_id' => $user->id,
@@ -795,82 +827,82 @@ class AdController extends Controller
 
 
     public function update(Request $request, $id)
-{
-    $ad = Ad::findOrFail($id);
-    $adBoard = AdBoard::findOrFail($ad->adboard_id);
-    $album = Album::findOrFail($adBoard->album_id);
+    {
+        $ad = Ad::findOrFail($id);
+        $adBoard = AdBoard::findOrFail($ad->adboard_id);
+        $album = Album::findOrFail($adBoard->album_id);
 
-    // Authorization check
-    if (Auth::user()->id !== $album->user_id) {
-        return response()->json(['message' => 'Unauthorized'], 403);
-    }
-
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'points' => 'required|integer|min:1',
-        'status' => 'required|in:active,inactive',
-        'album_id' => 'required|exists:albums,id',
-    ]);
-
-    $user = Auth::user();
-    $pointsDifference = $validated['points'] - $adBoard->points;
-
-    if ($pointsDifference > 0) {
-        if ($user->points < $pointsDifference) {
-            return response()->json([
-                'message' => 'Not enough points available'
-            ], 422);
+        // Authorization check
+        if (Auth::user()->id !== $album->user_id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $user->decrement('points', $pointsDifference);
-
-        PointTransaction::create([
-            'user_id' => $user->id,
-            'resource_id' => $ad->id,
-            'points' => -$pointsDifference,
-            'type' => 'ad_points_allocation',
-            'status' => 'completed',
-            'balance_after' => $user->fresh()->points,
-            'description' => "Allocated $pointsDifference additional points to ad",
-            'metadata' => json_encode([
-                'ad_id' => $ad->id,
-                'adboard_id' => $adBoard->id,
-                'previous_points' => $adBoard->points,
-                'new_points' => $validated['points'],
-            ])
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'points' => 'required|integer|min:1',
+            'status' => 'required|in:active,inactive',
+            'album_id' => 'required|exists:albums,id',
         ]);
-    } elseif ($pointsDifference < 0) {
-        $refundAmount = abs($pointsDifference);
-        $user->increment('points', $refundAmount);
 
-        PointTransaction::create([
-            'user_id' => $user->id,
-            'resource_id' => $ad->id,
-            'points' => $refundAmount,
-            'type' => 'ad_points_refund',
-            'status' => 'completed',
-            'balance_after' => $user->fresh()->points,
-            'description' => "Refunded $refundAmount points from ad",
-            'metadata' => json_encode([
-                'ad_id' => $ad->id,
-                'adboard_id' => $adBoard->id,
-                'previous_points' => $adBoard->points,
-                'new_points' => $validated['points'],
-            ])
+        $user = Auth::user();
+        $pointsDifference = $validated['points'] - $adBoard->points;
+
+        if ($pointsDifference > 0) {
+            if ($user->points < $pointsDifference) {
+                return response()->json([
+                    'message' => 'Not enough points available'
+                ], 422);
+            }
+
+            $user->decrement('points', $pointsDifference);
+
+            PointTransaction::create([
+                'user_id' => $user->id,
+                'resource_id' => $ad->id,
+                'points' => -$pointsDifference,
+                'type' => 'ad_points_allocation',
+                'status' => 'completed',
+                'balance_after' => $user->fresh()->points,
+                'description' => "Allocated $pointsDifference additional points to ad",
+                'metadata' => json_encode([
+                    'ad_id' => $ad->id,
+                    'adboard_id' => $adBoard->id,
+                    'previous_points' => $adBoard->points,
+                    'new_points' => $validated['points'],
+                ])
+            ]);
+        } elseif ($pointsDifference < 0) {
+            $refundAmount = abs($pointsDifference);
+            $user->increment('points', $refundAmount);
+
+            PointTransaction::create([
+                'user_id' => $user->id,
+                'resource_id' => $ad->id,
+                'points' => $refundAmount,
+                'type' => 'ad_points_refund',
+                'status' => 'completed',
+                'balance_after' => $user->fresh()->points,
+                'description' => "Refunded $refundAmount points from ad",
+                'metadata' => json_encode([
+                    'ad_id' => $ad->id,
+                    'adboard_id' => $adBoard->id,
+                    'previous_points' => $adBoard->points,
+                    'new_points' => $validated['points'],
+                ])
+            ]);
+        }
+
+        $adBoard->update($validated);
+        $adBoard->status = 'review';
+        $adBoard->save();
+
+        return response()->json([
+            'message' => 'Ad board updated successfully',
+            'adboard' => $adBoard,
+            'ad_id' => $ad->id
         ]);
     }
-
-    $adBoard->update($validated);
-    $adBoard->status = 'review';
-    $adBoard->save();
-
-    return response()->json([
-        'message' => 'Ad board updated successfully',
-        'adboard' => $adBoard,
-        'ad_id' => $ad->id
-    ]);
-}
 
     public function editads($id)
     {
@@ -933,84 +965,84 @@ class AdController extends Controller
     }
 
     public function adupdate(Request $request, $id)
-{
-    DB::beginTransaction();
-    try {
-        $ad = Ad::findOrFail($id);
+    {
+        DB::beginTransaction();
+        try {
+            $ad = Ad::findOrFail($id);
 
-        $adboard = Adboard::findOrFail($ad->adboard_id);
-        // Decode JSON fields
-        $categories = json_decode($request->categories, true);
-        $targetData = json_decode($request->target_data, true);
+            $adboard = Adboard::findOrFail($ad->adboard_id);
+            // Decode JSON fields
+            $categories = json_decode($request->categories, true);
+            $targetData = json_decode($request->target_data, true);
 
-        // Update ad with validated data
-        $ad->update([
-            'cta_name' => $request->cta_name,
-            'cta_link' => $request->cta_link,
-            'cta_type' => $request->cta_type,
-            'description' => $request->description,
-            'target' => $targetData['target'] ?? 'all_region',
-            'status' => 'review',
-        ]);
+            // Update ad with validated data
+            $ad->update([
+                'cta_name' => $request->cta_name,
+                'cta_link' => $request->cta_link,
+                'cta_type' => $request->cta_type,
+                'description' => $request->description,
+                'target' => $targetData['target'] ?? 'all_region',
+                'status' => 'review',
+            ]);
 
-        $adboard->update([
-            'status' => 'review',
-        ]);
+            $adboard->update([
+                'status' => 'review',
+            ]);
 
-        // Sync categories
-        $ad->categories()->sync($categories);
+            // Sync categories
+            $ad->categories()->sync($categories);
 
-        // Process target data
-        $ad->targets()->delete();
-        $this->processTargetData($ad, $targetData);
+            // Process target data
+            $ad->targets()->delete();
+            $this->processTargetData($ad, $targetData);
 
-        // Process media files if they exist in request
-        $mediaToKeep = [];
+            // Process media files if they exist in request
+            $mediaToKeep = [];
 
-        if ($request->has('media')) {
-            foreach ($request->media as $index => $media) {
-                $sequenceOrder = $index + 1;
+            if ($request->has('media')) {
+                foreach ($request->media as $index => $media) {
+                    $sequenceOrder = $index + 1;
 
-                if (isset($media['id'])) {
-                    // Update existing media sequence
-                    AdMedia::where('id', $media['id'])
-                        ->update(['sequence_order' => $sequenceOrder]);
-                    $mediaToKeep[] = $media['id'];
-                } else {
-                    // Validate new media file
-                    if (!isset($media['file'])) {
-                        throw new \Exception('Media file is required');
+                    if (isset($media['id'])) {
+                        // Update existing media sequence
+                        AdMedia::where('id', $media['id'])
+                            ->update(['sequence_order' => $sequenceOrder]);
+                        $mediaToKeep[] = $media['id'];
+                    } else {
+                        // Validate new media file
+                        if (!isset($media['file'])) {
+                            throw new \Exception('Media file is required');
+                        }
+
+                        $path = $media['file']->store('ads/media/original', 's3');
+
+                        $newMedia = AdMedia::create([
+                            'ad_id' => $ad->id,
+                            'file_path' => $path,
+                            'sequence_order' => $sequenceOrder,
+                            'status' => 'active',
+                            'type' => 'active',
+                        ]);
+                        AdImageCompress::dispatch($newMedia->fresh());
+                        $mediaToKeep[] = $newMedia->id;
                     }
-
-                    $path = $media['file']->store('ads/media/original', 's3');
-
-                    $newMedia = AdMedia::create([
-                        'ad_id' => $ad->id,
-                        'file_path' => $path,
-                        'sequence_order' => $sequenceOrder,
-                        'status' => 'active',
-                        'type' => 'active',
-                    ]);
-                    AdImageCompress::dispatch($newMedia->fresh());
-                    $mediaToKeep[] = $newMedia->id;
                 }
+
+                // Delete any media not included in the update
+                $ad->media()
+                ->whereNotIn('id', $mediaToKeep)
+                ->delete();
             }
 
-            // Delete any media not included in the update
-            $ad->media()
-               ->whereNotIn('id', $mediaToKeep)
-               ->delete();
+            DB::commit();
+            return response()->json([
+                'message' =>'Ad updated successfully',
+                'id' => $ad->id,
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        DB::commit();
-        return response()->json([
-            'message' =>'Ad updated successfully',
-            'id' => $ad->id,
-        ], 200);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json(['error' => $e->getMessage()], 500);
     }
-}
 }

@@ -5,26 +5,28 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Ad;
 use App\Models\Adboard;
+use App\Models\AdState;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class AdController extends Controller
 {
     public function index()
-{
-    $ads = Ad::with(['adboard.album', 'media'])
-             ->orderBy('created_at', 'desc')
-             ->paginate(30);
+    {
+        $ads = Ad::with(['adboard.album', 'media'])
+                ->orderBy('created_at', 'desc')
+                ->paginate(30);
 
-    $transformedAds = $this->transformAds($ads);
+        $transformedAds = $this->transformAds($ads);
 
-    return view('admin.ads.index', [
-       'ads' => $ads,
-       'transformedAds' => $transformedAds
-    ]);
-}
+        return view('admin.ads.index', [
+        'ads' => $ads,
+        'transformedAds' => $transformedAds
+        ]);
+    }
 
-     private function transformAds($ads)
+    private function transformAds($ads)
     {
         return $ads->map(function ($ad) {
             $album = $ad->adboard->album ?? null;
@@ -72,6 +74,20 @@ class AdController extends Controller
         $ad->adboard->update([
             'status' => $request->status,
         ]);
+
+        $action = $request->status === 'active' ? 'published' : 'rejected';
+
+        AdState::create([
+            'ad_id' => $ad->id,
+            'action' => $action,
+            'user_id' => Auth::user()->id,
+            'initiator' => 'admin',
+            'points' => $ad->adboard->points,
+            'meta' => json_encode([
+                'note' => $action === 'published' ? 'Adboard and Ad published.' : 'Ad was rejected by admin.'
+            ]),
+        ]);
+
 
         return response()->json(['success' => true, 'message' => 'Ad status updated successfully.']);
     }
