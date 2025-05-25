@@ -577,6 +577,7 @@ class PostController extends Controller
         $page = $request->query('page', 1);
 
         $posts = $user->posts()
+            ->where('status', 'active') // Only include active posts
             ->with(['postMedias', 'album']) // Load album details
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
