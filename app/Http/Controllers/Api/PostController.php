@@ -217,8 +217,8 @@ class PostController extends Controller
         $post = new Post();
         $post->user_id = Auth::user()->id; // Assign authenticated user's ID
         $post->description = $request->description;
-        $post->type = $request->type;
-        $post->category_id = $request->type;
+        // $post->type = $request->type;
+        // $post->category_id = $request->type;
         $post->album_id = $request->album_id;
         $post->visibility = $request->visibility;
         $post->save();
@@ -251,8 +251,8 @@ class PostController extends Controller
         return response()->json([
             'id' => $post->id,
             'description' => $post->description,
-            'type' => $post->category->name,
-            'type_id' => $post->category->id,
+            // 'type' => $post->category->name,
+            // 'type_id' => $post->category->id,
             'album_id' => $post->album_id,
             'album' => $post->album->name,
             'visibility' => $post->visibility,
@@ -328,8 +328,8 @@ class PostController extends Controller
         // Update post details
         $post->update([
             'description' => $request->description,
-            'type' => $request->type_id,
-            'categoy_id' => $request->type_id,
+            // 'type' => $request->type_id,
+            // 'categoy_id' => $request->type_id,
             'album_id' => $request->album_id,
             'visibility' => $request->visibility,
         ]);

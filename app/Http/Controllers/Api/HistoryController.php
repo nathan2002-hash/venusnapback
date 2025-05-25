@@ -33,17 +33,17 @@ class HistoryController extends Controller
     foreach ($groupedByDate as $date => $viewsOnDate) {
         // Get the first view of this date group for the date formatting
         $firstViewOfDate = $viewsOnDate->first();
-        
+
         // Now group these views by post ID
         $groupedByPost = $viewsOnDate->groupBy(fn($view) => $view->postMedia->post->id ?? null)
             ->map(function ($views) {
                 $firstView = $views->first();
                 $post = $firstView->postMedia->post ?? null;
-                
-                if (!$post) {
+
+                if (!$post || $post->status !== 'active') {
                     return null;
                 }
-                
+
                 $album = $post->album ?? null;
 
                 $totalAdmireCount = Admire::whereIn('post_media_id', $post->postmedias->pluck('id'))->count();

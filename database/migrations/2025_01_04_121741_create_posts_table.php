@@ -16,11 +16,12 @@ return new class extends Migration
             $table->string('user_id');
             $table->longText('description');
             $table->string('album_id');
-            $table->string('type');
+            $table->string('type')->nullable();
             $table->string('ag_type');
             $table->string('status');
             $table->longText('ag_description');
             $table->string('visibility');
+            $table->string('category_id')->nullable();
             $table->timestamps();
         });
     }
