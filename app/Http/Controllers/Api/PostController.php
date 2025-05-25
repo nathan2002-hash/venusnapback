@@ -5,25 +5,26 @@ namespace App\Http\Controllers\Api;
 use Carbon\Carbon;
 use App\Models\Post;
 use App\Models\Saved;
-use App\Models\Category;
 use App\Models\Admire;
 use App\Models\Report;
+use App\Models\Artwork;
 use App\Models\Comment;
+use App\Models\Category;
 use App\Models\PostMedia;
+use App\Models\PostState;
 use App\Models\AlbumAccess;
+use Illuminate\Support\Str;
 use App\Models\CommentReply;
 use Illuminate\Http\Request;
 use App\Jobs\CompressImageJob;
 use App\Jobs\LogPostMediaView;
 use App\Models\Recommendation;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
-use App\Models\Artwork;
-use App\Models\PostState;
 
 class PostController extends Controller
 {
@@ -196,29 +197,53 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user(); // Get authenticated user
+        $user = Auth::user();
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        // $validator = Validator::make($request->all(), [
-        //     'description' => 'required|string|max:200',
-        //     'type' => 'required',
-        //     'visibility' => 'required|string|in:Public,Private,Friends Only',
-        //     'post_medias' => 'required|array',
-        //     'post_medias.*.file' => 'required|file|mimes:jpeg,png,jpg,webp|max:2048',
-        //     'post_medias.*.sequence_order' => 'required|integer',
-        // ]);
+        // Get all categories with their names and descriptions
+        $categories = Category::select('id', 'name', 'description')->get();
 
-        // if ($validator->fails()) {
-        //     return response()->json(['errors' => $validator->errors()], 422);
-        // }
+        //$postDescription = strtolower($request->description);
+        $postDescription = strtolower(preg_replace('/[^a-z0-9\s]/', '', $request->description));
+        $matchedCategory = null;
+        $bestScore = 0;
+
+        $stopwords = ['the', 'with', 'from', 'this', 'that', 'have', 'your', 'about'];
+
+        // Analyze each category for keyword matches
+        foreach ($categories as $category) {
+            $keywords = array_merge(
+                explode(' ', strtolower($category->name)),
+                explode(' ', strtolower($category->description))
+            );
+
+            $score = 0;
+            foreach ($keywords as $keyword) {
+                if (strlen($keyword) > 3 && !in_array($keyword, $stopwords) && Str::contains($postDescription, $keyword)) {
+                    $score++;
+                }
+            }
+
+            if ($score > $bestScore) {
+                $bestScore = $score;
+                $matchedCategory = $category;
+            }
+        }
+
+        // Fallback to random category if no good match found
+        if (!$matchedCategory || $bestScore < 1) {
+            $matchedCategory = Category::inRandomOrder()->first();
+        }
 
         // Create the post
         $post = new Post();
         $post->user_id = Auth::user()->id; // Assign authenticated user's ID
         $post->description = $request->description;
-        // $post->type = $request->type;
-        // $post->category_id = $request->type;
+        // Randomly select type and category from the arrays
+        $post->type = $matchedCategory->id;
+        $post->category_id = $matchedCategory->id;
         $post->album_id = $request->album_id;
         $post->visibility = $request->visibility;
         $post->save();
