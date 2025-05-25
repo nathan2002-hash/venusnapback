@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="{{ asset('assets1/img/logo.png') }}" rel="icon">
-    <link href="{{ asset('assets1/img/logo.png') }}" rel="apple-touch-icon">
+    <link href="{{ asset('assets1/img/logo1.png') }}" rel="icon">
+    <link href="{{ asset('assets1/img/logo1.png') }}" rel="apple-touch-icon">
     <title>Privacy Policy</title>
     <style>
         :root {
@@ -182,7 +182,7 @@
 </head>
 <body>
     <header>
-        <img src="{{ asset('assets1/img/logo.png') }}" width="50" alt="">
+        <img src="{{ asset('assets1/img/logo1.png') }}" width="50" alt="">
         <h1>Venusnap Privacy Policy</h1>
         <div class="effective-date">Effective Date: June 15, 2025</div>
     </header>
