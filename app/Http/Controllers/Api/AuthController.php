@@ -32,54 +32,88 @@ class AuthController extends Controller
     {
         // Validate the request
         $request->validate([
-            'email' => 'required|email',
+            'login' => 'required|string',
             'password' => 'required',
+            'type' => 'sometimes|in:email,phone'
         ]);
+
         $userAgent = $request->header('User-Agent');
         $deviceinfo = $request->header('Device-Info');
         $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
         $ipaddress = $realIp;
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            $user = User::where('email', $request->email)->first();
+        // Determine login type and prepare credentials
+        $login = $request->input('login');
+        $type = $request->input('type') ?? (filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone');
+
+        $credentials = ['password' => $request->password];
+        $loginField = $type === 'email' ? 'email' : 'phone';
+        $credentials[$loginField] = $this->sanitizeLoginInput($login, $type);
+
+        // Attempt authentication
+        if (!Auth::attempt($credentials)) {
+            $user = User::where('email', $login)
+                    ->orWhere('phone', $this->sanitizePhone($login))
+                    ->first();
+
             if ($user) {
-                // Dispatch the login failed activity to the queue
-                LoginActivityJob::dispatch($user, false, 'Failed login attempt due to incorrect password.', 'Login Failed', $userAgent, $ipaddress, $deviceinfo);
+                LoginActivityJob::dispatch(
+                    $user,
+                    false,
+                    'Failed login attempt due to incorrect password.',
+                    'Login Failed',
+                    $userAgent,
+                    $ipaddress,
+                    $deviceinfo
+                );
             }
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        // Retrieve the authenticated user
         $user = Auth::user();
 
+        // Check account status
         if ($user->status === 'deletion') {
             return response()->json(['error' => 'Your account is queued for deletion.'], 403);
-        } elseif ($user->status === 'locked') {
+        }
+        if ($user->status === 'locked') {
             return response()->json(['error' => 'Your account is locked. Contact support.'], 403);
-        } elseif ($user->status !== 'active') {
+        }
+        if ($user->status !== 'active') {
             return response()->json(['error' => 'Account not active.'], 403);
         }
 
-        // Create a token for the user
+        // Create token
         $token = $user->createToken('authToken');
 
-        LoginActivityJob::dispatch($user, true, 'You successfully logged into your account', 'Login Successful', $userAgent, $ipaddress, $deviceinfo);
-        $profileUrl = $user->profile_compressed ? Storage::disk('s3')->url($user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
+        // Log successful login
+        LoginActivityJob::dispatch(
+            $user,
+            true,
+            'You successfully logged into your account',
+            'Login Successful',
+            $userAgent,
+            $ipaddress,
+            $deviceinfo
+        );
 
-        $preference = ($user->preference === null || $user->preference == 1) ? 1 : 0;
+        // Handle 2FA if enabled
         $authe = ($user->usersetting->tfa === null || $user->usersetting->tfa == 1) ? 1 : 0;
-
-         // If 2FA is enabled, generate and send a code
-         if ($authe == 1) {
-            $code = rand(100000, 999999); // Generate a 6-digit code
-            $user->tfa_code = Hash::make($code); // Store the hashed code
-            $user->tfa_expires_at = now()->addMinutes(10); // Set expiration time
+        if ($authe == 1) {
+            $code = rand(100000, 999999);
+            $user->tfa_code = Hash::make($code);
+            $user->tfa_expires_at = now()->addMinutes(10);
             $user->save();
-
-            // Dispatch the email job
             SendTwoFactorCodeJob::dispatch($user, $code);
         }
-        // Return the token and user details
+
+        // Prepare response
+        $profileUrl = $user->profile_compressed
+            ? Storage::disk('s3')->url($user->profile_compressed)
+            : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
+
+        $preference = ($user->preference === null || $user->preference == 1) ? 1 : 0;
+
         return response()->json([
             'username' => (string) $user->username,
             'fullname' => $user->name,
@@ -88,6 +122,19 @@ class AuthController extends Controller
             'profile' => $profileUrl,
             '2fa' => (string) $authe,
         ]);
+    }
+
+    protected function sanitizeLoginInput($input, $type)
+    {
+        return $type === 'phone'
+            ? preg_replace('/[^0-9]/', '', $input)
+            : $input;
+    }
+
+    protected function sanitizePhone($phone)
+    {
+        $sanitized = preg_replace('/[^0-9]/', '', $phone);
+        return str_starts_with($sanitized, '0') ? substr($sanitized, 1) : $sanitized;
     }
 
     public function register(Request $request)
