@@ -153,6 +153,7 @@ class AuthController extends Controller
             'name' => $request->full_name,
             'email' => $request->email,
             'username' => $request->full_name,
+            'phone' => $request->phone_number,
             'country' => $request->country,
             'points' => '300',
             'preference' => '1',
