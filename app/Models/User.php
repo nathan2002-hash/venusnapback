@@ -33,6 +33,7 @@ class User extends Authenticatable
         'password',
         'preference',
         'points',
+        'phone',
         'status',
         'tfa_code',
         'tfa_expires_at',
