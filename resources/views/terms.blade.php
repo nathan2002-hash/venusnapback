@@ -161,7 +161,7 @@
     <section id="introduction">
         <h2>1. Introduction</h2>
         <p>Welcome to Venunap. These Terms of Service ("Terms") govern your access to and use of
- VeunSnap's photo sharing and viewing platform and services ("Services"). By using Venusnap, you
+ Venusnap's photo sharing and viewing platform and services ("Services"). By using Venusnap, you
  agree to be bound by these Terms and our Privacy Policy</p>
         <p>These Terms apply to all visitors, users, and others who access or use the Service.</p>
         <p>If you do not agree with any part of these Terms, you must not use our Service.</p>
