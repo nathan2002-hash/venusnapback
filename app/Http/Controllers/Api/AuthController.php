@@ -32,9 +32,9 @@ class AuthController extends Controller
     {
         // Validate the request
         $request->validate([
-            'login' => 'required|string',
+            //'login' => 'required|string',
             'password' => 'required',
-            'type' => 'sometimes|in:email,phone'
+            //'type' => 'sometimes|in:email,phone'
         ]);
 
         $userAgent = $request->header('User-Agent');
@@ -51,21 +51,30 @@ class AuthController extends Controller
         $credentials[$loginField] = $this->sanitizeLoginInput($login, $type);
 
         // Attempt authentication
-        if (!Auth::attempt($credentials)) {
-            $user = User::where('email', $login)
-                    ->orWhere('phone', $this->sanitizePhone($login))
-                    ->first();
+        // if (!Auth::attempt($credentials)) {
+        //     $user = User::where('email', $login)
+        //             ->orWhere('phone', $this->sanitizePhone($login))
+        //             ->first();
 
+        //     if ($user) {
+        //         LoginActivityJob::dispatch(
+        //             $user,
+        //             false,
+        //             'Failed login attempt due to incorrect password.',
+        //             'Login Failed',
+        //             $userAgent,
+        //             $ipaddress,
+        //             $deviceinfo
+        //         );
+        //     }
+        //     return response()->json(['message' => 'Unauthorized'], 401);
+        // }
+
+          if (!Auth::attempt($request->only('email', 'password'))) {
+            $user = User::where('email', $request->email)->first();
             if ($user) {
-                LoginActivityJob::dispatch(
-                    $user,
-                    false,
-                    'Failed login attempt due to incorrect password.',
-                    'Login Failed',
-                    $userAgent,
-                    $ipaddress,
-                    $deviceinfo
-                );
+                // Dispatch the login failed activity to the queue
+                LoginActivityJob::dispatch($user, false, 'Failed login attempt due to incorrect password.', 'Login Failed', $userAgent, $ipaddress, $deviceinfo);
             }
             return response()->json(['message' => 'Unauthorized'], 401);
         }
