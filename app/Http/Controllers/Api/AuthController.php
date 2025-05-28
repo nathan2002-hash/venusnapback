@@ -52,24 +52,18 @@ class AuthController extends Controller
        if ($type === 'email') {
             $user = User::where('email', $sanitizedInput)->first();
         } else {
-            $user = User::whereRaw("REPLACE(REPLACE(REPLACE(phone, '+', ''), '-', ''), ' ', '') = ?", [$sanitizedInput])
-                ->orWhereRaw("REPLACE(REPLACE(REPLACE(partial_number, '+', ''), '-', ''), ' ', '') = ?", [$sanitizedInput])
-                ->first();
+            // Full match
+        $user = User::whereRaw("REPLACE(REPLACE(REPLACE(phone, '+', ''), '-', ''), ' ', '') = ?", [$sanitizedInput])->first();
 
-            // If not found, still check only exact partial number matches
-            if (!$user) {
-                $possibleUsers = User::whereRaw("REPLACE(REPLACE(REPLACE(partial_number, '+', ''), '-', ''), ' ', '') = ?", [$sanitizedInput])
-                    ->get()
-                    ->filter(function ($u) use ($password) {
-                        return Hash::check($password, $u->password);
-                    });
+        if (!$user) {
+            // Try partial_number match (if you're storing it cleanly)
+            $user = User::where('partial_number', $sanitizedInput)->first();
 
-                if ($possibleUsers->count() === 1) {
-                    $user = $possibleUsers->first();
-                } else {
-                    return response()->json(['message' => 'Unauthorized'], 401);
-                }
+            if (!$user || !Hash::check($password, $user->password)) {
+                return response()->json(['message' => 'Unauthorized'], 401);
             }
+        }
+
         }
 
 
@@ -130,10 +124,14 @@ class AuthController extends Controller
 
     protected function sanitizeLoginInput($input, $type)
     {
-        return $type === 'phone'
-            ? preg_replace('/[^0-9]/', '', $input)
-            : $input;
+        if ($type !== 'phone') {
+            return $input;
+        }
+
+        // Remove everything except digits
+        return preg_replace('/[^0-9]/', '', $input);
     }
+
 
 
     public function register(Request $request)
