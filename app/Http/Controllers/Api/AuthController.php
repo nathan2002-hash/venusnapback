@@ -49,17 +49,20 @@ class AuthController extends Controller
 
         $user = null;
 
-        if ($type === 'email') {
+       if ($type === 'email') {
             $user = User::where('email', $sanitizedInput)->first();
         } else {
-            // Full phone match
-            $user = User::whereRaw("REPLACE(REPLACE(REPLACE(phone, '+', ''), '-', ''), ' ', '') = ?", [$sanitizedInput])->first();
+            $user = User::whereRaw("REPLACE(REPLACE(REPLACE(phone, '+', ''), '-', ''), ' ', '') = ?", [$sanitizedInput])
+                ->orWhereRaw("REPLACE(REPLACE(REPLACE(partial_number, '+', ''), '-', ''), ' ', '') = ?", [$sanitizedInput])
+                ->first();
 
+            // If not found, still check only exact partial number matches
             if (!$user) {
-                $possibleUsers = User::all()->filter(function ($u) use ($sanitizedInput, $password) {
-                    $storedPhone = preg_replace('/[^0-9]/', '', $u->phone);
-                    return str_ends_with($storedPhone, $sanitizedInput) && Hash::check($password, $u->password);
-                });
+                $possibleUsers = User::whereRaw("REPLACE(REPLACE(REPLACE(partial_number, '+', ''), '-', ''), ' ', '') = ?", [$sanitizedInput])
+                    ->get()
+                    ->filter(function ($u) use ($password) {
+                        return Hash::check($password, $u->password);
+                    });
 
                 if ($possibleUsers->count() === 1) {
                     $user = $possibleUsers->first();
@@ -67,8 +70,8 @@ class AuthController extends Controller
                     return response()->json(['message' => 'Unauthorized'], 401);
                 }
             }
-
         }
+
 
         if (!$user || !Hash::check($password, $user->password)) {
             return response()->json(['message' => 'Unauthorized'], 401);
@@ -190,6 +193,7 @@ class AuthController extends Controller
             'username'     => $request->full_name,
             'phone'        => $fullPhone,
             'country_code' => $countryCode,
+            'partial_number' => $localPhone, // Store local part for easier matching
             'country'      => $request->country,
             'points'       => '300',
             'preference'   => '1',

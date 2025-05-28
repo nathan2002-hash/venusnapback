@@ -36,6 +36,7 @@ class User extends Authenticatable
         'phone',
         'country_code',
         'dob',
+        'partial_number',
         'status',
         'tfa_code',
         'tfa_expires_at',

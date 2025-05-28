@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('country')->nullable();
             $table->string('phone')->nullable();
             $table->string('country_code')->nullable();
+            $table->string('partial_number')->nullable();
             $table->string('dob')->nullable();
             $table->string('gender')->nullable();
             $table->string('tfa_code')->nullable();
