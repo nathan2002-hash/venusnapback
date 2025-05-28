@@ -31,9 +31,8 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        // Validate the request
         $request->validate([
-            'login' => 'required|string',
+            'login' => ['required', 'string', 'min:7'],
             'password' => 'required',
             'type' => 'sometimes|in:email,phone'
         ]);
@@ -43,35 +42,41 @@ class AuthController extends Controller
         $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
         $ipaddress = $realIp;
 
-        // Determine login type and prepare credentials
         $login = $request->input('login');
         $type = $request->input('type') ?? (filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone');
+        $sanitizedInput = $this->sanitizeLoginInput($login, $type);
+        $password = $request->password;
 
-        $credentials = ['password' => $request->password];
-        $loginField = $type === 'email' ? 'email' : 'phone';
-        $credentials[$loginField] = $this->sanitizeLoginInput($login, $type);
+        $user = null;
 
-        //Attempt authentication
-        if (!Auth::attempt($credentials)) {
-            $user = User::where('email', $login)
-                    ->orWhere('phone', $this->sanitizePhone($login))
-                    ->first();
+        if ($type === 'email') {
+            $user = User::where('email', $sanitizedInput)->first();
+        } else {
+            // Full phone match
+            $user = User::whereRaw("REPLACE(REPLACE(REPLACE(phone, '+', ''), '-', ''), ' ', '') = ?", [$sanitizedInput])->first();
 
-            if ($user) {
-                LoginActivityJob::dispatch(
-                    $user,
-                    false,
-                    'Failed login attempt due to incorrect password.',
-                    'Login Failed',
-                    $userAgent,
-                    $ipaddress,
-                    $deviceinfo
-                );
+            // If not found, try reverse match (local number + same password)
+            if (!$user) {
+                $possibleUsers = User::all()->filter(function ($u) use ($sanitizedInput, $password) {
+                    $storedPhone = preg_replace('/[^0-9]/', '', $u->phone);
+                    $countryCode = preg_replace('/[^0-9]/', '', $u->country_code);
+                    $storedLocal = ltrim($storedPhone, $countryCode);
+
+                    return $storedLocal === $sanitizedInput && Hash::check($password, $u->password);
+                });
+
+                // If exactly 1 match, proceed. If multiple, reject to avoid risk.
+                if ($possibleUsers->count() === 1) {
+                    $user = $possibleUsers->first();
+                } else {
+                    return response()->json(['message' => 'Unauthorized'], 401);
+                }
             }
-            return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $user = Auth::user();
+        if (!$user || !Hash::check($password, $user->password)) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
 
         // Check account status
         if ($user->status === 'deletion') {
@@ -87,7 +92,7 @@ class AuthController extends Controller
         // Create token
         $token = $user->createToken('authToken');
 
-        // Log successful login
+        // Log login activity
         LoginActivityJob::dispatch(
             $user,
             true,
@@ -98,7 +103,7 @@ class AuthController extends Controller
             $deviceinfo
         );
 
-        // Handle 2FA if enabled
+        // Handle 2FA
         $authe = ($user->usersetting->tfa === null || $user->usersetting->tfa == 1) ? 1 : 0;
         if ($authe == 1) {
             $code = rand(100000, 999999);
@@ -108,7 +113,6 @@ class AuthController extends Controller
             SendTwoFactorCodeJob::dispatch($user, $code);
         }
 
-        // Prepare response
         $profileUrl = $user->profile_compressed
             ? Storage::disk('s3')->url($user->profile_compressed)
             : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
@@ -132,11 +136,6 @@ class AuthController extends Controller
             : $input;
     }
 
-    protected function sanitizePhone($phone)
-    {
-        $sanitized = preg_replace('/[^0-9]/', '', $phone);
-        return str_starts_with($sanitized, '0') ? substr($sanitized, 1) : $sanitized;
-    }
 
     public function register(Request $request)
     {
