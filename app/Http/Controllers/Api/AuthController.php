@@ -55,23 +55,19 @@ class AuthController extends Controller
             // Full phone match
             $user = User::whereRaw("REPLACE(REPLACE(REPLACE(phone, '+', ''), '-', ''), ' ', '') = ?", [$sanitizedInput])->first();
 
-            // If not found, try reverse match (local number + same password)
             if (!$user) {
                 $possibleUsers = User::all()->filter(function ($u) use ($sanitizedInput, $password) {
                     $storedPhone = preg_replace('/[^0-9]/', '', $u->phone);
-                    $countryCode = preg_replace('/[^0-9]/', '', $u->country_code);
-                    $storedLocal = ltrim($storedPhone, $countryCode);
-
-                    return $storedLocal === $sanitizedInput && Hash::check($password, $u->password);
+                    return str_ends_with($storedPhone, $sanitizedInput) && Hash::check($password, $u->password);
                 });
 
-                // If exactly 1 match, proceed. If multiple, reject to avoid risk.
                 if ($possibleUsers->count() === 1) {
                     $user = $possibleUsers->first();
                 } else {
                     return response()->json(['message' => 'Unauthorized'], 401);
                 }
             }
+
         }
 
         if (!$user || !Hash::check($password, $user->password)) {
