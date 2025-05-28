@@ -164,7 +164,7 @@ class AuthController extends Controller
             $localPhone = $rawInput;
         }
 
-        $fullPhone = '+' . $countryCode . $localPhone;
+        $fullPhone = $countryCode . $localPhone;
 
         // Check if a user already has this phone+password (full or local match)
         $existingUsers = User::get();
