@@ -143,7 +143,7 @@ class AuthController extends Controller
             'full_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'phone_number' => 'required|string',
+            'phone_number' => ['required', 'regex:/^[0-9]{7,15}$/'], // min 7, max 15 for E.164
             'country_code' => 'required|string', // e.g., 260
         ]);
 
@@ -186,6 +186,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'username' => $request->full_name,
             'phone' => $fullPhone,
+            'country_code' => $request->country_code,
             'country' => $countryCode,
             'points' => '300',
             'preference' => '1',

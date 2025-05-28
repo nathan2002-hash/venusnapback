@@ -34,6 +34,8 @@ class User extends Authenticatable
         'preference',
         'points',
         'phone',
+        'country_code',
+        'dob',
         'status',
         'tfa_code',
         'tfa_expires_at',

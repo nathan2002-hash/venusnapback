@@ -23,6 +23,7 @@ return new class extends Migration
             $table->enum('role', ['user', 'admin'])->default('user');
             $table->string('country')->nullable();
             $table->string('phone')->nullable();
+            $table->string('country_code')->nullable();
             $table->string('dob')->nullable();
             $table->string('gender')->nullable();
             $table->string('tfa_code')->nullable();
