@@ -183,7 +183,7 @@ class AuthController extends Controller
             if (Hash::check($request->password, $user->password) && ($fullMatch || $localMatch)) {
                 return response()->json([
                     'status'  => 'error',
-                    'message' => 'Phone number and password already used by someone. Try a different password.'
+                    'message' => 'Please choose a different strong password to continue.'
                 ], 409);
             }
         }
