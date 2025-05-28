@@ -44,25 +44,20 @@ class AuthController extends Controller
 
         $login = $request->input('login');
         $type = $request->input('type') ?? (filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone');
-        $sanitizedInput = $this->sanitizeLoginInput($login, $type);
+       [$withZero, $withoutZero] = $this->sanitizePhone($login);
         $password = $request->password;
 
         $user = null;
 
        if ($type === 'email') {
-            $user = User::where('email', $sanitizedInput)->first();
+            $user = User::where('email')->first();
         } else {
             // Full match
-        $user = User::whereRaw("REPLACE(REPLACE(REPLACE(phone, '+', ''), '-', ''), ' ', '') = ?", [$sanitizedInput])->first();
-
-        if (!$user) {
-            // Try partial_number match (if you're storing it cleanly)
-            $user = User::where('partial_number', $sanitizedInput)->first();
-
-            if (!$user || !Hash::check($password, $user->password)) {
-                return response()->json(['message' => 'Unauthorized'], 401);
-            }
-        }
+        $user = User::whereRaw("REPLACE(REPLACE(REPLACE(phone, '+', ''), '-', ''), ' ', '') = ?", [$withZero])
+        ->orWhereRaw("REPLACE(REPLACE(REPLACE(phone, '+', ''), '-', ''), ' ', '') = ?", [$withoutZero])
+        ->orWhere('partial_number', $withZero)
+        ->orWhere('partial_number', $withoutZero)
+        ->first();
 
         }
 
@@ -122,15 +117,21 @@ class AuthController extends Controller
         ]);
     }
 
-    protected function sanitizeLoginInput($input, $type)
+    protected function sanitizePhone($input)
     {
-        if ($type !== 'phone') {
-            return $input;
+        // Remove non-numeric characters
+        $number = preg_replace('/[^0-9]/', '', $input);
+
+        // Strip leading zero only if it's local format like 097...
+        if (strlen($number) >= 9 && $number[0] === '0') {
+            $numberWithoutZero = substr($number, 1);
+        } else {
+            $numberWithoutZero = $number;
         }
 
-        // Remove everything except digits
-        return preg_replace('/[^0-9]/', '', $input);
+        return [$number, $numberWithoutZero]; // return both variants
     }
+
 
 
 
