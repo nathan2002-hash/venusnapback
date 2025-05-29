@@ -12,17 +12,17 @@ Route::get('/', function () {
     return view('user.welcome');
 });
 
-Route::get('/.well-known/assetlinks.json', function () {
-    $path = resource_path('assetlinks/assetlinks.json');
+// Route::get('/.well-known/assetlinks.json', function () {
+//     $path = resource_path('assetlinks/assetlinks.json');
 
-    if (!File::exists($path)) {
-        abort(404);
-    }
+//     if (!File::exists($path)) {
+//         abort(404);
+//     }
 
-    return response()->file($path, [
-        'Content-Type' => 'application/json',
-    ]);
-});
+//     return response()->file($path, [
+//         'Content-Type' => 'application/json',
+//     ]);
+// });
 
 //terms routes
 Route::get('/terms/of/service', 'HomeController@terms');
