@@ -10,8 +10,8 @@
   <meta name="keywords" content="">
 
   <!-- Favicons -->
-  <link href="{{ asset('assets1/img/logo.png') }}" rel="icon">
-  <link href="{{ asset('assets1/img/logo.png') }}" rel="apple-touch-icon">
+  <link href="{{ asset('assets1/img/logo1.png') }}" rel="icon">
+  <link href="{{ asset('assets1/img/logo1.png') }}" rel="apple-touch-icon">
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
@@ -43,7 +43,7 @@
     <div class="container position-relative d-flex align-items-center justify-content-between">
 
       <a href="/" class="logo d-flex align-items-center me-auto me-xl-0">
-        <img src="{{ asset('assets1/img/logo.png') }}" alt="">
+        <img src="{{ asset('assets1/img/logo1.png') }}" alt="">
         <h1 class="sitename">Venusnap</h1><span>.</span>
       </a>
 
@@ -940,7 +940,7 @@
                 <div class="testimonial-content">
                   <p>
                     <i class="bi bi-quote quote-icon"></i>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    Venusnap was born out of a simple yet powerful idea: to empower creators, entrepreneurs, and everyday users to express themselves visually without limitations. As the founder, I've seen firsthand how creativity can drive connection, innovation, and opportunity. Our platform puts the spotlight on visual storytelling, enabling people to share their voice through beautiful albums whether personal, creative, or business-focused.
                   </p>
                 </div>
                 <div class="testimonial-profile">
@@ -952,145 +952,10 @@
                     <i class="bi bi-star-fill"></i>
                   </div>
                   <div class="profile-info">
-                    <img src="{{ asset('assets1/img/person/person-m-8.webp') }}" alt="Profile Image">
+                    <img src="{{ asset('assets1/img/person/person-m-9.webp') }}" alt="Profile Image">
                     <div>
-                      <h3>Robert Johnson</h3>
-                      <h4>Marketing Director</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div><!-- End testimonial item -->
-
-            <div class="swiper-slide">
-              <div class="testimonial-card">
-                <div class="testimonial-content">
-                  <p>
-                    <i class="bi bi-quote quote-icon"></i>
-                    Proin iaculis purus consequat sem cure digni ssim donec porttitora entum suscipit rhoncus. Accusantium quam, ultricies eget id, aliquam eget nibh et maecenas aliquam.
-                  </p>
-                </div>
-                <div class="testimonial-profile">
-                  <div class="rating">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                  </div>
-                  <div class="profile-info">
-                    <img src="{{ asset('assets1/img/person/person-f-3.webp') }}" alt="Profile Image">
-                    <div>
-                      <h3>Lisa Williams</h3>
-                      <h4>Product Manager</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div><!-- End testimonial item -->
-
-            <div class="swiper-slide">
-              <div class="testimonial-card">
-                <div class="testimonial-content">
-                  <p>
-                    <i class="bi bi-quote quote-icon"></i>
-                    Enim nisi quem export duis labore cillum quae magna enim sint quorum nulla quem veniam duis minim tempor labore quem eram duis noster aute amet eram.
-                  </p>
-                </div>
-                <div class="testimonial-profile">
-                  <div class="rating">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                  </div>
-                  <div class="profile-info">
-                    <img src="{{ asset('assets1/img/person/person-f-10.webp') }}" alt="Profile Image">
-                    <div>
-                      <h3>Emma Parker</h3>
-                      <h4>UX Designer</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div><!-- End testimonial item -->
-
-            <div class="swiper-slide">
-              <div class="testimonial-card">
-                <div class="testimonial-content">
-                  <p>
-                    <i class="bi bi-quote quote-icon"></i>
-                    Fugiat enim eram quae cillum dolore dolor amet nulla culpa multos export minim fugiat minim velit minim dolor enim duis veniam ipsum anim magna sunt elit.
-                  </p>
-                </div>
-                <div class="testimonial-profile">
-                  <div class="rating">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                  </div>
-                  <div class="profile-info">
-                    <img src="{{ asset('assets1/img/person/person-m-5.webp') }}" alt="Profile Image">
-                    <div>
-                      <h3>David Miller</h3>
-                      <h4>Senior Developer</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div><!-- End testimonial item -->
-
-            <div class="swiper-slide">
-              <div class="testimonial-card">
-                <div class="testimonial-content">
-                  <p>
-                    <i class="bi bi-quote quote-icon"></i>
-                    Quis quorum aliqua sint quem legam fore sunt eram irure aliqua veniam tempor noster veniam enim culpa labore duis sunt culpa nulla illum cillum fugiat.
-                  </p>
-                </div>
-                <div class="testimonial-profile">
-                  <div class="rating">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                  </div>
-                  <div class="profile-info">
-                    <img src="{{ asset('assets1/img/person/person-m-2.webp') }}" alt="Profile Image">
-                    <div>
-                      <h3>Michael Davis</h3>
+                      <h3>Nathan Mwamba</h3>
                       <h4>CEO &amp; Founder</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div><!-- End testimonial item -->
-
-            <div class="swiper-slide">
-              <div class="testimonial-card">
-                <div class="testimonial-content">
-                  <p>
-                    <i class="bi bi-quote quote-icon"></i>
-                    Eius ipsam praesentium dolor quaerat inventore rerum odio. Quos laudantium adipisci eius. Accusamus qui iste cupiditate sed temporibus est aspernatur.
-                  </p>
-                </div>
-                <div class="testimonial-profile">
-                  <div class="rating">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                  </div>
-                  <div class="profile-info">
-                    <img src="{{ asset('assets1/img/person/person-f-7.webp') }}" alt="Profile Image">
-                    <div>
-                      <h3>Sarah Thompson</h3>
-                      <h4>Art Director</h4>
                     </div>
                   </div>
                 </div>
@@ -1122,7 +987,7 @@
                 <i class="bi bi-geo-alt"></i>
               </div>
               <h3>Our Address</h3>
-              <p>444 Alaska Avenue, California, Suite #CEC468</p>
+              <p>Remote</p>
             </div>
           </div>
 
@@ -1132,7 +997,7 @@
                 <i class="bi bi-telephone"></i>
               </div>
               <h3>Contact Number</h3>
-              <p>Mobile: +1 681 435 4816<br>
+              <p>Mobile: +260 970 333 596<br>
                 Email: support@venusnap.com</p>
             </div>
           </div>
