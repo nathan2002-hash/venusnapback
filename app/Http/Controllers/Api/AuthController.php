@@ -50,7 +50,7 @@ class AuthController extends Controller
         $user = null;
 
        if ($type === 'email') {
-            $user = User::where('email')->first();
+            $user = User::where('email', $login)->first();
         } else {
             // Full match
         $user = User::whereRaw("REPLACE(REPLACE(REPLACE(phone, '+', ''), '-', ''), ' ', '') = ?", [$withZero])
