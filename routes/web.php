@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Telescope\Telescope;
+use Laravel\Telescope\IncomingEntry;
 
 Route::get('/', function () {
     return view('user.welcome');
@@ -16,6 +18,13 @@ Route::get('/.well-known/assetlinks.json', function () {
     if (!File::exists($path)) {
         abort(404);
     }
+
+    Telescope::recordRequest(IncomingEntry::make([
+        'method' => 'GET',
+        'uri' => request()->getRequestUri(),
+        'headers' => request()->headers->all(),
+    ]));
+
 
     return Response::file($path, [
         'Content-Type' => 'application/json',
