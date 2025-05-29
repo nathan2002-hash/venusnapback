@@ -1,4 +1,11 @@
 <IfModule mod_rewrite.c>
+    # Redirect trailing dot in domain
+    RewriteCond %{HTTP_HOST} ^(.+)\.venusnap\.com\.$ [NC]
+    RewriteRule ^(.*)$ https://%1.venusnap.com/$1 [R=301,L]
+
+    RewriteCond %{HTTP_HOST} ^venusnap\.com\.$ [NC]
+    RewriteRule ^(.*)$ https://venusnap.com/$1 [R=301,L]
+
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
     </IfModule>
@@ -13,6 +20,7 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
+
     RewriteRule ^storage/(.*)$ storage/$1 [L]
 
     # Send Requests To Front Controller...
