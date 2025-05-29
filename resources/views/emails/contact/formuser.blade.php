@@ -1,4 +1,3 @@
-<!-- resources/views/emails/contact_user.blade.php -->
 <x-mail::message>
 # Thank You for Contacting Venusnap
 
@@ -8,14 +7,12 @@ We’ve received your message regarding **{{ $formData['subject'] }}** and will 
 
 Here’s a summary of your message:
 
-> "{{ $formData['message'] }}"
+@component('mail::panel')
+{{ $formData['message'] }}
+@endcomponent
 
 If this was sent in error or you need urgent help, feel free to reply to this email.
 
 Thanks for reaching out,
 **The Venusnap Team**
-
----
-
-Need help now? Visit our [Support Page]({{ url('/support') }})
 </x-mail::message>

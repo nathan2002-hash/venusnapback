@@ -7,15 +7,13 @@
 **Service:** {{ $formData['subject'] }}
 
 ## Message:
+@component('mail::panel')
 {{ $formData['message'] }}
+@endcomponent
 
 @if(str_contains(strtolower($formData['message']), 'invest') || str_contains(strtolower($formData['subject']), 'invest'))
 **Investment Request Detected** - Priority Attention Needed
 @endif
-
-{{-- @component('mail::button', ['url' => 'mailto:'.$formData['email'], 'color' => 'purple'])
-Reply to {{ $formData['name'] }}
-@endcomponent --}}
 
 Thanks,<br>
 {{ config('app.name') }}

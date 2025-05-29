@@ -43,7 +43,7 @@ class ProfileController extends Controller
                 'profile' => $profileUrl,
                 'cover' => $coverUrl,
                 'date_joined' => $user->created_at->format('j F, Y'),
-                'total_posts' => (string) $user->posts->count(),
+                'total_posts' => (string) $user->posts()->where('status', 'active')->count(),
                 'total_albums' => (string) $user->albums->count(),
                 'supporters' => (string) $totalSupporters,
             ]

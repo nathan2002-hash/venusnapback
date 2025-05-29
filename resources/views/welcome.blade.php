@@ -1178,7 +1178,7 @@
 
     const form = e.target;
     const loading = form.querySelector('.loading');
-    const errorMessage = form.querySelector('.error-message');
+    //const errorMessage = form.querySelector('.error-message');
     const sentMessage = form.querySelector('.sent-message');
 
     loading.style.display = 'block';
