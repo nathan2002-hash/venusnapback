@@ -314,6 +314,8 @@ class PostController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+
         // Proceed with deletion request
         $post->status = 'deletion';
         $post->save();
@@ -329,6 +331,9 @@ class PostController extends Controller
             'type' => $post->type,
             'album_id' => $post->album_id,
             'visibility' => $post->visibility,
+            'ip_address' => $realIp,
+            'user_agent' => $request->header('User-Agent') ?? 'unknown',
+            'device_info' => $request->header('Device-Info') ?? 'unknown',
         ];
         $poststate->state = 'deletion';
         $poststate->save();
