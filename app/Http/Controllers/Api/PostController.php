@@ -308,7 +308,7 @@ class PostController extends Controller
             ->exists();
 
         // Optionally allow post owner or admin to delete without access entry
-        $isOwner = $post->user_id === $user->id;
+        $isOwner = $post->user_id == $user->id;
 
         if (!($hasAccess || $isOwner)) {
             return response()->json(['error' => 'Unauthorized'], 403);
