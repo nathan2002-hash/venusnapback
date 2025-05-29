@@ -323,7 +323,13 @@ class PostController extends Controller
         $poststate->post_id = $post->id;
         $poststate->title = "Post Deletion Request";
         $poststate->initiator = $isOwner ? 'owner' : 'shared_user';
-        $poststate->reason = $request->reason;
+        $poststate->reason = 'Post deletion requested by user';
+        $poststate->meta = [
+            'description' => $post->description,
+            'type' => $post->type,
+            'album_id' => $post->album_id,
+            'visibility' => $post->visibility,
+        ];
         $poststate->state = 'deletion';
         $poststate->save();
 
