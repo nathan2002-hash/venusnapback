@@ -132,9 +132,6 @@ class AuthController extends Controller
         return [$number, $numberWithoutZero]; // return both variants
     }
 
-
-
-
     public function register(Request $request)
     {
         $request->validate([
