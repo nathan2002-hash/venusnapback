@@ -10,17 +10,25 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::orderBy('created_at', 'desc')->paginate(30);
+        $posts = Post::where('visibility', 'public')
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(30);
+
         return view('admin.posts.index', [
-           'posts' => $posts,
+            'posts' => $posts,
         ]);
     }
 
+
     public function show($id)
     {
-        $post = Post::findOrFail($id);
+        $post = Post::where('id', $id)
+                    ->where('visibility', 'public')
+                    ->firstOrFail();
+
         return view('admin.posts.show', [
-           'post' => $post,
+            'post' => $post,
         ]);
     }
+
 }

@@ -71,7 +71,7 @@ class AlbumAccessController extends Controller
                 'description' => $album->description,
                 'type' => $album->type,
                 'is_verified' => (bool)$album->is_verified,
-                'is_owner' => auth()->id() === $album->user_id, // Add this line
+                'is_owner' => Auth::user()->id === $album->user_id, // Add this line
                 'supporters' => $album->supporters->count(),
                 'email' => $album->email,
                 'phone' => $album->phone,
@@ -327,7 +327,7 @@ class AlbumAccessController extends Controller
             }
             $album->status = "deletion";
             $album->save();
-    
+
             return response()->json([
                 'id' => $album->id,
             ], 200);

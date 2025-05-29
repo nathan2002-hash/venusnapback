@@ -350,11 +350,46 @@ class PostController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
+        // Get all categories with their names and descriptions
+        $categories = Category::select('id', 'name', 'description')->get();
+
+        //$postDescription = strtolower($request->description);
+        $postDescription = strtolower(preg_replace('/[^a-z0-9\s]/', '', $request->description));
+        $matchedCategory = null;
+        $bestScore = 0;
+
+        $stopwords = ['the', 'with', 'from', 'this', 'that', 'have', 'your', 'about'];
+
+        // Analyze each category for keyword matches
+        foreach ($categories as $category) {
+            $keywords = array_merge(
+                explode(' ', strtolower($category->name)),
+                explode(' ', strtolower($category->description))
+            );
+
+            $score = 0;
+            foreach ($keywords as $keyword) {
+                if (strlen($keyword) > 3 && !in_array($keyword, $stopwords) && Str::contains($postDescription, $keyword)) {
+                    $score++;
+                }
+            }
+
+            if ($score > $bestScore) {
+                $bestScore = $score;
+                $matchedCategory = $category;
+            }
+        }
+
+        // Fallback to random category if no good match found
+        if (!$matchedCategory || $bestScore < 1) {
+            $matchedCategory = Category::inRandomOrder()->first();
+        }
+
         // Update post details
         $post->update([
             'description' => $request->description,
-            // 'type' => $request->type_id,
-            // 'categoy_id' => $request->type_id,
+            'type' => $matchedCategory->id,
+            'category_id' => $matchedCategory->id,
             'album_id' => $request->album_id,
             'visibility' => $request->visibility,
         ]);
@@ -432,90 +467,46 @@ class PostController extends Controller
         ]);
     }
 
-    public function updatel(Request $request, $id)
-    {
-        $post = Post::with('album')->findOrFail($id);
-        $userId = Auth::user()->id;
-
-        // Check if the user owns the album
-        $isOwner = $post->album->user_id == $userId;
-
-        // Check if the user has access to the album
-        $hasAccess = AlbumAccess::where('album_id', $post->album_id)
-            ->where('user_id', $userId)
-            ->where('status', 'active')
-            ->exists();
-
-        if (!($isOwner || $hasAccess)) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        // Update post details
-        $post->update([
-            'description' => $request->description,
-            'type' => $request->type,
-            'album_id' => $request->album_id,
-            'visibility' => $request->visibility
-        ]);
-
-        // Handle media deletions
-        if ($request->media_to_delete) {
-            PostMedia::whereIn('id', $request->media_to_delete)
-                ->where('post_id', $post->id)
-                ->delete();
-        }
-
-        // Update sequence orders for existing media and log old/new values
-        $sequenceLog = [];
-        if ($request->existing_media) {
-            foreach ($request->existing_media as $mediaId => $newOrder) {
-                $media = PostMedia::where('id', $mediaId)
-                                ->where('post_id', $post->id)
-                                ->first();
-
-                if ($media) {
-                    $sequenceLog[] = [
-                        'media_id' => $media->id,
-                        'old_sequence_order' => $media->sequence_order,
-                        'new_sequence_order' => $newOrder
-                    ];
-
-                    $media->sequence_order = $newOrder;
-                    $media->save();
-                }
-            }
-        }
-
-        // Handle new media
-        if ($request->hasFile('post_medias')) {
-            foreach ($request->post_medias as $media) {
-                $path = $media['file']->store('uploads/posts/originals', 's3');
-
-                $postMedia = PostMedia::create([
-                    'post_id' => $post->id,
-                    'file_path' => $path,
-                    'sequence_order' => $media['sequence_order'],
-                    'status' => 'original'
-                ]);
-
-                CompressImageJob::dispatch($postMedia->fresh());
-            }
-        }
-
-        return response()->json([
-            'message' => 'Post updated successfully',
-            'post' => $post->load('postmedias'),
-            'sequence_changes' => $sequenceLog, // 👈 log of changes
-            'existing_media_input' => $request->existing_media, // 👈 raw input
-        ]);
-    }
-
-
     public function storecloud(Request $request)
     {
         $user = Auth::user();
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+         // Get all categories with their names and descriptions
+        $categories = Category::select('id', 'name', 'description')->get();
+
+        //$postDescription = strtolower($request->description);
+        $postDescription = strtolower(preg_replace('/[^a-z0-9\s]/', '', $request->description));
+        $matchedCategory = null;
+        $bestScore = 0;
+
+        $stopwords = ['the', 'with', 'from', 'this', 'that', 'have', 'your', 'about'];
+
+        // Analyze each category for keyword matches
+        foreach ($categories as $category) {
+            $keywords = array_merge(
+                explode(' ', strtolower($category->name)),
+                explode(' ', strtolower($category->description))
+            );
+
+            $score = 0;
+            foreach ($keywords as $keyword) {
+                if (strlen($keyword) > 3 && !in_array($keyword, $stopwords) && Str::contains($postDescription, $keyword)) {
+                    $score++;
+                }
+            }
+
+            if ($score > $bestScore) {
+                $bestScore = $score;
+                $matchedCategory = $category;
+            }
+        }
+
+        // Fallback to random category if no good match found
+        if (!$matchedCategory || $bestScore < 1) {
+            $matchedCategory = Category::inRandomOrder()->first();
         }
 
         DB::beginTransaction();
@@ -524,7 +515,8 @@ class PostController extends Controller
             $post = new Post();
             $post->user_id = $user->id;
             $post->description = $request->description;
-            $post->type = $request->type;
+            $post->type = $matchedCategory->id;
+            $post->category_id = $matchedCategory->id;
             $post->status = 'active';
             $post->album_id = $request->album_id;
             $post->visibility = $request->visibility;

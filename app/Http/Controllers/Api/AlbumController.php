@@ -445,7 +445,27 @@ class AlbumController extends Controller
 
     public function showviewer($albumId, Request $request)
     {
-        $album = Album::with(['posts.postmedias', 'supporters'])->find($albumId);
+        $user = Auth::user();
+
+        $album = Album::with(['posts.postmedias', 'supporters'])
+        ->where('id', $albumId)
+        ->where(function ($query) use ($user) {
+            $query->where('visibility', 'public'); // Allow if public
+            if ($user) {
+                $query->orWhere(function ($q) use ($user) {
+                    $q->where('user_id', $user->id); // Allow if owner
+                });
+
+                $query->orWhereIn('id', function ($subQuery) use ($user) {
+                    $subQuery->select('album_id')
+                        ->from('album_accesses')
+                        ->where('user_id', $user->id)
+                        ->where('status', 'approved'); // Allow if approved access
+                });
+            }
+        })
+        ->first();
+
 
         if (!$album) {
             return response()->json([
@@ -455,7 +475,6 @@ class AlbumController extends Controller
 
         $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
 
-         $user = Auth::user();
          $ip = $realIp;
          $userAgent = request()->header('User-Agent');
 
