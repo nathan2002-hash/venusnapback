@@ -904,7 +904,7 @@
       <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
         <h2>Testimonials</h2>
-        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+        <p>Real stories from real users and why they trust and love Venusnap.</p>
       </div><!-- End Section Title -->
 
       <div class="container" data-aos="fade-up" data-aos-delay="100">
@@ -940,7 +940,7 @@
                 <div class="testimonial-content">
                   <p>
                     <i class="bi bi-quote quote-icon"></i>
-                    Venusnap was born out of a simple yet powerful idea: to empower creators, entrepreneurs, and everyday users to express themselves visually without limitations. As the founder, I've seen firsthand how creativity can drive connection, innovation, and opportunity. Our platform puts the spotlight on visual storytelling, enabling people to share their voice through beautiful albums whether personal, creative, or business-focused.
+                   Venusnap began with a bold idea: to empower creators, entrepreneurs, and users to express themselves visually. I’ve witnessed how creativity fuels connection and growth. That’s why our platform centers on visual storytelling through powerful, personal, and business ready albums.
                   </p>
                 </div>
                 <div class="testimonial-profile">
