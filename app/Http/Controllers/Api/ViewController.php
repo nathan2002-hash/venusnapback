@@ -20,9 +20,10 @@ class ViewController extends Controller
 
     public function view(Request $request)
     {
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
         TrackViewJob::dispatch(
             Auth::id(),
-            $request->ip(),
+            $realIp,
             $request->input('post_media_id'),
             $request->input('duration'),
             $request->header('User-Agent')
@@ -33,9 +34,10 @@ class ViewController extends Controller
 
     public function viewpost(Request $request)
     {
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
         TrackPostViewJob::dispatch(
             Auth::id(),
-            $request->ip(),
+            $realIp,
             $request->input('post_id'),
             $request->input('post_media_id'),
             $request->input('duration'),
@@ -97,12 +99,13 @@ class ViewController extends Controller
                 $postMediaId = $postMedia->id;
             }
         }
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
 
         if ($postMediaId) {
             // Save the view
             View::create([
                 'user_id' => $userId,
-                'ip_address' => $request->ip(),
+                'ip_address' => $realIp,
                 'post_media_id' => $postMediaId,
                 'duration' => $duration,
                 'user_agent' => $request->header('User-Agent'),
@@ -227,10 +230,11 @@ class ViewController extends Controller
 
         $userAgent = $request->header('User-Agent');
         $deviceinfo = $request->header('Device-Info');
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
 
 
         $visit = $share->visits()->create([
-            'ip_address' => $request->ip(),
+            'ip_address' => $realIp,
             'user_agent' => $userAgent,
             'device_info' => $deviceinfo,
             'referrer' => $request->short_code,
