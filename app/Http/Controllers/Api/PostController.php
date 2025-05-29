@@ -321,7 +321,7 @@ class PostController extends Controller
         $poststate = new PostState();
         $poststate->user_id = $user->id;
         $poststate->post_id = $post->id;
-        $poststate->title = $request->title;
+        $poststate->title = "Post Deletion Request";
         $poststate->initiator = $isOwner ? 'owner' : 'shared_user';
         $poststate->reason = $request->reason;
         $poststate->state = 'deletion';
