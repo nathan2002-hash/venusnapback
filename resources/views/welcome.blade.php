@@ -940,7 +940,7 @@
                 <div class="testimonial-content">
                   <p>
                     <i class="bi bi-quote quote-icon"></i>
-                   Venusnap began with a bold idea: to empower creators, entrepreneurs, and users to express themselves visually. I’ve witnessed how creativity fuels connection and growth. That’s why our platform centers on visual storytelling through powerful, personal, and business ready albums.
+                   Venusnap began with a bold idea: to empower creators, entrepreneurs, and users to express themselves visually. As the founder I’ve witnessed how creativity fuels connection and growth. That’s why our platform centers on visual storytelling through powerful, personal, and business ready albums.
                   </p>
                 </div>
                 <div class="testimonial-profile">
