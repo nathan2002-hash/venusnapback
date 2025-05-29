@@ -1,10 +1,12 @@
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "com.example.venusnap",
-    "sha256_cert_fingerprints": [
-      "6A0FECB530242C9C57609A4FEBBD49AF3B537A51ED134E41D6B718AA9CC0ABCC"
-    ]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.example.venusnap",
+      "sha256_cert_fingerprints": [
+        "6A:0F:EC:B5:30:24:2C:9C:57:60:9A:4F:EB:BD:49:AF:3B:53:7A:51:ED:13:4E:41:D6:B7:18:AA:9C:C0:AB:CC"
+      ]
+    }
   }
-}]
+]
