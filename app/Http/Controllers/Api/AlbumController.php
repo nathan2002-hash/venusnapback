@@ -214,6 +214,7 @@ class AlbumController extends Controller
         $album->user_id = Auth::user()->id;
         $album->type = 'business';
         $album->status = 'active';
+        $album->visibility = 'public';
         $album->name = $request->name;
         $album->description = $request->description;
         $album->business_category = $request->business_category;
