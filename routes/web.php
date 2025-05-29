@@ -19,14 +19,7 @@ Route::get('/.well-known/assetlinks.json', function () {
         abort(404);
     }
 
-    Telescope::recordRequest(IncomingEntry::make([
-        'method' => 'GET',
-        'uri' => request()->getRequestUri(),
-        'headers' => request()->headers->all(),
-    ]));
-
-
-    return Response::file($path, [
+    return response()->file($path, [
         'Content-Type' => 'application/json',
     ]);
 });
