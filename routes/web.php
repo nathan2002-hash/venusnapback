@@ -16,6 +16,7 @@ Route::get('/terms/conditions', function () {
     return redirect('/terms/of/service');
 });
 Route::get('/privacy/policy', 'HomeController@privacy');
+Route::post('/contact', 'ContactFormController@submit')->name('contact.submit');
 
 Route::middleware([
     'auth:sanctum',

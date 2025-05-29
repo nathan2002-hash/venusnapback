@@ -712,15 +712,15 @@
             <h3>Still Have Questions?</h3>
             <p>We’re here to help! If you have any issues installing the app or using our platform, feel free to reach out to us directly.</p>
             <div class="contact-options">
-              <a href="mailto:support@yourapp.com" class="contact-option">
+              <a href="mailto:support@venusnap.com" class="contact-option">
                 <i class="bi bi-envelope"></i>
                 <span>Email Support</span>
               </a>
-              <a href="#" class="contact-option">
+              {{-- <a href="#" class="contact-option">
                 <i class="bi bi-chat-dots"></i>
                 <span>Live Chat</span>
-              </a>
-              <a href="tel:+123456789" class="contact-option">
+              </a> --}}
+              <a href="tel:+260970333596" class="contact-option">
                 <i class="bi bi-telephone"></i>
                 <span>Call Us</span>
               </a>
@@ -1017,7 +1017,8 @@
         <div class="row">
           <div class="col-lg-12">
             <div class="form-wrapper" data-aos="fade-up" data-aos-delay="400">
-              <form action="#" method="post" role="form" class="php-email-form">
+              <form action="{{ route('contact.submit') }}" method="post" role="form" class="php-email-form">
+                @csrf
                 <div class="row">
                   <div class="col-md-6 form-group">
                     <div class="input-group">
@@ -1042,13 +1043,14 @@
                   <div class="col-md-6 form-group">
                     <div class="input-group">
                       <span class="input-group-text"><i class="bi bi-list"></i></span>
-                      <select name="subject" class="form-control" required="">
+                     <select name="subject" class="form-control" required>
                         <option value="">Select service*</option>
-                        <option value="Service 1">Consulting</option>
-                        <option value="Service 2">Development</option>
-                        <option value="Service 3">Marketing</option>
-                        <option value="Service 4">Support</option>
-                      </select>
+                        <option value="Consulting">Consulting</option>
+                        <option value="Idea">Have an Idea</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Support">Support</option>
+                        <option value="Investment">Investment Inquiry</option>
+                    </select>
                     </div>
                   </div>
                   <div class="form-group mt-3">
@@ -1170,6 +1172,46 @@
   <script src="{{ asset('assets1/vendor/imagesloaded/imagesloaded.pkgd.min.js') }}"></script>
   <script src="{{ asset('assets1/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
   <script src="{{ asset('assets1/vendor/swiper/swiper-bundle.min.js') }}"></script>
+
+  <script>
+    document.querySelector('.php-email-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const loading = form.querySelector('.loading');
+    const errorMessage = form.querySelector('.error-message');
+    const sentMessage = form.querySelector('.sent-message');
+
+    loading.style.display = 'block';
+    errorMessage.style.display = 'none';
+    sentMessage.style.display = 'none';
+
+    fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        loading.style.display = 'none';
+        if (data.success) {
+            sentMessage.style.display = 'block';
+            form.reset();
+        } else {
+            errorMessage.style.display = 'block';
+            errorMessage.innerHTML = Object.values(data.errors).join('<br>');
+        }
+    })
+    .catch(() => {
+        loading.style.display = 'none';
+        errorMessage.style.display = 'block';
+        errorMessage.innerHTML = 'An error occurred, please try again.';
+    });
+});
+  </script>
 
   <!-- Main JS File -->
   <script src="{{ asset('assets1/js/main.js') }}"></script>
