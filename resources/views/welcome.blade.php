@@ -1215,7 +1215,6 @@
   <!-- Main JS File -->
   <script src="{{ asset('assets1/js/main.js') }}"></script>
 
-  <script>
 <script>
     (function(d, w, c) {
         w.BrevoConversationsID = '683948ffb662e85b0a0a95a4';
@@ -1227,7 +1226,6 @@
         s.src = 'https://conversations-widget.brevo.com/brevo-conversations.js';
         if (d.head) d.head.appendChild(s);
     })(document, window, 'BrevoConversations');
-</script>
   </script>
 
 </body>
