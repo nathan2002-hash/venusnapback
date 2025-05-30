@@ -31,7 +31,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="col-4">
-                        <a href="/admin/settings/country/create" class="btn btn-primary waves-effect waves-light">New Country</a>
+                        <a href="/restricted/settings/country/create" class="btn btn-primary waves-effect waves-light">New Country</a>
                     </div>
                     <div class="card-body">
                         <table id="datatable" class="table table-bordered dt-responsive  nowrap w-100">
