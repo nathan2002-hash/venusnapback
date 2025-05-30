@@ -31,7 +31,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="col-4">
-                        <button type="button" class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#country">New Country</button>
+                        <a href="/admin/settings/country/create" class="btn btn-primary waves-effect waves-light">New Country</a>
                     </div>
                     <div class="card-body">
                         <table id="datatable" class="table table-bordered dt-responsive  nowrap w-100">

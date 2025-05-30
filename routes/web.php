@@ -122,6 +122,7 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
 
     //location routes
     Route::get('/settings/countries', 'Admin\SettingController@countries');
+    Route::get('/settings/country/create', 'Admin\SettingController@countrycreate');
     Route::get('/settings/continents', 'Admin\SettingController@continents');
     Route::post('/settings/country/store', 'Admin\SettingController@storeCountry');
     Route::post('/settings/continent/store', 'Admin\SettingController@storeContinent');

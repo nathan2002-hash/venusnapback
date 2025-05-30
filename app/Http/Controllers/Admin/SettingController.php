@@ -19,6 +19,14 @@ class SettingController extends Controller
         ]);
     }
 
+    public function countrycreate()
+    {
+        $continents = Continent::orderBy('created_at', 'desc')->paginate(30);
+        return view('admin.settings.create', [
+           'continents' => $continents,
+        ]);
+    }
+
     public function continents()
     {
         $continents = Continent::orderBy('created_at', 'desc')->paginate(30);
