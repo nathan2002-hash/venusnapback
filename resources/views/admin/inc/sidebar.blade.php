@@ -189,20 +189,6 @@
                     </ul>
                 </li>
 
-                <li class="menu-title" key="t-components">Settings</li>
-                   <li>
-                    <a href="javascript: void(0);" class="has-arrow waves-effect">
-                        <i class="bx bx-list-ul"></i>
-                        <span key="t-settings">Location Management</span>
-                    </a>
-                    <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="/restricted/settings/countries" key="t-settings">Countries</a></li>
-                    </ul>
-                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="/restricted/settings/continents" key="t-settings">Continents</a></li>
-                    </ul>
-                </li>
-
                 <li class="menu-title" key="t-components">Revenue</li>
 
                 <li>
@@ -255,12 +241,22 @@
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
                         <li><a href="/restricted/points/manage" key="t-data-tables">Manage</a></li>
-                    </ul>
-                     <ul class="sub-menu" aria-expanded="false">
                         <li><a href="/restricted/points/allocations" key="t-data-tables">Allocations</a></li>
                     </ul>
                 </li>
-                <li class="menu-title" key="t-components">VENUSNAP</li>
+
+                <li class="menu-title" key="t-components">Settings</li>
+                   <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="bx bx-list-ul"></i>
+                        <span key="t-settings">Location Management</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="/restricted/settings/countries" key="t-settings">Countries</a></li>
+                        <li><a href="/restricted/settings/continents" key="t-settings">Continents</a></li>
+                    </ul>
+                </li>
+                <li class="menu-title" key="t-components">QUIXNES@ART</li>
 
             </ul>
         </div>
