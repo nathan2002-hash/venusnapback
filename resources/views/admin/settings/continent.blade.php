@@ -76,11 +76,11 @@
                         <div class="modal-body">
                                 <div class="mb-3">
                                     <label for="name" class="col-form-label">Name:</label>
-                                    <input type="text" name="name" class="form-control" id="name">
+                                    <input type="text" name="name" class="form-control" id="name" required>
                                 </div>
                                  <div class="mb-3">
                                     <label for="code" class="col-form-label">Code:</label>
-                                    <input type="text" name="code" class="form-control" id="code">
+                                    <input type="text" name="code" class="form-control" id="code" required>
                                 </div>
                         </div>
                         <div class="modal-footer">

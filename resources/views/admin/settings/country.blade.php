@@ -79,11 +79,11 @@
                 <div class="modal-body">
                         <div class="mb-3">
                             <label for="name" class="col-form-label">Name:</label>
-                            <input type="text" name="name" class="form-control" id="name">
+                            <input type="text" name="name" class="form-control" id="name" required>
                         </div>
                          <div class="mb-3">
                             <label for="continent" class="col-form-label">Continent:</label><br>
-                            <select name="continent_id" class="form-control" id="continent">
+                            <select name="continent_id" class="form-control" id="continent" required>
                                 <option selected disabled>Select Continent</option>
                                 @foreach ($continents as $continent)
                                      <option value="{{ $continent->id }}">{{ $continent->name }}</option>
@@ -92,35 +92,35 @@
                         </div>
                          <div class="mb-3">
                             <label for="code" class="col-form-label">Country Code:</label>
-                            <input type="text" name="code" class="form-control" id="code">
+                            <input type="text" name="code" class="form-control" id="code" required>
                         </div>
                          <div class="mb-3">
                             <label for="phone-code" class="col-form-label">Phone Code:</label>
-                            <input type="text" name="phone_code" class="form-control" id="phone-name">
+                            <input type="text" name="phone_code" class="form-control" id="phone-name" required>
                         </div>
                          <div class="mb-3">
                             <label for="phone-sample" class="col-form-label">Sample Phone:</label>
-                            <input type="text" name="sample_phone" class="form-control" id="phone-sample">
+                            <input type="text" name="sample_phone" class="form-control" id="phone-sample" required>
                         </div>
                          <div class="mb-3">
                             <label for="phone-length" class="col-form-label">Phone Length:</label>
-                            <input type="text" name="phone_number_length" class="form-control" id="phone-length">
+                            <input type="text" name="phone_number_length" class="form-control" id="phone-length" required>
                         </div>
                          <div class="mb-3">
                             <label for="currency" class="col-form-label">Currency:</label>
-                            <input type="text" name="currency" class="form-control" id="currency">
+                            <input type="text" name="currency" class="form-control" id="currency" required>
                         </div>
                          <div class="mb-3">
                             <label for="currency-code" class="col-form-label">Currency Code:</label>
-                            <input type="text" name="currency_code" class="form-control" id="currency-code">
+                            <input type="text" name="currency_code" class="form-control" id="currency-code" required>
                         </div>
                          <div class="mb-3">
                             <label for="capital" class="col-form-label">Capital City:</label>
-                            <input type="text" name="capital" class="form-control" id="capital">
+                            <input type="text" name="capital" class="form-control" id="capital" required>
                         </div>
                         <div class="mb-3">
                             <label for="message-text" class="col-form-label">Description:</label>
-                            <textarea class="form-control" name="description" id="message-text"></textarea>
+                            <textarea class="form-control" name="description" id="message-text" required></textarea>
                         </div>
                 </div>
                 <div class="modal-footer">
