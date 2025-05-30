@@ -12,6 +12,10 @@ Route::get('/', function () {
     return view('user.welcome');
 });
 
+Route::get('/chat', function () {
+    return view('chat');
+});
+
 // Route::get('/.well-known/assetlinks.json', function () {
 //     $path = resource_path('assetlinks/assetlinks.json');
 
