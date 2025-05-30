@@ -29,6 +29,11 @@ class SettingController extends Controller
 
     public function storeCountry(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:10|unique:countries,code',
+        ]);
+
         $country = new Country();
         $country->name = $request->name;
         $country->code = $request->code;
@@ -48,6 +53,10 @@ class SettingController extends Controller
 
     public function storeContinent(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:10|unique:continents,code',
+        ]);
 
         $continent = new Continent();
         $continent->name = $request->name;
