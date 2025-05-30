@@ -12,8 +12,10 @@ class SettingController extends Controller
     public function countries()
     {
         $countries = Country::orderBy('created_at', 'desc')->paginate(190);
+        $continents = Continent::orderBy('created_at', 'desc')->paginate(30);
         return view('admin.settings.country', [
            'countries' => $countries,
+           'continents' => $continents,
         ]);
     }
 
