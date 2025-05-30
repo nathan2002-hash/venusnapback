@@ -367,7 +367,7 @@
               </div>
               <div class="service-content">
                 <h3>Global Reach</h3>
-                <p>Venusnap is a worldwide platform, enabling anyone—from Lusaka to Los Angeles—to connect, express, and earn through photos.</p>
+                <p>Venusnap is a worldwide platform, enabling anyone from Lusaka to Los Angeles—to connect, express, and earn through photos.</p>
                 <a href="#" class="service-link">
                 <span>Join the Community</span>
                 <i class="bi bi-arrow-right"></i>
