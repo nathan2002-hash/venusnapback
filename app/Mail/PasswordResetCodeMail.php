@@ -45,11 +45,11 @@ class PasswordResetCodeMail extends Mailable
 
     public function build()
     {
-        return $this
-        ->from('security@venusnap.com', 'Venusnap Security Team')
-        ->subject('Your Venusnap Password Reset Code')
-        ->markdown('emails.auth.password-reset-code')
-        ->with(['code' => $this->code]);
+         return $this->subject('Your Two-Factor Authentication Code')
+                    ->markdown('emails.auth.password-reset-code')
+                    ->with([
+                        'code' => $this->code,
+                    ]);
     }
 
     /**
