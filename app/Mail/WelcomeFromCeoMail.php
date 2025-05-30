@@ -34,7 +34,7 @@ class WelcomeFromCeoMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Welcome From Ceo Mail',
+            subject: 'Welcome to Venusnap 🎉',
         );
     }
 
