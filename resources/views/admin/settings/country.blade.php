@@ -67,74 +67,74 @@
             </div>
         </div>
 
-        <div class="modal fade" id="country" tabindex="-1" aria-labelledby="country" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="country">New Unique Country</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form action="/restricted/settings/country/store" id="submitdata" method="POST">
-                        @csrf
-                        <div class="modal-body">
-                                <div class="mb-3">
-                                    <label for="name" class="col-form-label">Name:</label>
-                                    <input type="text" name="name" class="form-control" id="name">
-                                </div>
-                                 <div class="mb-3">
-                                    <label for="continent" class="col-form-label">Continent:</label>
-                                    <select name="continent_id" id="continent">
-                                        <option selected disabled>Select Continent</option>
-                                        @foreach ($continents as $continent)
-                                             <option value="{{ $continent->id }}">{{ $continent->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                 <div class="mb-3">
-                                    <label for="code" class="col-form-label">Country Code:</label>
-                                    <input type="text" name="code" class="form-control" id="code">
-                                </div>
-                                 <div class="mb-3">
-                                    <label for="phone-code" class="col-form-label">Phone Code:</label>
-                                    <input type="text" name="phone_code" class="form-control" id="phone-name">
-                                </div>
-                                 <div class="mb-3">
-                                    <label for="phone-sample" class="col-form-label">Sample Phone:</label>
-                                    <input type="text" name="sample_phone" class="form-control" id="phone-sample">
-                                </div>
-                                 <div class="mb-3">
-                                    <label for="phone-length" class="col-form-label">Phone Length:</label>
-                                    <input type="text" name="phone_number_length" class="form-control" id="phone-length">
-                                </div>
-                                 <div class="mb-3">
-                                    <label for="currency" class="col-form-label">Currency:</label>
-                                    <input type="text" name="currency" class="form-control" id="currency">
-                                </div>
-                                 <div class="mb-3">
-                                    <label for="currency-code" class="col-form-label">Currency Code:</label>
-                                    <input type="text" name="currency_code" class="form-control" id="currency-code">
-                                </div>
-                                 <div class="mb-3">
-                                    <label for="capital" class="col-form-label">Capital City:</label>
-                                    <input type="text" name="capital" class="form-control" id="capital">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="message-text" class="col-form-label">Description:</label>
-                                    <textarea class="form-control" name="description" id="message-text"></textarea>
-                                </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button id="submit-data-button" type="submit" class="btn btn-primary"><i class="mdi mdi-plus"></i> Submit Country</button>
-                            <button id="loading-button" class="btn btn-primary" type="button" style="display: none;" disabled>
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                Adding Country...
-                            </button>
-                        </div>
-                    </form>
-                </div>
+        <div class="modal fade" id="country" tabindex="-1" aria-labelledby="country" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="country">New Unique Country</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <form action="/restricted/settings/country/store" id="submitdata" method="POST">
+                @csrf
+                <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="name" class="col-form-label">Name:</label>
+                            <input type="text" name="name" class="form-control" id="name">
+                        </div>
+                         <div class="mb-3">
+                            <label for="continent" class="col-form-label">Continent:</label><br>
+                            <select name="continent_id" class="form-control" id="continent">
+                                <option selected disabled>Select Continent</option>
+                                @foreach ($continents as $continent)
+                                     <option value="{{ $continent->id }}">{{ $continent->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                         <div class="mb-3">
+                            <label for="code" class="col-form-label">Country Code:</label>
+                            <input type="text" name="code" class="form-control" id="code">
+                        </div>
+                         <div class="mb-3">
+                            <label for="phone-code" class="col-form-label">Phone Code:</label>
+                            <input type="text" name="phone_code" class="form-control" id="phone-name">
+                        </div>
+                         <div class="mb-3">
+                            <label for="phone-sample" class="col-form-label">Sample Phone:</label>
+                            <input type="text" name="sample_phone" class="form-control" id="phone-sample">
+                        </div>
+                         <div class="mb-3">
+                            <label for="phone-length" class="col-form-label">Phone Length:</label>
+                            <input type="text" name="phone_number_length" class="form-control" id="phone-length">
+                        </div>
+                         <div class="mb-3">
+                            <label for="currency" class="col-form-label">Currency:</label>
+                            <input type="text" name="currency" class="form-control" id="currency">
+                        </div>
+                         <div class="mb-3">
+                            <label for="currency-code" class="col-form-label">Currency Code:</label>
+                            <input type="text" name="currency_code" class="form-control" id="currency-code">
+                        </div>
+                         <div class="mb-3">
+                            <label for="capital" class="col-form-label">Capital City:</label>
+                            <input type="text" name="capital" class="form-control" id="capital">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message-text" class="col-form-label">Description:</label>
+                            <textarea class="form-control" name="description" id="message-text"></textarea>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button id="submit-data-button" type="submit" class="btn btn-primary"><i class="mdi mdi-plus"></i> Submit Country</button>
+                    <button id="loading-button" class="btn btn-primary" type="button" style="display: none;" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Adding Country...
+                    </button>
+                </div>
+            </form>
         </div>
+    </div>
+</div>
 
     </div> <!-- container-fluid -->
 </div>
