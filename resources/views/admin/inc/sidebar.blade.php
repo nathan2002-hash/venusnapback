@@ -246,6 +246,19 @@
                         <li><a href="/restricted/points/allocations" key="t-data-tables">Allocations</a></li>
                     </ul>
                 </li>
+                 <li class="menu-title" key="t-components">Settings</li>
+                   <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="bx bx-list-ul"></i>
+                        <span key="t-tables">Location Management</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="/restricted/settings/countries" key="t-data-tables">Countries</a></li>
+                    </ul>
+                     <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="/restricted/settings/continents" key="t-data-tables">Continents</a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
         <!-- Sidebar -->

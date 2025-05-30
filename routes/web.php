@@ -115,10 +115,16 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     Route::get('/album/create', 'Admin\AlbumController@create');
     Route::post('/album/store', 'Admin\AlbumController@store');
 
-     //recommendations routes
-     Route::get('/recommendations', 'Admin\RecommendationController@index');
-     Route::get('/album/create', 'Admin\AlbumController@create');
-     Route::post('/album/store', 'Admin\AlbumController@store');
+    //recommendations routes
+    Route::get('/recommendations', 'Admin\RecommendationController@index');
+    Route::get('/album/create', 'Admin\AlbumController@create');
+    Route::post('/album/store', 'Admin\AlbumController@store');
+
+    //location routes
+    Route::get('/settings/countries', 'Admin\SettingController@countries');
+    Route::get('/settings/continents', 'Admin\SettingController@continents');
+    Route::post('/settings/country/store', 'Admin\SettingController@storeCountry');
+    Route::post('/settings/continent/store', 'Admin\SettingController@storeContinent');
 
 
      Route::get('/start-ad-check', function() {
