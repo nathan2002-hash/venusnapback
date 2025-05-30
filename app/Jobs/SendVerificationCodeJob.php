@@ -86,7 +86,10 @@ class SendVerificationCodeJob implements ShouldQueue
     {
         try {
             Mail::to($this->user->email)
-                ->send(new VerificationEmail($this->code, $this->user));
+                ->send(
+                    (new VerificationEmail($this->code, $this->user))
+                        ->from('security@venusnap.com', 'Venusnap Security')
+                );
 
             \Log::info("Email verification code sent to {$this->user->email}");
         } catch (\Exception $e) {
@@ -94,6 +97,7 @@ class SendVerificationCodeJob implements ShouldQueue
             throw $e;
         }
     }
+
 
     private function normalizePhoneNumber($phone, Country $country)
     {

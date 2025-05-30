@@ -9,6 +9,8 @@ use App\Models\Activity;
 use App\Models\UserSetting;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeFromCeoMail;
 
 class RegistrationJob implements ShouldQueue
 {
@@ -33,16 +35,6 @@ class RegistrationJob implements ShouldQueue
     public function handle(): void
     {
         $randomNumber = mt_rand(1000, 9999);
-
-        // $album = new Album();
-        // $album->name = $this->user->name . $randomNumber;
-        // $album->description = "This is " . $this->user->name . "'s Album";
-        // $album->user_id = $this->user->id;
-        // $album->type = "general";
-        // $album->status = 'active';
-        // $album->is_verified = 0;
-        // $album->visibility = 'public';
-        // $album->save();
 
         $activity = new Activity();
         $activity->title = 'Account Created';
@@ -72,5 +64,11 @@ class RegistrationJob implements ShouldQueue
                 'paypal_email' => $this->user->email
             ]
         );
+
+        Mail::to($this->user->email)->send(new WelcomeFromCeoMail(
+        $this->user,
+        $this->deviceinfo,
+        $this->ipaddress
+    ));
     }
 }
