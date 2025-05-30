@@ -31,6 +31,15 @@ class SendVerificationCodeJob implements ShouldQueue
         $this->message = $message ?? "Your Venusnap verification code is: {$code}";
     }
 
+    public function handle()
+    {
+        if ($this->type === 'phone') {
+            $this->sendSms();
+        } elseif ($this->type === 'email') {
+            $this->sendEmail();
+        }
+    }
+
     /**
      * Execute the job.
      */
