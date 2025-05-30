@@ -55,7 +55,7 @@ class SettingController extends Controller
         $country->description = $request->description;
         $country->phone_code = $request->phone_code;
         $country->save();
-        return redirect('/admin/settings/countries')->with('success', 'Country created successfully.');
+        return redirect('/restricted/settings/countries')->with('success', 'Country created successfully.');
     }
 
 
@@ -70,6 +70,6 @@ class SettingController extends Controller
         $continent->name = $request->name;
         $continent->code = $request->code;
         $continent->save();
-        return redirect('/admin/settings/continents')->with('success', 'Continent created successfully.');
+        return redirect('/restricted/settings/continents')->with('success', 'Continent created successfully.');
     }
 }
