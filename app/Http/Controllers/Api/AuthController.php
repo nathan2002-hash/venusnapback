@@ -58,7 +58,6 @@ class AuthController extends Controller
         ->orWhere('partial_number', $withZero)
         ->orWhere('partial_number', $withoutZero)
         ->first();
-
         }
 
 

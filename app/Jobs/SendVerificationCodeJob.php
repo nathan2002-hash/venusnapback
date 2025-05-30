@@ -4,6 +4,9 @@ namespace App\Jobs;
 
 use App\Mail\VerificationEmail;
 use GuzzleHttp\Client;
+use App\Models\Country;
+use App\Models\SmsProvider;
+use Illuminate\Support\Str;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Mail;
@@ -31,41 +34,39 @@ class SendVerificationCodeJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle()
-    {
-        if ($this->type === 'phone') {
-            $this->sendSms();
-        } elseif ($this->type === 'email') {
-            $this->sendEmail();
-        }
-    }
-
-     protected function sendSms()
+    protected function sendSms()
     {
         try {
-            $beemPhone = $this->formatPhoneTo260($this->user->phone);
+            $country = Country::where('name', $this->user->country)->first();
 
-            $api_key = env('BEEM_API_KEY');
-            $secret_key = env('BEEM_SECRET_KEY');
+            if (!$country) {
+                \Log::error("Country not found for user {$this->user->id}");
+                return;
+            }
 
-            $postData = [
-                'source_addr' => 'Quixnes',
-                'encoding' => 0,
-                'schedule_time' => '',
-                'message' => $this->message,
-                'recipients' => [
-                    ['recipient_id' => '1', 'dest_addr' => $beemPhone],
-                ]
-            ];
+            $formattedPhone = $this->normalizePhoneNumber($this->user->phone, $country);
+            if (!$formattedPhone) {
+                \Log::error("Invalid phone number for user {$this->user->id}");
+                return;
+            }
 
-            $client = new Client(['verify' => false]);
-            $client->post('https://apisms.beem.africa/v1/send', [
-                'json' => $postData,
-                'headers' => [
-                    'Authorization' => 'Basic ' . base64_encode("$api_key:$secret_key"),
-                    'Content-Type' => 'application/json',
-                ],
-            ]);
+            $provider = SmsProvider::where('country_id', $country->id)->first();
+            if (!$provider) {
+                \Log::error("No SMS provider found for country {$country->name}");
+                return;
+            }
+
+            // Use dynamic method based on provider driver
+            $driver = strtolower($provider->driver); // e.g. "beem"
+            $method = "sendWith" . ucfirst($driver);
+
+            if (method_exists($this, $method)) {
+                $this->$method($formattedPhone, $provider);
+                \Log::info("SMS sent to {$formattedPhone} via {$driver}");
+            } else {
+                \Log::error("SMS driver method {$method} not implemented");
+            }
+
         } catch (\Exception $e) {
             \Log::error("Failed to send SMS verification: " . $e->getMessage());
             throw $e;
@@ -85,14 +86,54 @@ class SendVerificationCodeJob implements ShouldQueue
         }
     }
 
-    private function formatPhoneTo260($phone)
+    private function normalizePhoneNumber($phone, Country $country)
     {
-        $phone = preg_replace('/\D/', '', $phone);
+        $phone = preg_replace('/\D/', '', $phone); // Remove non-digits
+        $code = $country->phone_code;
+        $length = $country->phone_number_length;
+        $localLength = $length - strlen($code);
 
-        if (preg_match('/^0(\d{9})$/', $phone)) {
-            return '260' . substr($phone, 1);
+        if (Str::startsWith($phone, '0') && strlen($phone) == $localLength + 1) {
+            return $code . substr($phone, 1);
         }
 
-        return $phone;
+        if (Str::startsWith($phone, $code) && strlen($phone) == $length) {
+            return $phone;
+        }
+
+        if (strlen($phone) == $localLength) {
+            return $code . $phone;
+        }
+
+        return null;
+    }
+
+    /**
+     * Provider: Beem
+     */
+    private function sendWithBeem($phone, $provider)
+    {
+        $client = new Client(['verify' => false]);
+
+        $postData = [
+            'source_addr' => $provider->sender_id ?? 'Quixnes',
+            'encoding' => 0,
+            'schedule_time' => '',
+            'message' => $this->message,
+            'recipients' => [
+                ['recipient_id' => '1', 'dest_addr' => $phone],
+            ]
+        ];
+
+        $api_key = $provider->api_key;
+        $secret_key = $provider->api_secret;
+
+        $client->post('https://apisms.beem.africa/v1/send', [
+            'json' => $postData,
+            'headers' => [
+                'Authorization' => 'Basic ' . base64_encode("$api_key:$secret_key"),
+                'Content-Type' => 'application/json',
+            ],
+        ]);
     }
 }
