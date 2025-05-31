@@ -401,8 +401,14 @@ class AdController extends Controller
                 'meta' => json_encode(['published_by' => $user->id])
             ]);
 
-            $ad->update(['status' => 'review']);
-            $adboard->update(['status' => 'review']);
+            // $ad->update(['status' => 'review']);
+            // $adboard->update(['status' => 'review']);
+
+            $ad->status = 'review';
+            $ad->save();
+
+            $adboard->status = 'review';
+            $adboard->save();
 
             DB::commit();
 
