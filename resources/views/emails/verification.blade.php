@@ -1,7 +1,7 @@
 <x-mail::message>
 # Hello {{ $user->name }},
 
-Your Venusnap verification code is:
+Confirm your glow in the Venus galaxy. ✨
 
 @component('mail::panel')
 ## {{ $code }}
@@ -9,8 +9,8 @@ Your Venusnap verification code is:
 
 This code will expire in 15 minutes.
 
-If you didn't request this code, please ignore this email.
+If you didn't request this code, please ignore this email and continue snapping.
 
-Verification Centre Team<br>
+Shining from the Verification Centre,
 {{ config('app.name') }}
 </x-mail::message>
