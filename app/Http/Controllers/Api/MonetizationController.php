@@ -223,11 +223,15 @@ class MonetizationController extends Controller
         // Calculate the change in earnings (optional)
         $earningsChange = $currentMonthEarnings - $lastMonthEarnings;
 
+        $verifiedMonetizedAlbums = $albums->filter(function ($album) {
+            return $album && $album->is_verified && $album->monetization_status === 'active';
+        });
+
         // Prepare the response data
         $response = [
             'total_earnings' => $account->account_balance, // Total earnings
             'available_balance' => $account->available_balance, // Available balance
-            'albums' => $albums->count(), // List of user's albums
+            'albums' => $verifiedMonetizedAlbums->count(), // List of user's albums
             'latest_payouts' => $latestPayouts, // Latest 5 payouts
             'current_month_earning' => number_format($currentMonthEarnings, 2), // Current month earnings
             'last_month_earning' => number_format($lastMonthEarnings, 2), // Last month earnings
