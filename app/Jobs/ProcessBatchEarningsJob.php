@@ -36,7 +36,7 @@ class ProcessBatchEarningsJob implements ShouldQueue
             ->get()
             ->filter(function ($post) {
                 $album = $post->album;
-                return $album && $album->is_verified && $album->monetization_status === 'active';
+                return $album && $album->monetization_status === 'active';
             });
 
         $groupedByAlbum = $monetizedPosts->groupBy('album_id');

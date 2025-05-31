@@ -6,6 +6,7 @@ use App\Models\Album;
 use App\Models\Payout;
 use App\Models\Account;
 use App\Models\Earning;
+use App\Models\Country;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\MonetizationRequest;
@@ -39,10 +40,12 @@ class MonetizationController extends Controller
             ->where('status', 'active')
             ->whereIn('type', ['creator', 'business'])
             ->where(function ($query) {
-                $query->where('monetization_status', 0)
+                $query->where('monetization_status', '!=', 'active')
                     ->orWhereNull('monetization_status');
             })
-            ->select(['id', 'name', 'type', 'monetization_status', 'status']) // optional fields
+            ->withCount('supports') // Count related supporters
+            ->having('supports_count', '>=', 10) // Only albums with at least 10 supporters
+            ->select(['id', 'name', 'type', 'monetization_status', 'status'])
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
@@ -52,15 +55,10 @@ class MonetizationController extends Controller
         ]);
     }
 
+
     public function countries()
     {
-        $countries = [
-            ['code' => 'US', 'name' => 'United States'],
-            ['code' => 'GB', 'name' => 'United Kingdom'],
-            ['code' => 'CA', 'name' => 'Canada'],
-            ['code' => 'ZM', 'name' => 'Zambia'],
-            // Add all countries you support
-        ];
+        $countries = Country::select('code', 'name')->get();
 
         return response()->json([
             'success' => true,
@@ -224,7 +222,7 @@ class MonetizationController extends Controller
         $earningsChange = $currentMonthEarnings - $lastMonthEarnings;
 
         $verifiedMonetizedAlbums = $albums->filter(function ($album) {
-            return $album && $album->is_verified && $album->monetization_status === 'active';
+            return $album && $album->monetization_status === 'active';
         });
 
         // Prepare the response data
