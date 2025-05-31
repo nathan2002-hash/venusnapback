@@ -58,6 +58,7 @@ class ProcessBatchEarningsJob implements ShouldQueue
 
             if ($user && $user->account && $amountToAdd > 0) {
                 $user->account->increment('available_balance', $amountToAdd);
+                $user->account->increment('account_balance', $amountToAdd);
             }
 
             // Step 4: Log earning entry with points or 0 if no points earned

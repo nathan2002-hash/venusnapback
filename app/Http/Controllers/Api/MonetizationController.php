@@ -58,7 +58,7 @@ class MonetizationController extends Controller
             ['code' => 'US', 'name' => 'United States'],
             ['code' => 'GB', 'name' => 'United Kingdom'],
             ['code' => 'CA', 'name' => 'Canada'],
-             ['code' => 'ZM', 'name' => 'Zambia'],
+            ['code' => 'ZM', 'name' => 'Zambia'],
             // Add all countries you support
         ];
 
