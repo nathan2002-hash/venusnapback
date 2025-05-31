@@ -43,9 +43,8 @@ class MonetizationController extends Controller
                 $query->where('monetization_status', '!=', 'active')
                     ->orWhereNull('monetization_status');
             })
-            ->withCount('supporters') // Count related supporters
-            ->having('supporters_count', '>=', 10) // Only albums with at least 10 supporters
-            ->select(['id', 'name', 'type', 'monetization_status', 'status'])
+            ->withCount('supporters')
+            ->having('supporters_count', '>=', 10)
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
@@ -54,7 +53,6 @@ class MonetizationController extends Controller
             'data' => $albums
         ]);
     }
-
 
     public function countries()
     {
