@@ -67,19 +67,18 @@ class PaymentController extends Controller
     }
 
     public function getConfig()
-    {
-        return response()->json([
-            'success' => true,
-            'config' => [
-                'notice_message' =>
-                    'We are currently not accepting direct payments for points. Please fill out the form below to request points.',
-                'points_options' =>
-                    [1000, 2500, 5000, 10000, 25000, 50000, 100000],
-                'min_points' => 1000,
-                'max_points' => 100000,
-            ],
-        ]);
-    }
+{
+    return response()->json([
+        'success' => true,
+        'config' => [
+            'notice_message' => 'We are currently not accepting direct payments for points. Please fill out the form below to request points.',
+            'points_options' => [1000, 2500, 5000, 10000, 25000, 50000, 100000],
+            'min_points' => 1000,
+            'max_points' => 100000,
+            'show_form' => true, // Set this to false to hide the form
+        ],
+    ]);
+}
 
     public function requestpoints(Request $request)
     {
@@ -135,15 +134,12 @@ class PaymentController extends Controller
     {
         try {
             // Send to admin
-            $adminEmail = 'quixnes@proton.me';
-            if ($adminEmail) {
-                Mail::mailer('smtp')->to('quixnes@proton.me')->queue(
+            Mail::mailer('smtp')->to('quixnes@proton.me')->queue(
                         (new AdminPointsRequestNotification($request))
                             ->from('support@venusnap.com', 'Venusnap Support Team')
-                );
-            }
+            );
 
-             Mail::mailer('smtp')->to($request->email)->queue(
+            Mail::mailer('smtp')->to($request->email)->queue(
                 (new UserPointsRequestConfirmation($request))
                     ->from('support@venusnap.com', 'Venusnap Support Team')
             );
