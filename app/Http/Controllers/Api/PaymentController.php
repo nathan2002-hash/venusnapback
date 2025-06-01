@@ -88,7 +88,7 @@ class PaymentController extends Controller
             'business_name' => 'nullable|string|max:255',
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:20',
-            'points' => 'required|integer|min:',
+            'points' => 'required|integer|min:1000|max:100000',
             'purpose' => 'required|string|max:1000',
         ]);
 
