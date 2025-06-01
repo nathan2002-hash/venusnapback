@@ -106,9 +106,9 @@ class PaymentController extends Controller
             "application_context" => [
                 "cancel_url" => config('app.url') . '/api/paypal/cancel',
                 "return_url" => config('app.url') . '/api/paypal/return',
-                "brand_name" => config('app.name'),
+                // "brand_name" => config('app.name'),
                 "user_action" => "PAY_NOW",
-                "shipping_preference" => "NO_SHIPPING"
+                // "shipping_preference" => "NO_SHIPPING"
             ]
         ];
 
