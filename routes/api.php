@@ -204,6 +204,17 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/create/paypal/order', 'Api\PayController@payment');
     Route::post('/capture/paypal/order', 'Api\PayController@capture');
 
+    Route::post('/paypal/create', 'Api\PaymentController@createPayment');
+
+    // Handle PayPal return
+    Route::get('/paypal/return', 'Api\PaymentController@handleReturn');
+
+    // Capture payment
+    Route::post('/paypal/capture', 'Api\PaymentController@capturePayment');
+
+    // Cancel payment
+    Route::get('/paypal/cancel', 'Api\PaymentController@handleCancel');
+
     Route::get('/payments', 'Api\PaymentController@fetchUserPayments');
     Route::get('/payouts', 'Api\PayoutController@fetchUserPayouts');
 

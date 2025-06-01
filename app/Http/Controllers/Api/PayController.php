@@ -17,7 +17,7 @@ use PayPalCheckoutSdk\Orders\OrdersCaptureRequest;
 
 class PayController extends Controller
 {
-     public function payment(Request $request)
+    public function payment(Request $request)
     {
         $request->validate([
             'amount' => 'required|numeric',
@@ -177,7 +177,7 @@ class PayController extends Controller
     {
         $environment = env('PAYPAL_ENV', 'sandbox');
 
-        if ($environment === 'production') {
+        if ($environment == 'production') {
             $clientId = env('LIVE_PAYPAL_CLIENT_ID');
             $clientSecret = env('LIVE_PAYPAL_SECRET');
             $envInstance = new ProductionEnvironment($clientId, $clientSecret);
