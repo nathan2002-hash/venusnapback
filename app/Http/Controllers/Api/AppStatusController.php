@@ -112,7 +112,7 @@ class AppStatusController extends Controller
 
    protected function getMaintenanceResponse()
     {
-        $messageId = env('MAINTENANCE_MESSAGE_ID');
+        $messageId = env('UPDATE_SUGGESTED_MESSAGE_ID');
         $message = AppMessage::find($messageId);
 
         if ($message) {
