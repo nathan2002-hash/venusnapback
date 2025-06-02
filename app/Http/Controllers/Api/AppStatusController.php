@@ -200,8 +200,8 @@ class AppStatusController extends Controller
     protected function getAppStoreUrl($platform, $countryCode = null)
     {
         $baseUrls = [
-            'android' => config('app.android_store_url'),
-            'ios' => config('app.ios_store_url')
+            'android' => "https://play.google.com/store/apps/details?id=com.enflick.android.TextNow",
+            'ios' => "https://play.google.com/store/apps/details?id=com.enflick.android.TextNow"
         ];
 
         $url = $baseUrls[$platform] ?? $baseUrls['android'];
