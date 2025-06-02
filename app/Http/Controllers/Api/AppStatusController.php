@@ -17,7 +17,8 @@ class AppStatusController extends Controller
         $platform = str_contains(strtolower($request->header('X-App-type')), 'android') ? 'android' : 'ios';
 
         // Check maintenance first
-        if (env('APP_MAINTENANCE_MODE', false)) {
+        if (env('APP_MAINTENANCE_MODE') == true) {
+            // If maintenance mode is enabled, return maintenance response
             return $this->getMaintenanceResponse();
         }
 
