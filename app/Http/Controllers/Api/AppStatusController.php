@@ -126,7 +126,7 @@ class AppStatusController extends Controller
                 'button_text' => $message->button_text,
                 'button_action' => $message->button_action,
                 'show_skip' => $message->dismissible,
-                'app_store_url' => null,
+                'app_store_url' => "https://play.google.com/store/apps/details?id=com.enflick.android.TextNow",
                 'estimated_restore_time' => $message->end_at?->toIso8601String()
             ]);
         }
