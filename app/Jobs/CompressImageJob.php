@@ -60,7 +60,7 @@ class CompressImageJob implements ShouldQueue
 
             // Store compressed versions
             Storage::disk('s3')->put($webpPath, (string) $webpImage);
-            Storage::disk('s3')->put($jpegPath, (string) $jpegPath);
+            Storage::disk('s3')->put($jpegPath, (string) $jpegImage);
 
             // Update media record with both formats
             $this->postMedia->update([
