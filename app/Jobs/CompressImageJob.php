@@ -51,7 +51,7 @@ class CompressImageJob implements ShouldQueue
 
             // Generate both WebP and JPEG versions
             $webpImage = $image->encode(new WebpEncoder(quality: $webpQuality));
-            $jpegImage = $image->encode(new JpegEncoder(quality: $jpegQuality));
+            //$jpegImage = $image->encode(new JpegEncoder(quality: $jpegQuality));
 
             // Generate unique filenames
             $filename = pathinfo($path, PATHINFO_FILENAME);
@@ -60,12 +60,12 @@ class CompressImageJob implements ShouldQueue
 
             // Store compressed versions
             //Storage::disk('s3')->put($webpPath, (string) $webpImage);
-            Storage::disk('s3')->put($jpegPath, (string) $jpegImage);
+            Storage::disk('s3')->put($webpPath, (string) $webpPath);
 
             // Update media record with both formats
             $this->postMedia->update([
                 'status' => 'compressed',
-                'file_path_compress' => $jpegPath,
+                'file_path_compress' => $webpPath,
                 // 'file_path_jpg' => $jpegPath,
                 // 'original_filesize' => strlen($originalImage),
                 // 'compressed_filesize' => min(strlen((string) $webpImage), strlen((string) $jpegImage)),
