@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('post_id');
             $table->string('file_path');
             $table->string('file_path_compress')->nullable();
+            $table->string('file_path_jpg')->nullable();
             $table->string('sequence_order');
             $table->string('status')->default('original');
             $table->string('type')->nullable();

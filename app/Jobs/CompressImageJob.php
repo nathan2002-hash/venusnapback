@@ -66,7 +66,7 @@ class CompressImageJob implements ShouldQueue
             $this->postMedia->update([
                 'status' => 'compressed',
                 'file_path_compress' => $jpegPath,
-                // 'file_path_jpg' => $jpegPath,
+                'file_path_jpg' => $jpegPath,
                 // 'original_filesize' => strlen($originalImage),
                 // 'compressed_filesize' => min(strlen((string) $webpImage), strlen((string) $jpegImage)),
             ]);
