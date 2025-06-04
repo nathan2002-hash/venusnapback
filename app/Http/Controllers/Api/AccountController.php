@@ -55,8 +55,9 @@ class AccountController extends Controller
             'account_name' => 'required_if:method,bank',
             'account_number' => 'required_if:method,bank',
             'routing_number' => 'required_if:method,bank',
+            'swift_code' => 'required_if:method,bank',
             'bank_name' => 'required_if:method,bank',
-            'country' => 'required_if:method,bank',
+            'bank_address' => 'required_if:method,bank',
         ]);
 
         // Update payment method
@@ -65,11 +66,13 @@ class AccountController extends Controller
         if ($validated['method'] === 'paypal') {
             $user->account->paypal_email = $validated['email'];
         } else {
-            $user->account->account_name = $validated['account_name'];
+            $user->account->account_holder_name = $validated['account_name'];
             $user->account->account_number = $validated['account_number'];
-            $user->account->swift_code = $validated['routing_number'];
+            $user->account->account_type = $validated['account_type'];
+            $user->account->routing_number = $validated['routing_number'];
+            $user->account->swift_code = $validated['swift_code'];
             $user->account->bank_name = $validated['bank_name'];
-            $user->account->country = $validated['country'];
+            $user->account->bank_address = $validated['bank_address'];
         }
 
         $user->account->save();

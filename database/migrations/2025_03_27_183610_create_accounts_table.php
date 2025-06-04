@@ -32,10 +32,13 @@ return new class extends Migration
             // Bank transfer fields
             $table->string('account_holder_name')->nullable();  // Bank account holder's name
             $table->string('account_number')->nullable();  // Bank account number
+            $table->string('account_type')->nullable();  // Bank account number
             $table->string('bank_name')->nullable();  // Bank name
-            $table->string('bank_branch')->nullable();  // Bank branch (optional)
+            $table->string('bank_address')->nullable();  // Bank branch (optional)
             $table->string('swift_code')->nullable();  // SWIFT/BIC code for international transfers
-            $table->string('iban')->nullable();  // IBAN for international bank transfers
+            $table->string('routing_number')->nullable();  // IBAN for international bank transfers
+
+            $table->string('reference_no')->nullable();
             $table->timestamps();
         });
     }

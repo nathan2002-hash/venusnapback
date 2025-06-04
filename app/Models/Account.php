@@ -15,6 +15,14 @@ class Account extends Model
         'currency',
         'country',
         'paypal_email',
+        'account_holder_name',
+        'account_number',
+        'account_type',
+        'bank_name',
+        'bank_address',
+        'swift_code',
+        'routing_number',
+        'reference_no',
     ];
 
     public function user(){
