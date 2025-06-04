@@ -87,7 +87,7 @@ class CompressImageJob implements ShouldQueue
             $post->update(['status' => 'active']);
         }
     }
-        // public function handle()
+    // public function handle()
     // {
     //     $path = $this->postMedia->file_path;
     //     $originalImage = Storage::disk('s3')->get($path);
