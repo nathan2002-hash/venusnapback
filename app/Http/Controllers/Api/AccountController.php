@@ -60,6 +60,7 @@ class AccountController extends Controller
             'swift_code' => 'required_if:method,bank',
             'bank_name' => 'required_if:method,bank',
             'bank_address' => 'required_if:method,bank',
+            'account_type' => 'required_if:method,bank',
         ]);
 
         // Update payment method
