@@ -36,11 +36,13 @@ class AccountController extends Controller
             'payment_details' => [
                 'method' => $user->account->payout_method,
                 'email' => $user->account->paypal_email,
-                'account_name' => $user->account->account_name,
+                'account_name' => $user->account->account_holder_name,
                 'account_number' => $user->account->account_number,
-                'routing_number' => $user->account->swift_code,
+                'routing_number' => $user->account->routing_number,
+                'swift_code' => $user->account->swift_code,
                 'bank_name' => $user->account->bank_name,
-                'country' => $user->account->country,
+                'bank_address' => $user->account->bank_address,
+                'account_type' => $user->account->account_type,
             ]
         ]);
     }
