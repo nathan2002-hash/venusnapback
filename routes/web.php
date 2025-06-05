@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Storage;
 use Laravel\Telescope\Telescope;
 use Laravel\Telescope\IncomingEntry;
 
-Route::get('/', function () {
-    return view('user.welcome');
-});
+// Route::get('/', function () {
+//     return view('user.welcome');
+// });
 
 Route::get('/chat', function () {
     return view('chat');
@@ -46,16 +46,24 @@ Route::middleware([
     })->name('dashrd');
 });
 
-Route::get('/test-backblaze-connection', 'Api\PostController@testConnection');
-
-Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
-    $host = request()->header('host');
+$host = request()->header('host');
     $host = explode(':', $host)[0];
     if (in_array($host, ['app.venusnap.com', 'venusnap.com', 'www.venusnap.com'])) {
-        Route::get('/home', 'HomeController@home');
+        Route::get('/', 'HomeController@home');
     } else {
         //Route::resource('home', MarketingHomeController::class);
     }
+
+Route::get('/test-backblaze-connection', 'Api\PostController@testConnection');
+
+Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
+    // $host = request()->header('host');
+    // $host = explode(':', $host)[0];
+    // if (in_array($host, ['app.venusnap.com', 'venusnap.com', 'www.venusnap.com'])) {
+    //     Route::get('/home', 'HomeController@home');
+    // } else {
+    //     //Route::resource('home', MarketingHomeController::class);
+    // }
     Route::get('/welcome', 'Admin\WelcomeController@index')->name('dashboard');
 
     //user routes
