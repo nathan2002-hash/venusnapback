@@ -201,8 +201,11 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/ad/seen', 'Api\PostExploreController@sendAdSeenRequest');
     Route::post('/ad/cta/click/{id}', 'Api\PostExploreController@sendAdCtaClick');
 
-    Route::post('/create/paypal/order', 'Api\PayController@payment');
-    Route::post('/capture/paypal/order', 'Api\PayController@capture');
+    // Route::post('/create/paypal/order', 'Api\PayController@payment');
+    // Route::post('/capture/paypal/order', 'Api\PayController@capture');
+
+    Route::post('/create/payment/intent', 'Api\PaymentController@createPaymentIntent');
+    Route::post('/payment/comfirm', 'Api\PaymentController@confirmPayment');
 
     Route::get('/points/config', 'Api\PaymentController@getConfig');
     Route::post('/request/points', 'Api\PaymentController@requestpoints');

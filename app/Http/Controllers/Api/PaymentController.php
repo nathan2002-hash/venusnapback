@@ -23,6 +23,63 @@ use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
+
+    public function createPaymentIntent(Request $request)
+    {
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        // Create Stripe Payment Intent
+        $paymentIntent = PaymentIntent::create([
+            'amount' => $request->amount * 100, // Convert to cents
+            'currency' => 'usd',
+            'payment_method_types' => ['card'],
+        ]);
+
+        // Save the pending payment in DB
+        $payment = Payment::create([
+            'user_id'        => Auth::user()->id,
+            'amount'         => $request->amount,
+            'payment_method' => 'Stripe',
+            'currency'       => 'usd',
+            'processor'      => 'Stripe',
+            'payment_no'     => $paymentIntent->id, // Store Stripe Payment ID
+            'status'         => 'pending',
+            'purpose'        => $request->purpose,
+            'description'    => $request->description,
+        ]);
+
+        return response()->json([
+            'clientSecret' => $paymentIntent->client_secret,
+            'payment_id'   => $payment->id,
+        ]);
+    }
+
+    public function confirmPayment(Request $request)
+    {
+        // Get Payment Intent ID
+        $paymentIntentId = $request->payment_intent_id;
+
+        // Retrieve Payment Intent from Stripe
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+        $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
+
+        if ($paymentIntent->status == 'succeeded') {
+            // Update DB: Payment successful
+            Payment::where('payment_no', $paymentIntentId)->update([
+                'status' => 'success',
+            ]);
+
+            return response()->json(['message' => 'Payment successful']);
+        } else {
+            // Update DB: Payment failed
+            Payment::where('payment_no', $paymentIntentId)->update([
+                'status' => 'failed',
+            ]);
+
+            return response()->json(['message' => 'Payment failed'], 400);
+        }
+    }
+
     public function fetchUserPayments(Request $request)
     {
         // Get the authenticated user
