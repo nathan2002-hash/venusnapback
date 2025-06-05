@@ -1090,7 +1090,7 @@
           </a>
           <div class="footer-contact pt-3">
             <p>Remote</p>
-            <p class="mt-3"><strong>Phone:</strong> <span>+260 970 333 596</span></p>
+            <p class="mt-3"><strong>Phone:</strong> <span>+1 (681) 435-4816</span></p>
             <p><strong>Email:</strong> <span>support@venusnap.com</span></p>
           </div>
           {{-- <div class="social-links d-flex mt-4">
