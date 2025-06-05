@@ -52,7 +52,12 @@
                                         <div class="card-body">
                                             <i class="bx bx-broadcast mb-4 h1 text-primary"></i>
                                             <h5 class="font-size-15 text-uppercase">What is Venusnap?</h5>
-                                            <p class="text-muted mb-0">Venusnap is a social media platform. Stay tuned for more exciting updates coming soon!</p>
+                                            <p class="text-muted mb-2">
+                                                Venusnap is a visual-first social platform by <strong>Quixnes</strong>, built to empower creators and entrepreneurs worldwide.
+                                            </p>
+                                            <p class="text-muted mb-0">
+                                                Our platform lets users share albums, support content creators, and monetize visual stories. Stay tuned for more exciting updates!
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -74,7 +79,7 @@
                                                 Do you need Support?</h5>
                                             <p class="text-muted mb-0">If you have any questions or need help, feel free to reach out to us! <a
                                                         href="mailto:contact@venusnap.com"
-                                                        class="text-decoration-underline">contact@venusnap.com</a></p>
+                                                        class="text-decoration-underline">support@venusnap.com</a></p>
                                         </div>
                                     </div>
                                 </div>
