@@ -12,7 +12,7 @@ class CategoryController extends Controller
 {
     public function post()
     {
-        $categories = Category::orderBy('created_at', 'desc')->paginate(30);
+        $categories = Category::orderBy('created_at', 'desc')->paginate(100);
         return view('admin.categories.index', [
            'categories' => $categories,
         ]);
@@ -20,7 +20,7 @@ class CategoryController extends Controller
 
     public function album()
     {
-        $categories = AlbumCategory::orderBy('created_at', 'desc')->paginate(30);
+        $categories = AlbumCategory::orderBy('created_at', 'desc')->paginate(100);
         return view('admin.categories.albumindex', [
            'categories' => $categories,
         ]);
