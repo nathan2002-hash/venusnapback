@@ -29,7 +29,7 @@ class SendTwoFactorCodeJob implements ShouldQueue
     public function handle()
     {
         Mail::mailer('smtp')->to($this->user->email)->send(
-            (new TwoFactorCodeMail($this->user->name, $this->code))
+            (new TwoFactorCodeMail($this->user->name, $this->cod))
                 ->from('security@venusnap.com', 'Venusnap Security Team')
         );
     }
