@@ -35,6 +35,16 @@ class PaymentController extends Controller
             'payment_method_types' => ['card'],
         ]);
 
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+        $ipaddress = $realIp;
+
+        $paymentsession = PaymentSession::create([
+            'user_id' => Auth::user()->id,
+            'ip_address' => $ipaddress,
+            'device_info' => $request->header('Device-Info'),
+            'user_agent' => $request->header('User-Agent'),
+        ]);
+
         // Save the pending payment in DB
         $payment = Payment::create([
             'user_id'        => Auth::user()->id,
@@ -45,6 +55,7 @@ class PaymentController extends Controller
             'payment_no'     => $paymentIntent->id, // Store Stripe Payment ID
             'status'         => 'pending',
             'purpose'        => $request->purpose,
+            'payment_session_id' => $paymentsession->id,
             'description'    => $request->description,
         ]);
 
