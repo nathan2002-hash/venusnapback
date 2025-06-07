@@ -7,6 +7,7 @@ use App\Models\Payment;
 use Stripe\PaymentIntent;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Jobs\SendPaymentReceipt;
 use App\Models\PaymentSession;
 use App\Models\PointRequest;
 use Illuminate\Support\Facades\Auth;
@@ -111,7 +112,8 @@ class PaymentController extends Controller
             }
 
              $receipt = $this->generateReceipt($payment);
-             dispatch(new \App\Jobs\SendPaymentReceipt($payment->user->email, $receipt['html']));
+             SendPaymentReceipt::dispatch($payment->user->email, $receipt['html']);
+             //dispatch(new \App\Jobs\SendPaymentReceipt($payment->user->email, $receipt['html']));
 
             return response()->json([
                 'status' => 'completed',
