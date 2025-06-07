@@ -16,13 +16,6 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     {
         parent::boot();
 
-    //    Horizon::routeSmsNotificationsTo(function ($notifiable, $notification) {
-    //         $job = class_basename($notification->job ?? 'Unknown');
-    //         $message = "Venusnap Problem Detected: {$job} job failed.";
-
-    //         (new \App\Notifications\SmsHorizonNotification())->send('260970333596', $message);
-    //     });
-
         // Horizon::routeSmsNotificationsTo('15556667777');
         // Horizon::routeMailNotificationsTo('example@example.com');
         // Horizon::routeSlackNotificationsTo('slack-webhook-url', '#channel');

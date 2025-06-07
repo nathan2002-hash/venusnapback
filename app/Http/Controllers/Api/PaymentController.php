@@ -19,6 +19,7 @@ use PayPalCheckoutSdk\Orders\OrdersCaptureRequest;
 use PayPalCheckoutSdk\Orders\OrdersGetRequest;
 use App\Mail\UserPointsRequestConfirmation;
 use App\Mail\AdminPointsRequestNotification;
+use App\Mail\PaymentReceipt;
 use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
@@ -57,6 +58,10 @@ class PaymentController extends Controller
             'purpose'        => $request->purpose,
             'payment_session_id' => $paymentsession->id,
             'description'    => $request->description,
+            'metadata' => [
+                'points' => $request->points,
+                'stripe_response' => $paymentIntent->toArray(),
+            ],
         ]);
 
         return response()->json([
@@ -66,6 +71,68 @@ class PaymentController extends Controller
     }
 
     public function confirmPayment(Request $request)
+    {
+        $request->validate([
+            'payment_intent_id' => 'required|string',
+        ]);
+
+        // Retrieve the payment record first
+        $payment = Payment::where('payment_no', $request->payment_intent_id)->first();
+
+        if (!$payment) {
+            return response()->json(['message' => 'Payment not found'], 404);
+        }
+
+        // Check if already completed
+        if ($payment->status === 'completed') {
+            return response()->json([
+                'status' => 'already_completed',
+                'message' => 'Payment was already processed',
+                'points_added' => $payment->metadata['points'] ?? 0,
+            ]);
+        }
+
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+        $paymentIntent = PaymentIntent::retrieve($request->payment_intent_id);
+
+        if ($paymentIntent->status == 'succeeded') {
+            $metadata = $payment->metadata;
+            $points = $metadata['points'] ?? 0;
+
+            // Update payment status
+            $payment->update([
+                'status' => 'completed',
+                'metadata->stripe_response' => $paymentIntent->toArray(),
+            ]);
+
+            // Add points to user
+            if ($points > 0 && $payment->user) {
+                $payment->user->increment('points', $points);
+            }
+
+             $receipt = $this->generateReceipt($payment);
+             Mail::to($payment->user->email)->send(new PaymentReceipt($receipt['html']));
+
+            return response()->json([
+                'status' => 'completed',
+                'points_added' => $points,
+                'receipt' => $this->generateReceipt($payment),
+            ]);
+        } else {
+            // Update DB: Payment failed
+            $payment->update([
+                'status' => 'failed',
+                'metadata->failure_reason' => 'Stripe status: ' . $paymentIntent->status,
+            ]);
+
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Payment not completed at Stripe',
+            ], 400);
+        }
+    }
+
+    public function confirmgPayment(Request $request)
     {
         // Get Payment Intent ID
         $paymentIntentId = $request->payment_intent_id;
@@ -89,6 +156,111 @@ class PaymentController extends Controller
 
             return response()->json(['message' => 'Payment failed'], 400);
         }
+    }
+
+    protected function generateReceipt(Payment $payment)
+    {
+        // Markdown version (for APIs/logs)
+        $markdownReceipt = "## Payment Receipt\n\n";
+        $markdownReceipt .= "**Transaction ID:** {$payment->payment_no}\n";
+        $markdownReceipt .= "**Date:** " . $payment->created_at->format('F j, Y, g:i a T') . "\n";
+        $markdownReceipt .= "**Status:** " . ucfirst($payment->status) . "\n";
+        $markdownReceipt .= "**Amount:** $" . number_format($payment->amount, 2) . " {$payment->currency}\n";
+        $markdownReceipt .= "**Payment Method:** " . ucfirst($payment->payment_method) . "\n";
+        $markdownReceipt .= "**Purpose:** {$payment->purpose}\n";
+        $markdownReceipt .= "**Description:** {$payment->description}\n";
+
+        if (isset($payment->metadata['points'])) {
+            $markdownReceipt .= "**Points Added:** {$payment->metadata['points']}\n";
+        }
+
+        $markdownReceipt .= "\nThank you for your purchase!";
+
+        // HTML version (for email)
+        $htmlReceipt = '
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <title>Payment Receipt</title>
+            <style>
+                body { font-family: "Helvetica Neue", Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { text-align: center; margin-bottom: 30px; }
+                .logo { max-width: 150px; }
+                .receipt-container { background: #f9f9f9; border-radius: 8px; padding: 25px; margin-bottom: 20px; }
+                .receipt-title { font-size: 24px; font-weight: 600; margin-bottom: 20px; color: #32325d; }
+                .receipt-details { margin-bottom: 25px; }
+                .detail-row { display: flex; margin-bottom: 8px; }
+                .detail-label { font-weight: 600; width: 150px; }
+                .amount-row { background: #f6f9fc; padding: 15px; border-radius: 6px; margin: 20px 0; }
+                .amount { font-size: 28px; font-weight: 600; color: #32325d; }
+                .footer { text-align: center; margin-top: 30px; font-size: 14px; color: #8898aa; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <img src="'.url('images/logo.png').'" alt="Company Logo" class="logo">
+            </div>
+
+            <div class="receipt-container">
+                <div class="receipt-title">Payment Receipt</div>
+
+                <div class="amount-row">
+                    <div>Amount Paid</div>
+                    <div class="amount">$'.number_format($payment->amount, 2).'</div>
+                </div>
+
+                <div class="receipt-details">
+                    <div class="detail-row">
+                        <div class="detail-label">Transaction ID:</div>
+                        <div>'.$payment->payment_no.'</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Date:</div>
+                        <div>'.$payment->created_at->format('F j, Y, g:i a T').'</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Status:</div>
+                        <div>'.ucfirst($payment->status).'</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Payment Method:</div>
+                        <div>'.ucfirst($payment->payment_method).'</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Purpose:</div>
+                        <div>'.$payment->purpose.'</div>
+                    </div>';
+
+        if (isset($payment->metadata['points'])) {
+            $htmlReceipt .= '
+                    <div class="detail-row">
+                        <div class="detail-label">Points Added:</div>
+                        <div>'.$payment->metadata['points'].'</div>
+                    </div>';
+        }
+
+        $htmlReceipt .= '
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <div style="font-weight: 600; margin-bottom: 10px;">Description:</div>
+                    <div>'.$payment->description.'</div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>Thank you for your purchase!</p>
+                <p>If you have any questions, please contact our support team.</p>
+                <p>© '.date('Y').' '.config('app.name').'. All rights reserved.</p>
+            </div>
+        </body>
+        </html>';
+
+        return [
+            'markdown' => $markdownReceipt,
+            'html' => $htmlReceipt
+        ];
     }
 
     public function fetchUserPayments(Request $request)
