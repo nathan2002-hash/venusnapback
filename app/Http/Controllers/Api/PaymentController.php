@@ -196,13 +196,13 @@ class PaymentController extends Controller
                 .detail-row { display: flex; margin-bottom: 8px; }
                 .detail-label { font-weight: 600; width: 150px; }
                 .amount-row { background: #f6f9fc; padding: 15px; border-radius: 6px; margin: 20px 0; }
-                .amount { font-size: 28px; font-weight: 600; color: #32325d; }
+                .amount { font-size: 28px; font-weight: 600; color: #7C4DFF; }
                 .footer { text-align: center; margin-top: 30px; font-size: 14px; color: #8898aa; }
             </style>
         </head>
         <body>
             <div class="header">
-                <img src="'.url('images/logo.png').'" alt="Company Logo" class="logo">
+                <img src="https://app.venusnap.com/assets1/img/logo1.png" alt="Company Logo" class="logo">
             </div>
 
             <div class="receipt-container">
@@ -224,7 +224,7 @@ class PaymentController extends Controller
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Status:</div>
-                        <div>'.ucfirst($payment->status).'</div>
+                        <div>"Completed"</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Payment Method:</div>
