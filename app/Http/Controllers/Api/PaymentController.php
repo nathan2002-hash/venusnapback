@@ -111,7 +111,7 @@ class PaymentController extends Controller
             }
 
              $receipt = $this->generateReceipt($payment);
-             Mail::to($payment->user->email)->send(new PaymentReceipt($receipt['html']));
+             dispatch(new \App\Jobs\SendPaymentReceipt($payment->user->email, $receipt['html']));
 
             return response()->json([
                 'status' => 'completed',
