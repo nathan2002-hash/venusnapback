@@ -71,7 +71,7 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function confirmPayment(Request $request)
+    public function confirmPayjment(Request $request)
     {
         $request->validate([
             'payment_intent_id' => 'required|string',
@@ -125,7 +125,7 @@ class PaymentController extends Controller
         }
     }
 
-    public function confirmgPayment(Request $request)
+    public function confirmPayment(Request $request)
     {
         // Get Payment Intent ID
         $paymentIntentId = $request->payment_intent_id;
@@ -136,9 +136,19 @@ class PaymentController extends Controller
 
         if ($paymentIntent->status == 'succeeded') {
             // Update DB: Payment successful
+            $payment = Payment::where('payment_no', $paymentIntentId)->first();
+            $metadata = $payment->metadata;
+            $points = $metadata['points'] ?? 0;
             Payment::where('payment_no', $paymentIntentId)->update([
                 'status' => 'success',
             ]);
+
+            if ($points > 0 && $payment->user) {
+                $payment->user->increment('points', $points);
+            }
+
+             $receipt = $this->generateReceipt($payment);
+             SendPaymentReceipt::dispatch($payment->user->email, $receipt['html']);
 
             return response()->json(['message' => 'Payment successful']);
         } else {

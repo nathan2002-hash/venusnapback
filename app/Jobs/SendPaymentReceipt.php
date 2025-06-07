@@ -25,6 +25,10 @@ class SendPaymentReceipt implements ShouldQueue
      */
      public function handle()
     {
-        Mail::to($this->email)->send(new PaymentReceipt($this->htmlContent));
+         Mail::to($this->email)
+            ->send(
+                (new PaymentReceipt($this->htmlContent))
+                    ->from('billing@venusnap.com', 'Venusnap Billing Team')
+            );
     }
 }
