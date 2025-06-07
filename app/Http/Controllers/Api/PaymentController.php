@@ -129,17 +129,17 @@ class PaymentController extends Controller
     {
         // Get Payment Intent ID
         $paymentIntentId = $request->payment_intent_id;
+        $payment = Payment::find($paymentIntentId);
 
         // Retrieve Payment Intent from Stripe
         Stripe::setApiKey(env('STRIPE_SECRET'));
-        $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
+        $paymentIntent = PaymentIntent::retrieve($payment->payment_no);
 
         if ($paymentIntent->status == 'succeeded') {
             // Update DB: Payment successful
-            $payment = Payment::where('payment_no', $paymentIntentId)->first();
             $metadata = $payment->metadata;
             $points = $metadata['points'] ?? 0;
-            Payment::where('payment_no', $paymentIntentId)->update([
+            Payment::where('payment_no', $payment->payment_no)->update([
                 'status' => 'success',
             ]);
 
