@@ -84,15 +84,6 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Payment not found'], 404);
         }
 
-        // Check if already completed
-        if ($payment->status === 'completed') {
-            return response()->json([
-                'status' => 'already_completed',
-                'message' => 'Payment was already processed',
-                'points_added' => $payment->metadata['points'] ?? 0,
-            ]);
-        }
-
         Stripe::setApiKey(env('STRIPE_SECRET'));
         $paymentIntent = PaymentIntent::retrieve($request->payment_intent_id);
 
@@ -100,11 +91,15 @@ class PaymentController extends Controller
             $metadata = $payment->metadata;
             $points = $metadata['points'] ?? 0;
 
-            // Update payment status
-            $payment->update([
-                'status' => 'completed',
-                'metadata->stripe_response' => $paymentIntent->toArray(),
+
+            Payment::where('payment_no', $request->payment_intent_id)->update([
+                'status' => 'success',
             ]);
+            // Update payment status
+            // $payment->update([
+            //     'status' => 'success',
+            //     'metadata->stripe_response' => $paymentIntent->toArray(),
+            // ]);
 
             // Add points to user
             if ($points > 0 && $payment->user) {
@@ -115,11 +110,7 @@ class PaymentController extends Controller
              SendPaymentReceipt::dispatch($payment->user->email, $receipt['html']);
              //dispatch(new \App\Jobs\SendPaymentReceipt($payment->user->email, $receipt['html']));
 
-            return response()->json([
-                'status' => 'completed',
-                'points_added' => $points,
-                'receipt' => $this->generateReceipt($payment),
-            ]);
+           return response()->json(['message' => 'Payment successful']);
         } else {
             // Update DB: Payment failed
             $payment->update([
