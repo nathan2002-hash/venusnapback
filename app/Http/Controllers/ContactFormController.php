@@ -12,6 +12,13 @@ class ContactFormController extends Controller
 {
     public function submit(Request $request)
     {
+         if ($request->filled('website')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bot detected.'
+            ], 403);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',

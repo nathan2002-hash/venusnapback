@@ -1019,6 +1019,7 @@
             <div class="form-wrapper" data-aos="fade-up" data-aos-delay="400">
               <form action="{{ route('contact.submit') }}" method="post" role="form" class="php-email-form">
                 @csrf
+                <input type="text" name="website" style="display: none;" autocomplete="off">
                 <div class="row">
                   <div class="col-md-6 form-group">
                     <div class="input-group">
