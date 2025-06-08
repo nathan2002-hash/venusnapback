@@ -216,7 +216,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/points', 'Api\PointController@getPoints');
     Route::get('/payment-info', 'Api\PointController@paymentinfo');
 
-    Route::get('/user/settings/monetization/status', 'Api\SettingsController@getMonetizationStatus');
+    Route::get('/user/settings/monetization/status', 'Api\SettingController@getMonetizationStatus');
 
     Route::get('/user/monetization/status', 'Api\MonetizationController@getMonetizationStatus');
     Route::get('/user/monetization/dashboard', 'Api\MonetizationController@getUserDashboardData');

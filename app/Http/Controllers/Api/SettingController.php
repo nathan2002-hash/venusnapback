@@ -46,4 +46,24 @@ class SettingController extends Controller
             'new_value' => $validated['setting_value']
         ]);
     }
+
+    public function getMonetizationStatus()
+    {
+        $user = Auth::user();
+
+        // Assuming you have a monetization_requests table or similar
+        // $monetization = MonetizationRequest::where('user_id', $user->id)->first();
+
+        // if (!$monetization) {
+        //     return response()->json([
+        //         'status' => 'not_applied',
+        //         'message' => 'You have not applied for monetization yet'
+        //     ]);
+        // }
+
+        return response()->json([
+            'status' => 'pending', // 'pending', 'approved', 'rejected'
+            'message' => 'Your account is under review we will notify you' // Message from admin/reviewer
+        ]);
+    }
 }
