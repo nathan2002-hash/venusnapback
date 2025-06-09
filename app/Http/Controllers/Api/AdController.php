@@ -1051,4 +1051,21 @@ class AdController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public function adTerms()
+    {
+        return response()->json([
+            'message' => 'Are you sure you want to publish this ad?',
+            'terms' => implode("\n", [
+                '1. Your ad will be displayed based on your allocated Points until the balance runs out.',
+                '2. Ads will appear in the Explore section and may be recommended to users based on relevance.',
+                '3. All ads must comply with our content policies. Violations may lead to removal or suspension.',
+                '4. Ads do not support likes, comments, or shares. Users can only click on the provided URL.',
+                '5. Ad creatives must meet quality standards. Poor-quality ads may be rejected.',
+                '6. AI-generated ads are subject to approval to ensure compliance with our guidelines.',
+                '7. You can edit, pause, or delete your ad at any time.',
+                '8. If you delete or stop an ad, any remaining points will be returned to your account.',
+            ])
+            ]);
+    }
 }

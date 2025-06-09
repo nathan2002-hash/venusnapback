@@ -42,10 +42,6 @@ Route::middleware([
     })->name('dashrd');
 });
 
-
-
-Route::get('/test-backblaze-connection', 'Api\PostController@testConnection');
-
 Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
 $host = request()->header('host');
     $host = explode(':', $host)[0];
