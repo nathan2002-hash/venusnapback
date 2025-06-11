@@ -155,6 +155,8 @@ class AlbumController extends Controller
         $album->type = 'creator';
         $album->status = 'active';
         $album->name = $request->name;
+        $album->album_category_id = $request->content_type;
+        $album->content_type = $request->content_type;
         $album->description = $request->description;
         $album->visibility = $request->visibility;
         $album->release_date = $request->release_date;
