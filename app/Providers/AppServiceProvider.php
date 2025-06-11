@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Gate;
+use App\Models\User;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,13 +28,13 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
         Passport::loadKeysFrom(storage_path('oauth'));
-        //Passport::loadKeysFrom(__DIR__.'/../secrets/oauth');
+        Passport::tokensExpireIn(now()->addDays(15)); // Access tokens expire in 15 days
+        Passport::refreshTokensExpireIn(now()->addDays(30)); // Refresh tokens expire in 30 days
 
-        // Register Passport routes
-    //Passport::routes();
-
-    // Optional: Set token expiration times
-    Passport::tokensExpireIn(now()->addDays(15)); // Access tokens expire in 15 days
-    Passport::refreshTokensExpireIn(now()->addDays(30)); // Refresh tokens expire in 30 days
+        Gate::define('viewPulse', function (User $user) {
+            return in_array($user->email, [
+                'nathan@quixines.com', // your email here
+            ]);
+        });
     }
 }
