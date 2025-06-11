@@ -118,7 +118,7 @@ class CreateNotificationJob implements ShouldQueue
 
         try {
             // Download Firebase credentials
-            $jsonContent = file_get_contents('https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/venusnap-54d5a-firebase-adminsdk-fbsvc-b887c409e0.json');
+            $jsonContent = file_get_contents('https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/venusnap-d5340-firebase-adminsdk-fbsvc-b55072fb51.json');
 
             if ($jsonContent === false) {
                 throw new \Exception('Failed to fetch Firebase credentials');
