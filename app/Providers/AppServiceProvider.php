@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('viewPulse', function (User $user) {
             return in_array($user->email, [
-                'nathan@quixines.com', // your email here
+                'nathan@venusnap.com', // your email here
             ]);
         });
     }
