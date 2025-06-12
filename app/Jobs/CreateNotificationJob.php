@@ -185,13 +185,10 @@ class CreateNotificationJob implements ShouldQueue
         $data = json_decode($notification->data, true);
         $type = $this->determineTypeFromAction($notification->action);
 
-        // For media-specific actions, we need both the notifiable_id (post/album) and media_id
-        $mediaId = null;
+        // For media-specific actions, include the post_id in metadata
         if (in_array($notification->action, ['admired', 'liked', 'commented', 'replied'])) {
             if ($notification->notifiable_type === 'App\Models\PostMedia') {
-                $mediaId = $notification->notifiable_id;
-            } elseif (isset($data['media_id'])) {
-                $mediaId = $data['media_id'];
+                $data['post_id'] = $this->notifiable->post_id;
             }
         }
 
@@ -204,8 +201,8 @@ class CreateNotificationJob implements ShouldQueue
         return [
             'type' => $type,
             'action' => $notification->action,
-            'notifiable_id' => (string)$notification->notifiable_id, // Could be post_id, album_id, etc.
-            'notifiablemedia_id' => (string)($mediaId ?? '0'), // Media ID if available
+            'notifiable_id' => (string)$notification->notifiable_id, // Could be post_media_id or album_id
+            'notifiablemedia_id' => $data['media_id'] ?? '0',
             'screen_to_open' => $this->getTargetScreen($notification->action),
             'metadata' => $this->sanitizeData($data),
             'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
