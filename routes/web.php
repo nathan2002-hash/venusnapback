@@ -134,20 +134,3 @@ $host = request()->header('host');
         return response()->json(['message' => 'Ad points check job started']);
     });
 });
-
-
-Route::get('/.well-known/assetlinks.json', function () {
-    return response()->json([
-        [
-            "relation" => ["delegate_permission/common.handle_all_urls"],
-            "target" => [
-                "namespace" => "android_app",
-                "package_name" => "com.venusnap.app",
-                "sha256_cert_fingerprints" => [
-                    "82:EF:95:34:FA:D4:BA:53:77:26:28:22:30:21:9A:7F:76:84:EA:58:9A:4A:B7:53:AD:06:28:FD:5F:C4:C1:69"
-                ]
-            ]
-        ]
-    ]);
-});
-
