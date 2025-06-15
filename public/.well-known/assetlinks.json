@@ -1,5 +1,10 @@
 [{
   "relation": ["delegate_permission/common.handle_all_urls"],
-  "target" : { "namespace": "android_app", "package_name": "com.example.venusnap",
-               "sha256_cert_fingerprints": ["6A:0F:EC:B5:30:24:2C:9C:57:60:9A:4F:EB:BD:49:AF:3B:53:7A:51:ED:13:4E:41:D6:B7:18:AA:9C:C0:AB:CC"] }
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.venusnap.app",
+    "sha256_cert_fingerprints": [
+      "BD:8B:AA:4D:A3:21:EE:93:A5:FD:BD:58:7D:DA:39:A2:7C:C0:B4:0C"
+    ]
+  }
 }]
