@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AppMessageUserAction;
 use App\Models\Post;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class AppStatusController extends Controller
 {
@@ -221,49 +222,51 @@ class AppStatusController extends Controller
         return $url;
     }
 
-  public function getAlbumImages(Request $request)
-{
-    $request->validate([
-        'album_id' => 'required|integer|exists:albums,id',
-        'page' => 'sometimes|integer|min:1'
-    ]);
+    public function getAlbumImages(Request $request)
+    {
+        $request->validate([
+            'album_id' => 'required|integer|exists:albums,id',
+            'page' => 'sometimes|integer|min:1'
+        ]);
 
-    $perPage = 8;
-    $page = $request->input('page', 1);
+        $perPage = 8;
+        $page = $request->input('page', 1);
 
-    // Get all posts and their media for the album
-    $posts = Post::with(['postMedias.comments', 'postMedias.admires'])
-        ->where('album_id', $request->album_id)
-        ->where('status', 'active')
-        ->get();
+        $posts = Post::with(['postMedias.comments', 'postMedias.admires'])
+            ->where('album_id', $request->album_id)
+            ->where('status', 'active')
+            ->get();
 
-    // Flatten all media from all posts
-    $allImages = collect();
-    foreach ($posts as $post) {
-        foreach ($post->postMedias->sortBy('sequence_order') as $media) {
-            $allImages->push([
-                'id' => $media->id,
-                'url' => Storage::disk('s3')->url($media->file_path_compress),
-                'post_id' => $post->id,
-                'post_description' => $post->description ?: 'No description provided by the creator',
-                'image_count' => $post->postMedias->count(),
-                'created_at' => $media->created_at,
-                'comments_count' => $media->comments->count(),
-                'likes_count' => $media->admires->count(),
-            ]);
+        $allImages = collect();
+
+        foreach ($posts as $post) {
+            foreach ($post->postMedias->sortBy('sequence_order') as $media) {
+                $allImages->push([
+                    'id' => $media->id,
+                    'url' => Storage::disk('s3')->url($media->file_path_compress),
+                    'post_id' => $post->id,
+                    'post_description' => $post->description ?: 'No description provided by the creator',
+                    'image_count' => $post->postMedias->count(),
+                    'created_at' => $media->created_at,
+                    'comments_count' => $media->comments->count(),
+                    'likes_count' => $media->admires->count(),
+                ]);
+            }
         }
+
+        // Create Laravel-style paginator manually
+        $total = $allImages->count();
+        $sliced = $allImages->slice(($page - 1) * $perPage, $perPage)->values();
+
+        $paginator = new LengthAwarePaginator(
+            $sliced,
+            $total,
+            $perPage,
+            $page,
+            ['path' => url()->current(), 'query' => $request->query()]
+        );
+
+        return response()->json($paginator);
     }
-
-    // Paginate
-    $paginatedImages = $allImages->slice(($page - 1) * $perPage, $perPage)->values();
-    $hasMore = $allImages->count() > $page * $perPage;
-
-    return response()->json([
-        'success' => true,
-        'images' => $paginatedImages,
-        'has_more' => $hasMore,
-        'total_images' => $allImages->count(),
-    ]);
-}
 
 }
