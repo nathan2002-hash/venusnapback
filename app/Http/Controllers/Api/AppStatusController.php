@@ -6,6 +6,8 @@ use App\Models\AppMessage;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\AppMessageUserAction;
+use App\Models\Post;
+use Illuminate\Support\Facades\Storage;
 
 class AppStatusController extends Controller
 {
@@ -111,7 +113,7 @@ class AppStatusController extends Controller
         return response()->json(['success' => true]);
     }
 
-   protected function getMaintenanceResponse()
+    protected function getMaintenanceResponse()
     {
         $messageId = env('UPDATE_SUGGESTED_MESSAGE_ID');
         $message = AppMessage::find($messageId);
@@ -145,57 +147,57 @@ class AppStatusController extends Controller
     }
 
     protected function checkVersionRequirements($platform, $currentVersion)
-{
-    $minVersions = [
-        'android' => env('MIN_ANDROID_VERSION', '2.0'),
-        'ios' => env('MIN_IOS_VERSION', '2.0')
-    ];
+    {
+        $minVersions = [
+            'android' => env('MIN_ANDROID_VERSION', '2.0'),
+            'ios' => env('MIN_IOS_VERSION', '2.0')
+        ];
 
-    $forceUpdateVersions = json_decode(env('FORCE_UPDATE_VERSIONS', '[]'), true);
+        $forceUpdateVersions = json_decode(env('FORCE_UPDATE_VERSIONS', '[]'), true);
 
-    // Check if current version is below minimum
-    if (version_compare($currentVersion, $minVersions[$platform], '<')) {
-        $isCritical = in_array($currentVersion, $forceUpdateVersions[$platform] ?? []);
-        $messageType = $isCritical ? 'update_required' : 'update_suggested';
-        $messageId = env(strtoupper($messageType).'_MESSAGE_ID');
+        // Check if current version is below minimum
+        if (version_compare($currentVersion, $minVersions[$platform], '<')) {
+            $isCritical = in_array($currentVersion, $forceUpdateVersions[$platform] ?? []);
+            $messageType = $isCritical ? 'update_required' : 'update_suggested';
+            $messageId = env(strtoupper($messageType).'_MESSAGE_ID');
 
-        $message = AppMessage::find($messageId);
+            $message = AppMessage::find($messageId);
 
-        if ($message) {
+            if ($message) {
+                return response()->json([
+                    'status' => $messageType,
+                    'title' => $message->title,
+                    'message' => $message->content,
+                    'image' => asset($message->image_path),
+                    'button_text' => $message->button_text,
+                    'button_action' => $message->button_action,
+                    'show_skip' => !$isCritical,
+                    'app_store_url' => $this->getAppStoreUrl($platform),
+                    'current_version' => $currentVersion,
+                    'min_version' => $minVersions[$platform],
+                    'message_id' => $messageId,
+                ]);
+            }
+
+            // Fallback if no message configured
             return response()->json([
                 'status' => $messageType,
-                'title' => $message->title,
-                'message' => $message->content,
-                'image' => asset($message->image_path),
-                'button_text' => $message->button_text,
-                'button_action' => $message->button_action,
+                'title' => $isCritical ? 'Update Required' : 'New Version Available',
+                'message' => $isCritical
+                    ? 'This version is no longer supported. Please update to continue using the app.'
+                    : 'A newer version with exciting features is available!',
+                'image' => 'https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/update.jpg',
+                'button_text' => 'Update Now',
+                'button_action' => 'update',
                 'show_skip' => !$isCritical,
                 'app_store_url' => $this->getAppStoreUrl($platform),
                 'current_version' => $currentVersion,
-                'min_version' => $minVersions[$platform],
-                'message_id' => $messageId,
+                'min_version' => $minVersions[$platform]
             ]);
         }
 
-        // Fallback if no message configured
-        return response()->json([
-            'status' => $messageType,
-            'title' => $isCritical ? 'Update Required' : 'New Version Available',
-            'message' => $isCritical
-                ? 'This version is no longer supported. Please update to continue using the app.'
-                : 'A newer version with exciting features is available!',
-            'image' => 'https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/update.jpg',
-            'button_text' => 'Update Now',
-            'button_action' => 'update',
-            'show_skip' => !$isCritical,
-            'app_store_url' => $this->getAppStoreUrl($platform),
-            'current_version' => $currentVersion,
-            'min_version' => $minVersions[$platform]
-        ]);
+        return null;
     }
-
-    return null;
-}
 
     protected function getAppStoreUrl($platform, $countryCode = null)
     {
@@ -218,4 +220,50 @@ class AppStatusController extends Controller
 
         return $url;
     }
+
+  public function getAlbumImages(Request $request)
+{
+    $request->validate([
+        'album_id' => 'required|integer|exists:albums,id',
+        'page' => 'sometimes|integer|min:1'
+    ]);
+
+    $perPage = 8;
+    $page = $request->input('page', 1);
+
+    // Get all posts and their media for the album
+    $posts = Post::with(['postMedias.comments', 'postMedias.admires'])
+        ->where('album_id', $request->album_id)
+        ->where('status', 'active')
+        ->get();
+
+    // Flatten all media from all posts
+    $allImages = collect();
+    foreach ($posts as $post) {
+        foreach ($post->postMedias->sortBy('sequence_order') as $media) {
+            $allImages->push([
+                'id' => $media->id,
+                'url' => Storage::disk('s3')->url($media->file_path_compress),
+                'post_id' => $post->id,
+                'post_description' => $post->description ?: 'No description provided by the creator',
+                'image_count' => $post->postMedias->count(),
+                'created_at' => $media->created_at,
+                'comments_count' => $media->comments->count(),
+                'likes_count' => $media->admires->count(),
+            ]);
+        }
+    }
+
+    // Paginate
+    $paginatedImages = $allImages->slice(($page - 1) * $perPage, $perPage)->values();
+    $hasMore = $allImages->count() > $page * $perPage;
+
+    return response()->json([
+        'success' => true,
+        'images' => $paginatedImages,
+        'has_more' => $hasMore,
+        'total_images' => $allImages->count(),
+    ]);
+}
+
 }

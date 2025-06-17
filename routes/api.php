@@ -125,6 +125,8 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/user/album/viewer/{albumId}', 'Api\AlbumController@showviewer');
     Route::post('/user/album/{id}/update-image', 'Api\AlbumController@album_update');
 
+    Route::get('/album/images', 'Api\AppStatusController@getAlbumImages');
+
     Route::post('/user/album/delete/{id}', 'Api\AlbumAccessController@albumdelete');
 
     Route::get('/album/analytics/{id}', 'Api\AlbumController@albumAnalytics');
