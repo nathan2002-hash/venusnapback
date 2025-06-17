@@ -15,19 +15,6 @@ use Laravel\Telescope\IncomingEntry;
 Route::get('/chat', function () {
     return view('chat');
 });
-
-// Route::get('/.well-known/assetlinks.json', function () {
-//     $path = resource_path('assetlinks/assetlinks.json');
-
-//     if (!File::exists($path)) {
-//         abort(404);
-//     }
-
-//     return response()->file($path, [
-//         'Content-Type' => 'application/json',
-//     ]);
-// });
-
 //terms routes
 
 Route::post('/contact', 'ContactFormController@submit')->name('contact.submit');

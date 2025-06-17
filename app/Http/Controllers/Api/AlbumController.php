@@ -478,29 +478,22 @@ class AlbumController extends Controller
 
         $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
 
-         $ip = $realIp;
-         $userAgent = request()->header('User-Agent');
+        if ($user) {
+            $alreadyViewed = AlbumView::where('album_id', $albumId)
+                ->where('user_id', $user->id)
+                ->where('created_at', '>=', now()->subHours(24)) // One view every 24 hrs
+                ->exists();
 
-         // Optional: prevent duplicate views in short span
-         $alreadyViewed = AlbumView::where('album_id', $albumId)
-             ->where(function ($query) use ($user, $ip) {
-                 if ($user) {
-                     $query->where('user_id', $user->id);
-                 } else {
-                     $query->where('ip_address', $ip);
-                 }
-             })
-             ->where('created_at', '>=', now()->subMinutes(30)) // 30 minutes gap
-             ->exists();
+            if (!$alreadyViewed) {
+                AlbumView::create([
+                    'album_id' => $album->id,
+                    'user_id' => $user->id,
+                    'ip_address' => $realIp,
+                    'user_agent' => $request->header('User-Agent'),
+                ]);
+            }
+        }
 
-         if (!$alreadyViewed) {
-             AlbumView::create([
-                 'album_id' => $album->id,
-                 'user_id' => $user?->id,
-                 'ip_address' => $ip,
-                 'user_agent' => $userAgent,
-             ]);
-         }
 
          $receiver = $album->user_id;
 
