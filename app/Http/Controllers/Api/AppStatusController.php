@@ -222,18 +222,13 @@ class AppStatusController extends Controller
         return $url;
     }
 
-    public function getAlbumImages(Request $request)
+    public function getAlbumImages(Request $request, $album)
     {
-        $request->validate([
-            'album_id' => 'required|integer|exists:albums,id',
-            'page' => 'sometimes|integer|min:1'
-        ]);
-
         $perPage = 8;
         $page = $request->input('page', 1);
 
         $posts = Post::with(['postMedias.comments', 'postMedias.admires'])
-            ->where('album_id', $request->album_id)
+            ->where('album_id', $album)
             ->where('status', 'active')
             ->get();
 
