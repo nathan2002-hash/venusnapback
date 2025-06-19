@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\PointTransaction;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class TemplateController extends Controller
 {
@@ -21,7 +22,7 @@ class TemplateController extends Controller
             ->paginate($perPage);
 
         // Include user points in response
-        $userPoints = auth()->user()->points;
+        $userPoints = Auth::user()->points;
 
         $transformed = $templates->getCollection()->map(function ($template) {
             return [
@@ -46,7 +47,7 @@ class TemplateController extends Controller
     public function index(Request $request)
     {
         $perPage = 10;
-        $userId = auth()->id();
+        $userId = Auth::user()->id;
 
         // Get templates that are either public (type 'open') or owned by the user
         $templates = Template::where('status', 'completed')
@@ -58,7 +59,7 @@ class TemplateController extends Controller
             ->paginate($perPage);
 
         // Include user points in response
-        $userPoints = auth()->user()->points;
+        $userPoints = Auth::user()->points;
         $pointgen = '60';
 
         $transformed = $templates->getCollection()->map(function ($template) use ($userId) {
@@ -113,7 +114,7 @@ class TemplateController extends Controller
 
     public function generateTemplate(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         $request->validate([
             'description' => 'required|min:20',
@@ -168,7 +169,7 @@ class TemplateController extends Controller
     public function checkStatus($id)
     {
         $template = Template::findOrFail($id);
-        $user = auth()->user();
+        $user = Auth::user();
 
         // Check if created_at is within the past hour
         $isNew = $template->created_at->gt(Carbon::now()->subHour());

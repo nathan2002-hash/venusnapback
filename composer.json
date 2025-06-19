@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.3.7",
         "ext-gd": "*",
+        "algolia/algoliasearch-client-php": "^4.23",
         "intervention/image": "^3.11",
         "kreait/laravel-firebase": "^6.0",
         "laravel/framework": "^11.31",
@@ -15,6 +16,7 @@
         "laravel/jetstream": "^5.3",
         "laravel/passport": "^12.4",
         "laravel/sanctum": "^4.0",
+        "laravel/scout": "^10.15",
         "laravel/telescope": "^5.5",
         "laravel/tinker": "^2.9",
         "league/flysystem-aws-s3-v3": "*",

@@ -317,20 +317,19 @@ class AlbumAccessController extends Controller
         return response()->json(['message' => "Request {$status}"]);
     }
 
-       public function albumdelete($id)
-        {
-            $album = Album::findOrFail($id);
-            if ($album->user_id !== Auth::id()) {
-                return response()->json([
-                    'message' => 'Unauthorized: You do not own this album.'
-                ], 403);
-            }
-            $album->status = "deletion";
-            $album->save();
-
+    public function albumdelete($id)
+    {
+        $album = Album::findOrFail($id);
+        if ($album->user_id !== Auth::id()) {
             return response()->json([
-                'id' => $album->id,
-            ], 200);
+                'message' => 'Unauthorized: You do not own this album.'
+            ], 403);
         }
+        $album->status = "deletion";
+        $album->save();
 
+        return response()->json([
+            'id' => $album->id,
+        ], 200);
+    }
 }

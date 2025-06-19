@@ -96,6 +96,7 @@ class TaxController extends Controller
 
     private function getCountries()
     {
+
         return [
             ['code' => 'US', 'name' => 'United States'],
             ['code' => 'GB', 'name' => 'United Kingdom'],
