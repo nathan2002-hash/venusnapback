@@ -25,6 +25,11 @@ Route::post('/contact', 'ContactFormController@submit')->name('contact.submit');
     } else {
         //Route::resource('home', MarketingHomeController::class);
     }
+ Route::get('/terms/of/service', 'HomeController@terms');
+    Route::get('/terms/conditions', function () {
+        return redirect('/terms/of/service');
+    });
+    Route::get('/privacy/policy', 'HomeController@privacy');
 
 Route::middleware([
     'auth:sanctum',
@@ -44,7 +49,6 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     } else {
         //Route::resource('home', MarketingHomeController::class);
     }
-
     Route::get('/terms/of/service', 'HomeController@terms');
     Route::get('/terms/conditions', function () {
         return redirect('/terms/of/service');
