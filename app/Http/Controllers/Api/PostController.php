@@ -243,6 +243,7 @@ class PostController extends Controller
         $post->description = $request->description;
         // Randomly select type and category from the arrays
         $post->type = $matchedCategory->id;
+        $post->status = 'review';
         $post->category_id = $matchedCategory->id;
         $post->album_id = $request->album_id;
         $post->visibility = $request->visibility;
@@ -292,7 +293,7 @@ class PostController extends Controller
         ]);
     }
 
-   public function postdelete(Request $request, $id)
+    public function postdelete(Request $request, $id)
     {
         $user = Auth::user(); // Assuming you're using Laravel auth
 
@@ -400,6 +401,7 @@ class PostController extends Controller
         $post->update([
             'description' => $request->description,
             'type' => $matchedCategory->id,
+            'status' => 'review',
             'category_id' => $matchedCategory->id,
             'album_id' => $request->album_id,
             'visibility' => $request->visibility,
