@@ -208,16 +208,12 @@
     </section>
 
      <section id="prohibitedcontent">
-        <h2>5. Prohibited Conduct</h2>
+        <h2>6. Prohibited Conduct</h2>
         <p> You retain ownership of the photos, videos, and other content you upload to Venusnap ("User
- Content"). However, by uploading content, you grant Venusnap a non-exclusive, royalty-free,
- worldwide license to use, display, and distribute your content on the platform for the purposes of
- operation and promotion.</p>
-    </section>
-
-     <section id="prohibitedcontent">
-        <h2>5. Prohibited Conduct</h2>
-        <p> You agree not to:</p>
+            Content"). However, by uploading content, you grant Venusnap a non-exclusive, royalty-free,
+            worldwide license to use, display, and distribute your content on the platform for the purposes of
+            operation and promotion.</p>
+        <b><p> You agree not to:</p></b>
         <ul>
             <li>Post content that is unlawful, hateful, or infringing on others' rights</li>
             <li>Harass or impersonate other users.</li>
@@ -239,19 +235,19 @@
     </section>
 
       <section id="intelectualproperty">
-        <h2>6. Intellectual Property</h2>
+        <h2>8. Intellectual Property</h2>
         <p>  All intellectual property rights related to Venusnap (excluding User Content) are owned by or
  licensed to us. You agree not to use our trademarks, logos, or content without written permission</p>
     </section>
 
      <section id="termination">
-        <h2>7. Termination</h2>
+        <h2>9. Termination</h2>
         <p>  We may suspend or terminate your access to Venusnap if you violate these Terms or engage in
  harmful conduct. You may also delete your account at any time</p>
     </section>
 
     <section id="payments">
-  <h2>8. Payments</h2>
+  <h2>10. Payments</h2>
   <p>By using any paid features of Venusnap, including but not limited to purchasing Venusnap Points, subscriptions, or advertising services, you agree to the following payment terms:</p>
 
   <ul>
@@ -271,25 +267,25 @@
 
 
      <section id="disclaimer">
-        <h2>9. Disclaimers</h2>
+        <h2>11. Disclaimers</h2>
         <p>  Venusnap is provided "as is" without warranties of any kind. We do not guarantee uninterrupted
  access or that the platform will be error-free</p>
     </section>
 
       <section id="limitation">
-        <h2>10. Limitation of Liability</h2>
+        <h2>12. Limitation of Liability</h2>
         <p> To the fullest extent permitted by law, Venusnap will not be liable for any indirect, incidental, or
  consequential damages arising from your use of the platform</p>
     </section>
 
      <section id="governinglaw">
-        <h2>11. Governing Law</h2>
+        <h2>13. Governing Law</h2>
         <p> These Terms are governed by the laws of Zambia. Any disputes shall be resolved under Zambian
  jurisdiction</p>
     </section>
 
      <section id="changes">
-        <h2>12. Changes to These Terms</h2>
+        <h2>14. Changes to These Terms</h2>
         <p> We may update these Terms from time to time. Continued use of Venusnap after changes indicates
  your acceptance of the new Terms</p>
     </section>
@@ -297,7 +293,7 @@
     <!-- Additional sections would continue here -->
 
     <section id="contact">
-        <h2>13. Contact Us</h2>
+        <h2>15. Contact Us</h2>
         <p>If you have any questions about these Terms, please contact us at:</p>
         <p>Email: legal@venusnap.com<br>
           Address: 444 Alaska Avenue, California, Suite #CEC468</p>
