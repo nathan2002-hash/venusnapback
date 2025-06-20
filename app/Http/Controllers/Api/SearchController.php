@@ -63,9 +63,10 @@ class SearchController extends Controller
 
        // Search ads
     $ads = Ad::with(['media', 'adboard.album'])
-        ->where('status', 'published')
+        ->where('status', 'active')
         ->whereHas('adboard', function($q) use ($query) {
-            $q->where('points', '>', 0)
+            $q->where('status', 'active') // Adboard must be active
+            ->where('points', '>', 0)
                 ->where(function($subQuery) use ($query) {
                     $subQuery->where('name', 'like', "%$query%")
                         ->orWhere('description', 'like', "%$query%")

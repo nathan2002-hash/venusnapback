@@ -201,50 +201,12 @@ class PostController extends Controller
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-
-        // Get all categories with their names and descriptions
-        $categories = Category::select('id', 'name', 'description')->get();
-
-        //$postDescription = strtolower($request->description);
-        $postDescription = strtolower(preg_replace('/[^a-z0-9\s]/', '', $request->description));
-        $matchedCategory = null;
-        $bestScore = 0;
-
-        $stopwords = ['the', 'with', 'from', 'this', 'that', 'have', 'your', 'about'];
-
-        // Analyze each category for keyword matches
-        foreach ($categories as $category) {
-            $keywords = array_merge(
-                explode(' ', strtolower($category->name)),
-                explode(' ', strtolower($category->description))
-            );
-
-            $score = 0;
-            foreach ($keywords as $keyword) {
-                if (strlen($keyword) > 3 && !in_array($keyword, $stopwords) && Str::contains($postDescription, $keyword)) {
-                    $score++;
-                }
-            }
-
-            if ($score > $bestScore) {
-                $bestScore = $score;
-                $matchedCategory = $category;
-            }
-        }
-
-        // Fallback to random category if no good match found
-        if (!$matchedCategory || $bestScore < 1) {
-            $matchedCategory = Category::inRandomOrder()->first();
-        }
-
         // Create the post
         $post = new Post();
         $post->user_id = Auth::user()->id; // Assign authenticated user's ID
         $post->description = $request->description;
         // Randomly select type and category from the arrays
-        $post->type = $matchedCategory->id;
         $post->status = 'review';
-        $post->category_id = $matchedCategory->id;
         $post->album_id = $request->album_id;
         $post->visibility = $request->visibility;
         $post->save();
@@ -361,48 +323,10 @@ class PostController extends Controller
         if (!($isOwner || $hasAccess)) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-
-        // Get all categories with their names and descriptions
-        $categories = Category::select('id', 'name', 'description')->get();
-
-        //$postDescription = strtolower($request->description);
-        $postDescription = strtolower(preg_replace('/[^a-z0-9\s]/', '', $request->description));
-        $matchedCategory = null;
-        $bestScore = 0;
-
-        $stopwords = ['the', 'with', 'from', 'this', 'that', 'have', 'your', 'about'];
-
-        // Analyze each category for keyword matches
-        foreach ($categories as $category) {
-            $keywords = array_merge(
-                explode(' ', strtolower($category->name)),
-                explode(' ', strtolower($category->description))
-            );
-
-            $score = 0;
-            foreach ($keywords as $keyword) {
-                if (strlen($keyword) > 3 && !in_array($keyword, $stopwords) && Str::contains($postDescription, $keyword)) {
-                    $score++;
-                }
-            }
-
-            if ($score > $bestScore) {
-                $bestScore = $score;
-                $matchedCategory = $category;
-            }
-        }
-
-        // Fallback to random category if no good match found
-        if (!$matchedCategory || $bestScore < 1) {
-            $matchedCategory = Category::inRandomOrder()->first();
-        }
-
         // Update post details
         $post->update([
             'description' => $request->description,
-            'type' => $matchedCategory->id,
             'status' => 'review',
-            'category_id' => $matchedCategory->id,
             'album_id' => $request->album_id,
             'visibility' => $request->visibility,
         ]);
@@ -487,49 +411,12 @@ class PostController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-         // Get all categories with their names and descriptions
-        $categories = Category::select('id', 'name', 'description')->get();
-
-        //$postDescription = strtolower($request->description);
-        $postDescription = strtolower(preg_replace('/[^a-z0-9\s]/', '', $request->description));
-        $matchedCategory = null;
-        $bestScore = 0;
-
-        $stopwords = ['the', 'with', 'from', 'this', 'that', 'have', 'your', 'about'];
-
-        // Analyze each category for keyword matches
-        foreach ($categories as $category) {
-            $keywords = array_merge(
-                explode(' ', strtolower($category->name)),
-                explode(' ', strtolower($category->description))
-            );
-
-            $score = 0;
-            foreach ($keywords as $keyword) {
-                if (strlen($keyword) > 3 && !in_array($keyword, $stopwords) && Str::contains($postDescription, $keyword)) {
-                    $score++;
-                }
-            }
-
-            if ($score > $bestScore) {
-                $bestScore = $score;
-                $matchedCategory = $category;
-            }
-        }
-
-        // Fallback to random category if no good match found
-        if (!$matchedCategory || $bestScore < 1) {
-            $matchedCategory = Category::inRandomOrder()->first();
-        }
-
         DB::beginTransaction();
         try {
             // Create the post
             $post = new Post();
             $post->user_id = $user->id;
             $post->description = $request->description;
-            $post->type = $matchedCategory->id;
-            $post->category_id = $matchedCategory->id;
             $post->status = 'active';
             $post->album_id = $request->album_id;
             $post->visibility = $request->visibility;

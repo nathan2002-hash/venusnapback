@@ -14,14 +14,12 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->string('user_id');
-            $table->longText('description');
+            $table->longText('description')->nullable();
             $table->string('album_id');
-            $table->string('type')->nullable();
-            $table->string('ag_type');
+            $table->string('ag_type')->nullable();
             $table->string('status');
-            $table->longText('ag_description');
+            $table->longText('ag_description')->nullable();
             $table->string('visibility');
-            $table->string('category_id')->nullable();
             $table->timestamps();
         });
     }

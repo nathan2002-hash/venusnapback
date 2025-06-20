@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('post_id');
             $table->string('category_id');
-            $table->string('confidence_score')->default(0);
+            $table->decimal('confidence_score', 5, 2)->default(0.00);
             $table->timestamps();
         });
     }
