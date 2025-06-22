@@ -69,6 +69,7 @@ class PostController extends Controller
         $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
             ->whereIn('id', $recommendations->pluck('post_id'))
             ->where('status', 'active')
+            ->inRandomOrder()
             ->get();
 
         $postsData = $posts->map(function ($post) {
