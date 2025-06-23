@@ -12,22 +12,22 @@ class SendPaymentReceipt implements ShouldQueue
     use Queueable;
 
     protected $email;
-    protected $htmlContent;
+    protected $payment;
 
-    public function __construct($email, $htmlContent)
+    public function __construct($email, $payment)
     {
-        $this->email = $email;
-        $this->htmlContent = $htmlContent;
+       $this->email = $email;
+       $this->payment = $payment;
     }
 
     /**
      * Execute the job.
      */
-     public function handle()
+    public function handle()
     {
          Mail::to($this->email)
             ->send(
-                (new PaymentReceipt($this->htmlContent))
+                (new PaymentReceipt($this->payment))
                     ->from('billing@venusnap.com', 'Venusnap Billing Team')
             );
     }

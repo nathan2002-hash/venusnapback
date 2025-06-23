@@ -146,9 +146,7 @@ class PaymentController extends Controller
             if ($points > 0 && $payment->user) {
                 $payment->user->increment('points', $points);
             }
-
-             $receipt = $this->generateReceipt($payment);
-             SendPaymentReceipt::dispatch($payment->user->email, $receipt['html']);
+             SendPaymentReceipt::dispatch($payment->user->email, $payment);
 
             return response()->json(['message' => 'Payment successful']);
         } else {

@@ -13,11 +13,11 @@ class PaymentReceipt extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $htmlContent;
+    public $payment;
 
-    public function __construct($htmlContent)
+    public function __construct($payment)
     {
-        $this->htmlContent = $htmlContent;
+        $this->payment = $payment;
     }
 
     /**
@@ -42,8 +42,11 @@ class PaymentReceipt extends Mailable
 
     public function build()
     {
-        return $this->subject('Your Payment Receipt')
-                    ->html($this->htmlContent);
+        return $this->subject('Your Venusnap Payment Receipt')
+                    ->markdown('emails.receipts.payment')
+                    ->with([
+                        'payment' => $this->payment,
+                    ]);
     }
 
     /**
