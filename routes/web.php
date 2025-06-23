@@ -21,7 +21,7 @@ Route::post('/contact', 'ContactFormController@submit')->name('contact.submit');
     $host = request()->header('host');
     $host = explode(':', $host)[0];
     if (in_array($host, ['app.venusnap.com', 'venusnap.com', 'www.venusnap.com'])) {
-        Route::get('/', 'HomeController@home');
+        //Route::get('/', 'HomeController@home');
     } else {
         //Route::resource('home', MarketingHomeController::class);
     }
