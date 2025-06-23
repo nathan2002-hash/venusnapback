@@ -133,6 +133,10 @@ class PostController extends Controller
             return response()->json(['error' => 'Post not found'], 404);
         }
 
+        if ($post->visibility === 'private' && Auth::id() !== $post->user_id) {
+            return response()->json(['error' => 'Post not found'], 404); // Return 404 to hide existence
+        }
+
         $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
         $ipaddress = $realIp;
 
@@ -192,8 +196,6 @@ class PostController extends Controller
             'is_verified' => $album ? ($album->is_verified == 1) : false,
         ], 200);
     }
-
-
 
     public function store(Request $request)
     {
