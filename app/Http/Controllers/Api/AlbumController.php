@@ -220,6 +220,7 @@ class AlbumController extends Controller
         $album->name = $request->name;
         $album->description = $request->description;
         $album->business_category = $request->business_category;
+        $album->album_category_id = $request->business_category;
         if ($album->is_paid_access) {
             $album->is_paid_access = 1;
         } else {
