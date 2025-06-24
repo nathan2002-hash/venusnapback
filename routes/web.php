@@ -8,11 +8,6 @@ use Illuminate\Support\Facades\Storage;
 use Laravel\Telescope\Telescope;
 use Laravel\Telescope\IncomingEntry;
 
-Route::prefix('/')
-    ->middleware(['web', 'throttle.404'])
-    ->namespace('App\Http\Controllers')
-    ->group(base_path('routes/web.php'));
-
 Route::get('/chat', function () {
     return view('chat');
 });

@@ -18,13 +18,23 @@ return Application::configure(basePath: dirname(__DIR__))
             //     ->group(base_path('routes/api.php'));
 
             Route::prefix('api')
-                ->middleware('api')
+                ->middleware(['api', 'throttle.404'])
                 ->namespace('App\Http\Controllers')
                 ->group(base_path('routes/api.php'));
+
             Route::prefix('/')
-                ->middleware('web')
+                ->middleware(['web', 'throttle.404'])
                 ->namespace('App\Http\Controllers')
                 ->group(base_path('routes/web.php'));
+
+            // Route::prefix('api')
+            //     ->middleware('api')
+            //     ->namespace('App\Http\Controllers')
+            //     ->group(base_path('routes/api.php'));
+            // Route::prefix('/')
+            //     ->middleware('web')
+            //     ->namespace('App\Http\Controllers')
+            //     ->group(base_path('routes/web.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
