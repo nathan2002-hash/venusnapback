@@ -27,7 +27,8 @@ class BlockMultiple
             return $response;
         }
 
-        $ip = $request->ip();
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+        $ip = $realIp;
         $user = $request->user();
         $userId = optional($user)->id;
         $url = $request->fullUrl();
