@@ -147,7 +147,7 @@ class ProfileController extends Controller
         // Lookup country
         $country = Country::where('name', $user->country)->first();
         $phoneCode = $country?->phone_code ?? '';
-        $isoCode = $country?->iso_code ?? null;
+        $isoCode = $country?->code ?? null;
 
         // Format phone as: +<country_code> <local_number>
         $rawPhone = preg_replace('/\D/', '', $user->phone); // remove non-digits
