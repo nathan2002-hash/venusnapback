@@ -63,14 +63,24 @@
         .message {
             font-size: 1.2rem;
             line-height: 1.6;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .ip-address {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+            display: inline-block;
+            color: var(--warning);
         }
 
         .timer {
             font-size: 1.5rem;
             font-weight: bold;
             color: var(--light-accent);
-            margin-bottom: 2rem;
+            margin: 1.5rem 0;
         }
 
         .btn {
@@ -110,10 +120,12 @@
         <div class="icon">⚠️</div>
         <h1>Request Limit Exceeded</h1>
         <div class="message">
-            Too many failed requests have been detected from your system.
-            Please wait 10 minutes before trying again.
+            We detected multiple failed attempts from your IP:
         </div>
-        <div class="timer" id="countdown">10:00</div>
+        <div class="ip-address">{{ request()->ip() }}</div>
+        <div class="message">
+            Please wait <span id="countdown">10:00</span> before trying again.
+        </div>
         <button class="btn" id="retryBtn" disabled>Try Again</button>
         <div class="footer">
             If you believe this is an error, please contact support
@@ -121,27 +133,61 @@
     </div>
 
     <script>
-        // Countdown timer functionality
-        let timeLeft = 600; // 10 minutes in seconds
+        // Persistent timer using localStorage
+        const STORAGE_KEY = 'rateLimitTimer';
+        const WAIT_TIME = 600; // 10 minutes in seconds
+
+        // Get elements
         const countdownEl = document.getElementById('countdown');
         const retryBtn = document.getElementById('retryBtn');
 
-        const updateTimer = () => {
-            const minutes = Math.floor(timeLeft / 60);
-            let seconds = timeLeft % 60;
-            seconds = seconds < 10 ? '0' + seconds : seconds;
-            countdownEl.textContent = `${minutes}:${seconds}`;
+        // Check if timer exists in storage
+        let storedTime = localStorage.getItem(STORAGE_KEY);
+        let endTime;
 
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                countdownEl.textContent = "Ready!";
-                retryBtn.disabled = false;
+        if (storedTime) {
+            endTime = parseInt(storedTime);
+            // Check if timer has already expired
+            if (Date.now() >= endTime) {
+                localStorage.removeItem(STORAGE_KEY);
+                enableRetry();
             } else {
-                timeLeft--;
+                startCountdown();
             }
-        };
+        } else {
+            // Set new timer
+            endTime = Date.now() + (WAIT_TIME * 1000);
+            localStorage.setItem(STORAGE_KEY, endTime.toString());
+            startCountdown();
+        }
 
-        const timer = setInterval(updateTimer, 1000);
+        function startCountdown() {
+            const updateTimer = () => {
+                const now = Date.now();
+                const remaining = Math.max(0, endTime - now);
+
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    localStorage.removeItem(STORAGE_KEY);
+                    enableRetry();
+                    return;
+                }
+
+                const minutes = Math.floor((remaining / 1000) / 60);
+                let seconds = Math.floor((remaining / 1000) % 60);
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+                countdownEl.textContent = `${minutes}:${seconds}`;
+            };
+
+            updateTimer(); // Initial call
+            const timer = setInterval(updateTimer, 1000);
+        }
+
+        function enableRetry() {
+            countdownEl.textContent = "0:00";
+            retryBtn.disabled = false;
+            countdownEl.parentElement.textContent = "You may now try again.";
+        }
 
         retryBtn.addEventListener('click', () => {
             // Here you would typically reload the page or retry the request
