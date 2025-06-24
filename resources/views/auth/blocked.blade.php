@@ -135,7 +135,7 @@
     <script>
         // Persistent timer using localStorage
         const STORAGE_KEY = 'rateLimitTimer';
-        const WAIT_TIME = 600; // 10 minutes in seconds
+        const WAIT_TIME = 300; // 3 minutes in seconds
 
         // Get elements
         const countdownEl = document.getElementById('countdown');
