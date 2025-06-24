@@ -86,6 +86,8 @@ class ProfileController extends Controller
         $user->username = $request->username;
         $user->email = $request->email;
         $user->phone = $request->phone_number;
+        $user->partial_phone = $request->partial_phone;
+        $user->country_code = $request->country_code;
         $user->name = $request->full_name;
         $user->country = $request->country;
         $user->dob = $request->dob;
