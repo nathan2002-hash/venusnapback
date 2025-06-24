@@ -28,13 +28,12 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->append(\App\Http\Middleware\BlockMultiple::class);
         $middleware->statefulApi();
         $middleware->alias([
             'admin' => AdminMiddleware::class,
             'check.account.status' => CheckAccountStatus::class,
-            'throttle.404' => BlockMultiple::class,
         ]);
+        $middleware->append(\App\Http\Middleware\BlockMultiple::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

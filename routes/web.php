@@ -22,7 +22,7 @@ Route::post('/contact', 'ContactFormController@submit')->name('contact.submit');
         //Route::resource('home', MarketingHomeController::class);
     };
 
-Route::prefix('restricted')->middleware('auth', 'admin', 'throttle.404')->group(function () {
+Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     $host = request()->header('host');
     $host = explode(':', $host)[0];
     if (in_array($host, ['app.venusnap.com', 'venusnap.com', 'www.venusnap.com'])) {
