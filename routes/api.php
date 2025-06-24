@@ -43,7 +43,7 @@ Route::middleware('auth:api')->post('/support/tickets/resolve/{id}', 'Api\Contac
 Route::middleware('auth:api')->get('/support/faqs', 'Api\ContactSupportController@getFaqs');
 
 
-Route::middleware(['auth:api', 'check.account.status', 'throttle.404'])->group(function () {
+Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/verify-2fa', 'Api\AuthController@verify2FA');
     Route::post('/resend-2fa', 'Api\AuthController@resend2FA');
 
