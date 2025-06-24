@@ -43,7 +43,7 @@ class SendVerificationCodeJob implements ShouldQueue
     /**
      * Execute the job.
      */
-   protected function sendSms()
+    protected function sendSms()
     {
         try {
             $country = Country::where('name', $this->user->country)->first();
@@ -53,34 +53,58 @@ class SendVerificationCodeJob implements ShouldQueue
                 return;
             }
 
-            // Assume phone is already full international format: 260970333596
-            $formattedPhone = preg_replace('/\D/', '', $this->user->phone); // remove any non-digits, just in case
+            // Assume phone is already in international format (e.g. 260970xxxxxx)
+            $formattedPhone = preg_replace('/\D/', '', $this->user->phone);
 
             if (!preg_match('/^\d{10,15}$/', $formattedPhone)) {
                 \Log::error("Invalid formatted phone: {$formattedPhone} for user {$this->user->id}");
                 return;
             }
 
+            // Look for a provider in the database
             $provider = SmsProvider::where('country_id', $country->id)->first();
-            if (!$provider) {
-                \Log::error("No SMS provider found for country {$country->name}");
-                return;
+
+            if ($provider) {
+                $driver = strtolower($provider->driver); // e.g. "beem", "twilio", etc.
+                $method = "sendWith" . ucfirst($driver);
+
+                if (method_exists($this, $method)) {
+                    $this->$method($formattedPhone, $provider);
+                    \Log::info("SMS sent to {$formattedPhone} via {$driver}");
+                    return;
+                } else {
+                    \Log::error("SMS driver method {$method} not implemented");
+                }
             }
 
-            $driver = strtolower($provider->driver);
-            $method = "sendWith" . ucfirst($driver);
-
-            if (method_exists($this, $method)) {
-                $this->$method($formattedPhone, $provider);
-                \Log::info("SMS sent to {$formattedPhone} via {$driver}");
-            } else {
-                \Log::error("SMS driver method {$method} not implemented");
-            }
+            // === Hardcoded Vonage fallback ===
+            $this->sendWithVonage($formattedPhone);
+            \Log::info("SMS sent to {$formattedPhone} via fallback: vonage");
 
         } catch (\Exception $e) {
             \Log::error("Failed to send SMS verification: " . $e->getMessage());
             throw $e;
         }
+    }
+
+
+    private function sendWithVonage($phone)
+    {
+        $client = new Client();
+
+        $api_key = env('VONAGE_API_KEY');        // Hardcoded or from .env
+        $api_secret = env('VONAGE_API_SECRET');
+        $from = 'Venusnap';
+
+        $response = $client->post('https://rest.nexmo.com/sms/json', [
+            'form_params' => [
+                'api_key' => $api_key,
+                'api_secret' => $api_secret,
+                'to' => $phone,
+                'from' => $from,
+                'text' => $this->message,
+            ]
+        ]);
     }
 
     protected function sendEmail()
