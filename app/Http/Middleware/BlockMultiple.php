@@ -18,7 +18,8 @@ class BlockMultiple
      */
     public function handle(Request $request, Closure $next): Response
 {
-    $ip = $request->ip();
+     $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+    $ip = $realIp;
     $user = Auth::user();
     $userId = $user?->id;
     $path = $request->path();
@@ -43,7 +44,7 @@ class BlockMultiple
         ]);
     }
 
-    $minutes = $userId ? 20 : 10;
+    $minutes = $userId ? 5 : 10;
     $limit = $userId ? 20 : 5;
 
     $recentAttempts = DB::table('blocked_requests')
