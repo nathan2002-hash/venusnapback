@@ -43,7 +43,7 @@ class SendVerificationCodeJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    protected function sendSms()
+   protected function sendSms()
     {
         try {
             $country = Country::where('name', $this->user->country)->first();
@@ -53,9 +53,18 @@ class SendVerificationCodeJob implements ShouldQueue
                 return;
             }
 
-            $formattedPhone = $this->normalizePhoneNumber($this->user->phone, $country);
-            if (!$formattedPhone) {
-                \Log::error("Invalid phone number for user {$this->user->id}");
+            $code = $country->phone_code; // e.g. 260
+            $partial = preg_replace('/\D/', '', $this->user->phone); // remove non-digits
+
+            // Remove leading 0 if present
+            if (Str::startsWith($partial, '0')) {
+                $partial = substr($partial, 1);
+            }
+
+            $formattedPhone = $code . $partial;
+
+            if (!preg_match('/^\d{10,15}$/', $formattedPhone)) {
+                \Log::error("Invalid formatted phone: {$formattedPhone} for user {$this->user->id}");
                 return;
             }
 
@@ -65,8 +74,7 @@ class SendVerificationCodeJob implements ShouldQueue
                 return;
             }
 
-            // Use dynamic method based on provider driver
-            $driver = strtolower($provider->driver); // e.g. "beem"
+            $driver = strtolower($provider->driver);
             $method = "sendWith" . ucfirst($driver);
 
             if (method_exists($this, $method)) {
