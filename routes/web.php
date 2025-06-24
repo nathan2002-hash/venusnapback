@@ -8,9 +8,10 @@ use Illuminate\Support\Facades\Storage;
 use Laravel\Telescope\Telescope;
 use Laravel\Telescope\IncomingEntry;
 
-// Route::get('/', function () {
-//     return view('user.welcome');
-// });
+Route::prefix('/')
+    ->middleware(['web', 'throttle.404'])
+    ->namespace('App\Http\Controllers')
+    ->group(base_path('routes/web.php'));
 
 Route::get('/chat', function () {
     return view('chat');
@@ -24,19 +25,9 @@ Route::post('/contact', 'ContactFormController@submit')->name('contact.submit');
         //Route::get('/', 'HomeController@home');
     } else {
         //Route::resource('home', MarketingHomeController::class);
-    }
+    };
 
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
-    Route::get('/restricted/welcome', function () {
-        return view('dashboard');
-    })->name('dashrd');
-});
-
-Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
+Route::prefix('restricted')->middleware('auth', 'admin', 'throttle.404')->group(function () {
     $host = request()->header('host');
     $host = explode(':', $host)[0];
     if (in_array($host, ['app.venusnap.com', 'venusnap.com', 'www.venusnap.com'])) {

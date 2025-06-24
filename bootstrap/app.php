@@ -28,7 +28,6 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->global(BlockMultiple::class);
         $middleware->statefulApi();
         $middleware->alias([
             'admin' => AdminMiddleware::class,
