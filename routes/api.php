@@ -162,7 +162,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
             'GB' => ['min' => 10, 'max' => 10],  // United Kingdom
             'IN' => ['min' => 10, 'max' => 10],  // India
             'ZA' => ['min' => 9, 'max' => 9],    // South Africa
-            'ZM' => ['min' => 9, 'max' => 9],    // Zambia
+            'ZM' => ['min' => 12, 'max' => 12],    // Zambia
             // Add more countries as needed
         ]);
     });
