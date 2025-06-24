@@ -18,26 +18,17 @@ return Application::configure(basePath: dirname(__DIR__))
             //     ->group(base_path('routes/api.php'));
 
             Route::prefix('api')
-                ->middleware(['api', 'throttle.404'])
+                ->middleware('api')
                 ->namespace('App\Http\Controllers')
                 ->group(base_path('routes/api.php'));
-
             Route::prefix('/')
-                ->middleware(['web', 'throttle.404'])
+                ->middleware('web')
                 ->namespace('App\Http\Controllers')
                 ->group(base_path('routes/web.php'));
-
-            // Route::prefix('api')
-            //     ->middleware('api')
-            //     ->namespace('App\Http\Controllers')
-            //     ->group(base_path('routes/api.php'));
-            // Route::prefix('/')
-            //     ->middleware('web')
-            //     ->namespace('App\Http\Controllers')
-            //     ->group(base_path('routes/web.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->append(\App\Http\Middleware\BlockMultiple::class);
         $middleware->statefulApi();
         $middleware->alias([
             'admin' => AdminMiddleware::class,
