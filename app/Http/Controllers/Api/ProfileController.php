@@ -8,10 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Jobs\ProfileUpdate;
+use App\Models\Country;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-
-
+use Str;
 
 class ProfileController extends Controller
 {
@@ -128,24 +128,41 @@ class ProfileController extends Controller
 
     public function changeprofile(Request $request)
     {
-        // Get the currently authenticated user
         $user = Auth::user();
+
         if (!$user) {
             return response()->json([
                 'error' => 'Unauthenticated user'
             ], 401);
         }
 
-        $profileUrl = $user->profile_compressed ? Storage::disk('s3')->url($user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
-        $coverUrl = $user->cover_compressed ? Storage::disk('s3')->url($user->cover_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
-        // Return the user profile data
+        $profileUrl = $user->profile_compressed
+            ? Storage::disk('s3')->url($user->profile_compressed)
+            : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
+
+        $coverUrl = $user->cover_compressed
+            ? Storage::disk('s3')->url($user->cover_compressed)
+            : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
+
+        // Lookup country
+        $country = Country::where('name', $user->country)->first();
+        $phoneCode = $country?->phone_code ?? '';
+        $isoCode = $country?->iso_code ?? null;
+
+        // Format phone as: +<country_code> <local_number>
+        $rawPhone = preg_replace('/\D/', '', $user->phone); // remove non-digits
+        $formattedPhone = $phoneCode && Str::startsWith($rawPhone, $phoneCode)
+            ? '+' . $phoneCode . ' ' . substr($rawPhone, strlen($phoneCode))
+            : $user->phone;
+
         return response()->json([
             'user' => [
                 'fullname' => $user->name,
                 'username' => $user->username,
                 'email' => $user->email,
-                'phone' => $user->phone,
+                'phone' => $formattedPhone,
                 'country' => $user->country,
+                'country_code' => $isoCode, // ISO like ZM
                 'profile' => $profileUrl,
                 'cover_photo' => $coverUrl,
                 'gender' => $user->gender,
@@ -155,4 +172,5 @@ class ProfileController extends Controller
             ]
         ]);
     }
+
 }
