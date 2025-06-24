@@ -156,6 +156,17 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
         return response()->json(Category::all());
     });
 
+    Route::get('/country/phone/lengths', function () {
+        return response()->json([
+            'US' => ['min' => 10, 'max' => 10],  // United States
+            'GB' => ['min' => 10, 'max' => 10],  // United Kingdom
+            'IN' => ['min' => 10, 'max' => 10],  // India
+            'ZA' => ['min' => 9, 'max' => 9],    // South Africa
+            'ZM' => ['min' => 9, 'max' => 9],    // Zambia
+            // Add more countries as needed
+        ]);
+    });
+
     Route::get('/album/categories', 'Api\AlbumAccessController@getCategoriesByAlbum');
 
     Route::post('/post/view', 'Api\ViewController@view');
