@@ -73,6 +73,8 @@ class ProfileController extends Controller
 
         $user = User::find($user->id);
 
+        $cleanedPhone = ltrim(preg_replace('/\s+/', '', $request->phone_number), '+');
+
         // Check if phone/email have changed
         if ($request->email !== $user->email) {
             $user->email_verified_at = null;
@@ -85,8 +87,8 @@ class ProfileController extends Controller
         // Update user data
         $user->username = $request->username;
         $user->email = $request->email;
-        $user->phone = $request->phone_number;
-        $user->partial_phone = $request->partial_phone;
+        $user->phone = $cleanedPhone;
+        $user->partial_number = $request->partial_phone;
         $user->country_code = $request->country_code;
         $user->name = $request->full_name;
         $user->country = $request->country;

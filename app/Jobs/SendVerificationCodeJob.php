@@ -53,15 +53,8 @@ class SendVerificationCodeJob implements ShouldQueue
                 return;
             }
 
-            $code = $country->phone_code; // e.g. 260
-            $partial = preg_replace('/\D/', '', $this->user->phone); // remove non-digits
-
-            // Remove leading 0 if present
-            if (Str::startsWith($partial, '0')) {
-                $partial = substr($partial, 1);
-            }
-
-            $formattedPhone = $code . $partial;
+            // Assume phone is already full international format: 260970333596
+            $formattedPhone = preg_replace('/\D/', '', $this->user->phone); // remove any non-digits, just in case
 
             if (!preg_match('/^\d{10,15}$/', $formattedPhone)) {
                 \Log::error("Invalid formatted phone: {$formattedPhone} for user {$this->user->id}");
