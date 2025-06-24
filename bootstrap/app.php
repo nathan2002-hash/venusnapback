@@ -32,7 +32,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
             'check.account.status' => CheckAccountStatus::class,
         ]);
-        $middleware->append(\App\Http\Middleware\BlockMultiple::class);
+        //$middleware->append(\App\Http\Middleware\BlockMultiple::class);
+        $middleware->prepend(\App\Http\Middleware\BlockMultiple::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

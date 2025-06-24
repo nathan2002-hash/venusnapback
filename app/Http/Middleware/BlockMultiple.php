@@ -15,26 +15,21 @@ class BlockMultiple
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
         $ip = $request->ip();
-        $user = Auth::user();
+        $key = 'blocked_404_' . $ip;
 
-        // Use IP or user ID for throttling key
-        $key = $user ? '404:user:' . $user->id : '404:ip:' . $ip;
+        if (cache()->has($key) && cache()->get($key) >= 5) {
+            abort(403, 'Too many 404s from your IP');
+        }
 
         $response = $next($request);
 
-        if ($response->getStatusCode() === Response::HTTP_NOT_FOUND) {
-            $limit = $user ? 20 : 5;
-            $attempts = Cache::increment($key);
-            Cache::put($key, $attempts, now()->addMinutes(10));
-
-            if ($attempts >= $limit) {
-                return response()->json([
-                    'message' => 'Too many invalid requests. Try again later.'
-                ], 429); // Too Many Requests
-            }
+        // Count only if it's a 404
+        if ($response->getStatusCode() === 404) {
+            cache()->increment($key);
+            cache()->put($key, cache()->get($key), now()->addMinutes(10));
         }
 
         return $response;
