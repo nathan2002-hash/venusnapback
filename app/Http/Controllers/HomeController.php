@@ -25,4 +25,10 @@ class HomeController extends Controller
         return view('welcome', [
         ]);
     }
+
+    public function blocked()
+    {
+        return view('auth.blocked', [
+        ]);
+    }
 }

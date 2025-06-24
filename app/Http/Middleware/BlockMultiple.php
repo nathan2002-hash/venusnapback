@@ -63,7 +63,7 @@ class BlockMultiple
         $maxAttempts = $userId ? 20 : 5;
 
         if ($attemptCount >= $maxAttempts) {
-            abort(403, 'Too many failed requests. Please wait 10 minutes.');
+            return redirect('/blocked');
         }
 
         return $response;

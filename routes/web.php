@@ -11,6 +11,8 @@ use Laravel\Telescope\IncomingEntry;
 Route::get('/chat', function () {
     return view('chat');
 });
+
+Route::post('/blocked', 'HomeController@blocked');
 //terms routes
 
 Route::post('/contact', 'ContactFormController@submit')->name('contact.submit');
