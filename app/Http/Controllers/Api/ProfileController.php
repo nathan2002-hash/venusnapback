@@ -161,6 +161,7 @@ class ProfileController extends Controller
                 'username' => $user->username,
                 'email' => $user->email,
                 'phone' => $formattedPhone,
+                'phone' => $user->partial_number,
                 'country' => $user->country,
                 'country_code' => $isoCode, // ISO like ZM
                 'profile' => $profileUrl,
