@@ -122,7 +122,7 @@
         <div class="message">
             We detected multiple failed attempts from your IP:
         </div>
-        <div class="ip-address">{{ $request->header('cf-connecting-ip') ?? $request->ip() }}</div>
+        <div class="ip-address">{{ request()->header('cf-connecting-ip') ?? request()->ip() }}</div>
         <div class="message">
             Please wait <span id="countdown">10:00</span> before trying again.
         </div>
