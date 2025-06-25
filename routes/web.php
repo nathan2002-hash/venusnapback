@@ -9,7 +9,7 @@ use Laravel\Telescope\Telescope;
 use Laravel\Telescope\IncomingEntry;
 
 Route::get('/chat', function () {
-    return view('chat');
+    return view('emails.receipts.payment');
 });
 
 Route::post('/blocked', 'HomeController@blocked');
