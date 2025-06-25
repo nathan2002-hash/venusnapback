@@ -23,7 +23,7 @@ Thank you for your payment. Below is your receipt for your records.
 
 @component('mail::subcopy')
 This receipt was sent at your request.
-If you didn't request this email, please contact our support team.
+If you didn't request this email, please contact our billing team.
 @endcomponent
 
 Thank you for supporting creativity on **Venusnap**, your points are already active!
@@ -32,7 +32,7 @@ Let the Snaps begin
 If you have any questions about this receipt, simply reply to this email.
 
 **Venusnap Billing Team**
-[support@venusnap.com](mailto:support@venusnap.com)
+[billing@venusnap.com](mailto:billing@venusnap.com)
 [venusnap.com](https://venusnap.com)
 
 @endcomponent
