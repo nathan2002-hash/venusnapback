@@ -137,7 +137,7 @@ class PaymentController extends Controller
                 $currencySymbol = $currencySymbols[$currencyCode] ?? $currencyCode; // Default to currency code if symbol not found
 
                 return [
-                    'id'             => $payment->id,
+                    'id'             => (String) $payment->id,
                     'type'           => 'payment',
                     'amount'         => $currencySymbol . '' . number_format((float) $payment->amount, 2),
                     'created_at'     => $payment->created_at->toISOString(),
