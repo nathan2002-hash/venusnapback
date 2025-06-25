@@ -1,37 +1,40 @@
 @component('mail::message')
-# 🧾 Payment Receipt (Copy)
+# Payment Receipt
 
-Hello {{ $payment->user->name ?? 'there' }},
-Here’s a **copy of your payment receipt** for your records.
+Hello {{ $payment->user->name ?? 'Customer' }},
+
+Thank you for your payment. Below is your receipt for your records.
 
 @component('mail::panel')
-**💵 Amount Paid:** ${{ number_format($payment->amount, 2) }}<br>
-**🧾 Transaction ID:** {{ $payment->id }}<br>
-**📅 Date:** {{ $payment->created_at->format('F j, Y, g:i a T') }}<br>
-**📌 Status:** {{ ucfirst($payment->status) }}<br>
-**💳 Payment Method:** Card<br>
-**🎯 Purpose:** {{ $payment->purpose }}<br>
+## Payment Details
+**Amount Paid:** ${{ number_format($payment->amount, 2) }}
+**Transaction ID:** {{ $payment->id }}
+**Date:** {{ $payment->created_at->format('F j, Y, g:i a T') }}
+**Status:** {{ ucfirst($payment->status) }}
+**Payment Method:** Card
+**Purpose:** {{ $payment->purpose }}
 @if(isset($payment->metadata['points']))
-**⭐ Points Added:** {{ $payment->metadata['points'] }}<br>
+**Points Added:** {{ $payment->metadata['points'] }}
 @endif
 @endcomponent
 
----
-
-### 📄 Description
+## Description
 {{ $payment->description }}
 
 ---
 
-> 🔁 **This is a resend of your original receipt, sent at your request.**
-> If you didn’t request this, please ignore or reply to this message for assistance.
+@component('mail::subcopy')
+This receipt was sent at your request.
+If you didn't request this email, please contact our support team.
+@endcomponent
 
 Thank you for supporting creativity on **Venusnap** — your points are already active!
-Let the Snaps begin 🚀
+Let the Snaps begin
 
-If you have any questions, just reply to this email.
+If you have any questions about this receipt, simply reply to this email.
 
-**Warm regards,**
-**– The Venusnap Billing Team**
+**Venusnap Billing Team**
+[support@venusnap.com](mailto:support@venusnap.com)
+[venusnap.com](https://venusnap.com)
 
 @endcomponent
