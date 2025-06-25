@@ -20,7 +20,7 @@
 
 ---
 
-Thank you for powering your creativity — your points are now live!
+Thank you for powering your creativity your points are now live!
 Let the Snaps begin 🚀
 
 If you have any questions, simply reply to this email.
