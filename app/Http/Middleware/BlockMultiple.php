@@ -24,7 +24,10 @@ class BlockMultiple
         $userId = $user?->id;
         $path = $request->path();
 
-        // ✅ Skip /blocked route to avoid redirect loop
+        if (!$request->header('User-Agent')) {
+            return response('Missing User-Agent header.', 403);
+        }
+
         if ($path === 'blocked') {
             return $next($request);
         }
