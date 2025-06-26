@@ -34,6 +34,21 @@ class BlockMultiple
             return $next($request);
         }
 
+        // ✅ If guest, check BEFORE processing request
+        if (!$userId) {
+            $minutes = 5;
+            $limit = 5;
+
+            $recentAttempts = DB::table('blocked_requests')
+                ->where('ip', $ip)
+                ->where('created_at', '>=', now()->subMinutes($minutes))
+                ->count();
+
+            if ($recentAttempts >= $limit) {
+                return response()->view('auth.blocked', [], 429);
+            }
+        }
+
         $response = $next($request);
         $status = $response->getStatusCode();
 
@@ -50,21 +65,8 @@ class BlockMultiple
             ]);
         }
 
-        if (!$userId) {
-            $minutes = 5;
-            $limit = 5;
-
-            $recentAttempts = DB::table('blocked_requests')
-                ->where('ip', $ip)
-                ->where('created_at', '>=', now()->subMinutes($minutes))
-                ->count();
-
-            if ($recentAttempts >= $limit) {
-                return response()->view('auth.blocked', [], 429);
-            }
-        }
-
         return $response;
     }
+
 
 }
