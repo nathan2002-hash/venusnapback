@@ -195,28 +195,29 @@ class AlbumController extends Controller
 
     public function checkAlbumName(Request $request)
     {
-        $reservedNames = [
-            'admin', 'administrator', 'root', 'system', 'support',
-            'help', 'contact', 'api', 'web', 'dev', 'test'
-        ];
+        $request->validate([
+            'name' => 'required|string|max:255'
+        ]);
 
         $name = $request->input('name');
 
-        // Check reserved names
-        foreach ($reservedNames as $reserved) {
-            if (strtolower($name) === strtolower($reserved)) {
-                return response()->json([
-                    'available' => false,
-                    'message' => 'This name is reserved and cannot be used.'
-                ], 200);
-            }
-        }
+        // Check reserved names in database (case insensitive)
+        $isReserved = DB::table('reserved_names')
+            ->whereRaw('LOWER(name) = LOWER(?)', [$name])
+            ->exists();
 
-        // Check database
-        if (Album::where('name', $name)->exists()) {
+        if ($isReserved) {
             return response()->json([
                 'available' => false,
-                'message' => 'This name is already taken.'
+                'message' => 'This name is reserved and cannot be used if you own this name please contact us.'
+            ], 200);
+        }
+
+        // Check existing albums (case insensitive)
+        if (Album::whereRaw('LOWER(name) = LOWER(?)', [$name])->exists()) {
+            return response()->json([
+                'available' => false,
+                'message' => 'This name is already taken please choose another name.'
             ], 200);
         }
 
@@ -226,33 +227,30 @@ class AlbumController extends Controller
         ], 200);
     }
 
+
     public function businessstore(Request $request)
     {
-        // Define reserved names
-        $reservedNames = [
-            'admin', 'administrator', 'root', 'system', 'support',
-            'help', 'contact', 'api', 'web', 'dev', 'test'
-        ];
-
         $name = $request->name;
 
-        // First check if name is reserved (case insensitive)
-        foreach ($reservedNames as $reserved) {
-            if (strtolower($name) === strtolower($reserved)) {
+            // Check reserved names in database (case insensitive)
+            $isReserved = DB::table('reserved_names')
+                ->whereRaw('LOWER(name) = LOWER(?)', [$name])
+                ->exists();
+
+            if ($isReserved) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'This name is reserved and cannot be used.'
+                    'message' => 'This name is reserved and cannot be used if you own this name please contact us.'
                 ], 422);
             }
-        }
 
-        // Then check if name already exists in database
-        if (Album::where('name', $name)->exists()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'This album name is already taken.'
-            ], 422);
-        }
+            // Check existing albums (case insensitive)
+            if (Album::whereRaw('LOWER(name) = LOWER(?)', [$name])->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This album name is already taken choose another name.'
+                ], 422);
+            }
 
         // Proceed with album creation if name checks pass
         $album = new Album();
