@@ -146,6 +146,8 @@
             <li><a href="#eligibility">Eligibility</a></li>
             <li><a href="#accounts">Account Registration</a></li>
             <li><a href="#content">User Content</a></li>
+            <li><a href="#albums">Albums on Venusnap</a></li>
+            <li><a href="#albumname">Album Naming and Identity Use</a></li>
             <li><a href="#prohibitedcontent">Prohibited Content</a></li>
             <li><a href="#intellectualproperty">Intellectual Property</a></li>
             <li><a href="#termination">Termination</a></li>
@@ -207,8 +209,44 @@
  objectionable at our sole discretion.</p>
     </section>
 
+     <section id="albums">
+        <h2>6. Albums on Venusnap</h2>
+        <p> Venusnap uses "Albums" as a way for users to organize and share visual content. Each Album serves as a collection of images, snaps, or visuals centered around a specific theme, identity, interest, or purpose.</p>
+        <b><p> There are three main types of Albums:</p></b>
+        <ul>
+            <li><strong>Personal Albums:</strong> For individual use — memories, lifestyle content, etc.</li>
+            <li><strong>Creator Albums:</strong>  For artists, influencers, educators, or storytellers sharing original content.</li>
+            <li><strong>Business Albums:</strong> For companies and organizations to promote products, services, or brand messages.</li>
+        </ul>
+    </section>
+
+     <section id="albumname">
+        <h2>7. Album Naming and Identity Use</h2>
+        <p> Album names on Venusnap may be subject to uniqueness depending on their type.</p>
+        <b><p> (a) Business and Creator Albums:</p></b>
+        <ul>
+            <li> Must use globally unique names across the platform.</li>
+            <li> Names that resemble existing public brands, companies, or well-known personalities may be reserved by Venusnap.</li>
+            <li> If a name is reserved or unavailable, the user may request access by submitting a verification request, which may include identity documentation or domain/email validation.</li>
+        </ul>
+        <b><p> (b) Personal Albums:</p></b>
+        <ul>
+            <li> Can use non-unique names (e.g., "My Life", "Travel Diary").</li>
+            <li> These are not globally reserved and can be used by multiple users.</li>
+        </ul>
+        <b><p> (c)  Misuse and Conflict:</p></b>
+        <p>Venusnap reserves the right to edit, restrict, or reclaim any album name that</p>
+        <ul>
+            <li> Impersonates a brand or public figure.</li>
+            <li> Infringes on trademarks or copyrights.</li>
+            <li> Violates platform policies or causes confusion.</li>
+        </ul>
+         <b><p> (d) Requesting a Reserved Name:</p></b>
+        <p>If you represent a verified business, public figure, or organization and your desired Album name is unavailable, you may request its release by contacting support@venusnap.com and submitting verification documents.</p>
+    </section>
+
      <section id="prohibitedcontent">
-        <h2>6. Prohibited Conduct</h2>
+        <h2>8. Prohibited Conduct</h2>
         <p> You retain ownership of the photos, videos, and other content you upload to Venusnap ("User
             Content"). However, by uploading content, you grant Venusnap a non-exclusive, royalty-free,
             worldwide license to use, display, and distribute your content on the platform for the purposes of
@@ -235,19 +273,19 @@
     </section>
 
       <section id="intelectualproperty">
-        <h2>8. Intellectual Property</h2>
+        <h2>9. Intellectual Property</h2>
         <p>  All intellectual property rights related to Venusnap (excluding User Content) are owned by or
  licensed to us. You agree not to use our trademarks, logos, or content without written permission</p>
     </section>
 
      <section id="termination">
-        <h2>9. Termination</h2>
+        <h2>10. Termination</h2>
         <p>  We may suspend or terminate your access to Venusnap if you violate these Terms or engage in
  harmful conduct. You may also delete your account at any time</p>
     </section>
 
     <section id="payments">
-  <h2>10. Payments</h2>
+  <h2>11. Payments</h2>
   <p>By using any paid features of Venusnap, including but not limited to purchasing Venusnap Points, subscriptions, or advertising services, you agree to the following payment terms:</p>
 
   <ul>
@@ -261,31 +299,31 @@
 
     <li><strong>Pricing Changes:</strong> We may modify pricing for any of our services at any time. Continued use of paid features after a price change constitutes your acceptance of the new pricing.</li>
 
-    <li><strong>Third-Party Processing:</strong> Payments may be processed by third-party services (e.g., PayPal, Stripe). By making a payment, you also agree to their terms and privacy policies.</li>
+    <li><strong>Third-Party Processing:</strong> Payments may be processed by third-party services <b>Stripe</b>. By making a payment, you also agree to the <a href="https://stripe.com/legal" target="_blank" rel="noopener noreferrer">Stripe Services Agreement</a> and any other applicable terms from those providers.</li>
   </ul>
 </section>
 
 
      <section id="disclaimer">
-        <h2>11. Disclaimers</h2>
+        <h2>12. Disclaimers</h2>
         <p>  Venusnap is provided "as is" without warranties of any kind. We do not guarantee uninterrupted
  access or that the platform will be error-free</p>
     </section>
 
       <section id="limitation">
-        <h2>12. Limitation of Liability</h2>
+        <h2>13. Limitation of Liability</h2>
         <p> To the fullest extent permitted by law, Venusnap will not be liable for any indirect, incidental, or
  consequential damages arising from your use of the platform</p>
     </section>
 
      <section id="governinglaw">
-        <h2>13. Governing Law</h2>
+        <h2>14. Governing Law</h2>
         <p> These Terms are governed by the laws of Zambia. Any disputes shall be resolved under Zambian
  jurisdiction</p>
     </section>
 
      <section id="changes">
-        <h2>14. Changes to These Terms</h2>
+        <h2>15. Changes to These Terms</h2>
         <p> We may update these Terms from time to time. Continued use of Venusnap after changes indicates
  your acceptance of the new Terms</p>
     </section>
@@ -293,9 +331,9 @@
     <!-- Additional sections would continue here -->
 
     <section id="contact">
-        <h2>15. Contact Us</h2>
+        <h2>16. Contact Us</h2>
         <p>If you have any questions about these Terms, please contact us at:</p>
-        <p>Email: legal@venusnap.com<br>
+        <p>Email: support@venusnap.com<br>
           Address: 444 Alaska Avenue, California, Suite #CEC468</p>
     </section>
 
