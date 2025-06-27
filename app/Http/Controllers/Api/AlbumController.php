@@ -160,6 +160,16 @@ class AlbumController extends Controller
 
     public function creatorstore(Request $request)
     {
+        $name = $request->name;
+
+        // Check existing albums (case insensitive)
+        if (Album::whereRaw('LOWER(name) = LOWER(?)', [$name])->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This album name is already taken choose another name.'
+            ], 422);
+        }
+
         $album = new Album();
         $album->user_id = Auth::user()->id;
         $album->type = 'creator';
@@ -203,7 +213,7 @@ class AlbumController extends Controller
         ]);
     }
 
-    public function checkAlbumName(Request $request)
+    public function businessnamecheck(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255'
@@ -242,25 +252,25 @@ class AlbumController extends Controller
     {
         $name = $request->name;
 
-            // Check reserved names in database (case insensitive)
-            $isReserved = DB::table('reserved_names')
-                ->whereRaw('LOWER(name) = LOWER(?)', [$name])
-                ->exists();
+        // Check reserved names in database (case insensitive)
+        $isReserved = DB::table('reserved_names')
+            ->whereRaw('LOWER(name) = LOWER(?)', [$name])
+            ->exists();
 
-            if ($isReserved) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This name is reserved and cannot be used if you own this business please contact us.'
-                ], 422);
-            }
+        if ($isReserved) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This name is reserved and cannot be used if you own this business please contact us.'
+            ], 422);
+        }
 
-            // Check existing albums (case insensitive)
-            if (Album::whereRaw('LOWER(name) = LOWER(?)', [$name])->exists()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This album name is already taken choose another name.'
-                ], 422);
-            }
+        // Check existing albums (case insensitive)
+        if (Album::whereRaw('LOWER(name) = LOWER(?)', [$name])->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This album name is already taken choose another name.'
+            ], 422);
+        }
 
         // Proceed with album creation if name checks pass
         $album = new Album();

@@ -47,7 +47,7 @@
                                 @foreach ($adboards as $adboard)
                                 <tr>
                                     <td>{{ $adboard->id }}</td>
-                                    <td>{{ $adboard->adboard->name }}</td>
+                                    <td>{{ $adboard->name }}</td>
                                     <td>
                                         {{ $adboard->album->name }}
                                     </td>
