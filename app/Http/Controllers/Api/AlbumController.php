@@ -209,7 +209,7 @@ class AlbumController extends Controller
         if ($isReserved) {
             return response()->json([
                 'available' => false,
-                'message' => 'This name is reserved and cannot be used if you own this name please contact us.'
+                'message' => 'This name is reserved and cannot be used if you own this business please contact us.'
             ], 200);
         }
 
@@ -240,7 +240,7 @@ class AlbumController extends Controller
             if ($isReserved) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'This name is reserved and cannot be used if you own this name please contact us.'
+                    'message' => 'This name is reserved and cannot be used if you own this business please contact us.'
                 ], 422);
             }
 
