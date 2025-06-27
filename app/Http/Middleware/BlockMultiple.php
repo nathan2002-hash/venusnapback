@@ -49,7 +49,7 @@ class BlockMultiple
         $response = $next($request);
         $status = $response->getStatusCode();
 
-        if (!($status >= 200 && $status <= 299)) {
+       if (!$userId && !($status >= 200 && $status <= 299)) {
             DB::table('blocked_requests')->insert([
                 'ip' => $ip,
                 'user_id' => $userId,
@@ -60,6 +60,7 @@ class BlockMultiple
                 'updated_at' => now(),
             ]);
         }
+
 
         return $response;
     }
