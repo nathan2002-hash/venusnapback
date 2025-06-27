@@ -119,6 +119,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/album/business/store', 'Api\AlbumController@businessstore');
     Route::get('/album/content/types/creator', 'Api\AlbumController@albumcategorycreator');
     Route::get('/album/business/categories', 'Api\AlbumController@albumcategorybusiness');
+    Route::post('/album/check-name', 'Api\AlbumController@checkAlbumName');
 
     Route::get('/user/albums', 'Api\AlbumController@getAlbums');
     Route::get('/user/album/{id}', 'Api\AlbumController@show');

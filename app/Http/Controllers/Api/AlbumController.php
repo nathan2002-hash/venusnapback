@@ -193,39 +193,80 @@ class AlbumController extends Controller
         ]);
     }
 
+    public function checkAlbumName(Request $request)
+    {
+        $reservedNames = [
+            'admin', 'administrator', 'root', 'system', 'support',
+            'help', 'contact', 'api', 'web', 'dev', 'test'
+        ];
+
+        $name = $request->input('name');
+
+        // Check reserved names
+        foreach ($reservedNames as $reserved) {
+            if (strtolower($name) === strtolower($reserved)) {
+                return response()->json([
+                    'available' => false,
+                    'message' => 'This name is reserved and cannot be used.'
+                ], 200);
+            }
+        }
+
+        // Check database
+        if (Album::where('name', $name)->exists()) {
+            return response()->json([
+                'available' => false,
+                'message' => 'This name is already taken.'
+            ], 200);
+        }
+
+        return response()->json([
+            'available' => true,
+            'message' => 'This name is available.'
+        ], 200);
+    }
+
     public function businessstore(Request $request)
     {
-        // $validated = $request->validate([
-        //     'name' => 'required|string|max:255',
-        //     'description' => 'nullable|string',
-        //     'visibility' => 'required|in:private,public',
-        //     'business_category' => 'required|string|max:100',
-        //     'is_paid_access' => 'required',
-        //     'price' => 'nullable|numeric|min:0',
-        //     'phone' => 'nullable|string|max:20',
-        //     'email' => 'nullable|email',
-        //     'location' => 'nullable|string|max:255',
-        //     'website' => 'nullable|url',
-        //     'facebook' => 'nullable|url',
-        //     'linkedin' => 'nullable|url',
-        //     'business_logo' => 'nullable|image|max:2048',
-        //     'cover_image' => 'nullable|image|max:4096',
-        // ]);
+        // Define reserved names
+        $reservedNames = [
+            'admin', 'administrator', 'root', 'system', 'support',
+            'help', 'contact', 'api', 'web', 'dev', 'test'
+        ];
 
+        $name = $request->name;
+
+        // First check if name is reserved (case insensitive)
+        foreach ($reservedNames as $reserved) {
+            if (strtolower($name) === strtolower($reserved)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This name is reserved and cannot be used.'
+                ], 422);
+            }
+        }
+
+        // Then check if name already exists in database
+        if (Album::where('name', $name)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This album name is already taken.'
+            ], 422);
+        }
+
+        // Proceed with album creation if name checks pass
         $album = new Album();
         $album->user_id = Auth::user()->id;
         $album->type = 'business';
         $album->status = 'active';
         $album->visibility = 'public';
-        $album->name = $request->name;
+        $album->name = $name;
         $album->description = $request->description;
         $album->business_category = $request->business_category;
         $album->album_category_id = $request->business_category;
-        if ($album->is_paid_access) {
-            $album->is_paid_access = 1;
-        } else {
-            $album->is_paid_access = 0;
-        }
+
+        // Fix the is_paid_access assignment (was checking wrong object)
+        $album->is_paid_access = $request->is_paid_access ? 1 : 0;
 
         $album->phone = $request->phone;
         $album->email = $request->email;
@@ -236,18 +277,20 @@ class AlbumController extends Controller
 
         if ($request->hasFile('business_logo')) {
             $bpath = $request->file('business_logo')->store('uploads/albums/originals', 's3');
+            $album->business_logo_original = $bpath;
         }
+
         if ($request->hasFile('cover_image')) {
             $cpath = $request->file('cover_image')->store('uploads/albums/originals', 's3');
+            $album->cover_image_original = $cpath;
         }
-        $album->business_logo_original = $bpath;
-        $album->cover_image_original = $cpath;
 
         $album->save();
 
         AlbumCreate::dispatch($album->id);
 
         return response()->json([
+            'success' => true,
             'message' => 'Business album created successfully!',
             'album' => $album
         ]);

@@ -24,17 +24,14 @@ class BlockMultiple
         $userId = $user?->id;
         $path = $request->path();
 
-        // ✅ Block missing User-Agent only for guests
         if (!$userId && !$request->header('User-Agent')) {
             return response('Missing User-Agent header.', 403);
         }
 
-        // ✅ Skip /blocked route to avoid loop
         if ($path === 'blocked') {
             return $next($request);
         }
 
-        // ✅ If guest, check BEFORE processing request
         if (!$userId) {
             $minutes = 5;
             $limit = 5;
@@ -52,7 +49,6 @@ class BlockMultiple
         $response = $next($request);
         $status = $response->getStatusCode();
 
-        // ✅ Log only non-successful responses
         if (!($status >= 200 && $status <= 299)) {
             DB::table('blocked_requests')->insert([
                 'ip' => $ip,
@@ -67,6 +63,4 @@ class BlockMultiple
 
         return $response;
     }
-
-
 }
