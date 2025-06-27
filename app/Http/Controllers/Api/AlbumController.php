@@ -136,20 +136,30 @@ class AlbumController extends Controller
         ]);
     }
 
+    public function creatornamecheck(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255'
+        ]);
+
+        $name = $request->input('name');
+
+        // Check existing albums (case insensitive)
+        if (Album::whereRaw('LOWER(name) = LOWER(?)', [$name])->exists()) {
+            return response()->json([
+                'available' => false,
+                'message' => 'This album name is already taken.'
+            ], 200);
+        }
+
+        return response()->json([
+            'available' => true,
+            'message' => 'This name is available.'
+        ], 200);
+    }
+
     public function creatorstore(Request $request)
     {
-        // $validated = $request->validate([
-        //     'name' => 'required|string|max:255',
-        //     'description' => 'nullable|string',
-        //     'visibility' => 'required|in:private,public,exclusive',
-        //     'release_date' => 'nullable|date',
-        //     'content_type' => 'nullable|string|max:50',
-        //     'tags' => 'nullable|string',
-        //     'allow_comments' => 'required|boolean',
-        //     'enable_rating' => 'required|boolean',
-        //     'thumbnail' => 'nullable|image|max:2048',
-        // ]);
-
         $album = new Album();
         $album->user_id = Auth::user()->id;
         $album->type = 'creator';
