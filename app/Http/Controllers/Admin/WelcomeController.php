@@ -30,7 +30,7 @@ class WelcomeController extends Controller
         $templates = Template::count();
         $postmedias = PostMedia::count();
         $totalPoints = User::sum('points');
-        $amount = $totalPoints / 500;
+        $amount = $totalPoints / 1000;
 
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
