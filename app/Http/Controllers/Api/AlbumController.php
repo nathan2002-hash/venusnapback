@@ -158,6 +158,50 @@ class AlbumController extends Controller
         ], 200);
     }
 
+    public function checkGeneralName(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'exclude_id' => 'nullable|integer'
+        ]);
+
+        $name = $request->name;
+        $excludeId = $request->exclude_id;
+
+        // First check reserved names in database (case insensitive)
+        $isReserved = DB::table('reserved_names')
+            ->whereRaw('LOWER(name) = LOWER(?)', [$name])
+            ->exists();
+
+        if ($isReserved) {
+            return response()->json([
+                'available' => false,
+                'message' => 'This name is reserved and cannot be used.',
+                'is_reserved' => true
+            ], 200);
+        }
+
+        // Then check existing albums (case insensitive)
+        $query = Album::whereRaw('LOWER(name) = LOWER(?)', [$name]);
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        if ($query->exists()) {
+            return response()->json([
+                'available' => false,
+                'message' => 'This album name is already taken.',
+                'is_reserved' => false
+            ], 200);
+        }
+
+        return response()->json([
+            'available' => true,
+            'message' => 'This name is available.'
+        ], 200);
+    }
+
     public function creatorstore(Request $request)
     {
         $name = $request->name;
