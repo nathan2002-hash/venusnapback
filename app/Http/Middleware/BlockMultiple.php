@@ -38,7 +38,7 @@ class BlockMultiple
 
         // 2. Block if path doesn't exist in route list
         if (!$this->isValidRoute($request)) {
-            return response('Blocked – unknown route', 404);
+            return response()->view('errors.404', [], 404);
         }
 
         return $next($request);
