@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 
 class BlockMultiple
@@ -16,52 +17,45 @@ class BlockMultiple
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
+     protected array $blockedPatterns = [
+        'wp-includes', 'wp-content', 'wp-admin',
+        '.well-known', 'templates', 'wp-signup.php',
+        'xmlrpc.php', 'wlwmanifest.xml', 'block-patterns',
+        'index.php', 'users.php', 'file.php',
+        'radio.php', '1.php', 'wso.php', 'include.php',
+    ];
+
     public function handle(Request $request, Closure $next): Response
     {
-        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
-        $ip = $realIp;
-        $user = Auth::user();
-        $userId = $user?->id;
-        $path = $request->path();
+        $path = strtolower($request->path());
 
-        if (!$userId && !$request->header('User-Agent')) {
-            return response('Missing User-Agent header.', 403);
-        }
-
-        if ($path === 'blocked') {
-            return $next($request);
-        }
-
-        if (!$userId) {
-            $minutes = 5;
-            $limit = 5;
-
-            $recentAttempts = DB::table('blocked_requests')
-                ->where('ip', $ip)
-                ->where('created_at', '>=', now()->subMinutes($minutes))
-                ->count();
-
-            if ($recentAttempts >= $limit) {
-                return response()->view('auth.blocked', [], 429);
+        // 1. Block by known attack patterns
+        foreach ($this->blockedPatterns as $pattern) {
+            if (str_contains($path, $pattern)) {
+                return response('Blocked – suspicious path', 403);
             }
         }
 
-        $response = $next($request);
-        $status = $response->getStatusCode();
-
-       if (!$userId && !($status >= 200 && $status <= 299)) {
-            DB::table('blocked_requests')->insert([
-                'ip' => $ip,
-                'user_id' => $userId,
-                'url' => $request->fullUrl(),
-                'status_code' => $status,
-                'user_agent' => $request->userAgent(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        // 2. Block if path doesn't exist in route list
+        if (!$this->isValidRoute($request)) {
+            return response('Blocked – unknown route', 404);
         }
 
+        return $next($request);
+    }
 
-        return $response;
+    protected function isValidRoute(Request $request): bool
+    {
+        // Match only GET routes (skip POST, etc. to avoid false negatives)
+        $method = $request->method();
+        $path = '/' . ltrim($request->path(), '/');
+
+        foreach (Route::getRoutes() as $route) {
+            if (in_array($method, $route->methods()) && $route->matches($request)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
