@@ -439,7 +439,7 @@ class AlbumController extends Controller
                 'type' => $album->type,
                 'is_verified' => (bool) $album->is_verified,
                 'supporters' => $album->supporters->count(),
-                'posts' => $album->posts->count(),
+                'posts' => $album->posts()->whereIn('status', ['active', 'review'])->count(),
                 'thumbnail_url' => $thumbnailUrl,
                 'created_at' => $album->created_at->format('l, d F Y at h:i A'),
             ];
