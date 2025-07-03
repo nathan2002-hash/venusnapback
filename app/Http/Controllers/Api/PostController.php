@@ -292,7 +292,6 @@ class PostController extends Controller
         $poststate->reason = 'Post deletion requested by user';
         $poststate->meta = [
             'description' => $post->description,
-            'type' => $post->type,
             'album_id' => $post->album_id,
             'visibility' => $post->visibility,
             'ip_address' => $realIp,
