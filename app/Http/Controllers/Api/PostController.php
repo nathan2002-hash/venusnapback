@@ -242,15 +242,13 @@ class PostController extends Controller
         return response()->json([
             'id' => $post->id,
             'description' => $post->description,
-            // 'type' => $post->category->name,
-            // 'type_id' => $post->category->id,
             'album_id' => $post->album_id,
             'album' => $post->album->name,
             'visibility' => $post->visibility,
             'post_media' => $post->postmedias->map(function($media) {
                 return [
                     'id' => $media->id,
-                    'file_path' => Storage::disk('s3')->url($media->file_path), // Using the accessor we defined
+                    'file_path' => Storage::disk('s3')->url($media->file_path_compress), // Using the accessor we defined
                     'sequence_order' => $media->sequence_order
                 ];
             }),
