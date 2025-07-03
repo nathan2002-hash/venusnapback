@@ -41,7 +41,7 @@ class CompressImageJob implements ShouldQueue
 
             // Optimization parameters
             $maxWidth = 2000;
-            $jpegQuality = 85; // Optimal balance for JPEG
+            $jpegQuality = 75; // Optimal balance for JPEG
             $webpQuality = 90; // WebP can handle higher quality at smaller sizes
 
             // Resize logic
