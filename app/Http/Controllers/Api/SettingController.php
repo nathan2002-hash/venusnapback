@@ -68,7 +68,7 @@ class SettingController extends Controller
 
         // If active
         return response()->json([
-            'status' => 'active',
+            'status' => 'approved',
             'message' => 'Your account is monetized. You are eligible to earn.'
         ]);
     }
