@@ -363,13 +363,16 @@ class PostController extends Controller
         // Handle new media uploads
         $newMediaCount = 0;
         if ($request->hasFile('post_medias')) {
-            foreach ($request->post_medias as $media) {
-                $path = $media['file']->store('uploads/posts/originals', 's3');
+            foreach ($request->file('post_medias') as $index => $file) {
+                // Get the corresponding sequence order
+                $sequenceOrder = $request->post_medias_orders[$index] ?? ($index + 1);
+
+                $path = $file->store('uploads/posts/originals', 's3');
 
                 $postMedia = PostMedia::create([
                     'post_id' => $post->id,
                     'file_path' => $path,
-                    'sequence_order' => $media['sequence_order'],
+                    'sequence_order' => $sequenceOrder,
                     'status' => 'original',
                 ]);
 
