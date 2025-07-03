@@ -51,19 +51,26 @@ class SettingController extends Controller
     {
         $user = Auth::user();
 
-        // Assuming you have a monetization_requests table or similar
-        // $monetization = MonetizationRequest::where('user_id', $user->id)->first();
-
-        // if (!$monetization) {
+        // You could also check if the user has even applied before:
+        // if (!$user->account->monetization_status) {
         //     return response()->json([
         //         'status' => 'not_applied',
-        //         'message' => 'You have not applied for monetization yet'
+        //         'message' => 'You have not applied for monetization yet.'
         //     ]);
         // }
 
+        if ($user->account->monetization_status !== 'active') {
+            return response()->json([
+                'status' => $user->account->monetization_status ?? 'pending', // could be 'pending' or 'rejected'
+                'message' => 'Your account is under review. We will notify you.'
+            ]);
+        }
+
+        // If active
         return response()->json([
-            'status' => 'pending', // 'pending', 'approved', 'rejected'
-            'message' => 'Your account is under review we will notify you' // Message from admin/reviewer
+            'status' => 'active',
+            'message' => 'Your account is monetized. You are eligible to earn.'
         ]);
     }
+
 }
