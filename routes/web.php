@@ -12,6 +12,11 @@ Route::get('/chat', function () {
     return view('emails.receipts.payment');
 });
 
+Route::get('/post/{post}/media/{media}', function ($post, $media) {
+    return view('deeplink', compact('post', 'media'));
+});
+
+
 Route::post('/blocked', 'HomeController@blocked');
 //terms routes
 
