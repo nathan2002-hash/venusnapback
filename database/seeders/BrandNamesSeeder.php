@@ -34,6 +34,7 @@ class BrandNamesSeeder extends Seeder
             'DigitalOcean', 'AWS', 'Azure', 'GoogleCloud', 'IBMCloud', 'AlibabaCloud',
             'Heroku', 'Firebase', 'Linode', 'Vultr', 'Netlify', 'Cloudflare', 'Fastly',
             'GitLab', 'Bitbucket', 'SourceForge', 'CodePen', 'JSFiddle', 'Replit',
+            'Atlassian', 'Laravel', 'Symfony', 'Django', 'Flask', 'RubyOnRails',
 
 
             // Automotive
