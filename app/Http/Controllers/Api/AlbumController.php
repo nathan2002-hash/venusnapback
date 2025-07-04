@@ -126,6 +126,35 @@ class AlbumController extends Controller
         return false;
     }
 
+    public function checkContent(Request $request)
+    {
+        $request->validate([
+            'text' => 'required|string',
+            'type' => 'nullable|in:name,description' // Optional field type
+        ]);
+
+        $containsBlocked = $this->containsBlockedWord($request->text);
+
+        return response()->json([
+            'contains_blocked' => $containsBlocked,
+            'message' => $containsBlocked
+                ? 'Content contains inappropriate words'
+                : 'Content is clean',
+            'suggestions' => $containsBlocked
+                ? $this->getSuggestions($request->text)
+                : null
+        ]);
+    }
+
+    private function getSuggestions(string $text): array
+    {
+        // Implement your suggestion logic here
+        return [
+            'Try removing or replacing flagged words',
+            'Use more neutral language'
+        ];
+    }
+
     public function personalstore(Request $request)
     {
         $validated = $request->validate([
@@ -135,12 +164,25 @@ class AlbumController extends Controller
             'thumbnail' => 'nullable|image|max:2048',
         ]);
 
-        $name = $request->name;
-
-        if ($this->containsBlockedWord($name)) {
+        if ($this->containsBlockedWord($validated['name'])) {
             return response()->json([
-                'available' => false,
-                'message' => 'This name contains inappropriate content. Please choose another name.'
+                'success' => false,
+                'message' => 'Name contains blocked content',
+                'errors' => [
+                    'name' => ['This contains inappropriate content']
+                ]
+            ], 422);
+        }
+
+        // Check description if exists
+        if (!empty($validated['description']) &&
+            $this->containsBlockedWord($validated['description'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Description contains blocked content',
+                'errors' => [
+                    'description' => ['This contains inappropriate content']
+                ]
             ], 422);
         }
 
