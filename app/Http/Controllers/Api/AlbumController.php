@@ -139,7 +139,7 @@ class AlbumController extends Controller
 
         if ($this->containsBlockedWord($name)) {
             return response()->json([
-                'success' => false,
+                'available' => false,
                 'message' => 'This name contains inappropriate content. Please choose another name.'
             ], 200);
         }
@@ -177,7 +177,7 @@ class AlbumController extends Controller
 
         if ($this->containsBlockedWord($name)) {
             return response()->json([
-                'success' => false,
+                'available' => false,
                 'message' => 'This name contains inappropriate content. Please choose another name.'
             ], 200);
         }
@@ -208,7 +208,7 @@ class AlbumController extends Controller
 
         if ($this->containsBlockedWord($name)) {
             return response()->json([
-                'success' => false,
+                'available' => false,
                 'message' => 'This name contains inappropriate content. Please choose another name.'
             ], 200);
         }
@@ -319,7 +319,7 @@ class AlbumController extends Controller
 
         if ($this->containsBlockedWord($name)) {
             return response()->json([
-                'success' => false,
+                'available' => false,
                 'message' => 'This name contains inappropriate content. Please choose another name.'
             ], 200);
         }
