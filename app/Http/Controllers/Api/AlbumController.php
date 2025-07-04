@@ -141,7 +141,7 @@ class AlbumController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'This name contains inappropriate content. Please choose another name.'
-            ], 422);
+            ], 200);
         }
 
         $album = new Album($validated);
@@ -179,7 +179,7 @@ class AlbumController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'This name contains inappropriate content. Please choose another name.'
-            ], 422);
+            ], 200);
         }
 
         // Check existing albums (case insensitive)
@@ -210,7 +210,7 @@ class AlbumController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'This name contains inappropriate content. Please choose another name.'
-            ], 422);
+            ], 200);
         }
 
         // First check reserved names in database (case insensitive)
@@ -255,7 +255,7 @@ class AlbumController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'This name contains inappropriate content. Please choose another name.'
-            ], 422);
+            ], 200);
         }
 
         // Check existing albums (case insensitive)
@@ -321,7 +321,7 @@ class AlbumController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'This name contains inappropriate content. Please choose another name.'
-            ], 422);
+            ], 200);
         }
         // Check reserved names in database (case insensitive)
         $isReserved = DB::table('reserved_names')
