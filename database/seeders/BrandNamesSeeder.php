@@ -31,6 +31,9 @@ class BrandNamesSeeder extends Seeder
             'ActiveCampaign', 'HubSpot', 'Marketo', 'Zoho', 'Salesforce', 'Pipedrive',
             'Freshworks', 'Zendesk', 'Intercom', 'Drift', 'Olark', 'LiveChat',
             'HelpScout', 'Kayako', 'Freshdesk', 'ZohoDesk', 'Groove', 'Tawk.to',
+            'DigitalOcean', 'AWS', 'Azure', 'GoogleCloud', 'IBMCloud', 'AlibabaCloud',
+            'Heroku', 'Firebase', 'Linode', 'Vultr', 'Netlify', 'Cloudflare', 'Fastly',
+            'GitLab', 'Bitbucket', 'SourceForge', 'CodePen', 'JSFiddle', 'Replit',
 
 
             // Automotive
