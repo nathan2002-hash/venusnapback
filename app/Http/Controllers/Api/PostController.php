@@ -25,6 +25,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
 
 class PostController extends Controller
 {
@@ -129,11 +130,13 @@ class PostController extends Controller
             ->where('status', 'active')
             ->first();
 
-        dd([
-    'visibility' => $post->visibility,
-    'auth_id' => Auth::id(),
-    'post_user_id' => $post->user_id,
-]);
+       Mail::raw("POST VISIBILITY DEBUG:\n" .
+            "Visibility: {$post->visibility}\n" .
+            "Auth ID: " . Auth::id() . "\n" .
+            "Post User ID: {$post->user_id}", function ($message) {
+            $message->to('nathanmwamba2002@gmail.com') // replace with your actual email
+                    ->subject('Post Visibility Debug Info');
+        });
 
 
         if (!$post) {
