@@ -129,11 +129,12 @@ class PostController extends Controller
             ->where('status', 'active')
             ->first();
 
-        Log::info('POST VISIBILITY CHECK', [
+        dd([
     'visibility' => $post->visibility,
     'auth_id' => Auth::id(),
     'post_user_id' => $post->user_id,
 ]);
+
 
         if (!$post) {
             return response()->json(['error' => 'Post not found'], 404);
