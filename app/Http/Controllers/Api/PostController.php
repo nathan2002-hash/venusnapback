@@ -25,7 +25,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Mail;
 
 class PostController extends Controller
 {
@@ -134,9 +133,9 @@ class PostController extends Controller
             return response()->json(['error' => 'Post not found'], 404);
         }
 
-        // if (strtolower($post->visibility) === 'private' && Auth::id() !== $post->user_id) {
-        //     return response()->json(['error' => 'Post not found'], 404); // Hide post existence
-        // }
+        if ($post->visibility === 'Private' && Auth::id() !== $post->user_id) {
+            return response()->json(['error' => 'Post not found'], 404); // Return 404 to hide existence
+        }
 
         $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
         $ipaddress = $realIp;
