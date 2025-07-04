@@ -134,9 +134,9 @@ class PostController extends Controller
             return response()->json(['error' => 'Post not found'], 404);
         }
 
-        if (strtolower($post->visibility) === 'private' && Auth::id() !== $post->user_id) {
-            return response()->json(['error' => 'Post not found'], 404); // Hide post existence
-        }
+        // if (strtolower($post->visibility) === 'private' && Auth::id() !== $post->user_id) {
+        //     return response()->json(['error' => 'Post not found'], 404); // Hide post existence
+        // }
 
         $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
         $ipaddress = $realIp;
