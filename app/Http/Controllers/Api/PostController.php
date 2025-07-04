@@ -130,23 +130,13 @@ class PostController extends Controller
             ->where('status', 'active')
             ->first();
 
-       Mail::raw("POST VISIBILITY DEBUG:\n" .
-            "Visibility: {$post->visibility}\n" .
-            "Auth ID: " . Auth::id() . "\n" .
-            "Post User ID: {$post->user_id}", function ($message) {
-            $message->to('nathanmwamba2002@gmail.com') // replace with your actual email
-                    ->subject('Post Visibility Debug Info');
-        });
-
-
         if (!$post) {
             return response()->json(['error' => 'Post not found'], 404);
         }
 
-        if ($post->visibility == 'Private' && Auth::id() !== $post->user_id) {
-            return response()->json(['error' => 'Post not found'], 404);
+        if (strtolower($post->visibility) === 'private' && Auth::id() !== $post->user_id) {
+            return response()->json(['error' => 'Post not found'], 404); // Hide post existence
         }
-
 
         $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
         $ipaddress = $realIp;
