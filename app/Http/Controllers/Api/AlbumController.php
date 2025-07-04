@@ -17,6 +17,8 @@ use App\Jobs\CreateNotificationJob;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 class AlbumController extends Controller
 {
@@ -104,6 +106,26 @@ class AlbumController extends Controller
         ]);
     }
 
+    protected function containsBlockedWord(string $text): bool
+    {
+        // Cache the blocked words for 24 hours to avoid DB queries
+        $blockedWords = Cache::remember('blocked_words', 1440, function () {
+            return DB::table('blocked_words')->pluck('word')->map(fn($w) => strtolower(trim($w)));
+        });
+
+        // Normalize the input text
+        $normalizedText = ' ' . strtolower(trim($text)) . ' ';
+
+        foreach ($blockedWords as $word) {
+            // Check for whole word matches only (surrounded by spaces or punctuation)
+            if (preg_match("/\b" . preg_quote($word, '/') . "\b/i", $normalizedText)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function personalstore(Request $request)
     {
         $validated = $request->validate([
@@ -112,6 +134,15 @@ class AlbumController extends Controller
             'visibility' => 'required|in:private,public',
             'thumbnail' => 'nullable|image|max:2048',
         ]);
+
+        $name = $request->name;
+
+        if ($this->containsBlockedWord($name)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This name contains inappropriate content. Please choose another name.'
+            ], 422);
+        }
 
         $album = new Album($validated);
         $album->user_id = Auth::user()->id;
@@ -144,6 +175,13 @@ class AlbumController extends Controller
 
         $name = $request->input('name');
 
+        if ($this->containsBlockedWord($name)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This name contains inappropriate content. Please choose another name.'
+            ], 422);
+        }
+
         // Check existing albums (case insensitive)
         if (Album::whereRaw('LOWER(name) = LOWER(?)', [$name])->exists()) {
             return response()->json([
@@ -167,6 +205,13 @@ class AlbumController extends Controller
 
         $name = $request->name;
         $excludeId = $request->exclude_id;
+
+        if ($this->containsBlockedWord($name)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This name contains inappropriate content. Please choose another name.'
+            ], 422);
+        }
 
         // First check reserved names in database (case insensitive)
         $isReserved = DB::table('reserved_names')
@@ -205,6 +250,13 @@ class AlbumController extends Controller
     public function creatorstore(Request $request)
     {
         $name = $request->name;
+
+        if ($this->containsBlockedWord($name)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This name contains inappropriate content. Please choose another name.'
+            ], 422);
+        }
 
         // Check existing albums (case insensitive)
         if (Album::whereRaw('LOWER(name) = LOWER(?)', [$name])->exists()) {
@@ -265,6 +317,12 @@ class AlbumController extends Controller
 
         $name = $request->input('name');
 
+        if ($this->containsBlockedWord($name)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This name contains inappropriate content. Please choose another name.'
+            ], 422);
+        }
         // Check reserved names in database (case insensitive)
         $isReserved = DB::table('reserved_names')
             ->whereRaw('LOWER(name) = LOWER(?)', [$name])
@@ -295,6 +353,13 @@ class AlbumController extends Controller
     public function businessstore(Request $request)
     {
         $name = $request->name;
+
+        if ($this->containsBlockedWord($name)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This name contains inappropriate content. Please choose another name.'
+            ], 422);
+        }
 
         // Check reserved names in database (case insensitive)
         $isReserved = DB::table('reserved_names')
