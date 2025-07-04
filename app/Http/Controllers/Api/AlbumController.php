@@ -141,7 +141,7 @@ class AlbumController extends Controller
             return response()->json([
                 'available' => false,
                 'message' => 'This name contains inappropriate content. Please choose another name.'
-            ], 200);
+            ], 422);
         }
 
         $album = new Album($validated);
