@@ -43,7 +43,7 @@ class AdImageCompress implements ShouldQueue
         }
 
         // Compress to WebP with a lower quality for better performance
-        $compressedImage = $image->encode(new WebpEncoder(quality: 85)); // Reduce quality for smaller file size
+        $compressedImage = $image->encode(new WebpEncoder(quality: 65)); // Reduce quality for smaller file size
 
         // Store compressed image
         $compressedPath = 'ads/media/compressed/' . basename($path);
