@@ -32,38 +32,43 @@ class PostController extends Controller
     public function index(Request $request)
     {
         $userId = Auth::user()->id;
-        $limit = 6; // Default to 3 posts per fetch
+        $limit = 7; // Default to 3 posts per fetch
 
         // Get available active recommendations
         $recommendations = Recommendation::where('user_id', $userId)
             ->where('status', 'active')
             ->inRandomOrder()
-            ->take($limit)
-            ->get();
+            ->get()
+            ->unique('post_id')
+            ->take($limit);
 
         // If not enough active recommendations, recycle some fetched ones
-        if ($recommendations->count() < $limit) {
+       if ($recommendations->count() < $limit) {
             $needed = $limit - $recommendations->count();
 
+            // Reactivate old ones
             Recommendation::where('user_id', $userId)
                 ->where('status', 'fetched')
-                ->orderBy('updated_at', 'asc') // Oldest first
+                ->whereNotIn('post_id', $recommendations->pluck('post_id'))
                 ->limit($needed)
                 ->update(['status' => 'active']);
 
-            // Get the newly activated recommendations
-            $additionalRecs = Recommendation::where('user_id', $userId)
+            // Pull the newly activated ones
+            $fallback = Recommendation::where('user_id', $userId)
                 ->where('status', 'active')
+                ->whereNotIn('post_id', $recommendations->pluck('post_id'))
                 ->inRandomOrder()
-                ->take($needed)
-                ->get();
+                ->get()
+                ->unique('post_id')
+                ->take($needed);
 
-            $recommendations = $recommendations->merge($additionalRecs);
+            $recommendations = $recommendations->merge($fallback);
         }
 
+
         // Mark these as fetched
-        Recommendation::whereIn('id', $recommendations->pluck('id'))
-            ->update(['status' => 'fetched']);
+        $recommendations = $recommendations->unique('post_id')->take($limit);
+        Recommendation::whereIn('id', $recommendations->pluck('id'))->update(['status' => 'fetched']);
 
         // Get the posts
         $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
