@@ -70,6 +70,7 @@ class SavedController extends Controller
     public function getSavedPosts(Request $request)
     {
         $user = $request->user();
+        $userId = $user->id;
         $defaultProfile = 'https://example.com/default-profile.jpg'; // Set your default profile URL
         $defaultMedia = 'https://example.com/default-media.jpg'; // Set your default media URL
 
@@ -78,10 +79,14 @@ class SavedController extends Controller
             ->with(['post.postmedias.admires', 'post.postmedias.comments', 'post.album'])
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($saved) use ($defaultProfile, $defaultMedia) {
+            ->map(function ($saved) use ($defaultProfile, $defaultMedia, $userId) {
                 $post = $saved->post;
 
                 if (!$post) {
+                    return null;
+                }
+
+                if (strtolower($post->visibility) === 'private' && $post->user_id != $userId) {
                     return null;
                 }
 
