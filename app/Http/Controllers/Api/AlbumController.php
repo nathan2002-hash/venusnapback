@@ -629,9 +629,14 @@ class AlbumController extends Controller
                     ? Storage::disk('s3')->url($album->cover_image_original)
                     : null);
 
-       $posts = $album->posts
-        ->where('status', 'active')
-        ->values() // This resets keys to 0-based index
+        $posts = $album->posts
+        ->filter(function ($post) use ($user) {
+            // Only include if it's not private or it's owned by the viewer
+            return $post->status === 'active' && (
+                $post->visibility !== 'private' || ($user && $post->user_id === $user->id)
+            );
+        })
+        ->values()
         ->map(function ($post) {
             $postThumbnail = $post->postmedias->first()
                 ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress)
@@ -643,7 +648,8 @@ class AlbumController extends Controller
                 'thumbnail_url' => $postThumbnail,
                 'image_count' => $post->postmedias->count(),
             ];
-    });
+        });
+
 
         return response()->json([
             'album' => [
@@ -752,8 +758,13 @@ class AlbumController extends Controller
                 : null);
 
         $posts = $album->posts
-        ->where('status', 'active')
-        ->values() // This resets keys to 0-based index
+        ->filter(function ($post) use ($user) {
+            // Only include if it's not private or it's owned by the viewer
+            return $post->status === 'active' && (
+                $post->visibility !== 'private' || ($user && $post->user_id === $user->id)
+            );
+        })
+        ->values()
         ->map(function ($post) {
             $postThumbnail = $post->postmedias->first()
                 ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress)
@@ -765,7 +776,8 @@ class AlbumController extends Controller
                 'thumbnail_url' => $postThumbnail,
                 'image_count' => $post->postmedias->count(),
             ];
-    });
+        });
+
 
         return response()->json([
             'album' => [
