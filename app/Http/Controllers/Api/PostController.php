@@ -407,7 +407,7 @@ class PostController extends Controller
 
         return response()->json([
             'message' => 'Post updated successfully',
-            'post' => $post->load('postmedias'),
+            'post' => $post->refresh()->load(['postmedias', 'album']),
             'sequence_changes' => $sequenceLog,
         ]);
     }

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
-    protected $fillable = ['description', 'category_id', 'type', 'status', 'visibility'];
+    protected $fillable = ['description', 'album_id', 'category_id', 'type', 'status', 'visibility'];
 
     public function postmedias(){
         return $this->hasMany(PostMedia::class, 'post_id');
