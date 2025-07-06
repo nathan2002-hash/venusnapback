@@ -138,10 +138,6 @@ class PostController extends Controller
             return response()->json(['error' => 'Post not found'], 404);
         }
 
-        // if ($post->visibility === 'private' && Auth::id() !== $post->user_id) {
-        //     return response()->json(['error' => 'Post not found'], 404); // Return 404 to hide existence
-        // }
-
         if (strtolower($post->visibility) === 'private') {
             // If post is private, check if user is logged in AND is the owner
             if (!Auth::check() || Auth::id() != $post->user_id) {
