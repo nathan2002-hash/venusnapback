@@ -16,6 +16,18 @@ Route::get('/post/{post}/media/{media}', function ($post, $media) {
     return view('deeplink', compact('post', 'media'));
 });
 
+$host = request()->header('host');
+    $host = explode(':', $host)[0];
+    if (in_array($host, ['app.venusnap.com', 'venusnap.com', 'www.venusnap.com'])) {
+        Route::get('/', 'HomeController@home');
+    } else {
+        //Route::resource('home', MarketingHomeController::class);
+    }
+    Route::get('/terms/of/service', 'HomeController@terms');
+    Route::get('/terms/conditions', function () {
+        return redirect('/terms/of/service');
+    });
+    Route::get('/privacy/policy', 'HomeController@privacy');
 
 Route::post('/blocked', 'HomeController@blocked');
 //terms routes
