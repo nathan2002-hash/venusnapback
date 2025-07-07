@@ -32,6 +32,13 @@ class AppStatusController extends Controller
 
         // Only check messages for authenticated users
         if ($request->user()) {
+            $responseData['user'] = [
+            'username' => $request->user()->username,
+            'profile' => $request->user()->profile_photo_url,
+            'fullname' => $request->user()->fullname,
+            'email_verified' => $request->user()->hasVerifiedEmail(),
+            'phone_verified' => $request->user()->phone_verified_at !== null,
+        ];
             $message = AppMessage::query()
                 ->active()
                 ->where(function($q) use ($platform) {
@@ -88,7 +95,9 @@ class AppStatusController extends Controller
             }
         }
 
-        return response()->json(['status' => 'normal']);
+        return response()->json($responseData);
+
+        //return response()->json(['status' => 'normal']);
     }
 
     public function trackMessageAction(Request $request)
