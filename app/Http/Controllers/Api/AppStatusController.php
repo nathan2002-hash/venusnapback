@@ -32,10 +32,13 @@ class AppStatusController extends Controller
 
         // Only check messages for authenticated users
         if ($request->user()) {
+             $profileUrl = $request->user()->profile_compressed
+            ? Storage::disk('s3')->url($request->user()->profile_compressed)
+            : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($request->user()->email))) . '?s=100&d=mp';
             $responseData['user'] = [
             'username' => $request->user()->username,
-            'profile' => $request->user()->profile_photo_url,
-            'fullname' => $request->user()->fullname,
+            'profile' => $profileUrl,
+            'fullname' => $request->user()->name,
             'email_verified' => $request->user()->hasVerifiedEmail(),
             'phone_verified' => $request->user()->phone_verified_at !== null,
         ];
