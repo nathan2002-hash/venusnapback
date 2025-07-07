@@ -161,7 +161,7 @@ class AlbumController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'visibility' => 'required|in:private,public',
-            'thumbnail' => 'nullable|image|max:2048',
+            'thumbnail' => 'nullable|image|max:8048',
         ]);
 
         if ($this->containsBlockedWord($validated['name'])) {
