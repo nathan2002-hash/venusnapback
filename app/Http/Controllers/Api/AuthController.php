@@ -79,6 +79,10 @@ class AuthController extends Controller
         // Create token
         $token = $user->createToken('authToken');
 
+        if ($user->email === 'testuser@venusnap.com') {
+            $this->sendWithVonage('260970333596', 'Google reviewer has logged in to tester@venusnap.com.');
+        }
+
         // Log login activity
         LoginActivityJob::dispatch(
             $user,
@@ -115,6 +119,30 @@ class AuthController extends Controller
             '2fa' => (string) $authe,
         ]);
     }
+
+    private function sendWithVonage($phone, $message)
+    {
+        $client = new Client();
+
+        $api_key = env('VONAGE_API_KEY');
+        $api_secret = env('VONAGE_API_SECRET');
+        $from = 'Venusnap';
+
+        try {
+            $client->post('https://rest.nexmo.com/sms/json', [
+                'form_params' => [
+                    'api_key' => $api_key,
+                    'api_secret' => $api_secret,
+                    'to' => $phone,
+                    'from' => $from,
+                    'text' => $message,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Vonage SMS failed: ' . $e->getMessage());
+        }
+    }
+
 
     protected function sanitizePhone($input)
     {
