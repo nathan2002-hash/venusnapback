@@ -482,15 +482,60 @@ class NotificationController extends Controller
         ]);
     }
 
+    // public function notificationscount()
+    // {
+    //     $user = Auth::user();
+
+    //     // Fetch the count of unread notifications for the user
+    //     $unreadCount = Notification::where('user_id', $user->id)
+    //         ->where('is_read', false)
+    //         ->count();
+
+    //     return response()->json(['count' => $unreadCount]);
+    // }
+
     public function notificationscount()
     {
         $user = Auth::user();
 
-        // Fetch the count of unread notifications for the user
-        $unreadCount = Notification::where('user_id', $user->id)
-            ->where('is_read', false)
-            ->count();
+        // Get all notifications grouped the same way as the index method
+        $groupedNotifications = Notification::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy(function ($notification) {
+                $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
+
+                if ($type === 'album_view') {
+                    $data = json_decode($notification->data, true);
+                    $albumId = $data['album_id'] ?? $notification->notifiable_id;
+                    $date = $notification->created_at->format('Y-m-d');
+                    return "album_view-{$albumId}-{$date}";
+                }
+
+                return $type . '-' . $this->getGroupingIdentifier($notification, $type);
+            });
+
+        // Count only unread notification GROUPS (not individual notifications)
+        $unreadCount = $groupedNotifications->filter(function ($group) {
+            return $group->contains('is_read', false);
+        })->count();
 
         return response()->json(['count' => $unreadCount]);
     }
+
+    public function markAllUserNotificationsAsRead(Request $request)
+    {
+        $user = $request->user();
+
+        $count = Notification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'All notifications marked as read',
+            'count' => $count,
+        ]);
+    }
+
 }

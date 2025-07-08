@@ -102,6 +102,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/notifications', 'Api\NotificationController@index');
     Route::post('/notifications/send-push', 'Api\NotificationController@sendPushNotification');
     Route::post('/notifications/mark-as-read', 'Api\NotificationController@markAsRead');
+    Route::post('/notifications/mark-all-read', 'Api\NotificationController@markAllUserNotificationsAsRead');
 
 
     Route::post('/change/password', 'Api\AuthController@changePassword');
