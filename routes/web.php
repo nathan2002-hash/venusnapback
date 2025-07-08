@@ -24,6 +24,7 @@ $host = request()->header('host');
         //Route::resource('home', MarketingHomeController::class);
     }
     Route::get('/terms/of/service', 'HomeController@terms');
+    Route::get('/child/safety', 'HomeController@childsafety');
     Route::get('/terms/conditions', function () {
         return redirect('/terms/of/service');
     });
