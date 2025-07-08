@@ -43,7 +43,7 @@ class ArtworkStore implements ShouldQueue
         // Read binary directly
         $image = $manager->read($originalImage);
 
-        $compressedImage = $image->encode(new WebpEncoder(quality: 75));
+        $compressedImage = $image->encode(new WebpEncoder(quality: 60));
 
         $compressedPath = 'uploads/artworks/compressed/' . basename($path);
         Storage::disk('s3')->put($compressedPath, (string) $compressedImage);

@@ -32,7 +32,7 @@ class ProfileUpdate implements ShouldQueue
         if ($this->user->profile_original) {
             $originalImageprofile = Storage::disk('s3')->get($this->user->profile_original);
             $imageprofile = $manager->read($originalImageprofile);
-            $compressedImageprofile = $imageprofile->encode(new WebpEncoder(quality: 60));
+            $compressedImageprofile = $imageprofile->encode(new WebpEncoder(quality: 50));
 
             $compressedPathprofile = 'uploads/profiles/compressed/profile/' . basename($this->user->profile_original);
             Storage::disk('s3')->put($compressedPathprofile, (string) $compressedImageprofile);

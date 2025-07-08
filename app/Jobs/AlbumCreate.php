@@ -60,7 +60,7 @@ class AlbumCreate implements ShouldQueue
         $originalImage = Storage::disk('s3')->get($path);
         $image = $manager->read($originalImage);
 
-        $compressedImage = $image->encode(new WebpEncoder(quality: 75));
+        $compressedImage = $image->encode(new WebpEncoder(quality: 50));
 
         $compressedPath = 'uploads/albums/compressed/' . basename($path);
         Storage::disk('s3')->put($compressedPath, (string) $compressedImage);
