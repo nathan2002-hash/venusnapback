@@ -194,19 +194,31 @@ class AlbumController extends Controller
         $album->description = $request->description;
         $album->visibility = $request->visibility;
 
+        $path = null;
+        $fullUrl = null;
+
         if ($request->hasFile('thumbnail')) {
             $path = $request->file('thumbnail')->store('uploads/albums/originals', 's3');
+            $fullUrl = Storage::disk('s3')->url($path);
         }
-        $album->thumbnail_original = $path;
 
+        $album->thumbnail_original = $path;
         $album->save();
 
         AlbumCreate::dispatch($album->id);
 
-        return response()->json([
+        // Create a modified response with the full URL
+        $response = [
             'message' => 'Personal album created successfully!',
-            'album' => $album
-        ]);
+            'album' => $album->toArray()
+        ];
+
+        // Replace the path with full URL in the response
+        if ($fullUrl) {
+            $response['album']['thumbnail_original'] = $fullUrl;
+        }
+
+        return response()->json($response);
     }
 
     public function creatornamecheck(Request $request)
@@ -317,38 +329,36 @@ class AlbumController extends Controller
         $album->content_type = $request->content_type;
         $album->description = $request->description;
         $album->visibility = $request->visibility;
-        $album->release_date = $request->release_date;
-        $album->content_type = $request->content_type;
-        if ($album->allow_comments) {
-            $album->allow_comments = 1;
-        } else {
-            $album->allow_comments = 0;
-        }
+        $album->release_date = now()->toDateString();
+        $album->allow_comments = $request->has('allow_comments') ? 1 : 0;
+        $album->enable_rating = $request->has('enable_rating') ? 1 : 0;
+        $album->tags = 'venusnap';
 
-       if ($album->enable_rating) {
-        $album->enable_rating = 1;
-       } else {
-        $album->enable_rating = 0;
-       }
-
-       $album->tags = json_decode($request->tags, true);
+        $path = null;
+        $fullUrl = null;
 
         if ($request->hasFile('thumbnail')) {
             $path = $request->file('thumbnail')->store('uploads/albums/originals', 's3');
+            $fullUrl = Storage::disk('s3')->url($path);
         }
+
         $album->thumbnail_original = $path;
-
-        // Convert comma-separated tags into array if needed
-        //$album->tags = explode(',', $request->input('tags'));
-
         $album->save();
 
         AlbumCreate::dispatch($album->id);
 
-        return response()->json([
+        // Create a modified response with the full URL
+        $response = [
             'message' => 'Creator album created successfully!',
-            'album' => $album
-        ]);
+            'album' => $album->toArray()
+        ];
+
+        // Replace the path with full URL in the response
+        if ($fullUrl) {
+            $response['album']['thumbnail_original'] = $fullUrl;
+        }
+
+        return response()->json($response);
     }
 
     public function businessnamecheck(Request $request)
