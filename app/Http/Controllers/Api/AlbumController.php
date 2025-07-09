@@ -332,7 +332,8 @@ class AlbumController extends Controller
         $album->release_date = now()->toDateString();
         $album->allow_comments = $request->has('allow_comments') ? 1 : 0;
         $album->enable_rating = $request->has('enable_rating') ? 1 : 0;
-        $album->tags = 'venusnap';
+        $album->tags = json_encode(['venusnap']);
+        //$album->tags = 'venusnap';
 
         $path = null;
         $fullUrl = null;
