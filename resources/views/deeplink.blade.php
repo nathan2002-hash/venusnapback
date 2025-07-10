@@ -8,7 +8,7 @@
     {{-- Open Graph Meta --}}
     <meta property="og:title" content="{{ $post->album->name ?? 'Venusnap Post' }}">
     <meta property="og:description" content="Check out this post from the '{{ $post->album->name ?? 'album' }}' album by {{ $post->user->name ?? 'a user' }} on Venusnap.">
-    <meta property="og:image" content="{{ $media->full_url ?? asset('default.jpg') }}">
+    <meta property="og:image" content="{{ $post->media->full_url ?? asset('default.jpg') }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="article">
 
