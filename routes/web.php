@@ -7,12 +7,16 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Telescope\Telescope;
 use Laravel\Telescope\IncomingEntry;
+use App\Models\Post;
+use App\Models\PostMedia;
 
 Route::get('/chat', function () {
     return view('emails.receipts.payment');
 });
 
 Route::get('/post/{post}/media/{media}', function ($post, $media) {
+    $post = Post::with(['user', 'album'])->findOrFail($post);
+    $media = PostMedia::findOrFail($media);
     return view('deeplink', compact('post', 'media'));
 });
 
