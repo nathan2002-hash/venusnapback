@@ -145,6 +145,26 @@ class PostController extends Controller
             }
         }
 
+        if (strtolower($post->visibility) === 'private') {
+            if (!Auth::check() || Auth::id() != $post->user_id) {
+                // Check if user has approved access to the album
+                $hasAccess = false;
+
+                if (Auth::check()) {
+                    $hasAccess = \DB::table('album_accesses')
+                        ->where('user_id', Auth::id())
+                        ->where('album_id', $post->album_id)
+                        ->where('status', 'approved')
+                        ->exists();
+                }
+
+                if (!$hasAccess) {
+                    return response()->json(['error' => 'Post not found'], 404);
+                }
+            }
+        }
+
+
         $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
         $ipaddress = $realIp;
 
