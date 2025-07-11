@@ -138,13 +138,6 @@ class PostController extends Controller
             return response()->json(['error' => 'Post not found'], 404);
         }
 
-        // if (strtolower($post->visibility) === 'private') {
-        //     // If post is private, check if user is logged in AND is the owner
-        //     if (!Auth::check() || Auth::id() != $post->user_id) {
-        //         return response()->json(['error' => 'Post not found'], 404);
-        //     }
-        // }
-
         if (strtolower($post->visibility) === 'private') {
             if (!Auth::check() || Auth::id() != $post->user_id) {
                 // Check if user has approved access to the album

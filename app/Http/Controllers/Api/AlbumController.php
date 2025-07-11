@@ -602,20 +602,20 @@ class AlbumController extends Controller
              ]);
          }
 
-         $receiver = $album->user_id;
+        //  $receiver = $album->user_id;
 
-         if ($receiver !== $user->id) {
-            CreateNotificationJob::dispatch(
-                $user,
-                $album,
-                'viewed_album',
-                $receiver,
-                [
-                    'viewer' => $user->id,
-                    'album_id' => $album->id
-                ]
-            );
-        }
+        //  if ($receiver !== $user->id) {
+        //     CreateNotificationJob::dispatch(
+        //         $user,
+        //         $album,
+        //         'viewed_album',
+        //         $receiver,
+        //         [
+        //             'viewer' => $user->id,
+        //             'album_id' => $album->id
+        //         ]
+        //     );
+        // }
 
         // Determine the album's thumbnail
         if ($album->type == 'personal' || $album->type == 'creator') {
@@ -721,26 +721,27 @@ class AlbumController extends Controller
                     'ip_address' => $realIp,
                     'user_agent' => $request->header('User-Agent'),
                 ]);
+
+                // Only dispatch notification if not already viewed
+                $receiver = $album->user_id;
+
+                if ($receiver !== $user->id) {
+                    CreateNotificationJob::dispatch(
+                        $user,
+                        $album,
+                        'viewed_album',
+                        $receiver,
+                        [
+                            'username' => $user->name,
+                            'album_id' => $album->id,
+                            'album_name' => $album->name,
+                            'viewer_id' => $user->id
+                        ]
+                    );
+                }
             }
         }
 
-
-         $receiver = $album->user_id;
-
-        if ($receiver !== $user->id) {
-            CreateNotificationJob::dispatch(
-                $user,
-                $album,
-                'viewed_album',
-                $receiver,
-                [
-                    'username' => $user->name,
-                    'album_id' => $album->id,
-                    'album_name' => $album->name,
-                    'viewer_id' => $user->id
-                ]
-            );
-        }
         $isSupporter = $user ? $album->supporters()->where('user_id', Auth::user()->id)->exists() : false;
 
 
