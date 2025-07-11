@@ -184,7 +184,7 @@
 
     <section id="eligibility">
         <h2>3. Eligibility</h2>
-        <p>You must be at least 18 years old to use Venusnap. By using our Services, you affirm that you meet
+        <p>You must be at least 13 years old to use Venusnap. By using our Services, you affirm that you meet
  this age requirement and have the capacity to enter into a legally binding agreement</p>
     </section>
 

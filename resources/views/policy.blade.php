@@ -313,7 +313,7 @@
 
     <section id="childrens">
         <h2>8. Children's Privacy</h2>
-        <p>Venusnap is not intended for children under the age of 18. We do not knowingly collect personal data from individuals under 18. If we become aware of such collection, we will delete it immediately.</p>
+        <p>Venusnap is not intended for children under the age of 13. We do not knowingly collect personal data from individuals under 13. If we become aware of such collection, we will delete it immediately.</p>
     </section>
 
     <section id="changes">
