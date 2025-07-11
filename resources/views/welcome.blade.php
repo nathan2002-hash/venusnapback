@@ -82,10 +82,10 @@
               </div>
             </div>
 
-            <h1 class="hero-title mb-4">Inspire. Create. Earn. All in One Platform.</h1>
+            <h1 class="hero-title mb-4">Inspire. Snap. Create. All in One Platform.</h1>
 
             <p class="hero-description mb-4">
-                Venusnap is where visual creators share powerful content, build authentic communities, and monetize through engagement. Whether you're an artist, photographer, or storyteller — your creativity belongs here.
+                Venusnap is where visual creators share powerful content, build authentic communities, and monetize through engagement. Whether you're an artist, photographer, or storyteller your creativity belongs here.
             </p>
             <div class="cta-wrapper">
               <a href="#download" class="btn btn-primary">Download</a>
@@ -1162,7 +1162,7 @@
   </footer>
 
   <!-- Scroll Top -->
-  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  {{-- <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a> --}}
 
   <!-- Preloader -->
   <div id="preloader"></div>
