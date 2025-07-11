@@ -57,17 +57,17 @@ class CompressImageJob implements ShouldQueue
             // Generate unique filenames
             $filename = pathinfo($path, PATHINFO_FILENAME);
             $webpPath = "uploads/posts/compressed/{$filename}.webp";
-            $jpegPath = "uploads/posts/compressed/{$filename}.jpg";
+            //$jpegPath = "uploads/posts/compressed/{$filename}.jpg";
 
             // Store compressed versions
             Storage::disk('s3')->put($webpPath, (string) $webpImage);
-            Storage::disk('s3')->put($jpegPath, (string) $jpegImage);
+            //Storage::disk('s3')->put($jpegPath, (string) $jpegImage);
 
             // Update media record with both formats
             $this->postMedia->update([
                 'status' => 'compressed',
                 'file_path_compress' => $webpPath,
-                'file_path_jpg' => $jpegPath,
+                //'file_path_jpg' => $jpegPath,
                 // 'original_filesize' => strlen($originalImage),
                 // 'compressed_filesize' => min(strlen((string) $webpImage), strlen((string) $jpegImage)),
             ]);
