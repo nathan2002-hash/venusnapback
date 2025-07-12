@@ -1162,7 +1162,7 @@
   </footer>
 
   <!-- Scroll Top -->
-  <a href="#" class="scroll-top d-flex align-items-center justify-content-center"></a>
+  <a href="#" class="d-flex align-items-center justify-content-center"></a>
 
   <!-- Preloader -->
   <div id="preloader"></div>
