@@ -1187,44 +1187,56 @@
   <script src="{{ asset('assets1/vendor/swiper/swiper-bundle.min.js') }}"></script>
 
   <script>
-    document.querySelector('.php-email-form').addEventListener('submit', function(e) {
+document.querySelector('.php-email-form').addEventListener('submit', function(e) {
     e.preventDefault();
 
     const form = e.target;
     const loading = form.querySelector('.loading');
-    //const errorMessage = form.querySelector('.error-message');
+    const errorMessage = form.querySelector('.error-message');
     const sentMessage = form.querySelector('.sent-message');
 
     loading.style.display = 'block';
     errorMessage.style.display = 'none';
     sentMessage.style.display = 'none';
 
-    fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
-        headers: {
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        loading.style.display = 'none';
-        if (data.success) {
-            sentMessage.style.display = 'block';
-            form.reset();
-        } else {
-            errorMessage.style.display = 'block';
-            errorMessage.innerHTML = Object.values(data.errors).join('<br>');
-        }
-    })
-    .catch(() => {
-        loading.style.display = 'none';
-        errorMessage.style.display = 'block';
-        errorMessage.innerHTML = 'An error occurred, please try again.';
+    grecaptcha.ready(function () {
+        grecaptcha.execute('{{ env('RECAPTCHA_SITE_KEY') }}', {action: 'submit'}).then(function (token) {
+            form.querySelector('#recaptcha_token').value = token;
+
+            // Now actually submit the form via fetch
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                if (data.success) {
+                    sentMessage.style.display = 'block';
+                    form.reset();
+                } else {
+                    errorMessage.style.display = 'block';
+                    if (data.errors) {
+                        errorMessage.innerHTML = Object.values(data.errors).join('<br>');
+                    } else {
+                        errorMessage.innerHTML = data.message || 'reCAPTCHA failed.';
+                    }
+                }
+            })
+            .catch(() => {
+                loading.style.display = 'none';
+                errorMessage.style.display = 'block';
+                errorMessage.innerHTML = 'An error occurred, please try again.';
+            });
+        });
     });
 });
-  </script>
+</script>
+
 
   <!-- Main JS File -->
   <script src="{{ asset('assets1/js/main.js') }}"></script>
