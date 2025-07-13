@@ -1062,7 +1062,10 @@
                     </div>
                   </div>
                   <center>
-                    <div class="g-recaptcha mt-3" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+                    <div class="g-recaptcha mt-3"
+                        data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"
+                        data-callback="recaptchaCallback">
+                    </div>
                   </center>
                   <div class="my-3">
                     <div class="loading">Loading</div>
@@ -1180,45 +1183,64 @@
   <script src="{{ asset('assets1/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
   <script src="{{ asset('assets1/vendor/swiper/swiper-bundle.min.js') }}"></script>
 
-  <script>
-    document.querySelector('.php-email-form').addEventListener('submit', function(e) {
+<script>
+  let isCaptchaVerified = false;
+
+  function recaptchaCallback() {
+    isCaptchaVerified = true;
+    const errorMessage = document.querySelector('.error-message');
+    if (errorMessage) {
+      errorMessage.style.display = 'none';
+      errorMessage.innerHTML = '';
+    }
+  }
+
+  document.querySelector('.php-email-form').addEventListener('submit', function(e) {
     e.preventDefault();
 
     const form = e.target;
     const loading = form.querySelector('.loading');
-    //const errorMessage = form.querySelector('.error-message');
+    const errorMessage = form.querySelector('.error-message');
     const sentMessage = form.querySelector('.sent-message');
+
+    if (!isCaptchaVerified) {
+      errorMessage.style.display = 'block';
+      errorMessage.innerHTML = 'Please verify you are not a robot.';
+      return;
+    }
 
     loading.style.display = 'block';
     errorMessage.style.display = 'none';
     sentMessage.style.display = 'none';
 
     fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
-        headers: {
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        }
+      method: 'POST',
+      body: new FormData(form),
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
     })
     .then(response => response.json())
     .then(data => {
-        loading.style.display = 'none';
-        if (data.success) {
-            sentMessage.style.display = 'block';
-            form.reset();
-        } else {
-            errorMessage.style.display = 'block';
-            errorMessage.innerHTML = Object.values(data.errors).join('<br>');
-        }
+      loading.style.display = 'none';
+      if (data.success) {
+        sentMessage.style.display = 'block';
+        form.reset();
+        grecaptcha.reset(); // reset CAPTCHA for next submission
+        isCaptchaVerified = false;
+      } else {
+        errorMessage.style.display = 'block';
+        errorMessage.innerHTML = Object.values(data.errors || {}).join('<br>') || data.message;
+      }
     })
     .catch(() => {
-        loading.style.display = 'none';
-        errorMessage.style.display = 'block';
-        errorMessage.innerHTML = 'An error occurred, please try again.';
+      loading.style.display = 'none';
+      errorMessage.style.display = 'block';
+      errorMessage.innerHTML = 'An error occurred, please try again.';
     });
-});
-  </script>
+  });
+</script>
 
   <!-- Main JS File -->
   <script src="{{ asset('assets1/js/main.js') }}"></script>
