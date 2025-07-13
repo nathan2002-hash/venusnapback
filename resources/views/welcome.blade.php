@@ -1061,7 +1061,9 @@
                       <textarea class="form-control" name="message" rows="6" placeholder="Write a message*" required=""></textarea>
                     </div>
                   </div>
-                  <div class="g-recaptcha mt-3" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+                  <center>
+                    <div class="g-recaptcha mt-3" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+                  </center>
                   <div class="my-3">
                     <div class="loading">Loading</div>
                     <div class="error-message"></div>
