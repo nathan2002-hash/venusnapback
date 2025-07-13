@@ -1020,7 +1020,6 @@
               <form action="{{ route('contact.submit') }}" method="post" role="form" class="php-email-form">
                 @csrf
                 <input type="text" name="website" style="display: none;" autocomplete="off">
-                <input type="hidden" name="recaptcha_token" id="recaptcha_token">
                 <div class="row">
                   <div class="col-md-6 form-group">
                     <div class="input-group">
@@ -1061,6 +1060,7 @@
                       <textarea class="form-control" name="message" rows="6" placeholder="Write a message*" required=""></textarea>
                     </div>
                   </div>
+                  <div class="g-recaptcha mt-3" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
                   <div class="my-3">
                     <div class="loading">Loading</div>
                     <div class="error-message"></div>
@@ -1168,15 +1168,6 @@
   <!-- Preloader -->
   <div id="preloader"></div>
 
-  <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
-<script>
-    grecaptcha.ready(function () {
-        grecaptcha.execute('{{ env('RECAPTCHA_SITE_KEY') }}', {action: 'submit'}).then(function (token) {
-            document.getElementById('recaptcha_token').value = token;
-        });
-    });
-</script>
-
   <!-- Vendor JS Files -->
   <script src="{{ asset('assets1/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
   <script src="{{ asset('assets1/vendor/php-email-form/validate.js') }}"></script>
@@ -1187,56 +1178,44 @@
   <script src="{{ asset('assets1/vendor/swiper/swiper-bundle.min.js') }}"></script>
 
   <script>
-document.querySelector('.php-email-form').addEventListener('submit', function(e) {
+    document.querySelector('.php-email-form').addEventListener('submit', function(e) {
     e.preventDefault();
 
     const form = e.target;
     const loading = form.querySelector('.loading');
-    const errorMessage = form.querySelector('.error-message');
+    //const errorMessage = form.querySelector('.error-message');
     const sentMessage = form.querySelector('.sent-message');
 
     loading.style.display = 'block';
     errorMessage.style.display = 'none';
     sentMessage.style.display = 'none';
 
-    grecaptcha.ready(function () {
-        grecaptcha.execute('{{ env('RECAPTCHA_SITE_KEY') }}', {action: 'submit'}).then(function (token) {
-            form.querySelector('#recaptcha_token').value = token;
-
-            // Now actually submit the form via fetch
-            fetch(form.action, {
-                method: 'POST',
-                body: new FormData(form),
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                loading.style.display = 'none';
-                if (data.success) {
-                    sentMessage.style.display = 'block';
-                    form.reset();
-                } else {
-                    errorMessage.style.display = 'block';
-                    if (data.errors) {
-                        errorMessage.innerHTML = Object.values(data.errors).join('<br>');
-                    } else {
-                        errorMessage.innerHTML = data.message || 'reCAPTCHA failed.';
-                    }
-                }
-            })
-            .catch(() => {
-                loading.style.display = 'none';
-                errorMessage.style.display = 'block';
-                errorMessage.innerHTML = 'An error occurred, please try again.';
-            });
-        });
+    fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        loading.style.display = 'none';
+        if (data.success) {
+            sentMessage.style.display = 'block';
+            form.reset();
+        } else {
+            errorMessage.style.display = 'block';
+            errorMessage.innerHTML = Object.values(data.errors).join('<br>');
+        }
+    })
+    .catch(() => {
+        loading.style.display = 'none';
+        errorMessage.style.display = 'block';
+        errorMessage.innerHTML = 'An error occurred, please try again.';
     });
 });
-</script>
-
+  </script>
 
   <!-- Main JS File -->
   <script src="{{ asset('assets1/js/main.js') }}"></script>

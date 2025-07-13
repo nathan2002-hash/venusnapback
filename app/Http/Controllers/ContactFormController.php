@@ -21,8 +21,7 @@ class ContactFormController extends Controller
 
         $result = $response->json();
 
-        // Check success and score threshold
-        return $result['success'] && $result['score'] >= 0.5;
+        return isset($result['success']) && $result['success'] === true;
     }
 
     public function submit(Request $request)
@@ -34,10 +33,9 @@ class ContactFormController extends Controller
             ], 403);
         }
 
-        if (!$this->verifyRecaptcha($request->input('recaptcha_token'))) {
+       if (!$this->verifyRecaptcha($request->input('g-recaptcha-response'))) {
             return response()->json(['success' => false, 'message' => 'reCAPTCHA failed.'], 403);
         }
-
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
