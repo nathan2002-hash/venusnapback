@@ -1020,6 +1020,7 @@
               <form action="{{ route('contact.submit') }}" method="post" role="form" class="php-email-form">
                 @csrf
                 <input type="text" name="website" style="display: none;" autocomplete="off">
+                <input type="hidden" name="recaptcha_token" id="recaptcha_token">
                 <div class="row">
                   <div class="col-md-6 form-group">
                     <div class="input-group">
@@ -1166,6 +1167,15 @@
 
   <!-- Preloader -->
   <div id="preloader"></div>
+
+  <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
+<script>
+    grecaptcha.ready(function () {
+        grecaptcha.execute('{{ env('RECAPTCHA_SITE_KEY') }}', {action: 'submit'}).then(function (token) {
+            document.getElementById('recaptcha_token').value = token;
+        });
+    });
+</script>
 
   <!-- Vendor JS Files -->
   <script src="{{ asset('assets1/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>

@@ -6,10 +6,25 @@ use Illuminate\Http\Request;
 use App\Mail\ContactFormSubmitted;
 use App\Mail\ContactFormUserSubmitted;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 class ContactFormController extends Controller
 {
+
+    private function verifyRecaptcha($token)
+    {
+        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => env('RECAPTCHA_SECRET_KEY'),
+            'response' => $token,
+        ]);
+
+        $result = $response->json();
+
+        // Check success and score threshold
+        return $result['success'] && $result['score'] >= 0.5;
+    }
+
     public function submit(Request $request)
     {
          if ($request->filled('website')) {
@@ -18,6 +33,11 @@ class ContactFormController extends Controller
                 'message' => 'Bot detected.'
             ], 403);
         }
+
+        if (!$this->verifyRecaptcha($request->input('recaptcha_token'))) {
+            return response()->json(['success' => false, 'message' => 'reCAPTCHA failed.'], 403);
+        }
+
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
