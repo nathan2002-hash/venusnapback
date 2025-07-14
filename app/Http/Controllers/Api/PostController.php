@@ -30,28 +30,37 @@ class PostController extends Controller
 {
 
     public function index(Request $request)
-    {
-        $userId = Auth::user()->id;
-        $limit = 5; // Default to 3 posts per fetch
+{
+    $userId = Auth::id();
+    $limit = (int)$request->input('limit', 5); // Default to 5 posts per fetch
 
-        $recommendations = Recommendation::where('user_id', $userId)
-            ->where('status', 'active')
-            ->orderBy('sequence_order')
-            ->take($limit)
-            ->get();
+    // Get next set of recommendations in sequence
+    $recommendations = Recommendation::where('user_id', $userId)
+        ->where('status', 'active')
+        ->orderBy('sequence_order')
+        ->take($limit)
+        ->get();
 
-        if ($recommendations->isEmpty()) {
-            return response()->json([
-                'posts' => [],
-                'has_more' => false
-            ]);
-        }
+    if ($recommendations->isEmpty()) {
+        return response()->json([
+            'posts' => [],
+            'has_more' => false
+        ]);
+    }
 
-        Recommendation::whereIn('id', $recommendations->pluck('id'))
-            ->update(['status' => 'seen', 'seen_at' => now()]);
+    // Mark these as seen (being shown to user)
+    Recommendation::whereIn('id', $recommendations->pluck('id'))
+        ->update(['status' => 'seen', 'seen_at' => now()]);
 
-
-        $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
+    // Get the posts data in the correct order
+    $posts = Post::with([
+            'postmedias' => function($query) {
+                $query->orderBy('sequence_order');
+            },
+            'postmedias.comments.user',
+            'postmedias.admires.user',
+            'album.supporters'
+        ])
         ->whereIn('id', $recommendations->pluck('post_id'))
         ->get()
         ->sortBy(function($post) use ($recommendations) {
@@ -60,62 +69,86 @@ class PostController extends Controller
             });
         });
 
+    // Format the posts data
+    $postsData = $posts->map(function ($post) {
+        $album = $post->album;
+        $profileUrl = asset('default/profile.png'); // Default fallback
+
+        if ($album) {
+            if ($album->type == 'personal' || $album->type == 'creator') {
+                $profileUrl = $album->thumbnail_compressed
+                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                    : ($album->thumbnail_original
+                        ? Storage::disk('s3')->url($album->thumbnail_original)
+                        : $profileUrl);
+            } elseif ($album->type == 'business') {
+                $profileUrl = $album->business_logo_compressed
+                    ? Storage::disk('s3')->url($album->business_logo_compressed)
+                    : ($album->business_logo_original
+                        ? Storage::disk('s3')->url($album->business_logo_original)
+                        : $profileUrl);
+            }
+        }
+
+        // Format post media
+        $postMediaData = $post->postmedias->map(function ($media) {
+            return [
+                'id' => $media->id,
+                'filepath' => Storage::disk('s3')->url($media->file_path_compress),
+                'sequence_order' => (int)$media->sequence_order,
+                'comments_count' => $media->comments->count(),
+                'likes_count' => $media->admires->count(),
+                'comments' => $media->comments->map(function ($comment) {
+                    return [
+                        'id' => $comment->id,
+                        'content' => $comment->content,
+                        'user' => [
+                            'id' => $comment->user->id,
+                            'name' => $comment->user->name,
+                            'profile_photo_url' => $comment->user->profile_photo_url
+                        ]
+                    ];
+                }),
+                'admires' => $media->admires->map(function ($admire) {
+                    return [
+                        'id' => $admire->id,
+                        'user' => [
+                            'id' => $admire->user->id,
+                            'name' => $admire->user->name,
+                            'profile_photo_url' => $admire->user->profile_photo_url
+                        ]
+                    ];
+                })
+            ];
+        })->values()->all();
+
+        return [
+            'id' => $post->id,
+            'user_id' => $post->user_id,
+            'description' => $post->description ?? 'No description available',
+            'album_id' => $album ? (string)$album->id : null,
+            'visibility' => $post->visibility,
+            'created_at' => $post->created_at,
+            'updated_at' => $post->updated_at,
+            'ag_description' => $post->ag_description,
+            'status' => $post->status,
+            'user' => $album ? $album->name : 'Unknown Album',
+            'supporters' => $album ? (string)$album->supporters->count() : "0",
+            'album_name' => $album ? (string)$album->name : null,
+            'profile' => $profileUrl,
+            'album_description' => $album ? ($album->description ?? 'No description available') : null,
+            'post_media' => $postMediaData,
+            'is_verified' => $album ? ($album->is_verified == 1) : false,
+        ];
+    })->values()->toArray(); // Ensure we return a proper array without keys
+
     return response()->json([
-        'posts' => $posts,
+        'posts' => $postsData,
         'has_more' => Recommendation::where('user_id', $userId)
                           ->where('status', 'active')
                           ->exists()
     ]);
-
-        $postsData = $posts->map(function ($post) {
-            $album = $post->album;
-
-            if ($album) {
-                if ($album->type == 'personal' || $album->type == 'creator') {
-                    $profileUrl = $album->thumbnail_compressed
-                        ? Storage::disk('s3')->url($album->thumbnail_compressed)
-                        : ($album->thumbnail_original
-                            ? Storage::disk('s3')->url($album->thumbnail_original)
-                            : asset('default/profile.png'));
-                } elseif ($album->type == 'business') {
-                    $profileUrl = $album->business_logo_compressed
-                        ? Storage::disk('s3')->url($album->business_logo_compressed)
-                        : ($album->business_logo_original
-                            ? Storage::disk('s3')->url($album->business_logo_original)
-                            : asset('default/profile.png'));
-                }
-            }
-
-            // Sort post media by sequence_order before mapping
-            $postMediaData = $post->postMedias->sortBy('sequence_order')->map(function ($media) {
-                return [
-                    'id' => $media->id,
-                    'filepath' => Storage::disk('s3')->url($media->file_path_compress),
-                    'sequence_order' => $media->sequence_order,
-                    'comments_count' => $media->comments->count(),
-                    'likes_count' => $media->admires->count(),
-                ];
-            })->values()->toArray(); // Use values() to reset array keys after sorting
-
-            return [
-                'id' => $post->id,
-                'user' => $album ? $album->name : 'Unknown Album',
-                'supporters' => (string) ($album ? $album->supporters->count() : 0),
-                'album_name' => (string) $album->name,
-                'album_id' => (string) $album->id,
-                'profile' => $profileUrl ?? asset('default/profile.png'),
-                'description' => $post->description ?: 'No description available provided by the creator',
-                'album_description' => $album->description ?? 'No description available provided by the creator',
-                'post_media' => $postMediaData,
-                'is_verified' => $album ? ($album->is_verified == 1) : false,
-            ];
-        });
-
-        return response()->json([
-            'posts' => $postsData,
-            'total_available' => $postsData->count(),
-        ], 200);
-    }
+}
 
     public function show(Request $request, $id)
     {
