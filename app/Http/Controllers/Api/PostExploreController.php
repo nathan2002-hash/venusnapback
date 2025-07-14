@@ -38,7 +38,7 @@ class PostExploreController extends Controller
         // Mark as fetched
         if ($recommendations->isNotEmpty()) {
             Recommendation::whereIn('id', $recommendations->pluck('id'))
-                ->update(['status' => 'fetched']);
+                ->update(['status' => 'seen']);
         }
 
         // 2. Get regular posts (50% of batch)
