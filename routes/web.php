@@ -33,7 +33,7 @@ $host = request()->header('host');
 Route::post('/blocked', 'HomeController@blocked');
 //terms routes
 
-Route::post('/contact', 'ContactFormController@submit')->name('contact.submit');
+//Route::post('/contact', 'ContactFormController@submit')->name('contact.submit');
     $host = request()->header('host');
     $host = explode(':', $host)[0];
     if (in_array($host, ['app.venusnap.com', 'venusnap.com', 'www.venusnap.com'])) {

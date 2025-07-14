@@ -1015,7 +1015,7 @@
           </div>
         </div>
 
-        <div class="row">
+        {{-- <div class="row">
           <div class="col-lg-12">
             <div class="form-wrapper" data-aos="fade-up" data-aos-delay="400">
               <form action="{{ route('contact.submit') }}" method="post" role="form" class="php-email-form">
@@ -1081,7 +1081,7 @@
             </div>
           </div>
 
-        </div>
+        </div> --}}
 
       </div>
     </section><!-- /Contact Section -->
