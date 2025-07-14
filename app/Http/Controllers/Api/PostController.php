@@ -40,17 +40,21 @@ class PostController extends Controller
             ->take($limit)
             ->get();
 
-        // Mark as fetched
         Recommendation::whereIn('id', $recommendations->pluck('id'))
-            ->update(['status' => 'fetched', 'seen_at' => now()]);
+            ->update(['status' => 'seen', 'seen_at' => now()]);
 
 
         // Get the posts
+        $postIdsInOrder = $recommendations->pluck('post_id')->toArray();
+
         $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
-            ->whereIn('id', $recommendations->pluck('post_id'))
+            ->whereIn('id', $postIdsInOrder)
             ->where('status', 'active')
-            ->inRandomOrder()
-            ->get();
+            ->get()
+            ->sortBy(function ($post) use ($postIdsInOrder) {
+                return array_search($post->id, $postIdsInOrder);
+            })
+            ->values(); // reset the keys for clean JSON
 
         $postsData = $posts->map(function ($post) {
             $album = $post->album;
