@@ -13,11 +13,17 @@ return new class extends Migration
     {
         Schema::create('recommendations', function (Blueprint $table) {
             $table->id();
-            $table->string('user_id');
-            $table->string('post_id');
-            $table->string('status');
-            $table->string('score');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('post_id')->constrained()->cascadeOnDelete();
+            $table->enum('status', ['queued', 'active', 'seen', 'expired'])->default('queued');
+            $table->decimal('score', 8, 2)->index();
+            $table->unsignedInteger('sequence_order')->index();
+            $table->string('source')->nullable()->index(); // 'engagement', 'preference', 'fresh', 'fallback'
+            $table->timestamp('seen_at')->nullable();
+            $table->timestamp('expires_at')->nullable()->index();
             $table->timestamps();
+            $table->unique(['user_id', 'post_id']);
+            $table->index(['user_id', 'status', 'sequence_order']);
         });
     }
 

@@ -34,41 +34,16 @@ class PostController extends Controller
         $userId = Auth::user()->id;
         $limit = 7; // Default to 3 posts per fetch
 
-        // Get available active recommendations
         $recommendations = Recommendation::where('user_id', $userId)
             ->where('status', 'active')
-            ->inRandomOrder()
-            ->get()
-            ->unique('post_id')
-            ->take($limit);
+            ->orderBy('sequence_order')
+            ->take($limit)
+            ->get();
 
-        // If not enough active recommendations, recycle some fetched ones
-       if ($recommendations->count() < $limit) {
-            $needed = $limit - $recommendations->count();
+        // Mark as fetched
+        Recommendation::whereIn('id', $recommendations->pluck('id'))
+            ->update(['status' => 'fetched', 'seen_at' => now()]);
 
-            // Reactivate old ones
-            Recommendation::where('user_id', $userId)
-                ->where('status', 'fetched')
-                ->whereNotIn('post_id', $recommendations->pluck('post_id'))
-                ->limit($needed)
-                ->update(['status' => 'active']);
-
-            // Pull the newly activated ones
-            $fallback = Recommendation::where('user_id', $userId)
-                ->where('status', 'active')
-                ->whereNotIn('post_id', $recommendations->pluck('post_id'))
-                ->inRandomOrder()
-                ->get()
-                ->unique('post_id')
-                ->take($needed);
-
-            $recommendations = $recommendations->merge($fallback);
-        }
-
-
-        // Mark these as fetched
-        $recommendations = $recommendations->unique('post_id')->take($limit);
-        Recommendation::whereIn('id', $recommendations->pluck('id'))->update(['status' => 'fetched']);
 
         // Get the posts
         $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
