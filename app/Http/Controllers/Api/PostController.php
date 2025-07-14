@@ -32,7 +32,7 @@ class PostController extends Controller
     public function index(Request $request)
 {
     $userId = Auth::id();
-    $limit = (int)$request->input('limit', 5); // Default to 5 posts per fetch
+    $limit = (int)$request->input('limit', 10); // Default to 5 posts per fetch
 
     // Get next set of recommendations in sequence
     $recommendations = Recommendation::where('user_id', $userId)
