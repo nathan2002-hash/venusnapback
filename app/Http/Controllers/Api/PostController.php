@@ -32,7 +32,7 @@ class PostController extends Controller
     public function index(Request $request)
     {
         $userId = Auth::user()->id;
-        $limit = 7; // Default to 3 posts per fetch
+        $limit = 5; // Default to 3 posts per fetch
 
         $recommendations = Recommendation::where('user_id', $userId)
             ->where('status', 'active')
@@ -40,21 +40,32 @@ class PostController extends Controller
             ->take($limit)
             ->get();
 
+        if ($recommendations->isEmpty()) {
+            return response()->json([
+                'posts' => [],
+                'has_more' => false
+            ]);
+        }
+
         Recommendation::whereIn('id', $recommendations->pluck('id'))
             ->update(['status' => 'seen', 'seen_at' => now()]);
 
 
-        // Get the posts
-        $postIdsInOrder = $recommendations->pluck('post_id')->toArray();
-
         $posts = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
-            ->whereIn('id', $postIdsInOrder)
-            ->where('status', 'active')
-            ->get()
-            ->sortBy(function ($post) use ($postIdsInOrder) {
-                return array_search($post->id, $postIdsInOrder);
-            })
-            ->values(); // reset the keys for clean JSON
+        ->whereIn('id', $recommendations->pluck('post_id'))
+        ->get()
+        ->sortBy(function($post) use ($recommendations) {
+            return $recommendations->search(function($r) use ($post) {
+                return $r->post_id == $post->id;
+            });
+        });
+
+    return response()->json([
+        'posts' => $posts,
+        'has_more' => Recommendation::where('user_id', $userId)
+                          ->where('status', 'active')
+                          ->exists()
+    ]);
 
         $postsData = $posts->map(function ($post) {
             $album = $post->album;
