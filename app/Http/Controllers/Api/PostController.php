@@ -210,7 +210,8 @@ class PostController extends Controller
             $ipaddress,
             $request->header('User-Agent'),
             $request->header('Device-Info'),
-            6 // Initial duration, can be updated later
+            6, // Initial duration, can be updated later
+            true // clicked = true
         );
 
         // Sort post media by sequence_order before mapping

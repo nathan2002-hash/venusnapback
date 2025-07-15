@@ -16,10 +16,11 @@ class LogPostMediaView implements ShouldQueue
     protected $userAgent;
     protected $deviceInfo;
     protected $duration;
+    protected $clicked;
     /**
      * Create a new job instance.
      */
-    public function __construct($postId, $userId, $ipAddress, $userAgent, $deviceInfo, $duration = 0)
+    public function __construct($postId, $userId, $ipAddress, $userAgent, $deviceInfo, $duration = 0, $clicked = false)
     {
         $this->postId = $postId;
         $this->userId = $userId;
@@ -27,6 +28,7 @@ class LogPostMediaView implements ShouldQueue
         $this->userAgent = $userAgent;
         $this->deviceInfo = $deviceInfo;
         $this->duration = $duration;
+        $this->clicked = $clicked;
     }
 
     /**
@@ -56,6 +58,7 @@ class LogPostMediaView implements ShouldQueue
             'post_media_id' => $postMedia->id,
             'user_agent' => $this->userAgent,
             'device_info' => $this->deviceInfo,
+            'clicked' => $this->clicked,
         ]);
     }
 }

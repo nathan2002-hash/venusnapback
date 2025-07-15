@@ -34,6 +34,7 @@ class TrackViewJob implements ShouldQueue
             'post_media_id' => $this->postMediaId,
             'duration' => $this->duration,
             'user_agent' => $this->userAgent,
+            'clicked' => false,
         ]);
 
         $postMedia = PostMedia::find($this->postMediaId);

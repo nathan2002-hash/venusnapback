@@ -48,6 +48,7 @@ class TrackPostViewJob implements ShouldQueue
                 'post_media_id' => $postMediaId,
                 'duration' => $this->duration,
                 'user_agent' => $this->userAgent,
+                'clicked' => false,
             ]);
         }
 
