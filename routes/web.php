@@ -15,6 +15,7 @@ Route::get('/chat', function () {
 });
 
 Route::get('/post/{post}/media/{media}', 'HomeController@deeplink');
+Route::get('/purchase', 'HomeController@purchase');
 
 $host = request()->header('host');
     $host = explode(':', $host)[0];

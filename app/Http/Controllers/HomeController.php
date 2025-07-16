@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Post;
 use App\Models\PostMedia;
+use App\Models\Point;
 
 class HomeController extends Controller
 {
@@ -38,6 +39,26 @@ class HomeController extends Controller
     public function childsafety()
     {
         return view('child', [
+        ]);
+    }
+
+    public function purchase()
+    {
+        $country = 'USA';
+        $packages = Point::where('country', strtoupper($country))
+            ->orderBy('points')
+            ->get(['points', 'price'])
+            ->map(function ($package) {
+                return [
+                    'points' => (int) $package->points,
+                    'price'  => (int) $package->price, // Ensuring price is also an integer
+                ];
+            });
+        return view('chat', [
+            'packages'   => $packages,
+            'user_points'   => (int) 9000,
+            'min_points' => (int) config('points.min_points', 1000),
+            'stripekey'   => env('STRIPE_PUBLIC'),
         ]);
     }
 
