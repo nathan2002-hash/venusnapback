@@ -21,45 +21,45 @@
         <h2 class="text-xl font-semibold mb-4 text-gray-700">Choose a package</h2>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            @foreach($packages as $package)
-            <div class="package-option relative">
-                <input
-                        type="radio"
-                        name="package"
-                        id="package-{{ $package['id'] }}"
-                        value="{{ $package['id'] }}"
-                        class="hidden peer"
-                        data-points="{{ $package['points'] }}"
-                        data-price="{{ $package['price'] }}"
-                        {{ $loop->first ? 'checked' : '' }}
-                    >
-                <label
-                    for="package-{{ $package->id }}"
-                    class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer transition-all hover:border-blue-300 peer-checked:border-blue-500 peer-checked:bg-blue-50"
-                >
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="font-bold text-lg">{{ $package->points }} points</h3>
-                            <p class="text-gray-600 text-sm">Most popular</p>
-                        </div>
-                        <span class="text-blue-600 font-bold">${{ number_format($package->price, 2) }}</span>
-                    </div>
-                    <div class="mt-3 flex items-center">
-                        <svg class="w-5 h-5 text-green-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        <span class="text-sm text-gray-600">Bonus: {{ $package->bonus }} extra points</span>
-                    </div>
-                </label>
-                <div class="absolute top-2 right-2 hidden peer-checked:block">
-                    <div class="bg-blue-500 text-white rounded-full p-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </div>
+    @foreach($packages as $package)
+    <div class="package-option relative">
+        <input
+            type="radio"
+            name="package"
+            id="package-{{ $package['id'] }}"
+            value="{{ $package['id'] }}"
+            class="hidden peer"
+            data-points="{{ $package['points'] }}"
+            data-price="{{ $package['price'] }}"
+            {{ $loop->first ? 'checked' : '' }}
+        >
+        <label
+            for="package-{{ $package['id'] }}"
+            class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer transition-all hover:border-blue-300 peer-checked:border-blue-500 peer-checked:bg-blue-50"
+        >
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="font-bold text-lg">{{ $package['points'] }} points</h3>
+                    <p class="text-gray-600 text-sm">Most popular</p>
                 </div>
+                <span class="text-blue-600 font-bold">${{ number_format($package['price'], 2) }}</span>
             </div>
-            @endforeach
+            <div class="mt-3 flex items-center">
+                <svg class="w-5 h-5 text-green-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span class="text-sm text-gray-600">Bonus: {{ $package['bonus'] ?? 0 }} extra points</span>
+            </div>
+        </label>
+        <div class="absolute top-2 right-2 hidden peer-checked:block">
+            <div class="bg-blue-500 text-white rounded-full p-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    @endforeach
 
             <!-- Custom Amount Option -->
             <div class="package-option">
