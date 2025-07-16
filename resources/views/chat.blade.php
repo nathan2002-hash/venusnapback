@@ -1,6 +1,45 @@
-@extends('layouts.app')
-
-@section('content')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="{{ asset('assets1/img/logo1.png') }}" rel="icon">
+  <link href="{{ asset('assets1/img/logo1.png') }}" rel="apple-touch-icon">
+  <title>Payments – Venusnap</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+    }
+    h1, h2 {
+      color: #7C4DFF;
+    }
+    p {
+      margin-bottom: 15px;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .last-updated {
+      font-size: 0.9em;
+      color: #777;
+    }
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
 <div class="container mx-auto px-4 py-8 max-w-3xl">
     <!-- Header -->
     <div class="text-center mb-8">
@@ -292,4 +331,5 @@
         border-color: #ef4444;
     }
 </style>
-@endsection
+</body>
+</html>
