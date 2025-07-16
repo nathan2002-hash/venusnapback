@@ -24,15 +24,15 @@
             @foreach($packages as $package)
             <div class="package-option relative">
                 <input
-                    type="radio"
-                    name="package"
-                    id="package-{{ $package->id }}"
-                    value="{{ $package->id }}"
-                    class="hidden peer"
-                    data-points="{{ $package->points }}"
-                    data-price="{{ $package->price }}"
-                    {{ $loop->first ? 'checked' : '' }}
-                >
+                        type="radio"
+                        name="package"
+                        id="package-{{ $package['id'] }}"
+                        value="{{ $package['id'] }}"
+                        class="hidden peer"
+                        data-points="{{ $package['points'] }}"
+                        data-price="{{ $package['price'] }}"
+                        {{ $loop->first ? 'checked' : '' }}
+                    >
                 <label
                     for="package-{{ $package->id }}"
                     class="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer transition-all hover:border-blue-300 peer-checked:border-blue-500 peer-checked:bg-blue-50"
