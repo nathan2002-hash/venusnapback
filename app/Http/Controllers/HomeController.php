@@ -42,28 +42,20 @@ class HomeController extends Controller
         ]);
     }
 
-    public function purchase()
-    {
-        $country = 'USA';
-        $packages = Point::where('country', strtoupper($country))
-            ->orderBy('points')
-            ->get(['id', 'points', 'price']) // Include 'id' if needed
-            ->map(function ($package) {
-                return [
-                    'id' => $package->id, // Add this if your view needs IDs
-                    'points' => (int) $package->points,
-                    'price' => (float) $package->price, // Use float for prices
-                    'bonus' => $package->bonus ?? 0, // Add if your view shows bonuses
-                ];
-            });
+   public function purchase()
+{
+    $country = 'USA';
+    $packages = Point::where('country', strtoupper($country))
+        ->orderBy('points')
+        ->get(); // Returns Eloquent Collection
 
-        return view('chat', [
-            'packages' => $packages,
-            'userPoints' => (int) 9000,
-            'min_points' => (int) config('points.min_points', 1000),
-            'stripekey' => env('STRIPE_PUBLIC'),
-        ]);
-    }
+    return view('chat', [
+        'packages' => $packages,
+        'userPoints' => 9000,
+        'min_points' => config('points.min_points', 1000),
+        'stripekey' => env('STRIPE_PUBLIC')
+    ]);
+}
 
     public function deeplink($postId, $mediaId)
     {
