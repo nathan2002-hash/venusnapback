@@ -56,7 +56,7 @@ class HomeController extends Controller
             });
         return view('chat', [
             'packages'   => $packages,
-            'user_points'   => (int) 9000,
+            'userPoints'   => (int) 9000,
             'min_points' => (int) config('points.min_points', 1000),
             'stripekey'   => env('STRIPE_PUBLIC'),
         ]);
