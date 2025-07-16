@@ -47,18 +47,21 @@ class HomeController extends Controller
         $country = 'USA';
         $packages = Point::where('country', strtoupper($country))
             ->orderBy('points')
-            ->get(['points', 'price'])
+            ->get(['id', 'points', 'price']) // Include 'id' if needed
             ->map(function ($package) {
                 return [
+                    'id' => $package->id, // Add this if your view needs IDs
                     'points' => (int) $package->points,
-                    'price'  => (int) $package->price, // Ensuring price is also an integer
+                    'price' => (float) $package->price, // Use float for prices
+                    'bonus' => $package->bonus ?? 0, // Add if your view shows bonuses
                 ];
             });
+
         return view('chat', [
-            'packages'   => $packages,
-            'userPoints'   => (int) 9000,
+            'packages' => $packages,
+            'userPoints' => (int) 9000,
             'min_points' => (int) config('points.min_points', 1000),
-            'stripekey'   => env('STRIPE_PUBLIC'),
+            'stripekey' => env('STRIPE_PUBLIC'),
         ]);
     }
 
