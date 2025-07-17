@@ -86,7 +86,14 @@ class PaymentController extends Controller
             'payment_intent_id' => 'required|string'
         ]);
 
-        $payment = Payment::findOrFail($validated['payment_intent_id']);
+        $payment = Payment::where('payment_no', $validated['payment_intent_id'])->first();
+
+        if (!$payment) {
+            return response()->json([
+                'message' => 'Payment not found',
+                'payment_intent_id' => $validated['payment_intent_id']
+            ], 404);
+        }
 
         // Retrieve Payment Intent from Stripe
         Stripe::setApiKey(env('STRIPE_SECRET'));
