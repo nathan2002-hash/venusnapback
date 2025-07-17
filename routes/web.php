@@ -25,9 +25,9 @@ Route::get('/post/{post}/media/{media}', 'HomeController@deeplink');
     }
 
     if (in_array($host, ['payment.venusnap.com'])) {
-        Route::get('/', 'PaymentController@index');
-        Route::post('/create-payment-intent', 'PaymentController@createPaymentIntent');
-        Route::post('/confirm-payment', 'PaymentController@confirmPayment');
+        Route::get('/', 'PaymentController@index')->middleware('auth');
+        Route::post('/create-payment-intent', 'PaymentController@createPaymentIntent')->middleware('auth');
+        Route::post('/confirm-payment', 'PaymentController@confirmPayment')->middleware('auth');
     } else {
     }
 
