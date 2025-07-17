@@ -3,75 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login to Venusnap</title>
+    <title>Login - Venusnap</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="{{ asset('assets1/img/logo1.png') }}" rel="icon">
     <link href="{{ asset('assets1/img/logo1.png') }}" rel="apple-touch-icon">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <style>
+        .btn-primary {
+            background-color: #7c3aed;
+        }
+        .btn-primary:hover {
+            background-color: #6d28d9;
+        }
+        .text-primary {
+            color: #7c3aed;
+        }
+        .border-primary {
+            border-color: #7c3aed;
+        }
+        .input-focus:focus {
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 1px #7c3aed;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
-
     <div class="w-full max-w-md bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <!-- Header -->
         <div class="bg-[#7c3aed] p-6 text-white">
-            <h1 class="text-2xl font-bold">Welcome to Venusnap</h1>
-            <p class="text-[#d8b4fe] mt-1">Log in to continue</p>
+            <h1 class="text-2xl font-bold">Welcome Back</h1>
+            <p class="text-[#d8b4fe] mt-1">Sign in to your Venusnap account</p>
         </div>
 
-        <!-- Login Form -->
-        <form method="POST" action="{{ route('login') }}" class="p-6 space-y-6">
-            @csrf
+        <form id="login-form" class="p-6" method="POST" action="{{ route('login') }}">
+            @csrf <!-- CSRF token for Laravel -->
 
-            <!-- Email -->
-            <div>
+            <!-- Email Input -->
+            <div class="mb-6">
                 <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    class="block w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-[#7c3aed] focus:border-[#7c3aed]"
-                    placeholder="you@example.com"
-                >
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg input-focus"
+                        placeholder="you@example.com"
+                        required
+                        autofocus
+                    >
+                </div>
             </div>
 
-            <!-- Password -->
-            <div>
+            <!-- Password Input -->
+            <div class="mb-6">
                 <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    required
-                    class="block w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-[#7c3aed] focus:border-[#7c3aed]"
-                    placeholder="••••••••"
-                >
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                    </div>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg input-focus"
+                        placeholder="••••••••"
+                        required
+                    >
+                </div>
             </div>
 
-            <!-- Remember Me -->
-            <div class="flex items-center justify-between">
-                <label class="flex items-center space-x-2 text-sm text-gray-600">
-                    <input type="checkbox" name="remember" class="rounded border-gray-300 text-[#7c3aed] focus:ring-[#7c3aed]">
-                    <span>Remember me</span>
-                </label>
-                <a href="{{ route('password.request') }}" class="text-sm text-[#7c3aed] hover:underline">Forgot password?</a>
+            <!-- Remember Me & Forgot Password -->
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <input
+                        id="remember"
+                        name="remember"
+                        type="checkbox"
+                        class="h-4 w-4 text-[#7c3aed] focus:ring-[#7c3aed] border-gray-300 rounded"
+                    >
+                    <label for="remember" class="ml-2 block text-sm text-gray-700">Remember me</label>
+                </div>
+                <div class="text-sm">
+                    <a href="{{ route('password.request') }}" class="font-medium text-[#7c3aed] hover:text-[#6d28d9]">Forgot password?</a>
+                </div>
             </div>
 
-            <!-- Login Button -->
+            <!-- Submit Button -->
             <button
                 type="submit"
                 class="w-full btn-primary text-white font-bold py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:ring-offset-2"
             >
-                Log In
+                Sign In
             </button>
 
-            <!-- Footer -->
-            <p class="text-center text-gray-500 text-sm mt-4">
-                Don't have an account?
-                <a href="{{ route('register') }}" class="text-[#7c3aed] hover:underline">Sign up</a>
-            </p>
+            <!-- Sign Up Link -->
+            <div class="mt-6 text-center text-sm text-gray-600">
+                <p>Don't have an account? <a href="{{ route('register') }}" class="text-[#7c3aed] font-medium hover:text-[#6d28d9]">Sign up</a></p>
+            </div>
         </form>
     </div>
 
+    <!-- Simple form validation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('login-form');
+
+            form.addEventListener('submit', function(e) {
+                const email = document.getElementById('email');
+                const password = document.getElementById('password');
+
+                if (!email.value || !password.value) {
+                    e.preventDefault();
+                    alert('Please fill in all fields');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
