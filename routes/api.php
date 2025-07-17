@@ -142,7 +142,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::delete('/artwork/delete/{id}', 'Api\ArtworkController@destroy');
 
     //template routes
-    Route::get('/templates', 'Api\TemplateController@index');
+    Route::get('/content/templates', 'Api\TemplateController@index');
     Route::post('/generate/template', 'Api\TemplateController@generateTemplate');
     Route::get('/template/status/{id}', 'Api\TemplateController@checkStatus');
 
