@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 
 class TemplateController extends Controller
 {
-    public function inddex(Request $request)
+    public function index(Request $request)
     {
         $perPage = 10;
         $templates = Template::where('status', 'completed')
@@ -44,7 +44,7 @@ class TemplateController extends Controller
         ]);
     }
 
-    public function index(Request $request)
+    public function indgex(Request $request)
     {
         $perPage = 10;
         $userId = Auth::user()->id;
