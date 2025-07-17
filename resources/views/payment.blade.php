@@ -37,39 +37,15 @@
         .StripeElement--invalid {
             border-color: #ef4444;
         }
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 0.5rem;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-        }
-    </style>
-    <style>
-        /* Add these new styles */
+        /* Points Card Styles */
         .points-card {
             background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-            border-radius: 16px;
-            box-shadow: 0 10px 20px rgba(124, 58, 237, 0.2);
+            border-radius: 0;
             color: white;
             padding: 1.5rem;
-            margin: 1rem 0;
             position: relative;
             overflow: hidden;
+            text-align: center;
         }
         .points-card::before {
             content: "";
@@ -91,34 +67,63 @@
             font-weight: 700;
             line-height: 1;
         }
-        .points-subtext {
-            font-size: 0.75rem;
-            opacity: 0.8;
-            margin-top: 0.5rem;
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        /* Spinner styles */
+        .spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 8px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .btn-disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <!-- Header -->
-        <div class="bg-[#7c3aed] p-6 text-white">
-           <center>
-                {{-- <h3 class="text-xl font-bold">Hello, {{ Auth::user()->name }}</h3> --}}
-                <h1 class="text-2xl font-bold">Purchase Points</h1>
-           </center>
-        </div>
-<div class="points-card mx-6 mt-4">
+        <!-- Points Card Header -->
+        <div class="points-card">
             <div class="relative z-10">
-                <div class="points-label">Hello {{ Auth::user()->name }}</div>
-                <div class="points-label">POINTS AVAILABLE FOR USE</div>
+                <div class="points-label">Hello, {{ Auth::user()->name }}</div>
                 <div class="points-value">{{ number_format(Auth::user()->points) }}</div>
+                <div class="points-label">POINTS AVAILABLE</div>
             </div>
         </div>
-        <form id="payment-form"> <!-- Added form element -->
+
+        <form id="payment-form">
             <div class="p-6">
                 <!-- Points Input -->
                 <div class="mb-6">
-                    <label for="points" class="block text-sm font-medium text-gray-700 mb-2">Enter Points you need</label>
+                    <label for="points" class="block text-sm font-medium text-gray-700 mb-2">Enter points to purchase</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,13 +182,13 @@
                     <p>Your payment is secure and encrypted.</p>
                     <p>We accept all major credit cards.</p>
                 </div>
-                <center>
-                    <div id="amex-logo" class="mt-6 flex justify-center space-x-6" style="width: 230px; height: 50px;">
-                        <img src="https://www.americanexpress.com/content/dam/amex/us/merchant/supplies-uplift/product/images/4_Card_color_horizontal.png" width="100%" height="100%" alt="American Express Accepted Here" border="0">
-                    </div>
-                </center>
+                <div class="mt-4 flex justify-center space-x-4">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" alt="Visa" class="h-8 object-contain">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" alt="Mastercard" class="h-8 object-contain">
+                    <img src="https://www.americanexpress.com/content/dam/amex/us/merchant/supplies-uplift/product/images/4_Card_color_horizontal.png" alt="American Express" class="h-8 object-contain">
+                </div>
                 <div class="mt-2 text-center text-sm">
-                    <a href="https://www.venusnap.com/terms/of/service#payments" class="text-primary hover:underline inline-flex items-center">
+                    <a href="/payment-security" class="text-primary hover:underline inline-flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -223,32 +228,27 @@
             const pointsDisplay = document.getElementById('points-display');
             const totalAmount = document.getElementById('total-amount');
             const submitButton = document.getElementById('submit-button');
+            const buttonText = document.getElementById('button-text');
+            const buttonSpinner = document.getElementById('button-spinner');
             const form = document.getElementById('payment-form');
             const cardErrors = document.getElementById('card-errors');
             const successModal = document.getElementById('success-modal');
 
             // Points to price calculation (1000 points = $1)
-            const POINTS_RATE = 0.001; // $0.001 per point (1000 points = $1)
+            const POINTS_RATE = 0.001;
 
             function updatePrice() {
                 const points = parseInt(pointsInput.value) || 0;
                 const amount = (points * POINTS_RATE).toFixed(2);
-
                 pointsDisplay.textContent = points.toLocaleString();
                 totalAmount.textContent = `$${amount}`;
             }
 
-            // Live price calculation
             pointsInput.addEventListener('input', updatePrice);
-            updatePrice(); // Initialize
+            updatePrice();
 
-            const buttonText = document.getElementById('button-text');
-            const buttonSpinner = document.getElementById('button-spinner');
-            // Form submission
             form.addEventListener('submit', async (e) => {
-               e.preventDefault();
-
-                // Disable button and show processing state
+                e.preventDefault();
                 submitButton.disabled = true;
                 submitButton.classList.add('btn-disabled');
                 buttonText.textContent = 'Processing...';
@@ -259,7 +259,6 @@
                 const amount = (points * POINTS_RATE).toFixed(2);
 
                 try {
-                    // Create payment intent
                     const response = await fetch('/create-payment-intent', {
                         method: 'POST',
                         headers: {
@@ -274,64 +273,38 @@
                         })
                     });
 
-                    if (!response.ok) {
-                        throw new Error('Failed to create payment intent');
-                    }
+                    if (!response.ok) throw new Error('Failed to create payment intent');
 
                     const { clientSecret, payment_id } = await response.json();
-
-                    // Confirm payment
                     const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-                        payment_method: {
-                            card: cardElement,
-                            billing_details: {
-                                name: 'Customer Name' // You might want to collect this
-                            }
-                        }
+                        payment_method: { card: cardElement }
                     });
 
-                    if (error) {
-                        throw error;
-                    }
+                    if (error) throw error;
 
-                    // Verify payment with backend
                     const verification = await fetch('/confirm-payment', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'Accept': 'application/json' // Important to prevent redirects
+                            'Accept': 'application/json'
                         },
-                        //credentials: 'include',
-                        body: JSON.stringify({
-                            payment_intent_id: paymentIntent.id
-                        })
+                        body: JSON.stringify({ payment_intent_id: paymentIntent.id })
                     });
 
-                    if (!verification.ok) {
-                        throw new Error('Payment verification failed');
-                    }
+                    if (!verification.ok) throw new Error('Payment verification failed');
 
-                    // Show success modal instead of redirecting
                     successModal.style.display = 'flex';
-
-                    // You can still keep the redirect in the URL if needed for analytics
                     window.history.pushState({}, '', `/payment-success?payment_intent_id=${paymentIntent.id}`);
 
                 } catch (error) {
                     console.error('Payment error:', error);
                     cardErrors.textContent = error.message || 'An error occurred during payment';
-
-                    // Re-enable button and reset state
                     submitButton.disabled = false;
                     submitButton.classList.remove('btn-disabled');
                     buttonText.textContent = 'Pay Now';
                     buttonSpinner.classList.add('hidden');
-
-                    // Scroll to errors if they exist
-                    if (error.message) {
-                        cardErrors.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
+                    if (error.message) cardErrors.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             });
         });

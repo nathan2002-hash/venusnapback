@@ -104,7 +104,7 @@
 
             <!-- Sign Up Link -->
             <div class="mt-6 text-center text-sm text-gray-600">
-                <p>Don't have an account? <a href="{{ route('register') }}" class="text-[#7c3aed] font-medium hover:text-[#6d28d9]">Sign up</a></p>
+                <p>Don't have an account? <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" class="text-[#7c3aed] font-medium hover:text-[#6d28d9]">Download an App</a></p>
             </div>
         </form>
     </div>
