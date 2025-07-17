@@ -25,10 +25,12 @@ Route::get('/post/{post}/media/{media}', 'HomeController@deeplink');
     }
 
     if (in_array($host, ['payment.venusnap.com'])) {
-        Route::get('/', 'HomeController@purchase');
+        Route::get('/', 'PaymentController@index');
+        Route::post('/create-payment-intent', 'PaymentController@createPaymentIntent');
+        Route::post('/confirm-payment', 'PaymentController@confirmPayment');
     } else {
-        //Route::resource('home', MarketingHomeController::class);
     }
+
     Route::get('/terms/of/service', 'HomeController@terms');
     Route::get('/child/safety', 'HomeController@childsafety');
     Route::get('/terms/conditions', function () {

@@ -42,21 +42,6 @@ class HomeController extends Controller
         ]);
     }
 
-   public function purchase()
-{
-    $country = 'USA';
-    $packages = Point::where('country', strtoupper($country))
-        ->orderBy('points')
-        ->get(); // Returns Eloquent Collection
-
-    return view('chat', [
-        'packages' => $packages,
-        'userPoints' => 9000,
-        'min_points' => config('points.min_points', 1000),
-        'stripekey' => env('STRIPE_PUBLIC')
-    ]);
-}
-
     public function deeplink($postId, $mediaId)
     {
         $post = Post::with(['user', 'album'])->findOrFail($postId);

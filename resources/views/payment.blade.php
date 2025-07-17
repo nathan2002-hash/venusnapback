@@ -58,7 +58,7 @@
                         type="number"
                         id="points"
                         min="1000"
-                        step="100"
+                        step="1000"
                         value="1000"
                         class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-[#7c3aed] focus:border-[#7c3aed]"
                         placeholder="Enter points"
@@ -74,12 +74,12 @@
                 </div>
                 <div class="flex justify-between mb-2">
                     <span class="text-gray-600">Price per 1000 points:</span>
-                    <span class="font-medium">$10.00</span>
+                    <span class="font-medium">$1.00</span>
                 </div>
                 <div class="border-t border-gray-200 my-2"></div>
                 <div class="flex justify-between font-bold text-lg">
                     <span>Total:</span>
-                    <span class="text-primary" id="total-amount">$10.00</span>
+                    <span class="text-primary" id="total-amount">$1.00</span>
                 </div>
             </div>
 
@@ -99,17 +99,18 @@
             </button>
 
             <!-- Security Badges -->
-            <div class="mt-6 flex justify-center space-x-6">
-                <img src="https://stripe.com/img/v3/payments/overview/photos/payment-method-visa.svg" alt="Visa" class="h-8">
-                <img src="https://stripe.com/img/v3/payments/overview/photos/payment-method-mastercard.svg" alt="Mastercard" class="h-8">
-                <img src="https://stripe.com/img/v3/payments/overview/photos/payment-method-amex.svg" alt="Amex" class="h-8">
-            </div>
+            <!-- Amex--><div id="amex-logo" class="mt-6 flex justify-center space-x-6" style="width: 230px; height: 50px;"><img src="https://www.americanexpress.com/content/dam/amex/us/merchant/supplies-uplift/product/images/4_Card_color_horizontal.png" width="100%" height="100%" alt="American Express Accepted Here" border="0"></div>
+            {{-- <div class="mt-6 flex justify-center space-x-6">
+                <img src="{{ asset('brands/Visa.svgz') }}" alt="Visa" class="h-8">
+                <img src="{{ asset('brands/mc.svg') }}" alt="Mastercard" class="h-8">
+                <img src="{{ asset('brands/amex.svg') }}" alt="Amex" class="h-8">
+            </div> --}}
         </div>
     </div>
 
     <script>
         // Stripe initialization
-        const stripe = Stripe('your_stripe_publishable_key');
+        const stripe = Stripe('{{ $stripekey }}');
         const elements = stripe.elements();
         const cardElement = elements.create('card');
         cardElement.mount('#card-element');
@@ -120,8 +121,8 @@
         const totalAmount = document.getElementById('total-amount');
         const submitButton = document.getElementById('submit-button');
 
-        // Points to price calculation (1000 points = $10)
-        const POINTS_RATE = 0.01; // $0.01 per point
+        // Points to price calculation (1000 points = $1)
+        const POINTS_RATE = 0.001; // $0.001 per point (1000 points = $1)
 
         function updatePrice() {
             const points = parseInt(pointsInput.value) || 0;
@@ -145,10 +146,18 @@
             const amount = Math.floor(points * POINTS_RATE * 100); // Convert to cents
 
             // Create payment intent
-            const { clientSecret } = await fetch('/create-payment-intent', {
+            const { clientSecret, payment_id } = await fetch('/create-payment-intent', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ points, amount })
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    points: points,
+                    amount: (points * POINTS_RATE).toFixed(2),
+                    purpose: "Points Purchase",
+                    description: `Purchase of ${points} points`
+                })
             }).then(res => res.json());
 
             // Confirm payment
@@ -160,7 +169,24 @@
                 document.getElementById('card-errors').textContent = error.message;
                 submitButton.disabled = false;
             } else {
-                window.location.href = `/payment-success?payment_intent_id=${paymentIntent.id}`;
+                // Verify payment with backend
+                const verification = await fetch('/confirm-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        payment_intent_id: payment_id
+                    })
+                });
+
+                if (verification.ok) {
+                    window.location.href = `/payment-success?payment_intent_id=${paymentIntent.id}`;
+                } else {
+                    document.getElementById('card-errors').textContent = 'Payment verification failed';
+                    submitButton.disabled = false;
+                }
             }
         });
     </script>
