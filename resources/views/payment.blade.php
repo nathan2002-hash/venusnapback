@@ -101,12 +101,13 @@
             </button>
 
             <!-- Security Badges -->
-            <!-- Amex--><div id="amex-logo" class="mt-6 flex justify-center space-x-6" style="width: 230px; height: 50px;"><img src="https://www.americanexpress.com/content/dam/amex/us/merchant/supplies-uplift/product/images/4_Card_color_horizontal.png" width="100%" height="100%" alt="American Express Accepted Here" border="0"></div>
-            {{-- <div class="mt-6 flex justify-center space-x-6">
-                <img src="{{ asset('brands/Visa.svgz') }}" alt="Visa" class="h-8">
-                <img src="{{ asset('brands/mc.svg') }}" alt="Mastercard" class="h-8">
-                <img src="{{ asset('brands/amex.svg') }}" alt="Amex" class="h-8">
-            </div> --}}
+            <div class="mt-6 text-center text-gray-500 text-sm">
+                <p>Your payment is secure and encrypted.</p>
+                <p>We accept all major credit cards.</p>
+            </div>
+           <div id="amex-logo" class="mt-6 flex justify-center space-x-6" style="width: 230px; height: 50px;">
+            <img src="https://www.americanexpress.com/content/dam/amex/us/merchant/supplies-uplift/product/images/4_Card_color_horizontal.png" width="100%" height="100%" alt="American Express Accepted Here" border="0">
+           </div>
         </div>
     </div>
 
