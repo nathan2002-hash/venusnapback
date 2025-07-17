@@ -42,7 +42,7 @@ Route::middleware('auth:api')->get('/support/tickets', 'Api\ContactSupportContro
 Route::middleware('auth:api')->post('/support/tickets/resolve/{id}', 'Api\ContactSupportController@updateStatus');
 Route::middleware('auth:api')->get('/support/faqs', 'Api\ContactSupportController@getFaqs');
 
-Route::middleware('auth:api')->get('/templates', 'Api\TemplateController@index');
+Route::middleware('auth:api')->get('/addons', 'Api\TemplateController@index');
 
 Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/verify-2fa', 'Api\AuthController@verify2FA');
