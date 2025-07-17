@@ -31,28 +31,48 @@ class PostController extends Controller
 
     public function index(Request $request)
 {
+    // $userId = Auth::id();
+    // $limit = (int)$request->input('limit', 10); // Default to 5 posts per fetch
+
+    // // Get next set of recommendations in sequence
+    // $recommendations = Recommendation::where('user_id', $userId)
+    //     ->where('status', 'active')
+    //     ->orderBy('sequence_order')
+    //     ->take($limit)
+    //     ->get();
+
+    // if ($recommendations->isEmpty()) {
+    //     return response()->json([
+    //         'posts' => [],
+    //         'has_more' => false
+    //     ]);
+    // }
+
+    // // Mark these as seen (being shown to user)
+    // Recommendation::whereIn('id', $recommendations->pluck('id'))
+    //     ->update(['status' => 'seen', 'seen_at' => now()]);
+
+    // // Get the posts data in the correct order
+    // $posts = Post::with([
+    //         'postmedias' => function($query) {
+    //             $query->orderBy('sequence_order');
+    //         },
+    //         'postmedias.comments.user',
+    //         'postmedias.admires.user',
+    //         'album.supporters'
+    //     ])
+    //     ->whereIn('id', $recommendations->pluck('post_id'))
+    //     ->get()
+    //     ->sortBy(function($post) use ($recommendations) {
+    //         return $recommendations->search(function($r) use ($post) {
+    //             return $r->post_id == $post->id;
+    //         });
+    //     });
+
     $userId = Auth::id();
-    $limit = (int)$request->input('limit', 10); // Default to 5 posts per fetch
+    $limit = (int)$request->input('limit', 10); // Default to 10 posts
 
-    // Get next set of recommendations in sequence
-    $recommendations = Recommendation::where('user_id', $userId)
-        ->where('status', 'active')
-        ->orderBy('sequence_order')
-        ->take($limit)
-        ->get();
-
-    if ($recommendations->isEmpty()) {
-        return response()->json([
-            'posts' => [],
-            'has_more' => false
-        ]);
-    }
-
-    // Mark these as seen (being shown to user)
-    Recommendation::whereIn('id', $recommendations->pluck('id'))
-        ->update(['status' => 'seen', 'seen_at' => now()]);
-
-    // Get the posts data in the correct order
+    // Randomly fetch posts that are active and visible
     $posts = Post::with([
             'postmedias' => function($query) {
                 $query->orderBy('sequence_order');
@@ -61,13 +81,12 @@ class PostController extends Controller
             'postmedias.admires.user',
             'album.supporters'
         ])
-        ->whereIn('id', $recommendations->pluck('post_id'))
-        ->get()
-        ->sortBy(function($post) use ($recommendations) {
-            return $recommendations->search(function($r) use ($post) {
-                return $r->post_id == $post->id;
-            });
-        });
+        ->where('status', 'active')
+        ->where('visibility', 'public') // You can change this filter
+        ->inRandomOrder()
+        ->limit($limit)
+        ->get();
+
 
     // Format the posts data
     $postsData = $posts->map(function ($post) {
