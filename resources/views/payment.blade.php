@@ -105,9 +105,11 @@
                 <p>Your payment is secure and encrypted.</p>
                 <p>We accept all major credit cards.</p>
             </div>
-           <div id="amex-logo" class="mt-6 flex justify-center space-x-6" style="width: 230px; height: 50px;">
+           <center>
+            <div id="amex-logo" class="mt-6 flex justify-center space-x-6" style="width: 230px; height: 50px;">
             <img src="https://www.americanexpress.com/content/dam/amex/us/merchant/supplies-uplift/product/images/4_Card_color_horizontal.png" width="100%" height="100%" alt="American Express Accepted Here" border="0">
            </div>
+           </center>
         </div>
     </div>
 
