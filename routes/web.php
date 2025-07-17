@@ -15,12 +15,17 @@ Route::get('/chat', function () {
 });
 
 Route::get('/post/{post}/media/{media}', 'HomeController@deeplink');
-Route::get('/purchase', 'HomeController@purchase');
 
-$host = request()->header('host');
+    $host = request()->header('host');
     $host = explode(':', $host)[0];
     if (in_array($host, ['app.venusnap.com', 'venusnap.com', 'www.venusnap.com'])) {
         Route::get('/', 'HomeController@home');
+    } else {
+        //Route::resource('home', MarketingHomeController::class);
+    }
+
+    if (in_array($host, ['payment.venusnap.com'])) {
+        Route::get('/', 'HomeController@purchase');
     } else {
         //Route::resource('home', MarketingHomeController::class);
     }
