@@ -49,8 +49,8 @@ class PaymentController extends Controller
         $paymentsession = PaymentSession::create([
             'user_id' => Auth::user()->id,
             'ip_address' => $ipaddress,
-            'device_info' => $request->header('Device-Info'),
-            'user_agent' => $request->header('User-Agent'),
+            'device_info' => $request->header('sec-ch-ua-platform'),
+            'user_agent' => $request->header('user-agent'),
         ]);
 
         // Save the pending payment in DB

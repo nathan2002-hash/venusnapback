@@ -37,6 +37,27 @@
         .StripeElement--invalid {
             border-color: #ef4444;
         }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
@@ -120,6 +141,22 @@
         </form>
     </div>
 
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <div class="mb-4">
+                <svg class="w-16 h-16 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Payment Successful!</h2>
+            <p class="text-gray-600 mb-6">Your points have been added to your account.</p>
+            <a href="https://app.venusnap.com" class="w-full btn-primary text-white font-bold py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:ring-offset-2 inline-block text-center">
+                Go to App
+            </a>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize Stripe
@@ -135,6 +172,7 @@
             const submitButton = document.getElementById('submit-button');
             const form = document.getElementById('payment-form');
             const cardErrors = document.getElementById('card-errors');
+            const successModal = document.getElementById('success-modal');
 
             // Points to price calculation (1000 points = $1)
             const POINTS_RATE = 0.001; // $0.001 per point (1000 points = $1)
@@ -212,7 +250,12 @@
                         throw new Error('Payment verification failed');
                     }
 
-                    window.location.href = `/payment-success?payment_intent_id=${paymentIntent.id}`;
+                    // Show success modal instead of redirecting
+                    successModal.style.display = 'flex';
+
+                    // You can still keep the redirect in the URL if needed for analytics
+                    window.history.pushState({}, '', `/payment-success?payment_intent_id=${paymentIntent.id}`);
+
                 } catch (error) {
                     console.error('Payment error:', error);
                     cardErrors.textContent = error.message || 'An error occurred during payment';
