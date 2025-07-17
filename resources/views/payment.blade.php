@@ -6,6 +6,8 @@
     <title>Purchase Points</title>
     <script src="https://js.stripe.com/v3/"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="{{ asset('assets1/img/logo1.png') }}" rel="icon">
+    <link href="{{ asset('assets1/img/logo1.png') }}" rel="apple-touch-icon">
     <style>
         .btn-primary {
             background-color: #7c3aed;

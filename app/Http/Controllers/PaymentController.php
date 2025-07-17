@@ -15,7 +15,7 @@ class PaymentController extends Controller
     public function index()
     {
         $country = 'USA';
-        return view('chat', [
+        return view('payment', [
             'userPoints' => 9000,
             'min_points' => config('points.min_points', 1000),
             'stripekey' => env('STRIPE_PUBLIC')
