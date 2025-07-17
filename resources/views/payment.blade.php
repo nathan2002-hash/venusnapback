@@ -59,15 +59,52 @@
             text-align: center;
         }
     </style>
+    <style>
+        /* Add these new styles */
+        .points-card {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            border-radius: 16px;
+            box-shadow: 0 10px 20px rgba(124, 58, 237, 0.2);
+            color: white;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .points-card::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+        }
+        .points-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+            margin-bottom: 0.25rem;
+        }
+        .points-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .points-subtext {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <!-- Header -->
         <div class="bg-[#7c3aed] p-6 text-white">
            <center>
-                <h3 class="text-2xl font-bold">Hello, {{ Auth::user()->name }}</h3>
+                <h3 class="text-xl font-bold">Hello, {{ Auth::user()->name }}</h3>
                 <h1 class="text-2xl font-bold">Purchase Points</h1>
-                <h1 class="text-2xl font-bold">{{ number_format(Auth::user()->points) }} Current Points</h1>
            </center>
         </div>
 <div class="points-card mx-6 mt-4">
