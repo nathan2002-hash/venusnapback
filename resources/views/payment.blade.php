@@ -143,7 +143,7 @@
     </div>
 
     <!-- Success Modal -->
-    <div id="success-modal" class="modal">
+     <div id="success-modal" class="modal">
         <div class="modal-content">
             <div class="mb-4">
                 <svg class="w-16 h-16 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -152,8 +152,8 @@
             </div>
             <h2 class="text-2xl font-bold text-gray-800 mb-2">Payment Successful!</h2>
             <p class="text-gray-600 mb-6">Your points have been added to your account.</p>
-            <a href="https://app.venusnap.com" class="w-full btn-primary text-white font-bold py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:ring-offset-2 inline-block text-center">
-                Go to App
+            <a href="https://app.venusnap.com" id="success-button" class="w-full btn-primary text-white font-bold py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:ring-offset-2 inline-block text-center">
+                <!-- Text will be set dynamically -->
             </a>
         </div>
     </div>
@@ -186,6 +186,15 @@
                 totalAmount.textContent = `$${amount}`;
             }
 
+            function isMobileDevice() {
+                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            }
+
+            // Set success button text based on device
+            function setSuccessButtonText() {
+                const successButton = document.getElementById('success-button');
+                successButton.textContent = isMobileDevice() ? 'Go to App' : 'Open your app to see the points';
+            }
             // Live price calculation
             pointsInput.addEventListener('input', updatePrice);
             updatePrice(); // Initialize
@@ -261,8 +270,11 @@
                     }
 
                     // Show success modal instead of redirecting
-                    successModal.style.display = 'flex';
-
+                    //successModal.style.display = 'flex';
+                    function showSuccessModal() {
+                        setSuccessButtonText();
+                        successModal.style.display = 'flex';
+                    }
                     // You can still keep the redirect in the URL if needed for analytics
                     window.history.pushState({}, '', `/payment-success?payment_intent_id=${paymentIntent.id}`);
 
