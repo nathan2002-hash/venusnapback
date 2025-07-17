@@ -121,10 +121,11 @@
                 <!-- Submit Button -->
                 <button
                     id="submit-button"
-                    class="w-full btn-primary text-white font-bold py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:ring-offset-2"
+                    class="w-full btn-primary text-white font-bold py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:ring-offset-2 flex items-center justify-center"
                     type="submit"
                 >
-                    Pay Now
+                    <span id="button-text">Pay Now</span>
+                    <span id="button-spinner" class="spinner hidden"></span>
                 </button>
 
                 <!-- Security Badges -->
@@ -189,10 +190,17 @@
             pointsInput.addEventListener('input', updatePrice);
             updatePrice(); // Initialize
 
+            const buttonText = document.getElementById('button-text');
+            const buttonSpinner = document.getElementById('button-spinner');
             // Form submission
             form.addEventListener('submit', async (e) => {
-                e.preventDefault();
+               e.preventDefault();
+
+                // Disable button and show processing state
                 submitButton.disabled = true;
+                submitButton.classList.add('btn-disabled');
+                buttonText.textContent = 'Processing...';
+                buttonSpinner.classList.remove('hidden');
                 cardErrors.textContent = '';
 
                 const points = parseInt(pointsInput.value);
@@ -244,7 +252,7 @@
                         },
                         //credentials: 'include',
                         body: JSON.stringify({
-                            payment_intent_id: payment_id
+                            payment_intent_id: paymentIntent.id
                         })
                     });
 
@@ -261,7 +269,17 @@
                 } catch (error) {
                     console.error('Payment error:', error);
                     cardErrors.textContent = error.message || 'An error occurred during payment';
+
+                    // Re-enable button and reset state
                     submitButton.disabled = false;
+                    submitButton.classList.remove('btn-disabled');
+                    buttonText.textContent = 'Pay Now';
+                    buttonSpinner.classList.add('hidden');
+
+                    // Scroll to errors if they exist
+                    if (error.message) {
+                        cardErrors.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
                 }
             });
         });
