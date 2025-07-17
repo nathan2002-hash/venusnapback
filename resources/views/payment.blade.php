@@ -43,8 +43,10 @@
     <div class="w-full max-w-md bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <!-- Header -->
         <div class="bg-[#7c3aed] p-6 text-white">
-            <h1 class="text-2xl font-bold">Purchase Points</h1>
-            <p class="text-[#d8b4fe] mt-1">Enter the points you want to buy</p>
+           <center>
+                <h1 class="text-2xl font-bold">Purchase Points</h1>
+                <p class="text-[#d8b4fe] mt-1">Enter the points you want to buy</p>
+           </center>
         </div>
 
         <form id="payment-form"> <!-- Added form element -->
