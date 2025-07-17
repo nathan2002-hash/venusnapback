@@ -182,8 +182,10 @@
                     <p>Your payment is secure and encrypted.</p>
                     <p>We accept all major credit cards.</p>
                 </div>
-                <center>
-                    <div class="mt-4 text-center text-sm">
+                <div class="mt-4 flex justify-center space-x-4">
+                    <img src="https://www.americanexpress.com/content/dam/amex/us/merchant/supplies-uplift/product/images/4_Card_color_horizontal.png" alt="American Express" class="h-8 object-contain">
+                </div>
+                <div class="mt-2 text-center text-sm">
                     <a href="/payment-security" class="text-primary hover:underline inline-flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -191,7 +193,6 @@
                         How your payments are handled
                     </a>
                 </div>
-                </center>
             </div>
         </form>
     </div>
