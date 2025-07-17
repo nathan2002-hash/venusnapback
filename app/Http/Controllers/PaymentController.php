@@ -8,6 +8,8 @@ use App\Models\PaymentSession;
 use Stripe\Stripe;
 use App\Models\Payment;
 use Stripe\PaymentIntent;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends Controller
@@ -77,8 +79,9 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function confirmPayment(Request $request)
-    {
+   public function confirmPayment(Request $request)
+{
+    try {
         $validated = $request->validate([
             'payment_intent_id' => 'required|string'
         ]);
@@ -89,28 +92,33 @@ class PaymentController extends Controller
         Stripe::setApiKey(env('STRIPE_SECRET'));
         $paymentIntent = PaymentIntent::retrieve($payment->payment_no);
 
-        if ($paymentIntent->status == 'succeeded') {
-            // Update DB: Payment successful
+        if ($paymentIntent->status === 'succeeded') {
             $points = $payment->metadata['points'] ?? 0;
 
-            $payment->update([
-                'status' => 'success',
-            ]);
+            DB::transaction(function () use ($payment, $points) {
+                $payment->update([
+                    'status' => 'success',
+                ]);
 
-            if ($points > 0 && $payment->user) {
-                $payment->user->increment('points', $points);
-            }
+                if ($points > 0 && $payment->user) {
+                    $payment->user->increment('points', $points);
+                }
+            });
 
             SendPaymentReceipt::dispatch($payment->user->email, $payment);
 
             return response()->json(['message' => 'Payment successful']);
         }
 
-        // Update DB: Payment failed
-        $payment->update([
-            'status' => 'failed',
-        ]);
-
+        $payment->update(['status' => 'failed']);
         return response()->json(['message' => 'Payment failed'], 400);
+
+    } catch (\Exception $e) {
+        Log::error("Payment confirmation failed: " . $e->getMessage());
+        return response()->json([
+            'message' => 'Payment verification error',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 }

@@ -240,7 +240,9 @@
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            'Accept': 'application/json' // Important to prevent redirects
                         },
+                        //credentials: 'include',
                         body: JSON.stringify({
                             payment_intent_id: payment_id
                         })
