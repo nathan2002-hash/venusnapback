@@ -17,36 +17,6 @@ class TemplateController extends Controller
     public function index(Request $request)
     {
         $perPage = 10;
-        $templates = Template::where('status', 'completed')
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
-
-        // Include user points in response
-        $userPoints = Auth::user()->points;
-
-        $transformed = $templates->getCollection()->map(function ($template) {
-            return [
-                'id' => $template->id,
-                'name' => $template->name,
-                'type' => $template->type,
-                'path' => Storage::disk('s3')->url($template->compressed_template ?? $template->original_template),
-                'is_user_generated' => !empty($template->user_id),
-            ];
-        });
-
-        return response()->json([
-            'templates' => $transformed,
-            'pagination' => [
-                'current_page' => $templates->currentPage(),
-                'last_page' => $templates->lastPage(),
-            ],
-            'user_points' => (int) $userPoints
-        ]);
-    }
-
-    public function indgex(Request $request)
-    {
-        $perPage = 10;
         $userId = Auth::user()->id;
 
         // Get templates that are either public (type 'open') or owned by the user
@@ -91,25 +61,6 @@ class TemplateController extends Controller
                 "Dark mode template with neon accents and tech elements"
             ]
         ]);
-    }
-
-
-    public function indhex(Request $request)
-    {
-        $perPage = 10; // Adjust if needed
-        $templates = Template::orderBy('created_at', 'desc')->paginate($perPage);
-
-        // Transform the templates to fit the structure Flutter expects
-        $templates->getCollection()->transform(function ($template) {
-            return [
-                'id' => $template->id,
-                'name' => $template->name,
-                'type' => $template->type, // free or premium
-                'path' => Storage::disk('s3')->url($template->compressed_template ?? $template->original_template), // URL to the image
-            ];
-        });
-
-        return response()->json($templates);
     }
 
     public function generateTemplate(Request $request)
