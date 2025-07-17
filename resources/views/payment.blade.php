@@ -65,16 +65,23 @@
         <!-- Header -->
         <div class="bg-[#7c3aed] p-6 text-white">
            <center>
+                <h3 class="text-2xl font-bold">Hello, {{ Auth::user()->name }}</h3>
                 <h1 class="text-2xl font-bold">Purchase Points</h1>
-                <p class="text-[#d8b4fe] mt-1">Enter the points you want to buy</p>
+                <h1 class="text-2xl font-bold">{{ number_format(Auth::user()->points) }} Current Points</h1>
            </center>
         </div>
-
+<div class="points-card mx-6 mt-4">
+            <div class="relative z-10">
+                <div class="points-label">YOUR CURRENT BALANCE</div>
+                <div class="points-value">{{ number_format(Auth::user()->points) }}</div>
+                <div class="points-subtext">Points available for use</div>
+            </div>
+        </div>
         <form id="payment-form"> <!-- Added form element -->
             <div class="p-6">
                 <!-- Points Input -->
                 <div class="mb-6">
-                    <label for="points" class="block text-sm font-medium text-gray-700 mb-2">Points Amount</label>
+                    <label for="points" class="block text-sm font-medium text-gray-700 mb-2">Enter Points you need</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
