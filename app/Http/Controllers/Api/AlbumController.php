@@ -645,11 +645,11 @@ class AlbumController extends Controller
 
         $posts = $album->posts
         ->filter(function ($post) use ($user) {
-            // Only include if it's not private or it's owned by the viewer
             return $post->status === 'active' && (
                 $post->visibility !== 'private' || ($user && $post->user_id === $user->id)
             );
         })
+        ->sortByDesc('created_at')
         ->values()
         ->map(function ($post) {
             $postThumbnail = $post->postmedias->first()
@@ -779,6 +779,7 @@ class AlbumController extends Controller
                 $post->visibility !== 'private' || ($user && $post->user_id === $user->id)
             );
         })
+        ->sortByDesc('created_at')
         ->values()
         ->map(function ($post) {
             $postThumbnail = $post->postmedias->first()
