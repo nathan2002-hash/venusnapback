@@ -542,8 +542,10 @@ class AlbumController extends Controller
         // 3. Merge and remove duplicates by album ID
         $allAlbums = $ownedAlbums->merge($accessedAlbums)->unique('id');
 
+        $sortedAlbums = $allAlbums->sortByDesc('created_at')->values();
+
         // 4. Map album info with thumbnails, etc.
-        $albums = $allAlbums->map(function ($album) {
+        $albums = $sortedAlbums->map(function ($album) {
             $thumbnailUrl = null;
 
             if ($album->type === 'personal' || $album->type === 'creator') {
