@@ -275,48 +275,43 @@ class NotificationController extends Controller
         $user = Auth::user();
         $token = $request->fcm_token;
         $userAgent = $request->header('User-Agent');
-        $deviceInfo = $request->header('Device-Info');
+        $deviceInfo = $request->header('Device-Info') ?? $userAgent;
 
-        // Step 1: Check if token exists for another user and is active
-        $conflict = FcmToken::where('token', $token)
+        // Step 1: Expire token if used by another user
+        FcmToken::where('token', $token)
             ->where('user_id', '!=', $user->id)
             ->where('status', 'active')
-            ->first();
+            ->update(['status' => 'expired']);
 
-        if ($conflict) {
-            // Mark the old token as expired
-            $conflict->status = 'expired';
-            $conflict->save();
-        }
-
-        // Step 2: Check if token exists for this user and is expired
+        // Step 2: Check if this token already exists for this user + device
         $existing = FcmToken::where('user_id', $user->id)
             ->where('token', $token)
+            ->where('device_info', $deviceInfo)
             ->first();
 
-        if ($existing && $existing->status === 'expired') {
-            // Create new row
-            FcmToken::create([
-                'user_id' => $user->id,
-                'token' => $token,
-                'device_info' => $deviceInfo ?? $userAgent,
-                'user_agent' => $userAgent,
-                'status' => 'active'
-            ]);
-        } else {
-            // Update or create
-            FcmToken::updateOrCreate(
-                ['user_id' => $user->id, 'token' => $token],
-                [
-                    'device_info' => $deviceInfo ?? $userAgent,
-                    'user_agent' => $userAgent,
-                    'status' => 'active'
-                ]
-            );
+        if ($existing && $existing->status === 'active') {
+            // No change needed
+            return response()->json(['status' => 'unchanged']);
         }
 
-        return response()->json(['status' => 'success']);
+        // Step 3: Expire any other active tokens for this user + same device
+        FcmToken::where('user_id', $user->id)
+            ->where('device_info', $deviceInfo)
+            ->where('status', 'active')
+            ->update(['status' => 'expired']);
+
+        // Step 4: Store new token
+        FcmToken::create([
+            'user_id' => $user->id,
+            'token' => $token,
+            'device_info' => $deviceInfo,
+            'user_agent' => $userAgent,
+            'status' => 'active',
+        ]);
+
+        return response()->json(['status' => 'stored']);
     }
+
 
 
 
