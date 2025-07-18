@@ -277,30 +277,30 @@ class NotificationController extends Controller
         $userAgent = $request->header('User-Agent');
         $deviceInfo = $request->header('Device-Info') ?? $userAgent;
 
-        // Step 1: Expire token if used by another user
+        // Expire this token if used by another user
         FcmToken::where('token', $token)
             ->where('user_id', '!=', $user->id)
             ->where('status', 'active')
             ->update(['status' => 'expired']);
 
-        // Step 2: Check if this token already exists for this user + device
+        // Check if the exact token already exists and is active for this user + device
         $existing = FcmToken::where('user_id', $user->id)
-            ->where('token', $token)
             ->where('device_info', $deviceInfo)
+            ->where('token', $token)
+            ->where('status', 'active')
             ->first();
 
-        if ($existing && $existing->status === 'active') {
-            // No change needed
+        if ($existing) {
             return response()->json(['status' => 'unchanged']);
         }
 
-        // Step 3: Expire any other active tokens for this user + same device
+        // Expire any other active tokens for this user + device
         FcmToken::where('user_id', $user->id)
             ->where('device_info', $deviceInfo)
             ->where('status', 'active')
             ->update(['status' => 'expired']);
 
-        // Step 4: Store new token
+        // Store the new token
         FcmToken::create([
             'user_id' => $user->id,
             'token' => $token,
@@ -311,9 +311,6 @@ class NotificationController extends Controller
 
         return response()->json(['status' => 'stored']);
     }
-
-
-
 
 
     public function sendPushNotification(Request $request)
