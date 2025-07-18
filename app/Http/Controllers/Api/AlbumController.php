@@ -62,7 +62,7 @@ class AlbumController extends Controller
         // Owned albums (Eloquent collection)
         $ownedAlbums = Album::where('user_id', $user->id)
             ->whereIn('type', ['creator', 'business', 'personal'])
-            ->select('id', 'name', 'type')
+            ->select('id', 'name', 'type', 'visibility') // include visibility
             ->get()
             ->map(function ($album) {
                 $typeLabel = match($album->type) {
@@ -74,16 +74,17 @@ class AlbumController extends Controller
                 return [
                     'id' => $album->id,
                     'album_name' => "{$album->name} ($typeLabel)",
+                    'privacy' => $album->visibility === 'private' // true if public, false if private
                 ];
             });
 
-        // Shared albums (direct array conversion)
+        // Shared albums (from DB)
         $sharedAlbums = DB::table('album_accesses')
             ->join('albums', 'album_accesses.album_id', '=', 'albums.id')
             ->where('album_accesses.user_id', $user->id)
             ->where('album_accesses.status', 'approved')
             ->whereIn('albums.type', ['creator', 'business'])
-            ->select('albums.id', 'albums.name', 'albums.type')
+            ->select('albums.id', 'albums.name', 'albums.type', 'albums.visibility')
             ->get()
             ->map(function ($album) {
                 $typeLabel = match($album->type) {
@@ -94,17 +95,19 @@ class AlbumController extends Controller
                 return [
                     'id' => $album->id,
                     'album_name' => "{$album->name} ($typeLabel)",
+                    'privacy' => $album->visibility === 'public'
                 ];
             });
 
-        // Merge both collections
+        // Merge both
         $albums = $ownedAlbums->merge($sharedAlbums);
 
         return response()->json([
             'success' => true,
-            'data' => $albums->values() // This ensures sequential array keys
+            'data' => $albums->values()
         ]);
     }
+
 
     protected function containsBlockedWord(string $text): bool
     {
