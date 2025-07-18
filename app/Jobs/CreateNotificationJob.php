@@ -133,8 +133,10 @@ class CreateNotificationJob implements ShouldQueue
             $messaging = $factory->createMessaging();
 
             // Prepare notification data
-            $title = $this->getNotificationTitle($notification->action);
-            $body = $this->getNotificationBody($notification);
+            // $title = $this->getNotificationTitle($notification->action);
+            // $body = $this->getNotificationBody($notification);
+            $title = $this->getNotificationTitle($notification);
+$body = $this->getNotificationBody($notification);
             $notificationData = $this->preparePushData($notification);
 
             // Ensure all data values are strings
