@@ -49,8 +49,10 @@
     <div class="w-full max-w-md bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <!-- Header -->
         <div class="bg-[#7c3aed] p-6 text-white">
-            <h1 class="text-2xl font-bold">Welcome Back</h1>
-            <p class="text-[#d8b4fe] mt-1">Sign in to your Venusnap account</p>
+           <center>
+                <h1 class="text-2xl font-bold">Welcome Back</h1>
+                <p class="text-[#d8b4fe] mt-1">Sign in to your Venusnap account</p>
+           </center>
         </div>
 
         <form id="login-form" class="p-6" method="POST" action="{{ route('login') }}">
