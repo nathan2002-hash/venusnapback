@@ -24,6 +24,25 @@
             border-color: #7c3aed;
             box-shadow: 0 0 0 1px #7c3aed;
         }
+        /* Spinner styles */
+        .spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .btn-disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
@@ -94,12 +113,14 @@
                 </div>
             </div>
 
-            <!-- Submit Button -->
+            <!-- Submit Button with Spinner -->
             <button
                 type="submit"
-                class="w-full btn-primary text-white font-bold py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:ring-offset-2"
+                id="submit-button"
+                class="w-full btn-primary text-white font-bold py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:ring-offset-2 flex items-center justify-center"
             >
-                Sign In
+                <span id="button-text">Sign In</span>
+                <span id="button-spinner" class="spinner hidden"></span>
             </button>
 
             <!-- Sign Up Link -->
@@ -109,10 +130,12 @@
         </form>
     </div>
 
-    <!-- Simple form validation -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('login-form');
+            const submitButton = document.getElementById('submit-button');
+            const buttonText = document.getElementById('button-text');
+            const buttonSpinner = document.getElementById('button-spinner');
 
             form.addEventListener('submit', function(e) {
                 const email = document.getElementById('email');
@@ -121,7 +144,14 @@
                 if (!email.value || !password.value) {
                     e.preventDefault();
                     alert('Please fill in all fields');
+                    return;
                 }
+
+                // Show loading state
+                submitButton.disabled = true;
+                submitButton.classList.add('btn-disabled');
+                buttonText.textContent = 'Signing in...';
+                buttonSpinner.classList.remove('hidden');
             });
         });
     </script>

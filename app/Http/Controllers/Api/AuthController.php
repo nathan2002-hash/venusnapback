@@ -566,4 +566,18 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Password reset successfully'], 200);
     }
+
+    // Add this to your PaymentController or AuthController
+    public function generateWebToken(Request $request)
+    {
+        $user = $request->user();
+
+        // Create a one-time token that expires in 5 minutes
+        $token = $user->createToken('web-login', ['*'], now()->addMinutes(5))->plainTextToken;
+
+        return response()->json([
+            'login_url' => "https://payment.venusnap.com/auth/callback?token=$token",
+            'expires_at' => now()->addMinutes(5)->toDateTimeString()
+        ]);
+    }
 }
