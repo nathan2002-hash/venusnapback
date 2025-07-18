@@ -251,53 +251,60 @@ class CreateNotificationJob implements ShouldQueue
         return $typeMap[$action] ?? 'post';
     }
 
-    protected function getNotificationTitle($action)
-    {
-        $titles = [
-            'viewed_album' => 'New Album View',
-            'commented' => 'New Comment',
-            'replied' => 'New Reply',
-            'liked' => 'New Like',
-            'admired' => 'New Admiration',
-            'shared_album' => 'Album Invitation',
-            'invited' => 'Collaboration Request',
-        ];
+    // protected function getNotificationTitle($action)
+    // {
+    //     $titles = [
+    //         'viewed_album' => 'New Album View',
+    //         'commented' => 'New Comment',
+    //         'replied' => 'New Reply',
+    //         'liked' => 'New Like',
+    //         'admired' => 'New Admiration',
+    //         'shared_album' => 'Album Invitation',
+    //         'invited' => 'Collaboration Request',
+    //     ];
 
-        return $titles[$action] ?? 'New Notification';
+    //     return $titles[$action] ?? 'New Notification';
+    // }
+
+    protected function getNotificationTitle($notification)
+    {
+        $data = json_decode($notification->data, true);
+        return $data['username'] ?? 'Someone';
     }
 
     protected function getNotificationBody($notification)
     {
         $data = json_decode($notification->data, true);
-        $username = $data['username'] ?? 'Someone';
         $action = $notification->action;
 
         switch ($action) {
             case 'viewed_album':
-                return "$username viewed your album";
+                $albumName = $data['album_name'] ?? 'your album';
+                return "viewed your $albumName";
             case 'commented':
-                $albumName = $data['album_name'] ?? 'your post';
-                return "$username commented on your post" . ($albumName ? " in $albumName" : "");
+                $albumName = $data['album_name'] ?? null;
+                return $albumName ?
+                    "commented on your post in $albumName" :
+                    "commented on your post";
             case 'replied':
                 $isAlbumOwner = $data['is_album_owner'] ?? false;
                 $albumName = $data['album_name'] ?? null;
                 return $isAlbumOwner ?
-                    "$username replied to your comment in $albumName" :
-                    "$username replied to your comment";
+                    "replied to your comment in $albumName" :
+                    "replied to your comment";
             case 'liked':
-                return "$username liked your post";
+                return "liked your post";
             case 'admired':
                 $albumName = $data['album_name'] ?? null;
                 return $albumName ?
-                    "$username admired your snap in $albumName" :
-                    "$username admired your snap";
+                    "admired your snap in $albumName" :
+                    "admired your snap";
             case 'shared_album':
             case 'invited':
                 $albumName = $data['album_name'] ?? 'an album';
-                return "$username invited you to collaborate on $albumName";
+                return "invited you to collaborate on $albumName";
             default:
-                return "You have a new notification";
+                return "sent you a notification";
         }
     }
-
 }
