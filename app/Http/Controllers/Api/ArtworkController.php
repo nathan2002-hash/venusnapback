@@ -57,7 +57,7 @@ class ArtworkController extends Controller
 
             return [
                 'id' => $artwork->id,
-                'thumbnail' => $thumbnailUrl, 
+                'thumbnail' => $thumbnailUrl,
                 'downloadimage' => $downloadUrl,
                 'downloadfilename' => 'VEN_' . $artwork->id,
                 'created_at' => Carbon::parse($artwork->created_at)->format('d M Y H:i'),  // Format the date
@@ -74,17 +74,17 @@ class ArtworkController extends Controller
     public function destroy($id)
     {
         $artwork = Artwork::find($id);
-    
+
         if (!$artwork) {
             return response()->json(['message' => 'Artwork not found'], 404);
         }
-    
-        if ($artwork->user_id !== auth()->id()) {
+
+        if ($artwork->user_id !== Auth::user()->id) {
             return response()->json(['message' => 'Unauthorized to delete this artwork'], 403);
         }
-    
+
         $artwork->delete();
-    
+
         return response()->json(['message' => 'Artwork deleted successfully'], 200);
     }
 }
