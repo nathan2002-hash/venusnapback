@@ -136,7 +136,7 @@ class CreateNotificationJob implements ShouldQueue
             // $title = $this->getNotificationTitle($notification->action);
             // $body = $this->getNotificationBody($notification);
             $title = $this->getNotificationTitle($notification);
-$body = $this->getNotificationBody($notification);
+            $body = $this->getNotificationBody($notification);
             $notificationData = $this->preparePushData($notification);
 
             // Ensure all data values are strings
@@ -282,29 +282,29 @@ $body = $this->getNotificationBody($notification);
         switch ($action) {
             case 'viewed_album':
                 $albumName = $data['album_name'] ?? 'your album';
-                return "viewed your $albumName";
+                return "viewed your $albumName Album";
             case 'commented':
                 $albumName = $data['album_name'] ?? null;
                 return $albumName ?
-                    "commented on your post in $albumName" :
+                    "commented on your post in $albumName Album" :
                     "commented on your post";
             case 'replied':
                 $isAlbumOwner = $data['is_album_owner'] ?? false;
                 $albumName = $data['album_name'] ?? null;
                 return $isAlbumOwner ?
-                    "replied to your comment in $albumName" :
+                    "replied to your comment in $albumName Album" :
                     "replied to your comment";
             case 'liked':
                 return "liked your post";
             case 'admired':
                 $albumName = $data['album_name'] ?? null;
                 return $albumName ?
-                    "admired your snap in $albumName" :
+                    "admired your snap in $albumName Album" :
                     "admired your snap";
             case 'shared_album':
             case 'invited':
                 $albumName = $data['album_name'] ?? 'an album';
-                return "invited you to collaborate on $albumName";
+                return "invited you to collaborate on $albumName Album";
             default:
                 return "sent you a notification";
         }
