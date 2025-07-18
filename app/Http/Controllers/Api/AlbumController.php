@@ -62,7 +62,7 @@ class AlbumController extends Controller
         // Owned albums (Eloquent collection)
         $ownedAlbums = Album::where('user_id', $user->id)
             ->whereIn('type', ['creator', 'business', 'personal'])
-            ->select('id', 'name', 'type', 'visibility') // include visibility
+            ->select('id', 'name', 'type', 'visibility', 'created_at') // include visibility
             ->get()
             ->map(function ($album) {
                 $typeLabel = match($album->type) {
@@ -84,7 +84,7 @@ class AlbumController extends Controller
             ->where('album_accesses.user_id', $user->id)
             ->where('album_accesses.status', 'approved')
             ->whereIn('albums.type', ['creator', 'business'])
-            ->select('albums.id', 'albums.name', 'albums.type', 'albums.visibility')
+            ->select('albums.id', 'albums.name', 'albums.type', 'albums.visibility', 'albums.created_at')
             ->get()
             ->map(function ($album) {
                 $typeLabel = match($album->type) {
@@ -95,12 +95,18 @@ class AlbumController extends Controller
                 return [
                     'id' => $album->id,
                     'album_name' => "{$album->name} ($typeLabel)",
-                    'privacy' => $album->visibility === 'public'
+                    'privacy' => $album->visibility === 'public',
+                    'created_at' => $album->created_at
                 ];
             });
 
-        // Merge both
-        $albums = $ownedAlbums->merge($sharedAlbums);
+        $albums = $ownedAlbums->merge($sharedAlbums)
+        ->sortByDesc('created_at')
+        ->values();
+        $albums = $albums->map(function ($album) {
+            return collect($album)->except('created_at');
+        });
+
 
         return response()->json([
             'success' => true,
