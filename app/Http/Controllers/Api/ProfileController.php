@@ -31,9 +31,14 @@ class ProfileController extends Controller
         $profileUrl = $user->profile_compressed ? Storage::disk('s3')->url($user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
         // Return the user profile data
 
-        $totalSupporters = $user->albums->reduce(function ($carry, $album) {
-            return $carry + $album->supporters()->count(); // assuming 'supporters' is a relationship on the Album model
-        }, 0);
+        // $totalSupporters = $user->albums->reduce(function ($carry, $album) {
+        //     return $carry + $album->supporters()->count(); // assuming 'supporters' is a relationship on the Album model
+        // }, 0);
+
+        $totalSupporters = $user->albums->flatMap(function ($album) {
+            return $album->supporters()->pluck('user_id');
+        })->unique()->count();
+
 
         return response()->json([
             'user' => [
