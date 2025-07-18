@@ -282,7 +282,7 @@ class CreateNotificationJob implements ShouldQueue
         switch ($action) {
             case 'viewed_album':
                 $albumName = $data['album_name'] ?? 'your album';
-                return "viewed your $albumName Album";
+                return "explored your $albumName Album";
             case 'commented':
                 $albumName = $data['album_name'] ?? null;
                 return $albumName ?
