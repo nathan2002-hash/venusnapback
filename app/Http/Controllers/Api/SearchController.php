@@ -22,11 +22,11 @@ class SearchController extends Controller
         $query = $request->query('q');
 
         $suggestions = [
-        '#summer2024',
+        'summer2024',
         'travel',
         'food',
         'fitness',
-        '#vacation',
+        'vacation',
         'music',
         'art',
         'photography'
