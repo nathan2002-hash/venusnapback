@@ -65,10 +65,10 @@ class RegistrationJob implements ShouldQueue
             ]
         );
 
-    //     Mail::to($this->user->email)->send(new WelcomeFromCeoMail(
-    //     $this->user,
-    //     $this->deviceinfo,
-    //     $this->ipaddress
-    // ));
+        Mail::to($this->user->email)->send(new WelcomeFromCeoMail(
+            $this->user,
+            $this->deviceinfo,
+            $this->ipaddress
+        ));
     }
 }
