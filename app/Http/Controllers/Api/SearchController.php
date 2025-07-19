@@ -117,7 +117,8 @@ class SearchController extends Controller
         if ($mergedResults->isEmpty()) {
         return response()->json([
             'results' => [],
-            'suggestions' => $this->getRelatedSuggestions($query)
+            'suggestions' => []
+            //'suggestions' => $this->getRelatedSuggestions($query)
         ]);
     }
 
