@@ -756,8 +756,6 @@ class AlbumController extends Controller
 
         $isSupporter = $user ? $album->supporters()->where('user_id', Auth::user()->id)->exists() : false;
 
-
-
         // Determine the album's thumbnail
         if ($album->type == 'personal' || $album->type == 'creator') {
             $thumbnailUrl = $album->thumbnail_compressed
