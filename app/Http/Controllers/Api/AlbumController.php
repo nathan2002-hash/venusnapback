@@ -789,7 +789,7 @@ class AlbumController extends Controller
                 ($user && (
                     $post->user_id === $user->id ||
                     $album->user_id === $user->id ||
-                    $album->albumAccesses()->where('user_id', $user->id)->where('status', 'approved')->exists()
+                    $album->sharedWith()->where('user_id', $user->id)->where('status', 'approved')->exists()
                 ))
             );
         })
