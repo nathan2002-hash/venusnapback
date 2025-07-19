@@ -101,7 +101,7 @@ class PostController extends Controller
             $posts = $posts->merge($seenFillers);
         }
 
-        $posts = $posts->values(); // Re-index
+        $posts = $posts->shuffle()->values();
 
         if ($posts->count() > 2) {
             // Move first post (most likely repeat) to a random position other than 1st
@@ -189,36 +189,6 @@ class PostController extends Controller
                             ->where('status', 'active')
                             ->exists()
         ]);
-
-        $now = now();
-        $insertViews = [];
-
-        foreach ($posts as $post) {
-            $firstMedia = $post->postmedias->first();
-            if ($firstMedia) {
-                $alreadyViewed = DB::table('views')
-                    ->where('user_id', $userId)
-                    ->where('post_media_id', $firstMedia->id)
-                    ->exists();
-
-                if (!$alreadyViewed) {
-                    $insertViews[] = [
-                        'user_id' => $userId,
-                        'ip_address' => request()->ip(),
-                        'duration' => '0',
-                        'post_media_id' => $firstMedia->id,
-                        'user_agent' => request()->header('User-Agent'),
-                        'device_info' => null,
-                        'created_at' => $now,
-                        'updated_at' => $now,
-                    ];
-                }
-            }
-        }
-
-        if (!empty($insertViews)) {
-            DB::table('views')->insert($insertViews);
-        }
     }
 
     public function show(Request $request, $id)
