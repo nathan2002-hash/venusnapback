@@ -101,6 +101,14 @@ class PostController extends Controller
             $posts = $posts->merge($seenFillers);
         }
 
+        $posts = $posts->values(); // Re-index
+
+        if ($posts->count() > 2) {
+            // Move first post (most likely repeat) to a random position other than 1st
+            $first = $posts->shift(); // Remove the first post
+            $insertAt = rand(1, min(4, $posts->count())); // Insert at 2nd to 4th position
+            $posts->splice($insertAt, 0, [$first]); // Reinsert it
+        }
 
         // Format the posts data
         $postsData = $posts->map(function ($post) {
