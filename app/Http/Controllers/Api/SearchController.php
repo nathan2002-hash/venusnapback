@@ -21,6 +21,17 @@ class SearchController extends Controller
     {
         $query = $request->query('q');
 
+        $suggestions = [
+        '#summer2024',
+        'travel',
+        'food',
+        'fitness',
+        '#vacation',
+        'music',
+        'art',
+        'photography'
+    ];
+
         if (empty($query)) {
             return response()->json([
                 'results' => [],
@@ -117,9 +128,14 @@ class SearchController extends Controller
         if ($mergedResults->isEmpty()) {
         return response()->json([
             'results' => [],
-            'suggestions' => []
+            'suggestions' => $suggestions
             //'suggestions' => $this->getRelatedSuggestions($query)
         ]);
+
+         return response()->json([
+        'results' => $mergedResults,
+        'suggestions' => [] // No suggestions when results exist
+    ]);
     }
 
         // Log search if query is long enough
