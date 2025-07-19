@@ -785,7 +785,7 @@ class AlbumController extends Controller
         ->filter(function ($post) use ($user, $album) {
             // Only include if it's not private or it's owned by the viewer
            return $post->status === 'active' && (
-                $post->visibility !== 'private' ||
+                $post->visibility !== 'Private' ||
                 ($user && (
                     $post->user_id === $user->id ||
                     $album->user_id === $user->id ||
