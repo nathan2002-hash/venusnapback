@@ -22,14 +22,14 @@ class SearchController extends Controller
         $query = $request->query('q');
 
         $suggestions = [
-        'summer2024',
-        'travel',
-        'food',
-        'fitness',
-        'vacation',
-        'music',
-        'art',
-        'photography'
+        'Light Verse',
+        'Anthonycious',
+        'Hour of Hope',
+        'Tangerine',
+        'Love',
+        'Nvidia',
+        'Meme',
+        'Laravel'
     ];
 
         if (empty($query)) {
