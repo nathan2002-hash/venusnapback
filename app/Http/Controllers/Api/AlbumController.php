@@ -782,10 +782,15 @@ class AlbumController extends Controller
                 : null);
 
         $posts = $album->posts
-        ->filter(function ($post) use ($user) {
+        ->filter(function ($post) use ($user, $album) {
             // Only include if it's not private or it's owned by the viewer
-            return $post->status === 'active' && (
-                $post->visibility !== 'private' || ($user && $post->user_id === $user->id)
+           return $post->status === 'active' && (
+                $post->visibility !== 'private' ||
+                ($user && (
+                    $post->user_id === $user->id ||
+                    $album->user_id === $user->id ||
+                    $album->albumAccesses()->where('user_id', $user->id)->where('status', 'approved')->exists()
+                ))
             );
         })
         ->sortByDesc('created_at')
