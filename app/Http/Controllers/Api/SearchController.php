@@ -21,6 +21,13 @@ class SearchController extends Controller
     {
         $query = $request->query('q');
 
+        if (empty($query)) {
+            return response()->json([
+                'results' => [],
+                'suggestions' => $this->getHardcodedSuggestions()
+            ]);
+        }
+
         // Search posts
         $posts = Post::with(['album'])
             ->where('description', 'like', "%$query%")
@@ -58,6 +65,7 @@ class SearchController extends Controller
                     'is_album' => true,
                     'is_ad' => false,
                     'is_trending' => $album->is_trending ?? false,
+                    'is_verified' => (bool)$album->is_verified,
                 ];
             });
 
@@ -106,6 +114,13 @@ class SearchController extends Controller
             ->merge($ads)
             ->shuffle();
 
+        if ($mergedResults->isEmpty()) {
+        return response()->json([
+            'results' => [],
+            'suggestions' => $this->getRelatedSuggestions($query)
+        ]);
+    }
+
         // Log search if query is long enough
         if (strlen($query) >= 3) {
             $this->logSearch($request, $query, $mergedResults->count());
@@ -138,6 +153,36 @@ class SearchController extends Controller
 
         return asset('default/profile.png');
     }
+
+    private function getHardcodedSuggestions()
+    {
+        return [
+            '#summer2024',
+            'travel',
+            'food',
+            'fitness',
+            '#vacation',
+            'music',
+            'art',
+            'photography'
+        ];
+    }
+
+    private function getRelatedSuggestions($query)
+    {
+        // You could make this smarter by analyzing the query
+        // For now, we'll return a mix of hardcoded and query-based suggestions
+        $baseSuggestions = $this->getHardcodedSuggestions();
+
+        // Add some variations based on the query
+        if (strlen($query) > 2) {
+            array_unshift($baseSuggestions, $query . ' tips');
+            array_unshift($baseSuggestions, 'best ' . $query);
+        }
+
+        return array_slice($baseSuggestions, 0, 8); // Return max 8 suggestions
+    }
+
 
     public function logSearch(Request $request, $query, $resultsCount)
     {
