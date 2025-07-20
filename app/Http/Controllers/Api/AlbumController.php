@@ -581,7 +581,19 @@ class AlbumController extends Controller
 
     public function show($albumId, Request $request)
     {
-        $album = Album::with(['posts.postmedias'])->find($albumId);
+        $album = Album::find($albumId);
+
+        if (!$album) {
+            return response()->json([
+                'message' => 'Album not found'
+            ], 404);
+        }
+
+        // Manually load posts
+        $rawPosts = Post::with('postmedias')
+            ->where('album_id', $album->id)
+            ->get();
+
         $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
         if (!$album) {
             return response()->json([
@@ -652,18 +664,18 @@ class AlbumController extends Controller
                     ? Storage::disk('s3')->url($album->cover_image_original)
                     : null);
 
-      $posts = $album->posts
-    ->filter(function ($post) use ($user) {
-        // Always show to post owner regardless of status
-        if ($user && $post->user_id === $user->id) {
-            return true;
-        }
+        $posts = $rawPosts
+        ->filter(function ($post) use ($user) {
+            // Always show to post owner regardless of status
+            if ($user && $post->user_id === $user->id) {
+                return true;
+            }
 
-        // For others, only show active posts with proper visibility
-        return $post->status === 'active' && (
-            $post->visibility !== 'private' || ($user && $post->user_id === $user->id)
-        );
-    })
+            // For others, only show active posts with proper visibility
+            return $post->status === 'active' && (
+                $post->visibility !== 'private' || ($user && $post->user_id === $user->id)
+            );
+        })
         ->sortByDesc('created_at')
         ->values()
         ->map(function ($post) {
