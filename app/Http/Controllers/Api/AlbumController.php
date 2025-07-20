@@ -799,14 +799,27 @@ class AlbumController extends Controller
 
         $posts = $album->posts
         ->filter(function ($post) use ($user, $album) {
-            // Only include if it's not private or it's owned by the viewer
-           return $post->status === 'active' && (
-                $post->visibility !== 'Private' ||
-                ($user && (
-                    $post->user_id === $user->id ||
-                    $album->user_id === $user->id ||
-                    $album->sharedWith()->where('user_id', $user->id)->where('status', 'approved')->exists()
-                ))
+            $isOwner = $user && (
+                (int)$post->user_id === (int)$user->id ||
+                (int)$album->user_id === (int)$user->id
+            );
+
+            $isSharedWithUser = $user && $album->sharedWith()
+                ->where('user_id', $user->id)
+                ->where('status', 'approved')
+                ->exists();
+
+            return (
+                // Always show to owner, even if inappropriate or private
+                $isOwner ||
+
+                // For others: post must be active, public, and not inappropriate
+                (
+                    $post->status === 'active' &&
+                    $post->visibility !== 'Private' &&
+                    $post->status !== 'inappropriate' &&
+                    ($isSharedWithUser || $album->visibility === 'public')
+                )
             );
         })
         ->sortByDesc('created_at')
