@@ -579,61 +579,91 @@ class AlbumController extends Controller
     }
 
 
-   public function show($albumId, Request $request)
-{
-    $album = Album::with(['posts.postmedias'])->find($albumId);
-    $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
-
-    if (!$album) {
-        return response()->json([
-            'message' => 'Album not found'
-        ], 404);
-    }
-
-    $user = Auth::user();
-    $ip = $realIp;
-    $userAgent = request()->header('User-Agent');
-
-    // Track view (only for non-inappropriate content)
-    if ($album->status !== 'inappropriate') {
-        $alreadyViewed = AlbumView::where('album_id', $albumId)
-            ->where(function ($query) use ($user, $ip) {
-                if ($user) {
-                    $query->where('user_id', $user->id);
-                } else {
-                    $query->where('ip_address', $ip);
-                }
-            })
-            ->where('created_at', '>=', now()->subMinutes(30))
-            ->exists();
-
-        if (!$alreadyViewed) {
-            AlbumView::create([
-                'album_id' => $album->id,
-                'user_id' => $user?->id,
-                'ip_address' => $ip,
-                'user_agent' => $userAgent,
-            ]);
+    public function show($albumId, Request $request)
+    {
+        $album = Album::with(['posts.postmedias'])->find($albumId);
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+        if (!$album) {
+            return response()->json([
+                'message' => 'Album not found'
+            ], 404);
         }
-    }
 
-    // Get thumbnail URLs
-    $thumbnailUrl = $this->getAlbumThumbnailUrl($album);
-    $bgthumbnailUrl = $this->getAlbumBackgroundUrl($album);
+        $user = Auth::user();
+        $ip = $realIp;
+        $userAgent = request()->header('User-Agent');
 
-    // Filter posts based on visibility and status
-    $posts = $album->posts
-        ->filter(function ($post) use ($user) {
-            // Show to owner/admin regardless of status
-            if ($user && ($post->user_id === $user->id || $user->is_admin)) {
-                return true;
-            }
+         // Optional: prevent duplicate views in short span
+         $alreadyViewed = AlbumView::where('album_id', $albumId)
+             ->where(function ($query) use ($user, $ip) {
+                 if ($user) {
+                     $query->where('user_id', $user->id);
+                 } else {
+                     $query->where('ip_address', $ip);
+                 }
+             })
+             ->where('created_at', '>=', now()->subMinutes(30)) // 30 minutes gap
+             ->exists();
 
-            // For others, only show active posts with proper visibility
-            return $post->status === 'active' && (
-                $post->visibility !== 'private' || ($user && $post->user_id === $user->id)
-            );
-        })
+         if (!$alreadyViewed) {
+             AlbumView::create([
+                 'album_id' => $album->id,
+                 'user_id' => $user?->id,
+                 'ip_address' => $ip,
+                 'user_agent' => $userAgent,
+             ]);
+         }
+
+        //  $receiver = $album->user_id;
+
+        //  if ($receiver !== $user->id) {
+        //     CreateNotificationJob::dispatch(
+        //         $user,
+        //         $album,
+        //         'viewed_album',
+        //         $receiver,
+        //         [
+        //             'viewer' => $user->id,
+        //             'album_id' => $album->id
+        //         ]
+        //     );
+        // }
+
+        // Determine the album's thumbnail
+        if ($album->type == 'personal' || $album->type == 'creator') {
+            $thumbnailUrl = $album->thumbnail_compressed
+                ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                : ($album->thumbnail_original
+                    ? Storage::disk('s3')->url($album->thumbnail_original)
+                    : null);
+        } elseif ($album->type == 'business') {
+            $thumbnailUrl = $album->business_logo_compressed
+                ? Storage::disk('s3')->url($album->business_logo_compressed)
+                : ($album->business_logo_original
+                    ? Storage::disk('s3')->url($album->business_logo_original)
+                    : null);
+        } else {
+            $thumbnailUrl = 'https://example.com/default-thumbnail.jpg';
+        }
+
+        $bgthumbnailUrl = $album->cover_image_compressed
+                ? Storage::disk('s3')->url($album->cover_image_compressed)
+                : ($album->cover_image_original
+                    ? Storage::disk('s3')->url($album->cover_image_original)
+                    : null);
+
+      $posts = $album->posts
+    ->filter(function ($post) use ($user) {
+        // Always show to post owner regardless of status
+        if ($user && $post->user_id === $user->id) {
+            return true;
+        }
+
+        // For others, only show active posts with proper visibility
+        return $post->status === 'active' && (
+            $post->visibility !== 'private' || ($user && $post->user_id === $user->id)
+        );
+    })
         ->sortByDesc('created_at')
         ->values()
         ->map(function ($post) {
@@ -646,53 +676,23 @@ class AlbumController extends Controller
                 'title' => $post->title,
                 'thumbnail_url' => $postThumbnail,
                 'image_count' => $post->postmedias->count(),
-                'status' => $post->status, // Include status for owner/admin
-                'visibility' => $post->visibility,
             ];
         });
 
-    return response()->json([
-        'album' => [
-            'id' => $album->id,
-            'name' => $album->name,
-            'type' => $album->type,
-            'status' => $album->status, // Include album status
-            'thumbnail_url' => $thumbnailUrl,
-            'is_verified' => (bool)$album->is_verified,
-            'bg_thumbnail_url' => $bgthumbnailUrl,
-            'supporters' => $album->supporters->count(),
-            'posts' => $posts,
-        ]
-    ], 200);
-}
 
-private function getAlbumThumbnailUrl($album)
-{
-    if ($album->type == 'personal' || $album->type == 'creator') {
-        return $album->thumbnail_compressed
-            ? Storage::disk('s3')->url($album->thumbnail_compressed)
-            : ($album->thumbnail_original
-                ? Storage::disk('s3')->url($album->thumbnail_original)
-                : null);
-    } elseif ($album->type == 'business') {
-        return $album->business_logo_compressed
-            ? Storage::disk('s3')->url($album->business_logo_compressed)
-            : ($album->business_logo_original
-                ? Storage::disk('s3')->url($album->business_logo_original)
-                : null);
+        return response()->json([
+            'album' => [
+                'id' => $album->id,
+                'name' => $album->name,
+                'type' => $album->type,
+                'thumbnail_url' => $thumbnailUrl,
+                'is_verified' => (bool)$album->is_verified,
+                'bg_thumbnail_url' => $bgthumbnailUrl,
+                'supporters' => $album->supporters->count(),
+                'posts' => $posts,
+            ]
+        ], 200);
     }
-    return 'https://example.com/default-thumbnail.jpg';
-}
-
-// Helper method for album background URL
-private function getAlbumBackgroundUrl($album)
-{
-    return $album->cover_image_compressed
-        ? Storage::disk('s3')->url($album->cover_image_compressed)
-        : ($album->cover_image_original
-            ? Storage::disk('s3')->url($album->cover_image_original)
-            : null);
-}
 
     public function showviewer($albumId, Request $request)
     {
