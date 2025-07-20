@@ -667,7 +667,7 @@ class AlbumController extends Controller
         $posts = $rawPosts
         ->filter(function ($post) use ($user) {
             // Always show to post owner regardless of status
-            if ($user && $post->user_id === $user->id) {
+            if ($user && $post->user_id == $user->id) {
                 return true;
             }
 
