@@ -141,7 +141,7 @@ class AppStatusController extends Controller
                 'button_text' => $message->button_text,
                 'button_action' => $message->button_action,
                 'show_skip' => $message->dismissible,
-                'app_store_url' => "https://play.google.com/store/apps/details?id=com.enflick.android.TextNow",
+                'app_store_url' => "https://play.google.com/apps/test/com.venusnap.app/11",
                 'estimated_restore_time' => $message->end_at?->toIso8601String()
             ]);
         }
@@ -199,7 +199,7 @@ class AppStatusController extends Controller
                 'message' => $isCritical
                     ? 'This version is no longer supported. Please update to continue using the app.'
                     : 'A newer version with exciting features is available!',
-                'image' => 'https://venusnaplondon.s3.eu-west-2.amazonaws.com/system/update.jpg',
+                'image' => 'https://cdn.venusnap.com/system/update.jpg',
                 'button_text' => 'Update Now',
                 'button_action' => 'update',
                 'show_skip' => !$isCritical,
@@ -215,8 +215,8 @@ class AppStatusController extends Controller
     protected function getAppStoreUrl($platform, $countryCode = null)
     {
         $baseUrls = [
-            'android' => "https://play.google.com/apps/test/com.venusnap.app/7",
-            'ios' => "https://play.google.com/store/apps/details?id=com.enflick.android.TextNow"
+            'android' => "https://play.google.com/apps/test/com.venusnap.app/11",
+            'ios' => "https://play.google.com/apps/test/com.venusnap.app/11"
         ];
 
         $url = $baseUrls[$platform] ?? $baseUrls['android'];
