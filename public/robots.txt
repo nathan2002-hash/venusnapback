@@ -13,3 +13,4 @@ Disallow: /package.json
 Disallow: /phpmyadmin/
 Disallow: /.git
 Disallow: /swagger-ui.html
+Disallow: /app-ads.txt
