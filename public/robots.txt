@@ -14,3 +14,10 @@ Disallow: /phpmyadmin/
 Disallow: /.git
 Disallow: /swagger-ui.html
 Disallow: /app-ads.txt
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Disallow: /wp-content/
+Disallow: /wp-login.php
+Disallow: /wp-json/
+Disallow: /xmlrpc.php
+Disallow: /wp-cron.php
