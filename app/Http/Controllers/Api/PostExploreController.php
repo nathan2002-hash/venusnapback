@@ -51,15 +51,31 @@ class PostExploreController extends Controller
             ->get();
 
         // 3. Get ads (10-20% of batch)
-        $adCount = max(1, min(2, ceil($limit * 0.2)));
-        $ads = Ad::with(['media', 'adboard.album'])
-            ->where('status', 'active')
-            ->whereHas('adboard', function($query) {
-                $query->where('points', '>', 0);
-            })
-            ->inRandomOrder()
-            ->take($adCount)
-            ->get();
+        // $adCount = max(1, min(2, ceil($limit * 0.2)));
+        // $ads = Ad::with(['media', 'adboard.album'])
+        //     ->where('status', 'active')
+        //     ->whereHas('adboard', function($query) {
+        //         $query->where('points', '>', 0);
+        //     })
+        //     ->inRandomOrder()
+        //     ->take($adCount)
+        //     ->get();
+            // 3. Show ads with 80% chance
+        $ads = collect(); // default empty
+        $shouldShowAds = rand(1, 100) <= 80; // 80% chance
+
+        if ($shouldShowAds) {
+            $adCount = max(1, min(2, ceil($limit * 0.2)));
+            $ads = Ad::with(['media', 'adboard.album'])
+                ->where('status', 'active')
+                ->whereHas('adboard', function($query) {
+                    $query->where('points', '>', 0);
+                })
+                ->inRandomOrder()
+                ->take($adCount)
+                ->get();
+        }
+
 
         // Transform all items
         $items = collect()
