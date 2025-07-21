@@ -169,7 +169,7 @@ class PostController extends Controller
                 'description' => $post->description ?? 'No description available',
                 'album_id' => $album ? (string)$album->id : null,
                 'visibility' => $post->visibility,
-                'created_at' => $post->created_at,
+                'created_at' => $post->created_at->format('d M Y, H:i'),
                 'updated_at' => $post->updated_at,
                 'ag_description' => $post->ag_description,
                 'status' => $post->status,
