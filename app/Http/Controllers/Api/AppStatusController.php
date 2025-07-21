@@ -141,7 +141,7 @@ class AppStatusController extends Controller
                 'button_text' => $message->button_text,
                 'button_action' => $message->button_action,
                 'show_skip' => $message->dismissible,
-                'app_store_url' => "https://play.google.com/apps/test/com.venusnap.app/11",
+                'app_store_url' => "https://play.google.com/apps/test/com.venusnap.app/12",
                 'estimated_restore_time' => $message->end_at?->toIso8601String()
             ]);
         }
@@ -215,8 +215,8 @@ class AppStatusController extends Controller
     protected function getAppStoreUrl($platform, $countryCode = null)
     {
         $baseUrls = [
-            'android' => "https://play.google.com/apps/test/com.venusnap.app/11",
-            'ios' => "https://play.google.com/apps/test/com.venusnap.app/11"
+            'android' => "https://play.google.com/apps/test/com.venusnap.app/12",
+            'ios' => "https://play.google.com/apps/test/com.venusnap.app/12"
         ];
 
         $url = $baseUrls[$platform] ?? $baseUrls['android'];
