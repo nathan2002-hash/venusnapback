@@ -274,6 +274,7 @@ class PostController extends Controller
             'id' => $post->id,
             'user' => $album ? $album->name : 'Unknown Album',
             'supporters' => (string) ($album ? $album->supporters->count() : 0),
+            'created_at' => $post->created_at->timezone('Africa/Lusaka')->format('d M Y, H:i'),
             'album_id' => (string) $album->id,
             'album_name' => (string) $album->name,
             'profile' => $profileUrl ?? asset('default/profile.png'), // Fallback if no album
