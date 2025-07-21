@@ -215,7 +215,7 @@ class AppStatusController extends Controller
     protected function getAppStoreUrl($platform, $countryCode = null)
     {
         $baseUrls = [
-            'android' => "https://play.google.com/apps/test/com.venusnap.app/12",
+            'android' => "https://play.google.com/store/apps/details?id=com.venusnap.app",
             'ios' => "https://play.google.com/apps/test/com.venusnap.app/12"
         ];
 
