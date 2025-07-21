@@ -72,7 +72,7 @@ class HomeController extends Controller
         $deviceinfo = $request->header('Device-Info');
         $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
 
-        $share = LinkShare::where('short_code', $request->short_code)->first();
+        $share = LinkShare::where('short_code', $request->ref)->first();
 
         if (!$share) {
             return response()->json(['error' => 'Invalid short code'], 404);
@@ -88,7 +88,7 @@ class HomeController extends Controller
             'ip_address' => $realIp,
             'user_agent' => $userAgent,
             'device_info' => $deviceinfo,
-            'referrer' => $request->short_code,
+            'referrer' => $request->ref,
             'user_id' => $userId,
             'link_share_id' => $share->id,
             'is_logged_in' => $request->input('is_logged_in', false),
