@@ -96,7 +96,7 @@ class AlbumController extends Controller
                 return [
                     'id' => $album->id,
                     'album_name' => "{$album->name} ($typeLabel)",
-                    'privacy' => $album->visibility === 'public',
+                    'privacy' => $album->visibility === 'private',
                     'created_at' => $album->created_at
                 ];
             });
