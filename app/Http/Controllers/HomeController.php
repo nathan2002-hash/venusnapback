@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LinkShare;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Post;
 use App\Models\PostMedia;
 use App\Models\Point;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -42,7 +44,7 @@ class HomeController extends Controller
         ]);
     }
 
-    public function deeplink($postId, $mediaId)
+    public function deeplink(Request $request, $postId, $mediaId)
     {
         $post = Post::with(['user', 'album'])->findOrFail($postId);
         $media = PostMedia::findOrFail($mediaId);
@@ -65,6 +67,32 @@ class HomeController extends Controller
                         : null);
             }
         }
+
+        $userAgent = $request->header('User-Agent');
+        $deviceinfo = $request->header('Device-Info');
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+
+        $share = LinkShare::where('short_code', $request->short_code)->first();
+
+        if (!$share) {
+            return response()->json(['error' => 'Invalid short code'], 404);
+        }
+
+        if (Auth::check()) {
+            $userId = Auth::user()->id;
+        } else {
+            $userId = null;
+        }
+
+        $visit = $share->visits()->create([
+            'ip_address' => $realIp,
+            'user_agent' => $userAgent,
+            'device_info' => $deviceinfo,
+            'referrer' => $request->short_code,
+            'user_id' => $userId,
+            'link_share_id' => $share->id,
+            'is_logged_in' => $request->input('is_logged_in', false),
+        ]);
 
         return view('deeplink', [
             'post' => $post,
