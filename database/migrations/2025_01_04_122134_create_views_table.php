@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('post_media_id');
             $table->longText('user_agent');
             $table->longText('device_info')->nullable();
+            $table->string('history_status')->nullable();
+            $table->string('clicked')->nullable();
             $table->timestamps();
         });
     }

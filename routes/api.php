@@ -196,6 +196,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/log-search', 'Api\SearchController@logSearch');
 
     Route::get('/post/history', 'Api\HistoryController@getUserHistory');
+    Route::get('/post/history/delete', 'Api\HistoryController@deleteHistory');
 
     Route::post('/adboard/store', 'Api\AdController@adboard');
     Route::post('/ad/store', 'Api\AdController@adstore');
