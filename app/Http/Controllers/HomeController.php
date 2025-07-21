@@ -75,29 +75,33 @@ class HomeController extends Controller
         $share = LinkShare::where('short_code', $request->ref)->first();
 
         if (!$share) {
-            return response()->json(['error' => 'Invalid short code'], 404);
-        }
-
-        if (Auth::check()) {
-            $userId = Auth::user()->id;
+            return view('deeplink', [
+                'post' => $post,
+                'media' => $media,
+                'thumbnailUrl' => $thumbnailUrl,
+            ]);
         } else {
-            $userId = null;
+            if (Auth::check()) {
+                $userId = Auth::user()->id;
+            } else {
+                $userId = null;
+            }
+
+            $visit = $share->visits()->create([
+                'ip_address' => $realIp,
+                'user_agent' => $userAgent,
+                'device_info' => $deviceinfo,
+                'referrer' => $request->ref,
+                'user_id' => $userId,
+                'link_share_id' => $share->id,
+                'is_logged_in' => $request->input('is_logged_in', false),
+            ]);
+
+            return view('deeplink', [
+                'post' => $post,
+                'media' => $media,
+                'thumbnailUrl' => $thumbnailUrl,
+            ]);
         }
-
-        $visit = $share->visits()->create([
-            'ip_address' => $realIp,
-            'user_agent' => $userAgent,
-            'device_info' => $deviceinfo,
-            'referrer' => $request->ref,
-            'user_id' => $userId,
-            'link_share_id' => $share->id,
-            'is_logged_in' => $request->input('is_logged_in', false),
-        ]);
-
-        return view('deeplink', [
-            'post' => $post,
-            'media' => $media,
-            'thumbnailUrl' => $thumbnailUrl,
-        ]);
     }
 }
