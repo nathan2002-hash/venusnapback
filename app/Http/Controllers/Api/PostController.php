@@ -130,6 +130,7 @@ class PostController extends Controller
                             : $profileUrl);
                 }
             }
+            $viewerTimezone = Auth::check() ? Auth::user()->timezone : 'UTC';
 
             // Format post media
             $postMediaData = $post->postmedias->map(function ($media) {
@@ -169,8 +170,7 @@ class PostController extends Controller
                 'description' => $post->description ?? 'No description available',
                 'album_id' => $album ? (string)$album->id : null,
                 'visibility' => $post->visibility,
-                //'created_at' => $post->created_at->format('d M Y, H:i'),
-                'created_at' => $post->created_at->timezone('Africa/Lusaka')->format('d M Y, H:i'),
+                'created_at' => $post->created_at->timezone($viewerTimezone)->format('d M Y, H:i'),
                 'updated_at' => $post->updated_at,
                 'ag_description' => $post->ag_description,
                 'status' => $post->status,
@@ -227,6 +227,7 @@ class PostController extends Controller
         $ipaddress = $realIp;
 
         $album = $post->album;
+        $viewerTimezone = Auth::check() ? Auth::user()->timezone : 'UTC';
 
         if ($album) {
             if ($album->type == 'personal' || $album->type == 'creator') {
@@ -274,7 +275,7 @@ class PostController extends Controller
             'id' => $post->id,
             'user' => $album ? $album->name : 'Unknown Album',
             'supporters' => (string) ($album ? $album->supporters->count() : 0),
-            'created_at' => $post->created_at->timezone('Africa/Lusaka')->format('d M Y, H:i'),
+            'created_at' => $post->created_at->timezone($viewerTimezone)->format('d M Y, H:i'),
             'album_id' => (string) $album->id,
             'album_name' => (string) $album->name,
             'profile' => $profileUrl ?? asset('default/profile.png'), // Fallback if no album
