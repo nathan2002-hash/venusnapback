@@ -11,6 +11,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\WelcomeFromCeoMail;
+use Illuminate\Support\Facades\Http;
 
 class RegistrationJob implements ShouldQueue
 {
@@ -35,6 +36,22 @@ class RegistrationJob implements ShouldQueue
     public function handle(): void
     {
         $randomNumber = mt_rand(1000, 9999);
+
+        $timezone = 'UTC'; // default value
+        try {
+            $response = Http::get("https://ipapi.co/{$this->ipaddress}/json/");
+            if ($response->successful()) {
+                $data = $response->json();
+                $timezone = $data['timezone'] ?? 'UTC';
+
+                // Update user's timezone
+                $this->user->timezone = $timezone;
+                $this->user->save();
+            }
+        } catch (\Exception $e) {
+            // Log error if needed
+            \Log::error("Failed to fetch timezone from ipapi.co: " . $e->getMessage());
+        }
 
         $activity = new Activity();
         $activity->title = 'Account Created';

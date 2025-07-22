@@ -44,6 +44,7 @@ return new class extends Migration
             $table->string('email_code')->nullable();
             $table->string('email_code_expires_at')->nullable();
             $table->string('phone_verified_at')->nullable();
+            $table->string('timezone')->default('UTC')->nullable();
             $table->timestamps();
         });
 
