@@ -68,40 +68,31 @@ class HomeController extends Controller
             }
         }
 
-        $userAgent = $request->header('User-Agent');
-        $deviceinfo = $request->header('Device-Info');
-        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+        $share = LinkShare::with('user')->where('short_code', $request->ref)->first();
 
-        $share = LinkShare::where('short_code', $request->ref)->first();
+        // Track visit if share exists
+        if ($share) {
+            $visitData = [
+                'ip_address' => $request->header('cf-connecting-ip') ?? $request->ip(),
+                'user_agent' => $request->header('User-Agent'),
+                'device_info' => $request->header('Device-Info'),
+                'referrer' => $request->ref,
+                'link_share_id' => $share->id,
+                'is_logged_in' => Auth::check(),
+            ];
 
-        if (!$share) {
-            return view('deeplink', [
-                'post' => $post,
-                'media' => $media,
-                'thumbnailUrl' => $thumbnailUrl,
-            ]);
-        } else {
             if (Auth::check()) {
-                $userId = Auth::user()->id;
-            } else {
-                $userId = null;
+                $visitData['user_id'] = Auth::id();
             }
 
-            $visit = $share->visits()->create([
-                'ip_address' => $realIp,
-                'user_agent' => $userAgent,
-                'device_info' => $deviceinfo,
-                'referrer' => $request->ref,
-                'user_id' => $userId,
-                'link_share_id' => $share->id,
-                'is_logged_in' => $request->input('is_logged_in', false),
-            ]);
-
-            return view('deeplink', [
-                'post' => $post,
-                'media' => $media,
-                'thumbnailUrl' => $thumbnailUrl,
-            ]);
+            $share->visits()->create($visitData);
         }
+
+        return view('deeplink', [
+            'post' => $post,
+            'media' => $media,
+            'thumbnailUrl' => $thumbnailUrl,
+            'share' => $share // Pass the share object to the view
+        ]);
     }
 }
