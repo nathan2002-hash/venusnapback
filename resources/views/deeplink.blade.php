@@ -10,7 +10,7 @@
         $sharedBy = isset($share) ? $share->user->name : null;
         $description = $sharedBy
             ? "Check out this post shared by $sharedBy on Venusnap."
-            : "Check out this post from the '".($post->album->name ?? 'album')."' album by ".($post->user->name ?? 'a user')." on Venusnap.";
+            : "Check out this post from the '".($post->album->name ?? 'album')."' on Venusnap.";
     @endphp
 
     <meta property="og:title" content="{{ $post->album->name ?? 'Venusnap Post' }}">
