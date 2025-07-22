@@ -592,6 +592,7 @@ class AlbumController extends Controller
         // Manually load posts
         $rawPosts = Post::with('postmedias')
             ->where('album_id', $album->id)
+            ->where('status', 'active')
             ->get();
 
         $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
@@ -625,21 +626,6 @@ class AlbumController extends Controller
                  'user_agent' => $userAgent,
              ]);
          }
-
-        //  $receiver = $album->user_id;
-
-        //  if ($receiver !== $user->id) {
-        //     CreateNotificationJob::dispatch(
-        //         $user,
-        //         $album,
-        //         'viewed_album',
-        //         $receiver,
-        //         [
-        //             'viewer' => $user->id,
-        //             'album_id' => $album->id
-        //         ]
-        //     );
-        // }
 
         // Determine the album's thumbnail
         if ($album->type == 'personal' || $album->type == 'creator') {
