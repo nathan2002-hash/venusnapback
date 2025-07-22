@@ -74,13 +74,13 @@
   <section>
     <h2>How to Report</h2>
     <p>If you encounter content involving children that appears inappropriate, harmful, or abusive, please report it immediately using our in-app tools or email us at:</p>
-    <p><strong>Email:</strong> <a href="mailto:support@venusnap.com">support@venusnap.com</a></p>
+    <p><strong>Email:</strong> <a href="mailto:report@venusnap.com">report@venusnap.com</a></p>
   </section>
 
   <section>
     <h2>Contact</h2>
     <p>For questions or concerns regarding our child protection policies or to get in touch with our designated CSAM contact person, please use the following:</p>
-    <p><strong>Email:</strong> <a href="mailto:support@venusnap.com">support@venusnap.com</a><br>
+    <p><strong>Email:</strong> <a href="mailto:report@venusnap.com">report@venusnap.com</a><br>
        <strong>Address:</strong> 444 Alaska Avenue, California, Suite #CEC468</p>
   </section>
 </body>

@@ -988,7 +988,7 @@
                 <i class="bi bi-geo-alt"></i>
               </div>
               <h3>Our Address</h3>
-              <p>Remote</p>
+              <p>444 Alaska Avenue, California, Suite #CEC468</p>
             </div>
           </div>
 
@@ -1097,7 +1097,7 @@
             <span class="sitename">Venusnap</span>
           </a>
           <div class="footer-contact pt-3">
-            <p>Remote</p>
+            <p>Address: 444 Alaska Avenue, California, Suite #CEC468</p>
             <p class="mt-3"><strong>Phone:</strong> <span>+1 (681) 435-4816</span></p>
             <p><strong>Email:</strong> <span>support@venusnap.com</span></p>
           </div>
