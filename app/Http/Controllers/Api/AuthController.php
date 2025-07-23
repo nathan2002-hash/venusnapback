@@ -220,6 +220,7 @@ class AuthController extends Controller
             'country'      => $request->country,
             'points'       => '300',
             'preference'   => '1',
+            'timezone'   => 'Africa/Lusaka',
             'password'     => Hash::make($request->password),
         ]);
 
