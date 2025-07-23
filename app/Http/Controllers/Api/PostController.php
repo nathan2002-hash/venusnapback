@@ -29,7 +29,7 @@ use Illuminate\Support\Facades\Validator;
 class PostController extends Controller
 {
 
-    private function formatDateTimeForUser($dateTime, $timezone = 'UTC')
+    private function formatDateTimeForUser($dateTime, $timezone = 'Africa/Lusaka')
     {
         if (!$dateTime instanceof \Carbon\Carbon) {
             $dateTime = \Carbon\Carbon::parse($dateTime);
@@ -150,7 +150,7 @@ class PostController extends Controller
                             : $profileUrl);
                 }
             }
-            $viewerTimezone = Auth::check() ? Auth::user()->timezone : 'UTC';
+            $viewerTimezone = Auth::check() ? Auth::user()->timezone : 'Africa/Lusaka';
 
             // Format post media
             $postMediaData = $post->postmedias->map(function ($media) {
