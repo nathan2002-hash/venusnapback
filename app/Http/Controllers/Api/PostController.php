@@ -247,7 +247,7 @@ class PostController extends Controller
         $ipaddress = $realIp;
 
         $album = $post->album;
-        $viewerTimezone = Auth::check() ? Auth::user()->timezone : 'UTC';
+        $viewerTimezone = Auth::check() ? Auth::user()->timezone : 'Africa/Lusaka';
 
         if ($album) {
             if ($album->type == 'personal' || $album->type == 'creator') {
