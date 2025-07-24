@@ -323,7 +323,7 @@
     </section>
 
     <section id="points-policy">
-    <h3>13 Venusnap Points Policy</h3>
+    <h2>13. Venusnap Points Policy</h2>
     <p>Venusnap Points (“Points”) are a digital currency used exclusively within the Venusnap platform. They are required to access certain features such as boosting posts, importing photos from cloud services, running Adboards, unlocking verified badges, and other creator tools. By purchasing or using Points, you agree to the following:</p>
 
     <ul>
