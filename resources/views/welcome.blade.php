@@ -637,6 +637,7 @@
             <li><i class="bi bi-check-circle-fill"></i> Access to Photos</li>
             <li><i class="bi bi-check-circle-fill"></i> Storage (for saving media)</li>
             <li><i class="bi bi-check-circle-fill"></i> Push Notifications</li>
+            <li><i class="bi bi-check-circle-fill"></i> Camera Usage</li>
           </ul>
 
           <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" class="btn btn-primary" target="_blank">
@@ -660,6 +661,7 @@
             <li><i class="bi bi-check-circle"></i> Access to Photos</li>
             <li><i class="bi bi-check-circle"></i> Storage (for saving media)</li>
             <li><i class="bi bi-check-circle"></i> Push Notifications</li>
+            <li><i class="bi bi-check-circle-fill"></i> Camera Usage</li>
           </ul>
 
           <a href="#" class="btn btn-outline-secondary disabled">
@@ -679,9 +681,10 @@
 
           <h4>Expected Permissions:</h4>
           <ul class="features-list">
-            <li><i class="bi bi-check-circle"></i> Internet Connection</li>
+            <li><i class="bi bi-check-circle"></i> Internet Access</li>
             <li><i class="bi bi-check-circle"></i> Media Storage</li>
             <li><i class="bi bi-check-circle"></i> Push Notifications</li>
+            <li><i class="bi bi-check-circle-fill"></i> Camera Usage</li>
           </ul>
 
           <a href="#" class="btn btn-outline-secondary disabled">
