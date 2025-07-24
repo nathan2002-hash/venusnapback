@@ -135,7 +135,7 @@
     <header>
         <img src="{{ asset('assets1/img/logo1.png') }}" width="50" alt="">
         <h1>Venusnap Terms and Conditions</h1>
-        <div class="last-updated">Last updated: June 15, 2025</div>
+        <div class="last-updated">Last updated: July 24, 2025</div>
     </header>
 
     <div class="toc-container">
@@ -164,7 +164,7 @@
 
     <section id="introduction">
         <h2>1. Introduction</h2>
-        <p>Welcome to Venunap. These Terms of Service ("Terms") govern your access to and use of
+         <p>Welcome to Venusnap. Venusnap is a product of <strong>Quixnes</strong>, a technology company dedicated to building innovative digital services. These Terms of Service ("Terms") govern your access to and use of
  Venusnap's photo sharing and viewing platform and services ("Services"). By using Venusnap, you
  agree to be bound by these Terms and our Privacy Policy</p>
         <p>These Terms apply to all visitors, users, and others who access or use the Service.</p>
@@ -318,6 +318,7 @@
             <li><strong>Pricing Changes:</strong> We may modify pricing for any of our services at any time. Continued use of paid features after a price change constitutes your acceptance of the new pricing.</li>
 
             <li><strong>Third-Party Processing:</strong> Payments may be processed by third-party services <b>Stripe</b>. By making a payment, you also agree to the <a href="https://stripe.com/legal" target="_blank" rel="noopener noreferrer">Stripe Services Agreement</a> and any other applicable terms from those providers.</li>
+            <li><strong>Merchant Identity:</strong> When purchasing Venusnap Points or other paid features, your payment statement may show <strong>Quixnes</strong> as the merchant or company name.</li>
             <li><strong>Venusnap Points:</strong> Venusnap Points are governed by our <a href="#points-policy">Venusnap Points Policy</a>.</li>
         </ul>
     </section>
