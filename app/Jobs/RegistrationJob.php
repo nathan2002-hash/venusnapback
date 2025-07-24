@@ -37,19 +37,20 @@ class RegistrationJob implements ShouldQueue
     {
         $randomNumber = mt_rand(1000, 9999);
 
-        $timezone = 'Africa/Lusaka'; // default value
+        $timezone = 'Africa/Lusaka'; // default fallback
         try {
-            $response = Http::get("https://ipapi.co/{$this->ipaddress}/json/");
+            $key = 'RcpPDNk33XlJPkUgFiSsyecGdGWPD3oOG0b0rHRVzuIhTzcabQ';
+            $response = Http::get("https://ipapi.co/{$this->ipaddress}/json/?key={$key}");
+
             if ($response->successful()) {
                 $data = $response->json();
                 $timezone = $data['timezone'] ?? 'Africa/Lusaka';
 
-                // Update user's timezone
+                // Save timezone to user
                 $this->user->timezone = $timezone;
                 $this->user->save();
             }
         } catch (\Exception $e) {
-            // Log error if needed
             \Log::error("Failed to fetch timezone from ipapi.co: " . $e->getMessage());
         }
 
