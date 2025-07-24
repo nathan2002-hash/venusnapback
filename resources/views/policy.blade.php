@@ -201,7 +201,7 @@
             <li><a href="#data-sharing">Data Sharing</a></li>
             <li><a href="#data-storage">Data Storage and Security</a></li>
             <li><a href="#your-rights">Your Rights</a></li>
-            <li><a href="#children">Children's Privacy</a></li>
+            <li><a href="#childrens">Children's Privacy</a></li>
             <li><a href="#changes">Policy Changes</a></li>
             <li><a href="#contact">Contact Us</a></li>
         </ol>
