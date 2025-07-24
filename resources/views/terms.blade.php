@@ -285,23 +285,39 @@
     </section>
 
     <section id="payments">
-  <h2>11. Payments</h2>
-  <p>By using any paid features of Venusnap, including but not limited to purchasing Venusnap Points, subscriptions, or advertising services, you agree to the following payment terms:</p>
+        <h2>11. Payments</h2>
+        <p>By using any paid features of Venusnap, including but not limited to purchasing Venusnap Points, subscriptions, or advertising services, you agree to the following payment terms:</p>
 
-  <ul>
-    <li><strong>Billing:</strong> All payments must be made using a valid payment method accepted by Venusnap. You agree to provide accurate and up-to-date billing information.</li>
+        <ul>
+            <li><strong>Billing:</strong> All payments must be made using a valid payment method accepted by Venusnap. You agree to provide accurate and up-to-date billing information.</li>
 
-    <li><strong>Non-Refundable:</strong> All payments are final and non-refundable unless otherwise required by law. This includes payments for Venusnap Points, ad services, or subscriptions.</li>
+            <li><strong>Non-Refundable:</strong> All payments are final and non-refundable unless otherwise required by law. This includes payments for Venusnap Points, ad services, or subscriptions.</li>
 
-    <li><strong>Authorization:</strong> You authorize us to charge your selected payment method for any purchases you make through the platform.</li>
+            <li><strong>Authorization:</strong> You authorize us to charge your selected payment method for any purchases you make through the platform.</li>
 
-    <li><strong>Fraud Prevention:</strong> Venusnap reserves the right to cancel or suspend any transaction that appears to be fraudulent, unauthorized, or in violation of our Terms.</li>
+            <li><strong>Fraud Prevention:</strong> Venusnap reserves the right to cancel or suspend any transaction that appears to be fraudulent, unauthorized, or in violation of our Terms.</li>
 
-    <li><strong>Pricing Changes:</strong> We may modify pricing for any of our services at any time. Continued use of paid features after a price change constitutes your acceptance of the new pricing.</li>
+            <li><strong>Pricing Changes:</strong> We may modify pricing for any of our services at any time. Continued use of paid features after a price change constitutes your acceptance of the new pricing.</li>
 
-    <li><strong>Third-Party Processing:</strong> Payments may be processed by third-party services <b>Stripe</b>. By making a payment, you also agree to the <a href="https://stripe.com/legal" target="_blank" rel="noopener noreferrer">Stripe Services Agreement</a> and any other applicable terms from those providers.</li>
-  </ul>
-</section>
+            <li><strong>Third-Party Processing:</strong> Payments may be processed by third-party services <b>Stripe</b>. By making a payment, you also agree to the <a href="https://stripe.com/legal" target="_blank" rel="noopener noreferrer">Stripe Services Agreement</a> and any other applicable terms from those providers.</li>
+            <li><strong>Venusnap Points:</strong> Venusnap Points are governed by our <a href="#points-policy">Venusnap Points Policy</a>.</li>
+        </ul>
+    </section>
+
+    <section id="points-policy">
+    <h3>11.1 Venusnap Points Policy</h3>
+    <p>Venusnap Points (“Points”) are a digital currency used exclusively within the Venusnap platform. They are required to access certain features such as boosting posts, importing photos from cloud services, running Adboards, unlocking verified badges, and other creator tools. By purchasing or using Points, you agree to the following:</p>
+
+    <ul>
+        <li><strong>Non-Refundable:</strong> All Point purchases are final. No refunds will be provided for unused Points.</li>
+        <li><strong>Non-Transferable:</strong> Points may not be transferred between accounts, sold, gifted, or exchanged.</li>
+        <li><strong>No Cash Value:</strong> Points are not redeemable for cash or any other real-world currency.</li>
+        <li><strong>Expiration:</strong> Points may expire after 24 months of inactivity or account closure, at our discretion.</li>
+        <li><strong>Abuse:</strong> Venusnap reserves the right to revoke Points and suspend accounts if abuse, fraud, or manipulation of the system is detected.</li>
+        <li><strong>Finality:</strong> Using Points on any feature or service is final and not reversible once the action is completed.</li>
+    </ul>
+    </section>
+
 
 
      <section id="disclaimer">
