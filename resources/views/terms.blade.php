@@ -379,3 +379,11 @@
     </div>
 </body>
 </html>
+<script>
+    document.querySelector('.accept-btn').addEventListener('click', function(event) {
+        event.preventDefault();
+        alert('Thank you for accepting the terms! You can now proceed to use Venusnap.');
+        // Redirect to the app download or main page
+        window.location.href = 'https://play.google.com/store/apps/details?id=com.venusnap.app';
+    });
+</script>
