@@ -151,7 +151,9 @@
             <li><a href="#prohibitedcontent">Prohibited Content</a></li>
             <li><a href="#intellectualproperty">Intellectual Property</a></li>
             <li><a href="#termination">Termination</a></li>
+            <li><a href="#data-deletion">User Data Deletion</a></li>
             <li><a href="#payments">Payments</a></li>
+            <li><a href="#points-policy">Venusnap Points Policy</a></li>
             <li><a href="#disclaimer">Disclaimer</a></li>
             <li><a href="#liability">Limitation of Liability</a></li>
             <li><a href="#governinglaw">Governing Law</a></li>
@@ -284,8 +286,24 @@
  harmful conduct. You may also delete your account at any time</p>
     </section>
 
+    <section id="data-deletion">
+  <h2>11. User Data Deletion</h2>
+  <p>You have the right to request deletion of your personal data stored by Venusnap at any time. We comply with all applicable privacy laws, including GDPR and CCPA, and are committed to protecting your privacy.</p>
+
+  <ul>
+    <li><strong>Account Deletion:</strong> You can permanently delete your account from the account settings page. This will remove your profile, photos, albums, and related account data from public access.</li>
+
+    <li><strong>Data Removal Requests:</strong> If you would like to request full deletion of your data from our servers, including any backup copies, please email <a href="mailto:support@venusnap.com">support@venusnap.com</a> using the subject line “Data Deletion Request.”</li>
+
+    <li><strong>Data Deletion Timeline:</strong> After you request account deletion, Venusnap requires up to 14 calendar days to permanently remove your personal data from our active systems and backups. During this period, your data will be inaccessible to other users and will no longer be used for any service purposes. This timeframe allows us to securely and thoroughly delete your information while maintaining system integrity and complying with legal obligations.</li>
+
+    <li><strong>Retention Exceptions:</strong> In some cases, we may retain minimal data for legal compliance, fraud prevention, or dispute resolution, as required by law.</li>
+  </ul>
+</section>
+
+
     <section id="payments">
-        <h2>11. Payments</h2>
+        <h2>12. Payments</h2>
         <p>By using any paid features of Venusnap, including but not limited to purchasing Venusnap Points, subscriptions, or advertising services, you agree to the following payment terms:</p>
 
         <ul>
@@ -305,7 +323,7 @@
     </section>
 
     <section id="points-policy">
-    <h3>11.1 Venusnap Points Policy</h3>
+    <h3>13 Venusnap Points Policy</h3>
     <p>Venusnap Points (“Points”) are a digital currency used exclusively within the Venusnap platform. They are required to access certain features such as boosting posts, importing photos from cloud services, running Adboards, unlocking verified badges, and other creator tools. By purchasing or using Points, you agree to the following:</p>
 
     <ul>
@@ -321,25 +339,25 @@
 
 
      <section id="disclaimer">
-        <h2>12. Disclaimers</h2>
+        <h2>14. Disclaimers</h2>
         <p>  Venusnap is provided "as is" without warranties of any kind. We do not guarantee uninterrupted
  access or that the platform will be error-free</p>
     </section>
 
       <section id="limitation">
-        <h2>13. Limitation of Liability</h2>
+        <h2>15. Limitation of Liability</h2>
         <p> To the fullest extent permitted by law, Venusnap will not be liable for any indirect, incidental, or
  consequential damages arising from your use of the platform</p>
     </section>
 
      <section id="governinglaw">
-        <h2>14. Governing Law</h2>
+        <h2>16. Governing Law</h2>
         <p> These Terms are governed by the laws of Zambia. Any disputes shall be resolved under Zambian
  jurisdiction</p>
     </section>
 
      <section id="changes">
-        <h2>15. Changes to These Terms</h2>
+        <h2>17. Changes to These Terms</h2>
         <p> We may update these Terms from time to time. Continued use of Venusnap after changes indicates
  your acceptance of the new Terms</p>
     </section>
@@ -347,7 +365,7 @@
     <!-- Additional sections would continue here -->
 
     <section id="contact">
-        <h2>16. Contact Us</h2>
+        <h2>18. Contact Us</h2>
         <p>If you have any questions about these Terms, please contact us at:</p>
         <p>Email: support@venusnap.com<br>
           Address: 444 Alaska Avenue, California, Suite #CEC468</p>
