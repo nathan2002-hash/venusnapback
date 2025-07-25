@@ -87,5 +87,11 @@ class CompressImageJob implements ShouldQueue
         if ($post->postmedias()->where('status', '!=', 'compressed')->doesntExist()) {
             $post->update(['status' => 'review']);
         }
+
+        $randomMedia = $post->postmedias()->inRandomOrder()->first();
+            $album = $post->album;
+
+            NotifyAlbumSupportersJob::dispatch($post, $album, $randomMedia)
+                ->delay(now()->addSeconds(30)); // Small buffer
     }
 }
