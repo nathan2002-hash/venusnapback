@@ -121,7 +121,7 @@ class NotificationController extends Controller
         ];
 
         // For post and comment types, we need to get both the post_id and media_id
-        if ($type === 'post' || $type === 'comment') {
+         if (in_array($type, ['post', 'comment', 'album_new_post'])) {
             try {
                 $postMedia = PostMedia::find($notification->notifiable_id);
                 if ($postMedia) {
@@ -152,6 +152,7 @@ class NotificationController extends Controller
             'commented' => 'comment',
             'replied' => 'comment',
             'viewed_album' => 'album_view',
+            'album_new_post' => 'album_new_post',
         ];
 
         return $typeMap[$action] ?? 'post';
@@ -244,6 +245,9 @@ class NotificationController extends Controller
                 'liked' => 'liked your post',
                 'admired' => $albumName ? "admired your snap in {$albumName}" : 'admired your snap',
                 'shared' => 'shared your post',
+                'album_new_post' => $albumName
+                    ? "added a new snap to \"$albumName\" album"
+                    : "added a new snap", //
             ],
             'album_request' => [
                 'shared_album' => 'invited you to collaborate on an album',
@@ -264,7 +268,8 @@ class NotificationController extends Controller
             'shared' => 'share',
             'shared_album' => 'album',
             'viewed_album' => 'album',
-            'invited' => 'group_add'
+            'invited' => 'group_add',
+            'album_new_post' => 'photo_library',
         ];
 
         return $icons[$action] ?? 'notifications';
