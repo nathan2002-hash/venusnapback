@@ -235,6 +235,7 @@ class NotificationController extends Controller
         $data = json_decode($notification->data, true);
         $isAlbumOwner = $data['is_album_owner'] ?? false;
         $albumName = $data['album_name'] ?? null;
+        $postTitle = $data['post_title'] ?? null;
 
         $phrases = [
             'comment' => [
@@ -245,9 +246,11 @@ class NotificationController extends Controller
                 'liked' => 'liked your post',
                 'admired' => $albumName ? "admired your snap in {$albumName}" : 'admired your snap',
                 'shared' => 'shared your post',
+            ],
+            'album_new_post' => [
                 'album_new_post' => $albumName
-                    ? "added a new snap to \"$albumName\" album"
-                    : "added a new snap", //
+                    ? "added a new snap to \"$albumName\""
+                    : "added a new snap",
             ],
             'album_request' => [
                 'shared_album' => 'invited you to collaborate on an album',
