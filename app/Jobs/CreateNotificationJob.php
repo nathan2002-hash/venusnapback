@@ -15,6 +15,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Kreait\Firebase\Messaging\CloudMessage;
 use App\Models\Notification as NotificationModel;
 use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
+use Illuminate\Support\Facades\Storage;
 
 class CreateNotificationJob implements ShouldQueue
 {
@@ -139,6 +140,9 @@ class CreateNotificationJob implements ShouldQueue
             $body = $this->getNotificationBody($notification);
             $notificationData = $this->preparePushData($notification);
 
+            $imageUrl = $notificationData['image'] ?? null;
+            unset($notificationData['image']); // Remove from data payload
+
             // Ensure all data values are strings
             $stringData = [];
             foreach ($notificationData as $key => $value) {
@@ -156,6 +160,14 @@ class CreateNotificationJob implements ShouldQueue
                         ->withNotification(FirebaseNotification::create($title, $body))
                         ->withHighestPossiblePriority()
                         ->withData($stringData);
+                    if ($imageUrl) {
+                        $androidConfig = [
+                            'notification' => [
+                                'image' => $imageUrl
+                            ]
+                        ];
+                        $message = $message->withAndroidConfig($androidConfig);
+                    }
 
                     $messaging->send($message);
                 } catch (\Exception $e) {
@@ -187,6 +199,8 @@ class CreateNotificationJob implements ShouldQueue
         $data = json_decode($notification->data, true);
         $type = $this->determineTypeFromAction($notification->action);
 
+        $imageUrl = $this->getNotificationImageUrl($notification, $data);
+
         // For media-specific actions, include the post_id in metadata
         if (in_array($notification->action, ['admired', 'liked', 'commented', 'replied'])) {
             if ($notification->notifiable_type === 'App\Models\PostMedia') {
@@ -208,6 +222,7 @@ class CreateNotificationJob implements ShouldQueue
             'screen_to_open' => $this->getTargetScreen($notification->action),
             'metadata' => $this->sanitizeData($data),
             'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+            'image' => $imageUrl,
         ];
     }
 
@@ -221,7 +236,37 @@ class CreateNotificationJob implements ShouldQueue
         };
     }
 
+    protected function getNotificationImageUrl($notification, $data)
+    {
+        // For album-related notifications
+        if (in_array($notification->action, ['viewed_album', 'shared_album', 'invited'])) {
+            $album = $this->notifiable;
 
+            if ($album->type === 'personal' || $album->type === 'creator') {
+                return $album->thumbnail_compressed
+                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                    : ($album->thumbnail_original
+                        ? Storage::disk('s3')->url($album->thumbnail_original)
+                        : null);
+            } elseif ($album->type === 'business') {
+                return $album->business_logo_compressed
+                    ? Storage::disk('s3')->url($album->business_logo_compressed)
+                    : ($album->business_logo_original
+                        ? Storage::disk('s3')->url($album->business_logo_original)
+                        : null);
+            }
+        }
+
+        // For user-related notifications (likes, comments, etc.)
+        $sender = User::find($data['sender_id'] ?? null);
+        if ($sender) {
+            return $sender->profile_compressed
+                ? Storage::disk('s3')->url($sender->profile_compressed)
+                : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($sender->email))) . '?s=100&d=mp';
+        }
+
+        return null;
+    }
 
     protected function prepareNotificationData($notification)
     {
@@ -252,21 +297,6 @@ class CreateNotificationJob implements ShouldQueue
 
         return $typeMap[$action] ?? 'post';
     }
-
-    // protected function getNotificationTitle($action)
-    // {
-    //     $titles = [
-    //         'viewed_album' => 'New Album View',
-    //         'commented' => 'New Comment',
-    //         'replied' => 'New Reply',
-    //         'liked' => 'New Like',
-    //         'admired' => 'New Admiration',
-    //         'shared_album' => 'Album Invitation',
-    //         'invited' => 'Collaboration Request',
-    //     ];
-
-    //     return $titles[$action] ?? 'New Notification';
-    // }
 
     protected function getNotificationTitle($notification)
     {
