@@ -128,6 +128,23 @@ class NotifyAlbumSupportersJob implements ShouldQueue
             $title = "New post in {$this->album->name}";
             $body = "{$this->post->user->name} posted new content";
             $imageUrl = Storage::disk('s3')->url($this->randomMedia->file_path);
+            $albumimageUrl = null;
+
+            if ($this->album) {
+                if ($this->album->type == 'personal' || $this->album->type == 'creator') {
+                    $albumimageUrl = $this->album->thumbnail_compressed
+                        ? Storage::disk('s3')->url($this->album->thumbnail_compressed)
+                        : ($this->album->thumbnail_original
+                            ? Storage::disk('s3')->url($this->album->thumbnail_original)
+                            : $albumimageUrl);
+                } elseif ($this->album->type == 'business') {
+                    $albumimageUrl = $this->album->business_logo_compressed
+                        ? Storage::disk('s3')->url($this->album->business_logo_compressed)
+                        : ($this->album->business_logo_original
+                            ? Storage::disk('s3')->url($this->album->business_logo_original)
+                            : $albumimageUrl);
+                }
+            }
 
             // Build the message
             $message = CloudMessage::new()
@@ -140,7 +157,7 @@ class NotifyAlbumSupportersJob implements ShouldQueue
                     'album_id' => (string)$this->album->id,
                     'is_big_picture' => 'true',
                     'image' => $imageUrl,
-                    'thumbnail' => $imageUrl, // Same image for thumbnail
+                    'thumbnail' => $albumimageUrl, // Same image for thumbnail
                     'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
                     'screen_to_open' => 'post'
                 ]);
