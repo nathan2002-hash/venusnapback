@@ -157,7 +157,7 @@ class NotifyAlbumSupportersJob implements ShouldQueue
                     'album_id' => (string)$this->album->id,
                     'is_big_picture' => 'true',
                     'image' => $imageUrl,
-                    'thumbnail' => $albumimageUrl, // Same image for thumbnail
+                    'thumbnail' => $albumimageUrl,
                     'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
                     'screen_to_open' => 'post'
                 ]);
