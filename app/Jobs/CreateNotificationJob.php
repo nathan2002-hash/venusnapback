@@ -223,7 +223,7 @@ class CreateNotificationJob implements ShouldQueue
             'metadata' => $this->sanitizeData($data),
             'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
             'image' => $imageUrl,
-            'is_big_picture' => 'false',
+            //'is_big_picture' => 'false',
         ];
     }
 
