@@ -237,6 +237,13 @@ class NotificationController extends Controller
         $albumName = $data['album_name'] ?? null;
         $postTitle = $data['post_title'] ?? null;
 
+        $albumNewPostPhrases = [
+            $albumName ? "added a new snap to \"$albumName\"" : "added a new snap",
+            $albumName ? "uploaded a new snap in \"$albumName\"" : "uploaded a new snap",
+            $albumName ? "shared a new snap with you in \"$albumName\"" : "shared a new snap",
+            $albumName ? "posted a fresh snap in \"$albumName\"" : "posted a fresh snap",
+        ];
+
         $phrases = [
             'comment' => [
                 'commented' => "commented on your snap" . ($albumName ? " in {$albumName}" : ""),
@@ -248,9 +255,7 @@ class NotificationController extends Controller
                 'shared' => 'shared your post',
             ],
             'album_new_post' => [
-                'album_new_post' => $albumName
-                    ? "added a new snap to \"$albumName\""
-                    : "added a new snap",
+                'album_new_post' => $albumNewPostPhrases[array_rand($albumNewPostPhrases)],
             ],
             'album_request' => [
                 'shared_album' => 'invited you to collaborate on an album',
