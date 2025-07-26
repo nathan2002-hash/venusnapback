@@ -118,7 +118,9 @@ class NotifyAlbumSupportersJob implements ShouldQueue
 
         try {
             // Get Firebase credentials
-            $jsonContent = file_get_contents('https://cdn.venusnap.com/system/venusnap-d5340-firebase-adminsdk-fbsvc-b55072fb51.json');
+            $signedUrl = generateSecureMediaUrl('system/venusnap-d5340-firebase-adminsdk-fbsvc-b55072fb51.json');
+            $jsonContent = file_get_contents($signedUrl);
+            //$jsonContent = file_get_contents('https://cdn.venusnap.com/system/venusnap-d5340-firebase-adminsdk-fbsvc-b55072fb51.json');
 
             if ($jsonContent === false) {
                 throw new \Exception('Failed to fetch Firebase credentials');
