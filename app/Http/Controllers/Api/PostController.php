@@ -14,7 +14,7 @@ use App\Models\PostMedia;
 use App\Models\PostState;
 use App\Models\AlbumAccess;
 use Illuminate\Support\Str;
-use App\Models\CommentReply;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Http\Request;
 use App\Jobs\CompressImageJob;
 use App\Jobs\LogPostMediaView;
@@ -47,6 +47,20 @@ class PostController extends Controller
         } else {
             return $dateTime->format('d M Y, H:i'); // "15 Jun 2023, 14:30"
         }
+    }
+
+    function generateSecureMediaUrl($filePath)
+    {
+        $expiresAt = now()->addMinutes(5)->timestamp; // token valid for 5 min
+
+        $payload = json_encode([
+            'file' => $filePath,
+            'expires' => $expiresAt,
+        ]);
+
+        $token = Crypt::encryptString($payload);
+
+        return "https://media.venusnap.com/file?token=" . urlencode($token);
     }
 
     public function index(Request $request)

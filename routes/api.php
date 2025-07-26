@@ -6,12 +6,26 @@ use App\Models\FcmToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Crypt;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:api');
 
+
+Route::post('/decrypt-token', function (Request $request) {
+    try {
+        $decrypted = Crypt::decryptString($request->token);
+        $data = json_decode($decrypted, true);
+
+        return response()->json([
+            'file' => $data['file'],
+            'expires' => $data['expires']
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Invalid token'], 401);
+    }
+});
 
 Route::post('/register', 'Api\AuthController@register');
 Route::post('/login', 'Api\AuthController@login');
