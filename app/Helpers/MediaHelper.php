@@ -14,6 +14,6 @@ if (!function_exists('generateSecureMediaUrl')) {
 
         $token = Crypt::encryptString($payload);
 
-        return "https://venusnap-worker.quixines.workers.dev/file?token=" . urlencode($token);
+        return "https://media.venusnap.com/file?token=" . urlencode($token);
     }
 }
