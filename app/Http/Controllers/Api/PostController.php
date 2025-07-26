@@ -60,7 +60,7 @@ class PostController extends Controller
 
         $token = Crypt::encryptString($payload);
 
-        return "https://67aec948-venusnap-worker.quixines.workers.dev/file?token=" . urlencode($token);
+        return "https://venusnap-worker.quixines.workers.dev/file?token=" . urlencode($token);
     }
 
     public function index(Request $request)
