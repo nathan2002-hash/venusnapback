@@ -64,13 +64,16 @@ class PostController extends Controller
 
         // Step 2: Prioritize fresh, unseen posts (newest first)
         $freshUnseen = Post::with([
-                'postmedias' => function ($query) {
-                    $query->orderBy('sequence_order');
-                },
-                'postmedias.comments.user',
-                'postmedias.admires.user',
-                'album.supporters'
-            ])
+                    'postmedias' => function ($query) use ($userId) {
+                        $query->orderBy('sequence_order')
+                            ->withCount(['comments', 'admires'])
+                            ->with(['comments.user', 'admires.user'])
+                            ->withExists(['admires as admired' => function($q) use ($userId) {
+                                $q->where('user_id', $userId);
+                            }]);
+                    },
+                    'album.supporters'
+                ])
             ->where('status', 'active')
             ->where('visibility', 'public')
             ->whereNotIn('id', $seenPostIds)
@@ -83,12 +86,15 @@ class PostController extends Controller
         // Step 3: Fill remaining with random unseen posts
         $randomUnseen = collect();
         if ($remaining > 0) {
-            $randomUnseen = Post::with([
-                    'postmedias' => function ($query) {
-                        $query->orderBy('sequence_order');
+           $randomUnseen = Post::with([
+                    'postmedias' => function ($query) use ($userId) {
+                        $query->orderBy('sequence_order')
+                            ->withCount(['comments', 'admires'])
+                            ->with(['comments.user', 'admires.user'])
+                            ->withExists(['admires as admired' => function($q) use ($userId) {
+                                $q->where('user_id', $userId);
+                            }]);
                     },
-                    'postmedias.comments.user',
-                    'postmedias.admires.user',
                     'album.supporters'
                 ])
                 ->where('status', 'active')
@@ -104,11 +110,14 @@ class PostController extends Controller
         $stillNeeded = $limit - $posts->count();
         if ($stillNeeded > 0) {
             $seenFillers = Post::with([
-                    'postmedias' => function ($query) {
-                        $query->orderBy('sequence_order');
+                    'postmedias' => function ($query) use ($userId) {
+                        $query->orderBy('sequence_order')
+                            ->withCount(['comments', 'admires'])
+                            ->with(['comments.user', 'admires.user'])
+                            ->withExists(['admires as admired' => function($q) use ($userId) {
+                                $q->where('user_id', $userId);
+                            }]);
                     },
-                    'postmedias.comments.user',
-                    'postmedias.admires.user',
                     'album.supporters'
                 ])
                 ->where('status', 'active')
@@ -160,6 +169,7 @@ class PostController extends Controller
                     'sequence_order' => (int)$media->sequence_order,
                     'comments_count' => $media->comments->count(),
                     'likes_count' => $media->admires->count(),
+                    'admired' => $media->admired,
                     'comments' => $media->comments->map(function ($comment) {
                         return [
                             'id' => $comment->id,
