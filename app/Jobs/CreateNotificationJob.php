@@ -119,34 +119,25 @@ class CreateNotificationJob implements ShouldQueue
 
         try {
             // Download Firebase credentials
-           // Get JSON string from env
-            $jsonContent = '{
-                            "type": "service_account",
-                            "project_id": "venusnap-d5340",
-                            "private_key_id": "b55072fb5140dfd365be7002994436e683b10620",
-                            "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDNjlqQnCbxvedU\nLKQCbz81RxSwF45CE8EwYyjf1uhljeR4FUSLaObDZ3Z8Ut0z4KpX0bOP4ySe3Bsf\nzSnH6x9iIZdg84ANLnskni6SRrrlOOiYk+8+daGf3EiEAnDhv4RY8pkb2CiRoopn\n1VD2+9xSvDo0r/VU5zfiQj9wkZrFuX4mddmsdyxX8Cp27KnmqHrRZ1xLuq2CQ1/r\nynwbl/HZAaqifYy6bgnAo52rxla+izBDgaSsv/4znq/iFfU8/BhBvKND43lFMolp\noELDlAoStk3I0IwRtOdkVKemCUe2kdFH0al7KK4mj/XxkhP01AjDG4DanFC/NWAV\nHA9IF6ADAgMBAAECggEADy6i+MhXxgYhNmHfsUBXOk+oMwNiYfYEkFbal4HPg2Sy\nCb6EZAmY9bjIExGpveGrozXdXdTIiSU3qaclHVt742sYu7PwcsjKlp9KUEqCFlkY\nMODITGQyzlReVMW7YakcFNfCQEC8allHgLjMNJnQoZm+cNLIO3+ibIc5GU7f0Ber\nx8PNDXY9iGBQkitH54G63sRzXoA8Sga+H4PCbvTwGDdRovDALVlAxjGyH9UFETnp\nDSQsg2z+/9LiqKd99+i2nJN3b2hK1uExkOBSzDcz7gtqxhuWpDfItrBvKe75qp43\nzA9L+BydzqEeUSemtoqsaR02mShwa7kyv9g0WR2PTQKBgQD1RGqS+uG6BMhFhVlD\nGw03+OQHnmplz6grYIbo9GEBEIkReUMUu1UAcDn8YAx+x5RmflFstiTUFMkxV/K2\nGUdafKyinRQlQkiiBET8kI5IH87/g/0eXz7Dr2qfZjlySQ3qrZQiR8VhJ8uv9XaO\nD+HwLP3vAQHY+yqXLyRBg5cBJwKBgQDWjROdksL0yoezu6pMOxXcI59GPcutQOW3\nG8+ETpHFfKK0R0Y0FY1UIC5hMfZaDc/7FbJx5VaFYvwuoAZj5rezrfJb1euVUV61\nOpOkhXkz0//Gjyp+cjUlFUsI8ZxlTV2xwOwbXmgydZTc6P2RyKFyG+nO98YEJV/h\nrHSo97p7xQKBgGz25FJAW6CFF2SrhaimkAzZ6pTn8GUjCJec3tMIH0CV1A+LTB4d\ny/nR4jEZivOYP3n5jLs7gMkoIuplJFN6j5TH5vqnxpd3B0XTl8KNhmjMmO4z+XRQ\n5FWTzU7b35HCmwgz7af9MtejEn8uEmmy7LIDix1v2R5JF/bq3rSsfZ3pAoGAWxyI\nAveLMRc875e3Zy4ER3sdLWAauZWAt/ToeEBBaUNXeQV3i7DHVr1f1Mi53F5XP0Jk\niDejOXviqg4tCIm242fwLw22QK/Qb1fT0R8ZbGgQC4tKuW3YocncFo08JEzpiA3s\ndmbuCteiAvoyjJFN9j5iWREhlysj/5sT45loKR0CgYB4rys75Z3VSdP13Vv9ODnn\n0XVg/34MDy5hjPi+7kuFCc+C/mDyG9BjCfaq37OM655t3AUMgrg2541tEXKn2FwK\nysk3NnNoqxK80Tpjt2JiO+mIW39Y84UTNiw2iwNDjYyOMtSzwA61qEdu08qIa/51\n8ruiqiUR5qQLzgwH5CK5WQ==\n-----END PRIVATE KEY-----\n",
-                            "client_email": "firebase-adminsdk-fbsvc@venusnap-d5340.iam.gserviceaccount.com",
-                            "client_id": "115295002538027696129",
-                            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                            "token_uri": "https://oauth2.googleapis.com/token",
-                            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-                            "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40venusnap-d5340.iam.gserviceaccount.com",
-                            "universe_domain": "googleapis.com"
-                            }';
 
-            if ($jsonContent === false || empty($jsonContent)) {
+            $signedUrl = generateSecureMediaUrl('system/venusnap-d5340-firebase-adminsdk-fbsvc-b55072fb51.json');
+            $jsonContent = file_get_contents($signedUrl);
+
+            if ($jsonContent === false) {
                 throw new \Exception('Failed to fetch Firebase credentials');
             }
 
-            // Create temporary credentials file with JSON string
+            // Create temporary credentials file
             $tempFilePath = tempnam(sys_get_temp_dir(), 'firebase_cred_');
             file_put_contents($tempFilePath, $jsonContent);
 
-            // Initialize Firebase with temp file path
+            // Initialize Firebase
             $factory = (new Factory)->withServiceAccount($tempFilePath);
             $messaging = $factory->createMessaging();
 
             // Prepare notification data
+            // $title = $this->getNotificationTitle($notification->action);
+            // $body = $this->getNotificationBody($notification);
             $title = $this->getNotificationTitle($notification);
             $body = $this->getNotificationBody($notification);
             $notificationData = $this->preparePushData($notification);
