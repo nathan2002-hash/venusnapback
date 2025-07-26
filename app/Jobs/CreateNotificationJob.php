@@ -119,24 +119,22 @@ class CreateNotificationJob implements ShouldQueue
 
         try {
             // Download Firebase credentials
-            $jsonContent = file_get_contents(storage_path('app/firebase/firebase-service-account.json'));
-            //$jsonContent = file_get_contents('https://cdn.venusnap.com/system/venusnap-d5340-firebase-adminsdk-fbsvc-b55072fb51.json');
+           // Get JSON string from env
+            $jsonContent = env('FIREBASE_CREDENTIALS_JSON');
 
-            if ($jsonContent === false) {
+            if ($jsonContent === false || empty($jsonContent)) {
                 throw new \Exception('Failed to fetch Firebase credentials');
             }
 
-            // Create temporary credentials file
+            // Create temporary credentials file with JSON string
             $tempFilePath = tempnam(sys_get_temp_dir(), 'firebase_cred_');
             file_put_contents($tempFilePath, $jsonContent);
 
-            // Initialize Firebase
+            // Initialize Firebase with temp file path
             $factory = (new Factory)->withServiceAccount($tempFilePath);
             $messaging = $factory->createMessaging();
 
             // Prepare notification data
-            // $title = $this->getNotificationTitle($notification->action);
-            // $body = $this->getNotificationBody($notification);
             $title = $this->getNotificationTitle($notification);
             $body = $this->getNotificationBody($notification);
             $notificationData = $this->preparePushData($notification);
