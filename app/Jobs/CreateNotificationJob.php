@@ -120,7 +120,7 @@ class CreateNotificationJob implements ShouldQueue
         try {
             // Download Firebase credentials
 
-            $signedUrl = generateSecureMediaUrl('system/venusnap-d5340-firebase-adminsdk-fbsvc-b55072fb51.json');
+            $signedUrl = generateSecureMediaUrl('system/venusnap-d5340-b585dc46e9c1.json');
             $jsonContent = file_get_contents($signedUrl);
 
             if ($jsonContent === false) {
