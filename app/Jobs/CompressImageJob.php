@@ -88,6 +88,18 @@ class CompressImageJob implements ShouldQueue
             $post->update(['status' => 'review']);
         }
 
+        if ($post->visibility === 'Private') {
+            return;
+        }
+
+        $numbers = range(0, 9);
+        $first = $numbers[array_rand($numbers)];
+        $second = $numbers[array_rand($numbers)];
+
+        if ($first === $second) {
+            return;
+        }
+
         $randomMedia = $post->postmedias()->inRandomOrder()->first();
             $album = $post->album;
 

@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
+use App\Models\SystemError;
 
 class PostController extends Controller
 {
@@ -570,6 +570,16 @@ class PostController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Post creation failed: ' . $e->getMessage());
+            SystemError::create([
+                'user_id' => $user->id ?? null,
+                'context' => 'post_creation',
+                'message' => 'Post creation failed: ' . $e->getMessage(),
+                'stack_trace' => $e->getTraceAsString(),
+                'metadata' => json_encode([
+                    'user_id' => $user->id ?? null,
+                    'post_id' => $post->id,
+                ]),
+            ]);
             return response()->json(['message' => 'Post creation failed: ' . $e->getMessage()], 500);
         }
     }

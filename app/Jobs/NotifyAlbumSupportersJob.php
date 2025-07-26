@@ -8,6 +8,7 @@ use App\Models\Post;
 use App\Models\User;
 use App\Models\Album;
 use App\Models\FcmToken;
+use App\Models\SystemError;
 use App\Models\UserSetting;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
@@ -15,6 +16,7 @@ use App\Models\Notification as NotificationModel;
 use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class NotifyAlbumSupportersJob implements ShouldQueue
 {
@@ -45,8 +47,11 @@ class NotifyAlbumSupportersJob implements ShouldQueue
             foreach ($supporters as $supporter) {
                 $user = $supporter->user;
 
-                if (!$user) {
-                    continue; // Just in case the user was deleted or missing
+                if (
+                    !$user ||
+                    $user->id === $this->post->user_id
+                ) {
+                    continue;
                 }
 
                 $settings = UserSetting::where('user_id', $user->id)->first();
@@ -70,6 +75,9 @@ class NotifyAlbumSupportersJob implements ShouldQueue
     protected function createAndSendNotification(User $supporter)
     {
         try {
+            if ($supporter->id === $this->post->user_id) {
+                return;
+            }
             // Create database notification
             $notification = NotificationModel::create([
                 'user_id' => $supporter->id,
@@ -125,8 +133,22 @@ class NotifyAlbumSupportersJob implements ShouldQueue
             $messaging = $factory->createMessaging();
 
             // Prepare notification content
-            $title = "New post in {$this->album->name}";
-            $body = "{$this->post->user->name} posted new content";
+            $titles = [
+                "New Post Alert",
+                "Fresh Drop in {$this->album->name}",
+                "Something New Awaits",
+                "{$this->album->name} Just Got Updated!"
+            ];
+
+            $title = $titles[array_rand($titles)];
+            $bodies = [
+                "New content just dropped in this album!",
+                "Check out the latest update in {$this->album->name}",
+                "Fresh content is now available in the album!",
+                "Something new was added to {$this->album->name}!"
+            ];
+
+            $body = $bodies[array_rand($bodies)];
             $imageUrl = Storage::disk('s3')->url($this->randomMedia->file_path);
             $albumimageUrl = null;
 
@@ -169,6 +191,14 @@ class NotifyAlbumSupportersJob implements ShouldQueue
                 } catch (\Exception $e) {
                     Log::error("Failed to send to token {$token}: " . $e->getMessage());
                     FcmToken::where('token', $token)->update(['status' => 'expired']);
+
+                    SystemError::create([
+                        'user_id' => Auth::user()->id, // or null if no user authenticated here
+                        'context' => 'fcm_send',
+                        'message' => "Failed to send to token {$token}: " . $e->getMessage(),
+                        'stack_trace' => $e->getTraceAsString(),
+                        'metadata' => json_encode(['token' => $token]),
+                    ]);
                 }
             }
 
@@ -176,6 +206,16 @@ class NotifyAlbumSupportersJob implements ShouldQueue
             Log::error('Push notification failed: ' . $e->getMessage(), [
                 'user_id' => $user->id,
                 'post_id' => $this->post->id
+            ]);
+            SystemError::create([
+                'user_id' => $user->id ?? null,
+                'context' => 'push_notification',
+                'message' => 'Push notification failed: ' . $e->getMessage(),
+                'stack_trace' => $e->getTraceAsString(),
+                'metadata' => json_encode([
+                    'user_id' => $user->id ?? null,
+                    'post_id' => $this->post->id,
+                ]),
             ]);
         } finally {
             // Clean up temporary file
