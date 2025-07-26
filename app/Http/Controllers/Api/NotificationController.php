@@ -239,10 +239,10 @@ class NotificationController extends Controller
         $albumDisplayName = str_contains(strtolower($albumName), 'album') ? $albumName : "{$albumName} Album";
 
         $albumNewPostPhrases = [
-            "$albumDisplayName added a new snap",
-            "$albumDisplayName shared something new",
-            "$albumDisplayName just got updated",
-            "$albumDisplayName posted a fresh snap",
+            "added a new snap",
+            "shared something new",
+            "just got updated",
+            "posted a fresh snap",
         ];
 
 
