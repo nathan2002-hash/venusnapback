@@ -90,7 +90,7 @@ class NotifyAlbumSupportersJob implements ShouldQueue
                     'album_name' => $this->album->name,
                     'post_id' => $this->post->id,
                     'media_id' => $this->randomMedia->id,
-                    'image' => Storage::disk('s3')->url($this->randomMedia->file_path)
+                    'image' => generateSecureMediaUrl($this->randomMedia->file_path)
                 ]),
                 'is_read' => false
             ]);
@@ -151,21 +151,21 @@ class NotifyAlbumSupportersJob implements ShouldQueue
             ];
 
             $body = $bodies[array_rand($bodies)];
-            $imageUrl = Storage::disk('s3')->url($this->randomMedia->file_path);
+            $imageUrl = generateSecureMediaUrl($this->randomMedia->file_path);
             $albumimageUrl = null;
 
             if ($this->album) {
                 if ($this->album->type == 'personal' || $this->album->type == 'creator') {
                     $albumimageUrl = $this->album->thumbnail_compressed
-                        ? Storage::disk('s3')->url($this->album->thumbnail_compressed)
+                        ? generateSecureMediaUrl($this->album->thumbnail_compressed)
                         : ($this->album->thumbnail_original
-                            ? Storage::disk('s3')->url($this->album->thumbnail_original)
+                            ? generateSecureMediaUrl($this->album->thumbnail_original)
                             : $albumimageUrl);
                 } elseif ($this->album->type == 'business') {
                     $albumimageUrl = $this->album->business_logo_compressed
-                        ? Storage::disk('s3')->url($this->album->business_logo_compressed)
+                        ? generateSecureMediaUrl($this->album->business_logo_compressed)
                         : ($this->album->business_logo_original
-                            ? Storage::disk('s3')->url($this->album->business_logo_original)
+                            ? generateSecureMediaUrl($this->album->business_logo_original)
                             : $albumimageUrl);
                 }
             }

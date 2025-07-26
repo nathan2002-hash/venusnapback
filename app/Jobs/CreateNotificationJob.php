@@ -119,7 +119,8 @@ class CreateNotificationJob implements ShouldQueue
 
         try {
             // Download Firebase credentials
-            $jsonContent = file_get_contents('https://cdn.venusnap.com/system/venusnap-d5340-firebase-adminsdk-fbsvc-b55072fb51.json');
+            $jsonContent = file_get_contents(storage_path('app/firebase/firebase-service-account.json'));
+            //$jsonContent = file_get_contents('https://cdn.venusnap.com/system/venusnap-d5340-firebase-adminsdk-fbsvc-b55072fb51.json');
 
             if ($jsonContent === false) {
                 throw new \Exception('Failed to fetch Firebase credentials');
@@ -245,15 +246,15 @@ class CreateNotificationJob implements ShouldQueue
 
             if ($album->type === 'personal' || $album->type === 'creator') {
                 return $album->thumbnail_compressed
-                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                    ? generateSecureMediaUrl($album->thumbnail_compressed)
                     : ($album->thumbnail_original
-                        ? Storage::disk('s3')->url($album->thumbnail_original)
+                        ? generateSecureMediaUrl($album->thumbnail_original)
                         : null);
             } elseif ($album->type === 'business') {
                 return $album->business_logo_compressed
-                    ? Storage::disk('s3')->url($album->business_logo_compressed)
+                    ? generateSecureMediaUrl($album->business_logo_compressed)
                     : ($album->business_logo_original
-                        ? Storage::disk('s3')->url($album->business_logo_original)
+                        ? generateSecureMediaUrl($album->business_logo_original)
                         : null);
             }
         }
@@ -262,7 +263,7 @@ class CreateNotificationJob implements ShouldQueue
         $sender = User::find($data['sender_id'] ?? null);
         if ($sender) {
             return $sender->profile_compressed
-                ? Storage::disk('s3')->url($sender->profile_compressed)
+                ? generateSecureMediaUrl($sender->profile_compressed)
                 : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($sender->email))) . '?s=100&d=mp';
         }
 
