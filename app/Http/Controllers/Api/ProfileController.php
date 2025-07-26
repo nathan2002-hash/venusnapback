@@ -27,7 +27,7 @@ class ProfileController extends Controller
 
         $coverUrl = $user->cover_compressed
         ? generateSecureMediaUrl($user->cover_compressed)
-        : config('app.default_cover_url');
+        : generateSecureMediaUrl('system/defaultcover.jpg');
         $profileUrl = $user->profile_compressed ? generateSecureMediaUrl($user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
         // Return the user profile data
         $totalSupporters = $user->albums->flatMap(function ($album) {
