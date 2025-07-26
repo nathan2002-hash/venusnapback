@@ -49,20 +49,6 @@ class PostController extends Controller
         }
     }
 
-    function generateSecureMediaUrl($filePath)
-    {
-        $expiresAt = now()->addMinutes(5)->timestamp; // token valid for 5 min
-
-        $payload = json_encode([
-            'file' => $filePath,
-            'expires' => $expiresAt,
-        ]);
-
-        $token = Crypt::encryptString($payload);
-
-        return "https://venusnap-worker.quixines.workers.dev/file?token=" . urlencode($token);
-    }
-
     public function index(Request $request)
     {
         $userId = Auth::id();
@@ -180,7 +166,7 @@ class PostController extends Controller
                 return [
                     'id' => $media->id,
                     'filepath' => Storage::disk('s3')->url($media->file_path_compress),
-                    'filepathf' => $this->generateSecureMediaUrl($media->file_path_compress),
+                    'filepathf' => generateSecureMediaUrl($media->file_path_compress),
                     'sequence_order' => (int)$media->sequence_order,
                     'comments_count' => $media->comments->count(),
                     'likes_count' => $media->admires->count(),
