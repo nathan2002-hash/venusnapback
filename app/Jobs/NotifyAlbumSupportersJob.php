@@ -132,20 +132,22 @@ class NotifyAlbumSupportersJob implements ShouldQueue
             $factory = (new Factory)->withServiceAccount($tempFilePath);
             $messaging = $factory->createMessaging();
 
+            $albumName = $this->album->name;
+            $albumDisplayName = str_contains(strtolower($albumName), 'album') ? $albumName : "{$albumName} Album";
             // Prepare notification content
             $titles = [
                 "New Post Alert",
-                "Fresh Drop in {$this->album->name}",
+                "Fresh Drop in {$albumDisplayName}",
                 "Something New Awaits",
-                "{$this->album->name} Just Got Updated!"
+                "{$albumDisplayName} Just Got Updated!"
             ];
 
             $title = $titles[array_rand($titles)];
             $bodies = [
-                "New content just dropped in this album!",
-                "Check out the latest update in {$this->album->name}",
-                "Fresh content is now available in the album!",
-                "Something new was added to {$this->album->name}!"
+                "New content just dropped in {$albumDisplayName}!",
+                "Check out the latest update in {$albumDisplayName}",
+                "Fresh content is now available in {$albumDisplayName}!",
+                "Something new was added to {$albumDisplayName}!"
             ];
 
             $body = $bodies[array_rand($bodies)];

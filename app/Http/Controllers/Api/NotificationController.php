@@ -235,14 +235,16 @@ class NotificationController extends Controller
         $data = json_decode($notification->data, true);
         $isAlbumOwner = $data['is_album_owner'] ?? false;
         $albumName = $data['album_name'] ?? null;
-        $postTitle = $data['post_title'] ?? null;
+
+        $albumDisplayName = str_contains(strtolower($albumName), 'album') ? $albumName : "{$albumName} Album";
 
         $albumNewPostPhrases = [
-            $albumName ? "added a new snap to \"$albumName\"" : "added a new snap",
-            $albumName ? "uploaded a new snap in \"$albumName\"" : "uploaded a new snap",
-            $albumName ? "shared a new snap with you in \"$albumName\"" : "shared a new snap",
-            $albumName ? "posted a fresh snap in \"$albumName\"" : "posted a fresh snap",
+            "$albumDisplayName added a new snap",
+            "$albumDisplayName shared something new",
+            "$albumDisplayName just got updated",
+            "$albumDisplayName posted a fresh snap",
         ];
+
 
         $phrases = [
             'comment' => [
@@ -339,109 +341,6 @@ class NotificationController extends Controller
         return response()->json(['status' => 'stored']);
     }
 
-
-
-    public function sendPushNotification(Request $request)
-    {
-        $user = $request->user();
-        $notificationData = $request->validate([
-            'type' => 'required|string',
-            'action' => 'required|string',
-            'notifiable_id' => 'required|integer',
-            'notifiablemedia_id' => 'nullable|integer',
-            'metadata' => 'nullable|array'
-        ]);
-
-        // Create the notification
-        $notification = Notification::create([
-            'user_id' => $user->id,
-            'type' => $notificationData['type'],
-            'action' => $notificationData['action'],
-            'notifiable_id' => $notificationData['notifiable_id'],
-            'data' => json_encode($notificationData['metadata'] ?? []),
-            'is_read' => false,
-        ]);
-
-        $formattedNotification = $this->formatNotificationForPush($notification);
-
-        // Ensure user settings exist and send FCM push
-        $settings = UserSetting::firstOrCreate(
-            ['user_id' => $user->id],
-            [
-                'sms_alert' => 0,
-                'email_notifications' => 1,
-                'tfa' => 0,
-                'push_notifications' => 1,
-                'dark_mode' => 0
-            ]
-        );
-
-        if ($settings->fcm_token) {
-            $this->sendViaFcm($settings->fcm_token, $formattedNotification);
-        }
-
-        return response()->json(['status' => 'success']);
-    }
-
-
-    protected function formatNotificationForPush(Notification $notification)
-    {
-        // Reuse your existing notification formatting logic from index()
-        $data = json_decode($notification->data, true);
-        $username = $data['username'] ?? 'Someone';
-        $action = $notification->action;
-        $type = $notification->type ?? $this->determineTypeFromAction($action);
-
-        $ids = $this->getNotificationIds($notification, $type);
-
-        if ($type === 'album_request') {
-            $message = "$username invited you to collaborate on the album \"{$data['album_name']}\"";
-        } else {
-            $message = $this->buildGroupedMessage(
-                [$username],
-                1,
-                $action,
-                $type,
-                $notification,
-                collect([$notification])
-            );
-        }
-
-        return [
-            'title' => 'New Notification',
-            'body' => $message,
-            'data' => [
-                'type' => $type,
-                'action' => $action,
-                'notifiable_id' => $ids['notifiable_id'],
-                'notifiablemedia_id' => $ids['notifiablemedia_id'],
-                'metadata' => $data,
-                'notification_id' => $notification->id,
-            ]
-        ];
-    }
-
-    protected function sendViaFcm(string $fcmToken, array $notification)
-    {
-        $serverKey = config('services.fcm.server_key');
-
-        $response = Http::withHeaders([
-            'Authorization' => "key={$serverKey}",
-            'Content-Type' => 'application/json',
-        ])->post('https://fcm.googleapis.com/fcm/send', [
-            'to' => $fcmToken,
-            'notification' => [
-                'title' => $notification['title'],
-                'body' => $notification['body'],
-                'sound' => 'default',
-            ],
-            'data' => $notification['data'],
-            'priority' => 'high',
-        ]);
-
-        return $response->successful();
-    }
-
     public function markAsRead(Request $request)
     {
         $request->validate([
@@ -501,18 +400,6 @@ class NotificationController extends Controller
             'count' => $updated,
         ]);
     }
-
-    // public function notificationscount()
-    // {
-    //     $user = Auth::user();
-
-    //     // Fetch the count of unread notifications for the user
-    //     $unreadCount = Notification::where('user_id', $user->id)
-    //         ->where('is_read', false)
-    //         ->count();
-
-    //     return response()->json(['count' => $unreadCount]);
-    // }
 
     public function notificationscount()
     {
