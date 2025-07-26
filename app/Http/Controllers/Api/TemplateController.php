@@ -37,7 +37,7 @@ class TemplateController extends Controller
                 'id' => $template->id,
                 'name' => $template->name,
                 'type' => $template->type,
-                'path' => Storage::disk('s3')->url($template->compressed_template ?? $template->original_template),
+                'path' => generateSecureMediaUrl($template->compressed_template ?? $template->original_template),
                 'is_user_generated' => $template->user_id == $userId,
                 'created_at' => $template->created_at->toIso8601String(),
                 'is_new' => $template->created_at->gt(now()->subHours(24))
@@ -129,7 +129,7 @@ class TemplateController extends Controller
             'status' => $template->status,
             'template' => $template->status === 'completed' ? [
                 'id' => $template->id,
-                'path' => Storage::disk('s3')->url($template->compressed_template),
+                'path' => generateSecureMediaUrl($template->compressed_template),
                 'is_new' => $isNew,
                 'created_at' => $template->created_at->toIso8601String()
             ] : [

@@ -63,15 +63,15 @@ class HistoryController extends Controller
                     if ($album) {
                         if (in_array($album->type, ['personal', 'creator'])) {
                             $profileUrl = $album->thumbnail_compressed
-                                ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                                ? generateSecureMediaUrl($album->thumbnail_compressed)
                                 : ($album->thumbnail_original
-                                    ? Storage::disk('s3')->url($album->thumbnail_original)
+                                    ? generateSecureMediaUrl($album->thumbnail_original)
                                     : asset('default/profile.png'));
                         } elseif ($album->type == 'business') {
                             $profileUrl = $album->business_logo_compressed
-                                ? Storage::disk('s3')->url($album->business_logo_compressed)
+                                ? generateSecureMediaUrl($album->business_logo_compressed)
                                 : ($album->business_logo_original
-                                    ? Storage::disk('s3')->url($album->business_logo_original)
+                                    ? generateSecureMediaUrl($album->business_logo_original)
                                     : asset('default/profile.png'));
                         }
                     }
@@ -88,7 +88,7 @@ class HistoryController extends Controller
                         'latest_view_date' => $firstView->created_at->format('Y-m-d H:i:s'),
                         'viewed_images' => $post->postmedias->map(fn($media) => [
                             'image_url' => $media->file_path_compress
-                                ? Storage::disk('s3')->url($media->file_path_compress)
+                                ? generateSecureMediaUrl($media->file_path_compress)
                                 : '',
                             'view_date' => $firstView->created_at->format('Y-m-d H:i:s'),
                         ])->toArray(),

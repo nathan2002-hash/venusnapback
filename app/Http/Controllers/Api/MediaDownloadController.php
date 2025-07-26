@@ -32,7 +32,7 @@ class MediaDownloadController extends Controller
             return response()->json(['success' => false, 'message' => 'Media not found'], 404);
         }
 
-        $image_url = Storage::disk('s3')->url($postmedia->file_path);
+        $image_url = generateSecureMediaUrl($postmedia->file_path);
 
         return response()->json([
             'success' => true,

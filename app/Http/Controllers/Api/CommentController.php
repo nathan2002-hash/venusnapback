@@ -50,7 +50,7 @@ class CommentController extends Controller
                 'profile_picture_url' => $isOwner
                     ? $this->getProfileUrl($album)
                     : ($comment->user->profile_compressed
-                        ? Storage::disk('s3')->url($comment->user->profile_compressed)
+                        ? generateSecureMediaUrl($comment->user->profile_compressed)
                         : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp'),
                 'comment' => $comment->comment,
                 'created_at' => $comment->created_at->diffForHumans(),
@@ -111,7 +111,7 @@ class CommentController extends Controller
                 'profile_picture_url' => $isOwner
                     ? $this->getProfileUrl($album)
                     : ($reply->user->profile_compressed
-                        ? Storage::disk('s3')->url($reply->user->profile_compressed)
+                        ? generateSecureMediaUrl($reply->user->profile_compressed)
                         : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($reply->user->email))) . '?s=100&d=mp'),
                 'reply' => $reply->reply,
                 'created_at' => $reply->created_at->diffForHumans(),
@@ -155,7 +155,7 @@ class CommentController extends Controller
         $profilePictureUrl = $isOwner
             ? $this->getProfileUrl($album)
             : ($user->profile_compressed
-                ? Storage::disk('s3')->url($user->profile_compressed)
+                ? generateSecureMediaUrl($user->profile_compressed)
                 : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
 
             // Send notification if not owner
@@ -229,7 +229,7 @@ class CommentController extends Controller
         $profilePictureUrl = $isOwner
             ? $this->getProfileUrl($album)
             : ($user->profile_compressed
-                ? Storage::disk('s3')->url($user->profile_compressed)
+                ? generateSecureMediaUrl($user->profile_compressed)
                 : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
 
            if ((int)$comment->user_id !== (int)$user->id)
@@ -271,17 +271,17 @@ class CommentController extends Controller
 
         if (in_array($album->type, ['personal', 'creator'])) {
             return $album->thumbnail_compressed
-                ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                ? generateSecureMediaUrl($album->thumbnail_compressed)
                 : ($album->thumbnail_original
-                    ? Storage::disk('s3')->url($album->thumbnail_original)
+                    ? generateSecureMediaUrl($album->thumbnail_original)
                     : asset('default/profile.png'));
         }
 
         if ($album->type === 'business') {
             return $album->business_logo_compressed
-                ? Storage::disk('s3')->url($album->business_logo_compressed)
+                ? generateSecureMediaUrl($album->business_logo_compressed)
                 : ($album->business_logo_original
-                    ? Storage::disk('s3')->url($album->business_logo_original)
+                    ? generateSecureMediaUrl($album->business_logo_original)
                     : asset('default/profile.png'));
         }
 

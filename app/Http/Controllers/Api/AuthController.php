@@ -105,7 +105,7 @@ class AuthController extends Controller
         }
 
         $profileUrl = $user->profile_compressed
-            ? Storage::disk('s3')->url($user->profile_compressed)
+            ? generateSecureMediaUrl($user->profile_compressed)
             : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
 
         $preference = ($user->preference === null || $user->preference == 1) ? 1 : 0;

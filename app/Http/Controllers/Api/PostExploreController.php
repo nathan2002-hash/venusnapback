@@ -119,7 +119,7 @@ class PostExploreController extends Controller
                 'post_media' => $post->postmedias->map(function ($media) {
                     return [
                         'id' => $media->id,
-                        'filepath' => Storage::disk('s3')->url($media->file_path_compress),
+                        'filepath' => generateSecureMediaUrl($media->file_path_compress),
                         'sequence_order' => $media->sequence_order,
                     ];
                 })->toArray(),
@@ -145,7 +145,7 @@ class PostExploreController extends Controller
                 'post_media' => $post->postmedias->map(function ($media) {
                     return [
                         'id' => $media->id,
-                        'filepath' => Storage::disk('s3')->url($media->file_path_compress),
+                        'filepath' => generateSecureMediaUrl($media->file_path_compress),
                         'sequence_order' => $media->sequence_order,
                     ];
                 })->toArray(),
@@ -170,7 +170,7 @@ class PostExploreController extends Controller
                 'post_media' => $ad->media->map(function ($media) {
                     return [
                         'id' => $media->id,
-                        'filepath' => Storage::disk('s3')->url($media->file_path),
+                        'filepath' => generateSecureMediaUrl($media->file_path),
                         'sequence_order' => $media->sequence_order,
                     ];
                 })->toArray(),
@@ -192,17 +192,17 @@ class PostExploreController extends Controller
 
         if (in_array($album->type, ['personal', 'creator'])) {
             return $album->thumbnail_compressed
-                ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                ? generateSecureMediaUrl($album->thumbnail_compressed)
                 : ($album->thumbnail_original
-                    ? Storage::disk('s3')->url($album->thumbnail_original)
+                    ? generateSecureMediaUrl($album->thumbnail_original)
                     : asset('default/profile.png'));
         }
 
         if ($album->type === 'business') {
             return $album->business_logo_compressed
-                ? Storage::disk('s3')->url($album->business_logo_compressed)
+                ? generateSecureMediaUrl($album->business_logo_compressed)
                 : ($album->business_logo_original
-                    ? Storage::disk('s3')->url($album->business_logo_original)
+                    ? generateSecureMediaUrl($album->business_logo_original)
                     : asset('default/profile.png'));
         }
 
@@ -225,7 +225,7 @@ class PostExploreController extends Controller
 
         // Prepare media URLs
         $mediaUrls = $ad->media->map(function ($media) {
-            return Storage::disk('s3')->url($media->file_path);
+            return generateSecureMediaUrl($media->file_path);
         });
 
         $album = $ad->adboard->album ?? null;
@@ -247,15 +247,15 @@ class PostExploreController extends Controller
         if ($album) {
             if ($album->type == 'personal' || $album->type == 'creator') {
                 $profileImage = $album->thumbnail_compressed
-                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                    ? generateSecureMediaUrl($album->thumbnail_compressed)
                     : ($album->thumbnail_original
-                        ? Storage::disk('s3')->url($album->thumbnail_original)
+                        ? generateSecureMediaUrl($album->thumbnail_original)
                         : $defaultProfile);
             } elseif ($album->type == 'business') {
                 $profileImage = $album->business_logo_compressed
-                    ? Storage::disk('s3')->url($album->business_logo_compressed)
+                    ? generateSecureMediaUrl($album->business_logo_compressed)
                     : ($album->business_logo_original
-                        ? Storage::disk('s3')->url($album->business_logo_original)
+                        ? generateSecureMediaUrl($album->business_logo_original)
                         : $defaultProfile);
             }
         }

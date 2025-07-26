@@ -257,7 +257,7 @@ class AlbumAccessController extends Controller
                 $avatarProfile = $access->granter_profile;
 
                 $avatarUrl = $avatarProfile
-                    ? Storage::disk('s3')->url($avatarProfile)
+                    ? generateSecureMediaUrl($avatarProfile)
                     : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($avatarEmail))) . '?s=100&d=mp';
 
                 return [

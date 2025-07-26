@@ -15,7 +15,7 @@ class AIGenController extends Controller
 {
    public function generateAd(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $request->validate(['description' => 'required|min:20']);
 
         // Create transaction record immediately
@@ -86,83 +86,83 @@ class AIGenController extends Controller
         }
     }
 
-    public function regenerateAd(Request $request, $id)
-    {
-        $user = auth()->user();
-        $originalAd = GenAi::where('user_id', $user->id)->findOrFail($id);
+    // public function regenerateAd(Request $request, $id)
+    // {
+    //     $user = Auth::user();
+    //     $originalAd = GenAi::where('user_id', $user->id)->findOrFail($id);
 
-        // Check user has enough points
-        if ($user->points < 30) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Insufficient points'
-            ], 400);
-        }
+    //     // Check user has enough points
+    //     if ($user->points < 30) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Insufficient points'
+    //         ], 400);
+    //     }
 
-        try {
-            $description = $request->edited_description ?? $originalAd->original_description;
+    //     try {
+    //         $description = $request->edited_description ?? $originalAd->original_description;
 
-            // Call Stable Diffusion API (SD3)
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . env('STABLE_DIFFUSION_API_KEY'),
-                'Accept' => 'image/*',
-            ])
-            ->asMultipart()
-            ->post($this->stableDiffusionUrl, [
-                [
-                    'name' => 'prompt',
-                    'contents' => $description
-                ],
-                [
-                    'name' => 'output_format',
-                    'contents' => 'jpeg'
-                ],
-                [
-                    'name' => 'none',
-                    'contents' => '',
-                    'filename' => 'none'
-                ]
-            ]);
+    //         // Call Stable Diffusion API (SD3)
+    //         $response = Http::withHeaders([
+    //             'Authorization' => 'Bearer ' . env('STABLE_DIFFUSION_API_KEY'),
+    //             'Accept' => 'image/*',
+    //         ])
+    //         ->asMultipart()
+    //         ->post($this->stableDiffusionUrl, [
+    //             [
+    //                 'name' => 'prompt',
+    //                 'contents' => $description
+    //             ],
+    //             [
+    //                 'name' => 'output_format',
+    //                 'contents' => 'jpeg'
+    //             ],
+    //             [
+    //                 'name' => 'none',
+    //                 'contents' => '',
+    //                 'filename' => 'none'
+    //             ]
+    //         ]);
 
-            if ($response->successful()) {
-                // Save the new image
-                $imageData = $response->body();
-                $fileName = 'genai/' . uniqid() . '.jpeg';
-                Storage::put($fileName, $imageData);
+    //         if ($response->successful()) {
+    //             // Save the new image
+    //             $imageData = $response->body();
+    //             $fileName = 'genai/' . uniqid() . '.jpeg';
+    //             Storage::put($fileName, $imageData);
 
-                // Deduct points
-                $user->decrement('points', 30);
+    //             // Deduct points
+    //             $user->decrement('points', 30);
 
-                // Create new GenAi record
-                $genai = new GenAi();
-                $genai->user_id = $user->id;
-                $genai->provider = 'stable diffusion';
-                $genai->venusnap_points = 30;
-                $genai->file_path = $fileName;
-                $genai->original_description = $description;
-                $genai->type = 'Ad';
-                $genai->save();
+    //             // Create new GenAi record
+    //             $genai = new GenAi();
+    //             $genai->user_id = $user->id;
+    //             $genai->provider = 'stable diffusion';
+    //             $genai->venusnap_points = 30;
+    //             $genai->file_path = $fileName;
+    //             $genai->original_description = $description;
+    //             $genai->type = 'Ad';
+    //             $genai->save();
 
-                return response()->json([
-                    'success' => true,
-                    'genai_id' => $genai->id,
-                    'file_path' => Storage::url($fileName)
-                ]);
-            }
+    //             return response()->json([
+    //                 'success' => true,
+    //                 'genai_id' => $genai->id,
+    //                 'file_path' => generateSecureMediaUrl($fileName)
+    //             ]);
+    //         }
 
-            $errorResponse = $response->json();
-            return response()->json([
-                'success' => false,
-                'message' => $errorResponse['message'] ?? 'Failed to regenerate image'
-            ], 500);
+    //         $errorResponse = $response->json();
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => $errorResponse['message'] ?? 'Failed to regenerate image'
+    //         ], 500);
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
 
     public function getAd($id)
     {
@@ -177,7 +177,7 @@ class AIGenController extends Controller
         }
 
         // Only return file URL if status is complete and file exists
-        $imageUrl = $genai->file_path_compress ? Storage::disk('s3')->url($genai->file_path_compress) : null;
+        $imageUrl = $genai->file_path_compress ? generateSecureMediaUrl($genai->file_path_compress) : null;
 
         return response()->json([
             'status' => 'completed',
@@ -191,7 +191,7 @@ class AIGenController extends Controller
 
     public function recentAds()
     {
-        return GenAi::where('user_id', auth()->id())
+        return GenAi::where('user_id', Auth::user()->id)
             ->where('type', 'Ad')
             ->where('status', 'completed') // Only completed ads
             ->orderBy('created_at', 'desc')
@@ -199,7 +199,7 @@ class AIGenController extends Controller
             ->get()
             ->map(function ($genai) {
                 // Safely handle file path
-                $imageUrl = $genai->file_path_compress ? Storage::disk('s3')->url($genai->file_path_compress) : null;
+                $imageUrl = $genai->file_path_compress ? generateSecureMediaUrl($genai->file_path_compress) : null;
 
                 return [
                     'id' => $genai->id,
@@ -240,12 +240,12 @@ class AIGenController extends Controller
 
     public function checkStatus($id)
     {
-        $genai = GenAi::where('user_id', auth()->id())
+        $genai = GenAi::where('user_id', Auth::user()->id)
             ->findOrFail($id);
 
         return response()->json([
             'status' => $genai->status,
-            'image_url' => $genai->file_path_compress ? Storage::disk('s3')->url($genai->file_path_compress) : null,
+            'image_url' => $genai->file_path_compress ? generateSecureMediaUrl($genai->file_path_compress) : null,
             // ... other fields
         ]);
     }
@@ -264,15 +264,15 @@ class AIGenController extends Controller
 
     public function GenImages()
     {
-        return GenAi::where('user_id', auth()->id())
+        return GenAi::where('user_id', Auth::user()->id)
             ->where('type', 'Ad')
             ->where('status', 'completed') // Only completed ads
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($genai) {
                 // Safely handle file path
-                $imageUrl = $genai->file_path_compress ? Storage::disk('s3')->url($genai->file_path_compress) : null;
-                $imageUrlDownload = $genai->file_path ? Storage::disk('s3')->url($genai->file_path) : null;
+                $imageUrl = $genai->file_path_compress ? generateSecureMediaUrl($genai->file_path_compress) : null;
+                $imageUrlDownload = $genai->file_path ? generateSecureMediaUrl($genai->file_path) : null;
 
                 return [
                     'id' => $genai->id,

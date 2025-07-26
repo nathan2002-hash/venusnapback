@@ -209,7 +209,7 @@ class AlbumController extends Controller
 
         if ($request->hasFile('thumbnail')) {
             $path = $request->file('thumbnail')->store('uploads/albums/originals', 's3');
-            $fullUrl = Storage::disk('s3')->url($path);
+            $fullUrl = generateSecureMediaUrl($path);
         }
 
         $album->thumbnail_original = $path;
@@ -350,7 +350,7 @@ class AlbumController extends Controller
 
         if ($request->hasFile('thumbnail')) {
             $path = $request->file('thumbnail')->store('uploads/albums/originals', 's3');
-            $fullUrl = Storage::disk('s3')->url($path);
+            $fullUrl = generateSecureMediaUrl($path);
         }
 
         $album->thumbnail_original = $path;
@@ -550,15 +550,15 @@ class AlbumController extends Controller
 
             if ($album->type === 'personal' || $album->type === 'creator') {
                 $thumbnailUrl = $album->thumbnail_compressed
-                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                    ? generateSecureMediaUrl($album->thumbnail_compressed)
                     : ($album->thumbnail_original
-                        ? Storage::disk('s3')->url($album->thumbnail_original)
+                        ? generateSecureMediaUrl($album->thumbnail_original)
                         : null);
             } elseif ($album->type === 'business') {
                 $thumbnailUrl = $album->business_logo_compressed
-                    ? Storage::disk('s3')->url($album->business_logo_compressed)
+                    ? generateSecureMediaUrl($album->business_logo_compressed)
                     : ($album->business_logo_original
-                        ? Storage::disk('s3')->url($album->business_logo_original)
+                        ? generateSecureMediaUrl($album->business_logo_original)
                         : null);
             }
 
@@ -630,24 +630,24 @@ class AlbumController extends Controller
         // Determine the album's thumbnail
         if ($album->type == 'personal' || $album->type == 'creator') {
             $thumbnailUrl = $album->thumbnail_compressed
-                ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                ? generateSecureMediaUrl($album->thumbnail_compressed)
                 : ($album->thumbnail_original
-                    ? Storage::disk('s3')->url($album->thumbnail_original)
+                    ? generateSecureMediaUrl($album->thumbnail_original)
                     : null);
         } elseif ($album->type == 'business') {
             $thumbnailUrl = $album->business_logo_compressed
-                ? Storage::disk('s3')->url($album->business_logo_compressed)
+                ? generateSecureMediaUrl($album->business_logo_compressed)
                 : ($album->business_logo_original
-                    ? Storage::disk('s3')->url($album->business_logo_original)
+                    ? generateSecureMediaUrl($album->business_logo_original)
                     : null);
         } else {
             $thumbnailUrl = 'https://example.com/default-thumbnail.jpg';
         }
 
         $bgthumbnailUrl = $album->cover_image_compressed
-                ? Storage::disk('s3')->url($album->cover_image_compressed)
+                ? generateSecureMediaUrl($album->cover_image_compressed)
                 : ($album->cover_image_original
-                    ? Storage::disk('s3')->url($album->cover_image_original)
+                    ? generateSecureMediaUrl($album->cover_image_original)
                     : null);
 
         $posts = $rawPosts
@@ -666,7 +666,7 @@ class AlbumController extends Controller
         ->values()
         ->map(function ($post) {
             $postThumbnail = $post->postmedias->first()
-                ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress)
+                ? generateSecureMediaUrl($post->postmedias->first()->file_path_compress)
                 : null;
 
             return [
@@ -763,24 +763,24 @@ class AlbumController extends Controller
         // Determine the album's thumbnail
         if ($album->type == 'personal' || $album->type == 'creator') {
             $thumbnailUrl = $album->thumbnail_compressed
-                ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                ? generateSecureMediaUrl($album->thumbnail_compressed)
                 : ($album->thumbnail_original
-                    ? Storage::disk('s3')->url($album->thumbnail_original)
+                    ? generateSecureMediaUrl($album->thumbnail_original)
                     : null);
         } elseif ($album->type == 'business') {
             $thumbnailUrl = $album->business_logo_compressed
-                ? Storage::disk('s3')->url($album->business_logo_compressed)
+                ? generateSecureMediaUrl($album->business_logo_compressed)
                 : ($album->business_logo_original
-                    ? Storage::disk('s3')->url($album->business_logo_original)
+                    ? generateSecureMediaUrl($album->business_logo_original)
                     : null);
         } else {
             $thumbnailUrl = asset('defaults/album.png');
         }
 
         $bgthumbnailUrl = $album->cover_image_compressed
-            ? Storage::disk('s3')->url($album->cover_image_compressed)
+            ? generateSecureMediaUrl($album->cover_image_compressed)
             : ($album->cover_image_original
-                ? Storage::disk('s3')->url($album->cover_image_original)
+                ? generateSecureMediaUrl($album->cover_image_original)
                 : null);
 
         $posts = $album->posts
@@ -812,7 +812,7 @@ class AlbumController extends Controller
         ->values()
         ->map(function ($post) {
             $postThumbnail = $post->postmedias->first()
-                ? Storage::disk('s3')->url($post->postmedias->first()->file_path_compress)
+                ? generateSecureMediaUrl($post->postmedias->first()->file_path_compress)
                 : null;
 
             return [

@@ -107,15 +107,15 @@ class SavedController extends Controller
                 if ($album) {
                     if (in_array($album->type, ['personal', 'creator'])) {
                         $profileUrl = $album->thumbnail_compressed
-                            ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                            ? generateSecureMediaUrl($album->thumbnail_compressed)
                             : ($album->thumbnail_original
-                                ? Storage::disk('s3')->url($album->thumbnail_original)
+                                ? generateSecureMediaUrl($album->thumbnail_original)
                                 : $defaultProfile);
                     } elseif ($album->type === 'business') {
                         $profileUrl = $album->business_logo_compressed
-                            ? Storage::disk('s3')->url($album->business_logo_compressed)
+                            ? generateSecureMediaUrl($album->business_logo_compressed)
                             : ($album->business_logo_original
-                                ? Storage::disk('s3')->url($album->business_logo_original)
+                                ? generateSecureMediaUrl($album->business_logo_original)
                                 : $defaultProfile);
                     }
                 }
@@ -128,7 +128,7 @@ class SavedController extends Controller
                         $mediaUrl = $defaultMedia;
                         if ($media->file_path_compress) {
                             try {
-                                $mediaUrl = Storage::disk('s3')->url($media->file_path_compress);
+                                $mediaUrl = generateSecureMediaUrl($media->file_path_compress);
                             } catch (\Exception $e) {
                                 // Fallback to default if URL generation fails
                                 $mediaUrl = $defaultMedia;

@@ -33,7 +33,7 @@ class AppStatusController extends Controller
         // Only check messages for authenticated users
         if ($request->user()) {
              $profileUrl = $request->user()->profile_compressed
-            ? Storage::disk('s3')->url($request->user()->profile_compressed)
+            ? generateSecureMediaUrl($request->user()->profile_compressed)
             : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($request->user()->email))) . '?s=100&d=mp';
             $responseData['user'] = [
             'username' => $request->user()->username,
@@ -250,7 +250,7 @@ class AppStatusController extends Controller
             foreach ($post->postMedias->sortBy('sequence_order') as $media) {
                 $allImages->push([
                     'id' => $media->id,
-                    'url' => Storage::disk('s3')->url($media->file_path_compress),
+                    'url' => generateSecureMediaUrl($media->file_path_compress),
                     'post_id' => $post->id,
                     'post_description' => $post->description ?: 'No description provided by the creator',
                     'image_count' => $post->postMedias->count(),

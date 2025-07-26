@@ -147,15 +147,15 @@ class PostController extends Controller
             if ($album) {
                 if ($album->type == 'personal' || $album->type == 'creator') {
                     $profileUrl = $album->thumbnail_compressed
-                        ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                        ? generateSecureMediaUrl($album->thumbnail_compressed)
                         : ($album->thumbnail_original
-                            ? Storage::disk('s3')->url($album->thumbnail_original)
+                            ? generateSecureMediaUrl($album->thumbnail_original)
                             : $profileUrl);
                 } elseif ($album->type == 'business') {
                     $profileUrl = $album->business_logo_compressed
-                        ? Storage::disk('s3')->url($album->business_logo_compressed)
+                        ? generateSecureMediaUrl($album->business_logo_compressed)
                         : ($album->business_logo_original
-                            ? Storage::disk('s3')->url($album->business_logo_original)
+                            ? generateSecureMediaUrl($album->business_logo_original)
                             : $profileUrl);
                 }
             }
@@ -165,8 +165,7 @@ class PostController extends Controller
             $postMediaData = $post->postmedias->map(function ($media) {
                 return [
                     'id' => $media->id,
-                    'filepath' => Storage::disk('s3')->url($media->file_path_compress),
-                    'filepathf' => generateSecureMediaUrl($media->file_path_compress),
+                    'filepath' => generateSecureMediaUrl($media->file_path_compress),
                     'sequence_order' => (int)$media->sequence_order,
                     'comments_count' => $media->comments->count(),
                     'likes_count' => $media->admires->count(),
@@ -264,16 +263,16 @@ class PostController extends Controller
             if ($album->type == 'personal' || $album->type == 'creator') {
                 // Personal and Creator albums
                 $profileUrl = $album->thumbnail_compressed
-                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                    ? generateSecureMediaUrl($album->thumbnail_compressed)
                     : ($album->thumbnail_original
-                        ? Storage::disk('s3')->url($album->thumbnail_original)
+                        ? generateSecureMediaUrl($album->thumbnail_original)
                         : asset('default/profile.png'));
             } elseif ($album->type == 'business') {
                 // Business albums use business logo
                 $profileUrl = $album->business_logo_compressed
-                    ? Storage::disk('s3')->url($album->business_logo_compressed)
+                    ? generateSecureMediaUrl($album->business_logo_compressed)
                     : ($album->business_logo_original
-                        ? Storage::disk('s3')->url($album->business_logo_original)
+                        ? generateSecureMediaUrl($album->business_logo_original)
                         : asset('default/profile.png'));
             }
         }
@@ -295,7 +294,7 @@ class PostController extends Controller
         $postMediaData = $sortedMedia->map(function ($media) {
             return [
                 'id' => $media->id,
-                'filepath' => Storage::disk('s3')->url($media->file_path_compress),
+                'filepath' => generateSecureMediaUrl($media->file_path_compress),
                 'sequence_order' => $media->sequence_order,
                 'comments_count' => $media->comments->count(),
                 'likes_count' => $media->admires->count(),
@@ -368,7 +367,7 @@ class PostController extends Controller
             'post_media' => $post->postmedias->map(function($media) {
                 return [
                     'id' => $media->id,
-                    'file_path' => Storage::disk('s3')->url($media->file_path_compress), // Using the accessor we defined
+                    'file_path' => generateSecureMediaUrl($media->file_path_compress), // Using the accessor we defined
                     'sequence_order' => $media->sequence_order
                 ];
             }),
@@ -641,16 +640,16 @@ class PostController extends Controller
                     if ($album->type == 'personal' || $album->type == 'creator') {
                         // For personal and creator albums
                         $thumbnailUrl = $album->thumbnail_compressed
-                            ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                            ? generateSecureMediaUrl($album->thumbnail_compressed)
                             : ($album->thumbnail_original
-                                ? Storage::disk('s3')->url($album->thumbnail_original)
+                                ? generateSecureMediaUrl($album->thumbnail_original)
                                 : null);
                     } elseif ($album->type == 'business') {
                         // For business albums, use business logo thumbnail if available
                         $thumbnailUrl = $album->business_logo_compressed
-                            ? Storage::disk('s3')->url($album->business_logo_compressed)
+                            ? generateSecureMediaUrl($album->business_logo_compressed)
                             : ($album->business_logo_original
-                                ? Storage::disk('s3')->url($album->business_logo_original)
+                                ? generateSecureMediaUrl($album->business_logo_original)
                                 : null);
                     }
                 }
@@ -665,8 +664,8 @@ class PostController extends Controller
                     'postMedias' => $post->postMedias->map(function ($media) {
                         return [
                             'id' => $media->id,
-                            'media_url' => Storage::disk('s3')->url($media->file_path),
-                            'media_url_compress' => Storage::disk('s3')->url($media->file_path_compress),
+                            'media_url' => generateSecureMediaUrl($media->file_path),
+                            'media_url_compress' => generateSecureMediaUrl($media->file_path_compress),
                             'sequence_order' => $media->sequence_order,
                         ];
                     }),

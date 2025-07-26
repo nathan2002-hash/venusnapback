@@ -297,15 +297,15 @@ class AdController extends Controller
             if ($album) {
                 if (in_array($album->type, ['personal', 'creator'])) {
                     $profileUrl = $album->thumbnail_compressed
-                        ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                        ? generateSecureMediaUrl($album->thumbnail_compressed)
                         : ($album->thumbnail_original
-                            ? Storage::disk('s3')->url($album->thumbnail_original)
+                            ? generateSecureMediaUrl($album->thumbnail_original)
                             : $defaultProfile);
                 } elseif ($album->type === 'business') {
                     $profileUrl = $album->business_logo_compressed
-                        ? Storage::disk('s3')->url($album->business_logo_compressed)
+                        ? generateSecureMediaUrl($album->business_logo_compressed)
                         : ($album->business_logo_original
-                            ? Storage::disk('s3')->url($album->business_logo_original)
+                            ? generateSecureMediaUrl($album->business_logo_original)
                             : $defaultProfile);
                 }
             }
@@ -328,7 +328,7 @@ class AdController extends Controller
                 ],
                 'media_urls' => $ad->media->map(function ($media) {
                     return [
-                        'url' => $media->file_path ? Storage::disk('s3')->url($media->file_path) : null,
+                        'url' => $media->file_path ? generateSecureMediaUrl($media->file_path) : null,
                         'type' => $media->type,
                         'sequence_order' => $media->sequence_order,
                     ];
@@ -525,15 +525,15 @@ class AdController extends Controller
             if ($album) {
                 if (in_array($album->type, ['personal', 'creator'])) {
                     $profileUrl = $album->thumbnail_compressed
-                        ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                        ? generateSecureMediaUrl($album->thumbnail_compressed)
                         : ($album->thumbnail_original
-                            ? Storage::disk('s3')->url($album->thumbnail_original)
+                            ? generateSecureMediaUrl($album->thumbnail_original)
                             : $defaultProfile);
                 } elseif ($album->type === 'business') {
                     $profileUrl = $album->business_logo_compressed
-                        ? Storage::disk('s3')->url($album->business_logo_compressed)
+                        ? generateSecureMediaUrl($album->business_logo_compressed)
                         : ($album->business_logo_original
-                            ? Storage::disk('s3')->url($album->business_logo_original)
+                            ? generateSecureMediaUrl($album->business_logo_original)
                             : $defaultProfile);
                 }
             }
@@ -632,15 +632,15 @@ class AdController extends Controller
         if ($album) {
             if (in_array($album->type, ['personal', 'creator'])) {
                 $profileUrl = $album->thumbnail_compressed
-                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                    ? generateSecureMediaUrl($album->thumbnail_compressed)
                     : ($album->thumbnail_original
-                        ? Storage::disk('s3')->url($album->thumbnail_original)
+                        ? generateSecureMediaUrl($album->thumbnail_original)
                         : $defaultProfile);
             } elseif ($album->type === 'business') {
                 $profileUrl = $album->business_logo_compressed
-                    ? Storage::disk('s3')->url($album->business_logo_compressed)
+                    ? generateSecureMediaUrl($album->business_logo_compressed)
                     : ($album->business_logo_original
-                        ? Storage::disk('s3')->url($album->business_logo_original)
+                        ? generateSecureMediaUrl($album->business_logo_original)
                         : $defaultProfile);
             }
         }
@@ -957,7 +957,7 @@ class AdController extends Controller
             'media' => $ad->media->map(function($media) {
                 return [
                     'id' => $media->id,
-                    'file_path' => Storage::disk('s3')->url($media->file_path),
+                    'file_path' => generateSecureMediaUrl($media->file_path),
                     'sequence_order' => $media->sequence_order,
                 ];
             })->toArray(),
