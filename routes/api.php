@@ -13,7 +13,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:api');
 
 
-Route::post('/decrypt-token', function (Request $request) {
+Route::post('/decrypt/filepath', function (Request $request) {
     try {
         $decrypted = Crypt::decryptString($request->token);
         $data = json_decode($decrypted, true);
