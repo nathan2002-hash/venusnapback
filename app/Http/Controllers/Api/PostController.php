@@ -205,7 +205,7 @@ class PostController extends Controller
                 'ag_description' => $post->ag_description,
                 'status' => $post->status,
                 'user' => $album ? $album->name : 'Unknown Album',
-                'supporters' => $album ? (string)$album->supporters->count() : "0",
+                'supporters' => $album ? $album->supporters->count() : 0,
                 'album_name' => $album ? (string)$album->name : null,
                 'profile' => $profileUrl,
                 'album_description' => $album ? ($album->description ?? 'No description available') : null,
