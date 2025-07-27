@@ -211,6 +211,7 @@ class PostController extends Controller
                 'album_description' => $album ? ($album->description ?? 'No description available') : null,
                 'post_media' => $postMediaData,
                 'is_verified' => $album ? ($album->is_verified == 1) : false,
+                'is_supported' => $album ? $album->is_supported : false,
             ];
         })->values()->toArray(); // Ensure we return a proper array without keys
 

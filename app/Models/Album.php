@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Album extends Model
 {
@@ -66,5 +67,11 @@ class Album extends Model
     public function monetizationrequests()
     {
         return $this->hasMany(MonetizationRequest::class);
+    }
+
+    public function getIsSupportedAttribute()
+    {
+        $userId = Auth::id();
+        return $this->supporters()->where('user_id', $userId)->exists();
     }
 }
