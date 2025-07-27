@@ -309,6 +309,7 @@ class PostController extends Controller
             'created_at' => $this->formatDateTimeForUser($post->created_at, $viewerTimezone),
             'album_id' => (string) $album->id,
             'album_name' => (string) $album->name,
+            'user' => (string) $album->name,
             'profile' => $profileUrl ?? asset('default/profile.png'), // Fallback if no album
             'description' => $post->description ?: 'No description available provided by the creator',
             'album_description' => $album->description ?? 'No description available provided by the creator',
