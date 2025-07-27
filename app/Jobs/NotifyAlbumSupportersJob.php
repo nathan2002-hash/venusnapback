@@ -49,7 +49,7 @@ class NotifyAlbumSupportersJob implements ShouldQueue
 
                 if (
                     !$user ||
-                    $user->id === $this->post->user_id
+                    $user->id == $this->post->user_id
                 ) {
                     continue;
                 }
