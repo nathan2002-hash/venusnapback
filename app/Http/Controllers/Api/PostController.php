@@ -225,10 +225,27 @@ class PostController extends Controller
 
     public function show(Request $request, $id)
     {
-        $post = Post::with(['postmedias.comments.user', 'postmedias.admires.user', 'album.supporters'])
+        $userId = Auth::id();
+
+        $post = Post::with([
+                'postmedias' => function ($query) use ($userId) {
+                    $query->orderBy('sequence_order')
+                        ->withCount(['comments', 'admires'])
+                        ->with(['comments.user', 'admires.user'])
+                        ->withExists(['admires as admired' => function ($q) use ($userId) {
+                            $q->where('user_id', $userId);
+                        }]);
+                },
+                'album' => function ($query) use ($userId) {
+                    $query->withExists(['supporters as is_supported' => function ($q) use ($userId) {
+                        $q->where('user_id', $userId);
+                    }]);
+                }
+            ])
             ->where('id', $id)
             ->where('status', 'active')
             ->first();
+
 
         if (!$post) {
             return response()->json(['error' => 'Post not found'], 404);
@@ -292,15 +309,37 @@ class PostController extends Controller
         $sortedMedia = $post->postMedias->sortBy('sequence_order');
 
         // Transform post media data
-        $postMediaData = $sortedMedia->map(function ($media) {
-            return [
-                'id' => $media->id,
-                'filepath' => generateSecureMediaUrl($media->file_path_compress),
-                'sequence_order' => $media->sequence_order,
-                'comments_count' => $media->comments->count(),
-                'likes_count' => $media->admires->count(),
-            ];
-        })->values()->toArray(); // Use values() to reset array keys after sorting
+        $postMediaData = $post->postmedias->map(function ($media) {
+        return [
+            'id' => $media->id,
+            'filepath' => generateSecureMediaUrl($media->file_path_compress),
+            'sequence_order' => (int)$media->sequence_order,
+            'comments_count' => $media->comments_count,
+            'likes_count' => $media->admires_count,
+            'admired' => $media->admired,
+            'comments' => $media->comments->map(function ($comment) {
+                return [
+                    'id' => $comment->id,
+                    'content' => $comment->content,
+                    'user' => [
+                        'id' => $comment->user->id,
+                        'name' => $comment->user->name,
+                        'profile_photo_url' => $comment->user->profile_photo_url
+                    ]
+                ];
+            }),
+            'admires' => $media->admires->map(function ($admire) {
+                return [
+                    'id' => $admire->id,
+                    'user' => [
+                        'id' => $admire->user->id,
+                        'name' => $admire->user->name,
+                        'profile_photo_url' => $admire->user->profile_photo_url
+                    ]
+                ];
+            })
+        ];
+    })->values()->all();
 
         return response()->json([
             'id' => $post->id,
@@ -321,14 +360,13 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
-        $user = Auth::user(); // Get authenticated user
         $user = Auth::user();
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
         // Create the post
         $post = new Post();
-        $post->user_id = Auth::user()->id; // Assign authenticated user's ID
+        $post->user_id = $user->id; // Assign authenticated user's ID
         $post->description = $request->description;
         // Randomly select type and category from the arrays
         $post->status = 'review';
