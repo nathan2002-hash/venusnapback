@@ -305,7 +305,7 @@ class PostController extends Controller
         return response()->json([
             'id' => $post->id,
             'user' => $album ? $album->name : 'Unknown Album',
-            'supporters' => ($album ? $album->supporters->count() : 0),
+            'supporters' => $album ? $album->supporters()->where('status', 'active')->count() : 0,
             'created_at' => $this->formatDateTimeForUser($post->created_at, $viewerTimezone),
             'album_id' => (string) $album->id,
             'album_name' => (string) $album->name,
@@ -314,6 +314,7 @@ class PostController extends Controller
             'album_description' => $album->description ?? 'No description available provided by the creator',
             'post_media' => $postMediaData,
             'is_verified' => $album ? ($album->is_verified == 1) : false,
+            'is_supported' => $album ? $album->is_supported : false,
         ], 200);
     }
 
