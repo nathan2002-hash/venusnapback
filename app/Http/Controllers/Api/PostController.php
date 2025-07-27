@@ -305,7 +305,7 @@ class PostController extends Controller
         return response()->json([
             'id' => $post->id,
             'user' => $album ? $album->name : 'Unknown Album',
-            'supporters' => (string) ($album ? $album->supporters->count() : 0),
+            'supporters' => ($album ? $album->supporters->count() : 0),
             'created_at' => $this->formatDateTimeForUser($post->created_at, $viewerTimezone),
             'album_id' => (string) $album->id,
             'album_name' => (string) $album->name,
