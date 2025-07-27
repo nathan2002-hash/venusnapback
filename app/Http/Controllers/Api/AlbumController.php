@@ -568,7 +568,7 @@ class AlbumController extends Controller
                 'description' => $album->description,
                 'type' => $album->type,
                 'is_verified' => (bool) $album->is_verified,
-                'supporters' => $album->supporters->count(),
+                'supporters' => $album ? $album->supporters()->where('status', 'active')->count() : 0,
                 'posts' => $album->posts()->whereIn('status', ['active', 'review'])->count(),
                 'thumbnail_url' => $thumbnailUrl,
                 'created_at' => $album->created_at->format('l, d F Y at h:i A'),
@@ -686,7 +686,7 @@ class AlbumController extends Controller
                 'thumbnail_url' => $thumbnailUrl,
                 'is_verified' => (bool)$album->is_verified,
                 'bg_thumbnail_url' => $bgthumbnailUrl,
-                'supporters' => $album->supporters->count(),
+                'supporters' => $album ? $album->supporters()->where('status', 'active')->count() : 0,
                 'posts' => $posts,
             ]
         ], 200);
@@ -758,7 +758,11 @@ class AlbumController extends Controller
             }
         }
 
-        $isSupporter = $user ? $album->supporters()->where('user_id', Auth::user()->id)->exists() : false;
+        $isSupporter = $user ? $album->supporters()
+            ->where('user_id', Auth::id())
+            ->where('status', 'active')
+            ->exists() : false;
+
 
         // Determine the album's thumbnail
         if ($album->type == 'personal' || $album->type == 'creator') {
@@ -833,7 +837,7 @@ class AlbumController extends Controller
                 'is_verified' => (bool)$album->is_verified,
                 'thumbnail_url' => $thumbnailUrl,
                 'bg_thumbnail_url' => $bgthumbnailUrl,
-                'supporters' => $album->supporters->count(),
+                'supporters' => $album ? $album->supporters()->where('status', 'active')->count() : 0,
                 'posts' => $posts,
                 'email' => in_array($album->type, ['creator', 'business']) ? $album->email : null,
                 'phone' => in_array($album->type, ['creator', 'business']) ? $album->phone : null,

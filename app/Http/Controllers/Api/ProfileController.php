@@ -30,9 +30,12 @@ class ProfileController extends Controller
         : generateSecureMediaUrl('system/defaultcover.jpg');
         $profileUrl = $user->profile_compressed ? generateSecureMediaUrl($user->profile_compressed) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
         // Return the user profile data
-        $totalSupporters = $user->albums->flatMap(function ($album) {
-            return $album->supporters()->pluck('user_id');
+       $totalSupporters = $user->albums->flatMap(function ($album) {
+            return $album->supporters()
+                ->where('status', 'active')
+                ->pluck('user_id');
         })->unique()->count();
+
 
 
         return response()->json([

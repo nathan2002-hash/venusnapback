@@ -72,6 +72,9 @@ class Album extends Model
     public function getIsSupportedAttribute()
     {
         $userId = Auth::id();
-        return $this->supporters()->where('user_id', $userId)->exists();
+        return $this->supporters()
+            ->where('user_id', $userId)
+            ->where('status', 'active')
+            ->exists();
     }
 }

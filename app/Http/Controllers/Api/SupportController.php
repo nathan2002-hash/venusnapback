@@ -17,19 +17,6 @@ class SupportController extends Controller
 
     public function supportpost(Request $request)
     {
-        // Validate the request
-        // $validator = Validator::make($request->all(), [
-        //     'postmedia' => 'required|exists:post_media,id', // Ensure postmedia exists in the post_media table
-        // ]);
-
-        // // If validation fails, return error response
-        // if ($validator->fails()) {
-        //     return response()->json([
-        //         'status' => 'error',
-        //         'message' => 'Validation failed',
-        //         'errors' => $validator->errors(),
-        //     ], 422);
-        // }
 
         // Get the authenticated user's ID
         $user_id = Auth::id();
@@ -87,19 +74,6 @@ class SupportController extends Controller
 
     public function supportad(Request $request, $id)
     {
-        // Validate the request
-        // $validator = Validator::make($request->all(), [
-        //     'postmedia' => 'required|exists:post_media,id', // Ensure postmedia exists in the post_media table
-        // ]);
-
-        // // If validation fails, return error response
-        // if ($validator->fails()) {
-        //     return response()->json([
-        //         'status' => 'error',
-        //         'message' => 'Validation failed',
-        //         'errors' => $validator->errors(),
-        //     ], 422);
-        // }
 
         // Get the authenticated user's ID
         $user_id = Auth::id();
@@ -155,21 +129,8 @@ class SupportController extends Controller
         ], 200);
     }
 
-      public function supportalbum(Request $request)
+    public function supportalbum(Request $request)
     {
-        // Validate the request
-        // $validator = Validator::make($request->all(), [
-        //     'postmedia' => 'required|exists:post_media,id', // Ensure postmedia exists in the post_media table
-        // ]);
-
-        // // If validation fails, return error response
-        // if ($validator->fails()) {
-        //     return response()->json([
-        //         'status' => 'error',
-        //         'message' => 'Validation failed',
-        //         'errors' => $validator->errors(),
-        //     ], 422);
-        // }
 
         // Get the authenticated user's ID
         $user_id = Auth::id();
@@ -253,5 +214,91 @@ class SupportController extends Controller
                 ],
             ], 200);
         }
+    }
+
+    public function toggleSupport(Request $request, $action)
+    {
+        $user_id = Auth::id();
+        $album_id = $request->input('albumid');
+        $postmedia_id = $request->input('postmedia');
+
+        if (!$album_id || !$postmedia_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Missing album ID or post media ID.',
+            ], 400);
+        }
+
+        $postMedia = PostMedia::find($postmedia_id);
+        if (!$postMedia) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Post media not found.',
+            ], 404);
+        }
+
+        $post = Post::find($postMedia->post_id);
+        if (!$post) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Post not found.',
+            ], 404);
+        }
+
+        if ($action === 'subscribe') {
+            // Check if already actively supported
+            $existingActive = Supporter::where('user_id', $user_id)
+                ->where('album_id', $album_id)
+                ->where('status', 'active')
+                ->exists();
+
+            if ($existingActive) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'You already supported this album.',
+                ], 409);
+            }
+
+            // Always create a new support record
+            $support = Supporter::create([
+                'album_id' => $album_id,
+                'post_id' => $post->id,
+                'user_id' => $user_id,
+                'status' => 'active',
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Support added successfully.',
+                'data' => $support,
+            ], 201);
+
+        } elseif ($action === 'unsubscribe') {
+            // Find the most recent active support to deactivate
+            $existingSupport = Supporter::where('user_id', $user_id)
+                ->where('album_id', $album_id)
+                ->where('status', 'active')
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if (!$existingSupport) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'You have not supported this album.',
+                ], 409);
+            }
+
+            $existingSupport->update(['status' => 'inactive']);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Support removed successfully.',
+            ], 200);
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Invalid action.',
+        ], 400);
     }
 }
