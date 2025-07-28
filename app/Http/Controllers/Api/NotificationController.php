@@ -20,11 +20,14 @@ class NotificationController extends Controller
         $perPage = $request->input('per_page', 10); // Default to 10 items per page
         $page = $request->input('page', 1); // Default to first page
 
-        $notifications = Notification::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage, ['*'], 'page', $page)
-            ->get()
-            ->groupBy(function ($notification) {
+
+            // Get paginated notifications
+            $paginatedNotifications = Notification::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->paginate($perPage, ['*'], 'page', $page);
+
+            // Process the notifications collection
+            $notifications = $paginatedNotifications->groupBy(function ($notification) {
                 $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
 
                 // Special handling for album views
@@ -88,9 +91,10 @@ class NotificationController extends Controller
             return response()->json([
             'notifications' => $notifications,
             'pagination' => [
-                'current_page' => $page,
-                'per_page' => $perPage,
-                'has_more_pages' => $notifications->count() >= $perPage,
+                'current_page' => $paginatedNotifications->currentPage(),
+                'per_page' => $paginatedNotifications->perPage(),
+                'total' => $paginatedNotifications->total(),
+                'has_more_pages' => $paginatedNotifications->hasMorePages(),
             ]
         ]);
     }
