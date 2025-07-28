@@ -17,9 +17,12 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
+        $perPage = $request->input('per_page', 10); // Default to 10 items per page
+        $page = $request->input('page', 1); // Default to first page
 
         $notifications = Notification::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page)
             ->get()
             ->groupBy(function ($notification) {
                 $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
@@ -82,7 +85,14 @@ class NotificationController extends Controller
             })
             ->values();
 
-        return response()->json($notifications);
+            return response()->json([
+            'notifications' => $notifications,
+            'pagination' => [
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'has_more_pages' => $notifications->count() >= $perPage,
+            ]
+        ]);
     }
 
    protected function getGroupingIdentifier($notification, $type)
