@@ -22,12 +22,12 @@ class NotificationController extends Controller
 
 
             // Get paginated notifications
-            $paginatedNotifications = Notification::where('user_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->paginate($perPage, ['*'], 'page', $page);
+           $allNotifications = Notification::where('user_id', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
 
             // Process the notifications collection
-            $notifications = $paginatedNotifications->groupBy(function ($notification) {
+            $groupedNotifications  = $allNotifications->groupBy(function ($notification) {
                 $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
 
                 // Special handling for album views
@@ -87,16 +87,19 @@ class NotificationController extends Controller
                 ];
             })
             ->values();
+             $total = $groupedNotifications->count();
+    $currentPageItems = $groupedNotifications->forPage($page, $perPage);
+    $hasMore = ($page * $perPage) < $total;
 
             return response()->json([
-            'notifications' => $notifications,
-            'pagination' => [
-                'current_page' => $paginatedNotifications->currentPage(),
-                'per_page' => $paginatedNotifications->perPage(),
-                'total' => $paginatedNotifications->total(),
-                'has_more_pages' => $paginatedNotifications->hasMorePages(),
-            ]
-        ]);
+        'notifications' => $currentPageItems,
+        'pagination' => [
+            'current_page' => (int)$page,
+            'per_page' => (int)$perPage,
+            'total' => $total,
+            'has_more_pages' => $hasMore,
+        ]
+    ]);
     }
 
    protected function getGroupingIdentifier($notification, $type)
