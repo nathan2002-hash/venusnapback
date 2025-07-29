@@ -162,6 +162,11 @@ class NotificationController extends Controller
 
     private function buildGroupedMessage($usernames, $userCount, $action, $type, $notification, $group)
     {
+        if ($type === 'album_new_post') {
+            $data = json_decode($notification->data, true);
+            $albumName = $this->formatAlbumName($data['album_name'] ?? null);
+            return $this->getActionPhrase($action, $type, $notification);
+        }
         if ($type === 'album_view') {
             $data = json_decode($notification->data, true);
             $album = \App\Models\Album::with('user')->find($data['album_id'] ?? null);
@@ -232,6 +237,19 @@ class NotificationController extends Controller
         return "{$displayUsernames[0]} and " . ($userCount - 1) . " others $actionPhrase";
     }
 
+    private function formatAlbumName($albumName)
+    {
+        if (!$albumName) {
+            return 'this album';
+        }
+
+        // Remove "Album" suffix if already present
+        $albumName = preg_replace('/\s*Album$/i', '', $albumName);
+
+        // Return formatted name
+        return "\"{$albumName}\"";
+    }
+
     private function getActionPhrase($action, $type, $notification)
     {
         $data = json_decode($notification->data, true);
@@ -241,10 +259,11 @@ class NotificationController extends Controller
         $albumDisplayName = str_contains(strtolower($albumName), 'album') ? $albumName : "{$albumName} Album";
 
         $albumNewPostPhrases = [
-            "added a new snap",
-            "shared something new",
-            "just got updated",
-            "posted a fresh snap",
+            "New content in {$albumDisplayName}",
+            "Fresh snaps in {$albumDisplayName}",
+            "New updates in {$albumDisplayName}",
+            "{$albumDisplayName} has new content",
+            "Check out the latest in {$albumDisplayName}",
         ];
 
 
