@@ -110,9 +110,9 @@ class CreateNotificationJob implements ShouldQueue
         // Explicitly load the user relationship
         $user = $supporter->user;
 
-        // if (!$user || $user->id == $this->post->user_id) {
-        //     continue;
-        // }
+        if (!$user || $user->id == $this->post->user_id) {
+            continue;
+        }
 
         // Get user settings (single query per user)
         $settings = UserSetting::where('user_id', $user->id)->first();
