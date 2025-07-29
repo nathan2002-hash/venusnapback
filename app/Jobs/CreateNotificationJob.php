@@ -113,9 +113,9 @@ class CreateNotificationJob implements ShouldQueue
         foreach ($supporters as $supporter) {
             $user = $supporter->user;
 
-            if (!$user || $user->id == $this->post->user_id) {
-                continue;
-            }
+            // if (!$user || $user->id == $this->post->user_id) {
+            //     continue;
+            // }
 
             $settings = UserSetting::where('user_id', $user->id)->first();
 
