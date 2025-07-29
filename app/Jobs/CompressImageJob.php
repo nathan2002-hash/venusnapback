@@ -96,9 +96,9 @@ class CompressImageJob implements ShouldQueue
         $first = $numbers[array_rand($numbers)];
         $second = $numbers[array_rand($numbers)];
 
-        if ($first === $second) {
-            return;
-        }
+        // if ($first === $second) {
+        //     return;
+        // }
 
         $randomMedia = $post->postmedias()->inRandomOrder()->first();
         $album = $post->album;
