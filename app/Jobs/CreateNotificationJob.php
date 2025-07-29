@@ -108,7 +108,7 @@ class CreateNotificationJob implements ShouldQueue
     protected function handleBigPictureNotification()
     {
         // Get all supporters of this album with push notifications enabled
-        $supporters = $this->album->supporters()->with(['user', 'user.settings'])->get();
+        $supporters = $this->album->supporters()->with('user')->get();
 
         foreach ($supporters as $supporter) {
             $user = $supporter->user;
@@ -117,8 +117,9 @@ class CreateNotificationJob implements ShouldQueue
                 continue;
             }
 
-            // Check user settings
-            if (!$user->settings || !$user->settings->push_notifications) {
+            $settings = UserSetting::where('user_id', $user->id)->first();
+
+            if (!$settings || !$settings->push_notifications) {
                 continue;
             }
 
