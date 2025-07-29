@@ -14,99 +14,77 @@ use Illuminate\Support\Facades\Http;
 
 class NotificationController extends Controller
 {
-    public function index(Request $request)
-{
-    $user = $request->user();
-    $perPage = $request->input('per_page', 10);
-    $page = $request->input('page', 1);
+     public function index(Request $request)
+    {
+        $user = $request->user();
 
-    // Fetch 11 records to check if there's a next page
-    $paginated = Notification::where('user_id', $user->id)
-    ->orderBy('created_at', 'desc')
-    ->paginate($perPage, ['*'], 'page', $page);
+        $notifications = Notification::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(15)
+            ->groupBy(function ($notification) {
+                $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
 
-    $notifications = collect($paginated->items()); // actual current page items
+                // Special handling for album views
+                if ($type === 'album_view') {
+                    $data = json_decode($notification->data, true);
+                    $albumId = $data['album_id'] ?? $notification->notifiable_id;
+                    $date = $notification->created_at->format('Y-m-d');
+                    return "album_view-{$albumId}-{$date}";
+                }
 
-    $hasMore = $paginated->hasMorePages();
+                // Default grouping for other types
+                $groupKey = $type . '-' . $this->getGroupingIdentifier($notification, $type);
 
+                if ($type !== 'album_view') {
+                    $data = json_decode($notification->data, true);
+                    if (isset($data['username'])) {
+                        $groupKey .= '-' . $data['username'];
+                    }
+                }
 
+                return $groupKey;
+            })
+            ->map(function ($group) {
+                $firstNotification = $group->first();
+                $data = json_decode($firstNotification->data, true);
+                $username = $data['username'] ?? 'Someone';
 
-    // If we fetched extra, remove it
-    if ($hasMore) {
-        $notifications->pop(); // Remove the extra item we fetched
+                $action = $firstNotification->action;
+                $type = $firstNotification->type ?? $this->determineTypeFromAction($action);
+
+                // Get both notifiable_id and notifiablemedia_id
+                $ids = $this->getNotificationIds($firstNotification, $type);
+                $notifiableId = $ids['notifiable_id'];
+                $notifiableMediaId = $ids['notifiablemedia_id'];
+
+                $userCount = $group->count();
+
+                if ($type === 'album_request') {
+                    $message = "$username invited you to collaborate on the album \"{$data['album_name']}\"";
+                } else {
+                    $message = $this->buildGroupedMessage([$username], $userCount, $action, $type, $firstNotification, $group);
+                }
+
+                return [
+                    'id' => $firstNotification->id,
+                    'type' => $type,
+                    'action' => $action,
+                    'notifiable_id' => $notifiableId,
+                    'notifiablemedia_id' => $notifiableMediaId,
+                    'original_notifiable_id' => $firstNotification->notifiable_id,
+                    'message' => $message,
+                    'is_read' => $group->every->is_read,
+                    'created_at' => $firstNotification->created_at,
+                    'formatted_date' => $firstNotification->created_at->format('M d, Y - h:i A'),
+                    'icon' => $this->getNotificationIcon($action),
+                    'metadata' => $data
+                ];
+            })
+            ->values();
+
+        return response()->json($notifications);
     }
 
-    // Process the notifications collection
-    $result = $notifications->groupBy(function($notification) {
-        $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
-
-        // Special handling for album views
-        if ($type === 'album_view') {
-            $data = json_decode($notification->data, true);
-            $albumId = $data['album_id'] ?? $notification->notifiable_id;
-            $date = $notification->created_at->format('Y-m-d');
-            return "album_view-{$albumId}-{$date}";
-        }
-
-        // Default grouping for other types
-        $groupKey = $type . '-' . $this->getGroupingIdentifier($notification, $type);
-
-        if ($type !== 'album_view') {
-            $data = json_decode($notification->data, true);
-            if (isset($data['username'])) {
-                $groupKey .= '-' . $data['username'];
-            }
-        }
-
-        return $groupKey;
-    })
-    ->map(function ($group) {
-        $firstNotification = $group->first();
-        $data = json_decode($firstNotification->data, true);
-        $username = $data['username'] ?? 'Someone';
-
-        $action = $firstNotification->action;
-        $type = $firstNotification->type ?? $this->determineTypeFromAction($action);
-
-        // Get both notifiable_id and notifiablemedia_id
-        $ids = $this->getNotificationIds($firstNotification, $type);
-        $notifiableId = $ids['notifiable_id'];
-        $notifiableMediaId = $ids['notifiablemedia_id'];
-
-        $userCount = $group->count();
-
-        if ($type === 'album_request') {
-            $message = "$username invited you to collaborate on the album \"{$data['album_name']}\"";
-        } else {
-            $message = $this->buildGroupedMessage([$username], $userCount, $action, $type, $firstNotification, $group);
-        }
-
-        return [
-            'id' => $firstNotification->id,
-            'type' => $type,
-            'action' => $action,
-            'notifiable_id' => $notifiableId,
-            'notifiablemedia_id' => $notifiableMediaId,
-            'original_notifiable_id' => $firstNotification->notifiable_id,
-            'message' => $message,
-            'is_read' => $group->every->is_read,
-            'created_at' => $firstNotification->created_at,
-            'formatted_date' => $firstNotification->created_at->format('M d, Y - h:i A'),
-            'icon' => $this->getNotificationIcon($action),
-            'metadata' => $data
-        ];
-    })
-    ->values();
-
-    return response()->json([
-        'notifications' => $result,
-        'pagination' => [
-            'current_page' => $paginated->currentPage(),
-            'per_page' => $perPage,
-            'has_more_pages' => $hasMore,
-        ]
-    ]);
-}
 
    protected function getGroupingIdentifier($notification, $type)
     {
