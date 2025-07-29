@@ -661,7 +661,7 @@
             <li><i class="bi bi-check-circle"></i> Access to Photos</li>
             <li><i class="bi bi-check-circle"></i> Storage (for saving media)</li>
             <li><i class="bi bi-check-circle"></i> Push Notifications</li>
-            <li><i class="bi bi-check-circle-fill"></i> Camera Usage</li>
+            <li><i class="bi bi-check-circle"></i> Camera Usage</li>
           </ul>
 
           <a href="#" class="btn btn-outline-secondary disabled">
@@ -684,7 +684,7 @@
             <li><i class="bi bi-check-circle"></i> Internet Access</li>
             <li><i class="bi bi-check-circle"></i> Media Storage</li>
             <li><i class="bi bi-check-circle"></i> Push Notifications</li>
-            <li><i class="bi bi-check-circle-fill"></i> Camera Usage</li>
+            <li><i class="bi bi-check-circle"></i> Camera Usage</li>
           </ul>
 
           <a href="#" class="btn btn-outline-secondary disabled">
