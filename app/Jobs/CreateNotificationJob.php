@@ -39,7 +39,7 @@ class CreateNotificationJob implements ShouldQueue
         User $sender,
         $notifiable,
         $action,
-        $targetUserId,
+        $targetUserId = null,
         array $data = [],
         $isBigPicture = false,
         $post = null,
@@ -107,25 +107,41 @@ class CreateNotificationJob implements ShouldQueue
 
     protected function handleBigPictureNotification()
     {
-        // Create database notification
-        $notification = NotificationModel::create([
-            'user_id' => $this->targetUserId,
-            'action' => 'album_new_post',
-            'notifiable_type' => get_class($this->post),
-            'notifiable_id' => $this->post->id,
-            'data' => json_encode([
-                'username' => $this->post->user->name,
-                'sender_id' => $this->post->user_id,
-                'album_name' => $this->album->name,
-                'post_id' => $this->post->id,
-                'media_id' => $this->randomMedia->id,
-                'image' => generateSecureMediaUrl($this->randomMedia->file_path_compress)
-            ]),
-            'is_read' => false
-        ]);
+        // Get all supporters of this album with push notifications enabled
+        $supporters = $this->album->supporters()->with(['user', 'user.settings'])->get();
 
-        // Send push notification
-        $this->sendBigPicturePushNotification($notification);
+        foreach ($supporters as $supporter) {
+            $user = $supporter->user;
+
+            if (!$user || $user->id == $this->post->user_id) {
+                continue;
+            }
+
+            // Check user settings
+            if (!$user->settings || !$user->settings->push_notifications) {
+                continue;
+            }
+
+            // Create database notification
+            $notification = NotificationModel::create([
+                'user_id' => $user->id,
+                'action' => 'album_new_post',
+                'notifiable_type' => get_class($this->post),
+                'notifiable_id' => $this->post->id,
+                'data' => json_encode([
+                    'username' => $this->post->user->name,
+                    'sender_id' => $this->post->user_id,
+                    'album_name' => $this->album->name,
+                    'post_id' => $this->post->id,
+                    'media_id' => $this->randomMedia->id,
+                    'image' => generateSecureMediaUrl($this->randomMedia->file_path_compress)
+                ]),
+                'is_read' => false
+            ]);
+
+            // Send push notification to this supporter
+            $this->sendBigPicturePushNotification($user, $notification);
+        }
     }
 
     protected function sanitizeData(array $data): array
@@ -244,9 +260,9 @@ class CreateNotificationJob implements ShouldQueue
         }
     }
 
-    protected function sendBigPicturePushNotification($notification)
+    protected function sendBigPicturePushNotification(User $user, $notification)
     {
-        $activeTokens = FcmToken::where('user_id', $this->targetUserId)
+        $activeTokens = FcmToken::where('user_id', $user->id)
             ->where('status', 'active')
             ->pluck('token')
             ->toArray();
@@ -327,7 +343,7 @@ class CreateNotificationJob implements ShouldQueue
                     'screen_to_open' => 'post'
                 ]);
 
-            // Send to each active token
+            // Send to each active token for this user
             foreach ($activeTokens as $token) {
                 try {
                     $messaging->send($message->withChangedTarget('token', $token));
@@ -336,7 +352,7 @@ class CreateNotificationJob implements ShouldQueue
                     FcmToken::where('token', $token)->update(['status' => 'expired']);
 
                     SystemError::create([
-                        'user_id' => $this->targetUserId,
+                        'user_id' => $user->id,
                         'context' => 'fcm_send',
                         'message' => "Failed to send to token {$token}: " . $e->getMessage(),
                         'stack_trace' => $e->getTraceAsString(),
@@ -346,17 +362,16 @@ class CreateNotificationJob implements ShouldQueue
             }
 
         } catch (\Exception $e) {
-            Log::error('Push notification failed: ' . $e->getMessage(), [
-                'user_id' => $this->targetUserId,
+            Log::error('Push notification failed for user ' . $user->id . ': ' . $e->getMessage(), [
                 'post_id' => $this->post->id
             ]);
             SystemError::create([
-                'user_id' => $this->targetUserId,
+                'user_id' => $user->id,
                 'context' => 'push_notification',
                 'message' => 'Push notification failed: ' . $e->getMessage(),
                 'stack_trace' => $e->getTraceAsString(),
                 'metadata' => json_encode([
-                    'user_id' => $this->targetUserId,
+                    'user_id' => $user->id,
                     'post_id' => $this->post->id,
                 ]),
             ]);
