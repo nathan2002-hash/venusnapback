@@ -101,9 +101,18 @@ class CompressImageJob implements ShouldQueue
         }
 
         $randomMedia = $post->postmedias()->inRandomOrder()->first();
-            $album = $post->album;
+        $album = $post->album;
 
-            NotifyAlbumSupportersJob::dispatch($post, $album, $randomMedia)
-                ->delay(now()->addSeconds(30)); // Small buffer
+        CreateNotificationJob::dispatch(
+            $post->user, // sender
+            $post,      // notifiable
+            'album_new_post', // action
+            null,       // targetUserId will be set per supporter
+            [],         // data
+            true,       // isBigPicture
+            $post,      // post
+            $album,     // album
+            $randomMedia // randomMedia
+        )->delay(now()->addSeconds(30)); // Small buffer
     }
 }
