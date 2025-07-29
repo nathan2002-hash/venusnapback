@@ -21,12 +21,15 @@ class NotificationController extends Controller
     $page = $request->input('page', 1);
 
     // Fetch 11 records to check if there's a next page
-    $notifications = Notification::where('user_id', $user->id)
-        ->orderBy('created_at', 'desc')
-        ->paginate($perPage + 1, ['*'], 'page', $page);
+    $paginated = Notification::where('user_id', $user->id)
+    ->orderBy('created_at', 'desc')
+    ->paginate($perPage, ['*'], 'page', $page);
 
-    // Check if there's more pages
-    $hasMore = $notifications->count() > $perPage;
+    $notifications = collect($paginated->items()); // actual current page items
+
+    $hasMore = $paginated->hasMorePages();
+
+
 
     // If we fetched extra, remove it
     if ($hasMore) {
@@ -98,7 +101,7 @@ class NotificationController extends Controller
     return response()->json([
         'notifications' => $result,
         'pagination' => [
-            'current_page' => $page,
+            'current_page' => $paginated->currentPage(),
             'per_page' => $perPage,
             'has_more_pages' => $hasMore,
         ]
