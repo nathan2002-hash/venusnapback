@@ -63,20 +63,16 @@ class CreateNotificationJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            // Check user settings first
-            $settings = UserSetting::where('user_id', $this->targetUserId)->first();
-
-            if (!$settings || !$settings->push_notifications) {
-                // User has disabled push notifications; skip sending
-                return;
-            }
-
             if ($this->isBigPicture) {
                 $this->handleBigPictureNotification();
             } else {
+                // Only check settings for regular notifications
+                $settings = UserSetting::where('user_id', $this->targetUserId)->first();
+                if (!$settings || !$settings->push_notifications) {
+                    return;
+                }
                 $this->handleRegularNotification();
             }
-
         } catch (\Exception $e) {
             Log::error('Notification creation failed: ' . $e->getMessage(), [
                 'target_user' => $this->targetUserId,
