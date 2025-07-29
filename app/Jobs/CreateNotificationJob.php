@@ -106,44 +106,53 @@ class CreateNotificationJob implements ShouldQueue
     }
 
     protected function handleBigPictureNotification()
-    {
-        // Get all supporters of this album with push notifications enabled
-        $supporters = $this->album->supporters()->with('user')->get();
+{
+    // Get supporters without eager loading
+    $supporters = $this->album->supporters()->get();
 
-        foreach ($supporters as $supporter) {
-            $user = $supporter->user;
+    foreach ($supporters as $supporter) {
+        // Explicitly load the user relationship
+        $user = $supporter->user;
 
-            // if (!$user || $user->id == $this->post->user_id) {
-            //     continue;
-            // }
+        // if (!$user || $user->id == $this->post->user_id) {
+        //     continue;
+        // }
 
-            $settings = UserSetting::where('user_id', $user->id)->first();
-
-            if (!$settings || !$settings->push_notifications) {
-                continue;
-            }
-
-            // Create database notification
-            $notification = NotificationModel::create([
-                'user_id' => $user->id,
-                'action' => 'album_new_post',
-                'notifiable_type' => get_class($this->post),
-                'notifiable_id' => $this->post->id,
-                'data' => json_encode([
-                    'username' => $this->post->user->name,
-                    'sender_id' => $this->post->user_id,
-                    'album_name' => $this->album->name,
-                    'post_id' => $this->post->id,
-                    'media_id' => $this->randomMedia->id,
-                    'image' => generateSecureMediaUrl($this->randomMedia->file_path_compress)
-                ]),
-                'is_read' => false
-            ]);
-
-            // Send push notification to this supporter
-            $this->sendBigPicturePushNotification($user, $notification);
+        // Get user settings (single query per user)
+        $settings = UserSetting::where('user_id', $user->id)->first();
+        if (!$settings || !$settings->push_notifications) {
+            continue;
         }
+
+        // Check for active FCM tokens (single query per user)
+        $activeTokens = FcmToken::where('user_id', $user->id)
+            ->where('status', 'active')
+            ->exists();
+
+        if (!$activeTokens) {
+            continue;
+        }
+
+        // Create notification
+        $notification = NotificationModel::create([
+            'user_id' => $user->id,
+            'action' => 'album_new_post',
+            'notifiable_type' => get_class($this->post),
+            'notifiable_id' => $this->post->id,
+            'data' => json_encode([
+                'username' => $this->post->user->name,
+                'sender_id' => $this->post->user_id,
+                'album_name' => $this->album->name,
+                'post_id' => $this->post->id,
+                'media_id' => $this->randomMedia->id,
+                'image' => generateSecureMediaUrl($this->randomMedia->file_path_compress)
+            ]),
+            'is_read' => false
+        ]);
+
+        $this->sendBigPicturePushNotification($user, $notification);
     }
+}
 
     protected function sanitizeData(array $data): array
     {
