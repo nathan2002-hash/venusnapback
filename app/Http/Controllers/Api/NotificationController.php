@@ -21,6 +21,7 @@ class NotificationController extends Controller
         $notifications = Notification::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->take(15)
+            ->get()
             ->groupBy(function ($notification) {
                 $type = $notification->type ?? $this->determineTypeFromAction($notification->action);
 
