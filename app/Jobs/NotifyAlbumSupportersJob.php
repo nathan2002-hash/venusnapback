@@ -90,7 +90,7 @@ class NotifyAlbumSupportersJob implements ShouldQueue
                     'album_name' => $this->album->name,
                     'post_id' => $this->post->id,
                     'media_id' => $this->randomMedia->id,
-                    'image' => generateSecureMediaUrl($this->randomMedia->file_path)
+                    'image' => generateSecureMediaUrl($this->randomMedia->file_path_compress)
                 ]),
                 'is_read' => false
             ]);
@@ -153,7 +153,7 @@ class NotifyAlbumSupportersJob implements ShouldQueue
             ];
 
             $body = $bodies[array_rand($bodies)];
-            $imageUrl = generateSecureMediaUrl($this->randomMedia->file_path);
+            $imageUrl = generateSecureMediaUrl($this->randomMedia->file_path_compress);
             $albumimageUrl = null;
 
             if ($this->album) {
