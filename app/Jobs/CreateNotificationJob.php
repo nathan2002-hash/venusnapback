@@ -337,7 +337,7 @@ class CreateNotificationJob implements ShouldQueue
             $message = CloudMessage::new()
                 ->withNotification(FirebaseNotification::create($title, $body))
                 ->withData([
-                    'type' => 'album_post',
+                    'type' => 'album_new_post',
                     'action' => 'album_new_post',
                     'post_id' => (string)$this->post->id,
                     'media_id' => (string)$this->randomMedia->id,
