@@ -426,7 +426,7 @@ class CreateNotificationJob implements ShouldQueue
     {
         return match($action) {
             'viewed_album' => 'album_analytics',
-            'commented', 'replied', 'liked', 'admired' => 'post',
+            'commented', 'replied', 'liked', 'admired', 'album_new_post' => 'post',
             'shared_album', 'invited' => 'album_requests',
             default => 'notifications'
         };
@@ -489,6 +489,8 @@ class CreateNotificationJob implements ShouldQueue
             'admired' => 'post',
             'shared_album' => 'album_request',
             'invited' => 'album_request',
+            'invited' => 'album_request',
+            'album_new_post' => 'post',
         ];
 
         return $typeMap[$action] ?? 'post';
