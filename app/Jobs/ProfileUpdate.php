@@ -43,7 +43,7 @@ class ProfileUpdate implements ShouldQueue
         if ($this->user->cover_original) {
             $originalImagecover = Storage::disk('s3')->get($this->user->cover_original);
             $imagecover = $manager->read($originalImagecover);
-            $compressedImagecover = $imagecover->encode(new WebpEncoder(quality: 60));
+            $compressedImagecover = $imagecover->encode(new WebpEncoder(quality: 50));
 
             $compressedPathcover = 'uploads/profiles/compressed/cover/' . basename($this->user->cover_original);
             Storage::disk('s3')->put($compressedPathcover, (string) $compressedImagecover);
