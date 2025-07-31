@@ -412,7 +412,8 @@ class CreateNotificationJob implements ShouldQueue
         return [
             'type' => $type,
             'action' => $notification->action,
-            'notifiable_id' => (string)$notification->notifiable_id, // Could be post_media_id or album_id
+            //'notifiable_id' => (string)$notification->notifiable_id,
+            'notifiable_id' => isset($data['post_id']) ? (string)$data['post_id'] : (string)$notification->notifiable_id,
             'notifiablemedia_id' => $data['media_id'] ?? '0',
             'screen_to_open' => $this->getTargetScreen($notification->action),
             'metadata' => $this->sanitizeData($data),
