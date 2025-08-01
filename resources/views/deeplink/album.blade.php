@@ -20,14 +20,14 @@
         switch ($type) {
             case 'creator':
                 $description = $includesAlbum
-                    ? "Explore '{$albumName}' — {$roundedSnapCount} creative snaps and inspiration on Venusnap."
-                    : "Explore the '{$albumName}' album — {$roundedSnapCount} creative snaps and inspiration on Venusnap.";
+                    ? "Explore {$roundedSnapCount} creative snaps and inspiration on Venusnap."
+                    : "Explore {$roundedSnapCount} creative snaps and inspiration on Venusnap.";
                 break;
 
             case 'business':
                 $description = $includesAlbum
-                    ? "Discover '{$albumName}' — {$roundedSnapCount} product snaps and updates on Venusnap."
-                    : "Discover '{$albumName}' album — {$roundedSnapCount} product snaps and updates on Venusnap.";
+                    ? "Discover {$roundedSnapCount} product snaps and updates on Venusnap."
+                    : "Discover {$roundedSnapCount} product snaps and updates on Venusnap.";
                 break;
 
             case 'personal':
@@ -38,8 +38,6 @@
                 break;
         }
     @endphp
-
-
 
     <meta property="og:title" content="{{ $album->name ?? 'Venusnap Album' }}">
     <meta property="og:description" content="{{ $description }}">
