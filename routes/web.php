@@ -14,7 +14,8 @@ Route::get('/chat', function () {
     return view('emails.receipts.payment');
 });
 
-Route::get('/post/{post}/media/{media}', 'HomeController@deeplink');
+Route::get('/post/{post}/media/{media}', 'DeeplinkController@post');
+Route::get('/album/{album}', 'DeeplinkController@album');
 
     $host = request()->header('host');
     $host = explode(':', $host)[0];
