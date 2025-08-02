@@ -79,7 +79,7 @@ class AuthController extends Controller
         // Create token
         $token = $user->createToken('authToken');
 
-       if ($user->email === 'test@ycombinator.com') {
+       if ($user->email === 'test@yc.com') {
             $this->sendWithVonage('260970333596', 'Y Combinator has logged in');
         } elseif ($user->email === 'testuser@venusnap.com') {
             $this->sendWithVonage('260970333596', 'Google has logged in');
