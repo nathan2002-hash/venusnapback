@@ -25,15 +25,15 @@ class DeeplinkController extends Controller
         if ($album) {
             if ($album->type === 'personal' || $album->type === 'creator') {
                 $thumbnailUrl = $album->thumbnail_compressed
-                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                    ? generateSecureMediaUrl($album->thumbnail_compressed)
                     : ($album->thumbnail_original
-                        ? Storage::disk('s3')->url($album->thumbnail_original)
+                        ? generateSecureMediaUrl($album->thumbnail_original)
                         : null);
             } elseif ($album->type === 'business') {
                 $thumbnailUrl = $album->business_logo_compressed
-                    ? Storage::disk('s3')->url($album->business_logo_compressed)
+                    ? generateSecureMediaUrl($album->business_logo_compressed)
                     : ($album->business_logo_original
-                        ? Storage::disk('s3')->url($album->business_logo_original)
+                        ? generateSecureMediaUrl($album->business_logo_original)
                         : null);
             }
         }
@@ -76,15 +76,15 @@ class DeeplinkController extends Controller
         if ($album) {
             if ($album->type === 'personal' || $album->type === 'creator') {
                 $thumbnailUrl = $album->thumbnail_compressed
-                    ? Storage::disk('s3')->url($album->thumbnail_compressed)
+                    ? generateSecureMediaUrl($album->thumbnail_compressed)
                     : ($album->thumbnail_original
-                        ? Storage::disk('s3')->url($album->thumbnail_original)
+                        ? generateSecureMediaUrl($album->thumbnail_original)
                         : null);
             } elseif ($album->type === 'business') {
                 $thumbnailUrl = $album->business_logo_compressed
-                    ? Storage::disk('s3')->url($album->business_logo_compressed)
+                    ? generateSecureMediaUrl($album->business_logo_compressed)
                     : ($album->business_logo_original
-                        ? Storage::disk('s3')->url($album->business_logo_original)
+                        ? generateSecureMediaUrl($album->business_logo_original)
                         : null);
             }
         }
