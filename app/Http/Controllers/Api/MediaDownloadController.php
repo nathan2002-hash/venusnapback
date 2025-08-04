@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\MediaDownload;
 use App\Http\Controllers\Controller;
 use App\Models\PostMedia;
+use App\Models\Post;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 
@@ -38,5 +39,56 @@ class MediaDownloadController extends Controller
             'success' => true,
             'image_url' => $image_url
         ]);
+    }
+
+    public function downloadpostimages(Request $request)
+    {
+        $request->validate([
+            'post_id' => 'required|exists:posts,id'
+        ]);
+
+        $user = Auth::user();
+        $post = Post::with('postmedias')->find($request->post_id);
+
+        if (!$post) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Post not found'
+            ], 404);
+        }
+
+        // Prepare response data
+        $response = [
+            'success' => true,
+            'post_id' => $post->id,
+            'image_count' => $post->postmedias->count(),
+            'images' => [],
+        ];
+
+        // Log each download and prepare URLs
+        foreach ($post->postmedias as $media) {
+            // Log the download
+            $download = new MediaDownload();
+            $download->post_media_id = $media->id;
+            $download->user_agent = $request->header('User-Agent');
+            $download->device_info = $request->header('Device-Info');
+            $download->user_id = $user->id;
+            $download->ip_address = $request->header('cf-connecting-ip') ?? $request->ip();
+            $download->save();
+
+            $filePath = generateSecureMediaUrl($media->file_path);
+
+            // Add to response
+            $response['images'][] = [
+                'id' => $media->id,
+                'url' => generateSecureMediaUrl($media->file_path),
+                'file_name' => 'VEN_IMG_' . $media->id . '.' . pathinfo($media->file_path, PATHINFO_EXTENSION),
+                'mime_type' => mime_content_type($filePath),
+                'size' => filesize($filePath),
+                'order' => $media->order ?? null,
+            ];
+        }
+
+        return response()->json($response);
     }
 }

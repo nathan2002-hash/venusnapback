@@ -291,6 +291,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
 
     //media download
     Route::post('/post/media/download', 'Api\MediaDownloadController@download');
+    Route::post('/post/download', 'Api\MediaDownloadController@downloadpostimages');
 
     //app status
     Route::get('/app/status', 'Api\AppStatusController@checkAppStatus');
