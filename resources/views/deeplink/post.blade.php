@@ -8,14 +8,12 @@
     {{-- Open Graph Meta --}}
     @php
         $sharedBy = isset($share) ? $share->user->name : null;
-        $description = $sharedBy
-            ? "Check out this post shared by $sharedBy on Venusnap."
-            : "Check out this post from the '".($post->album->name ?? 'album')."' on Venusnap.";
+        $description = "Check out this post from the '".($post->album->name ?? 'album')."' on Venusnap.";
     @endphp
 
     <meta property="og:title" content="{{ $post->album->name ?? 'Venusnap Post' }}">
     <meta property="og:description" content="{{ $description }}">
-    <meta property="og:image" content="{{ $media->full_url ?? asset('default.jpg') }}">
+    <meta property="og:image" content="{{ $thumbnailUrl ?? asset('default.jpg') }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="article">
 

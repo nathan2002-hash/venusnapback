@@ -58,7 +58,7 @@ class DeeplinkController extends Controller
             $share->visits()->create($visitData);
         }
 
-        return view('deeplink.post', [
+        return view('deeplink.postmedia', [
             'post' => $post,
             'media' => $media,
             'thumbnailUrl' => $thumbnailUrl,
@@ -69,7 +69,6 @@ class DeeplinkController extends Controller
     public function post(Request $request, $postId, $mediaId)
     {
         $post = Post::with(['user', 'album'])->findOrFail($postId);
-        $media = PostMedia::findOrFail($mediaId);
         $album = $post->album;
 
         $thumbnailUrl = null;
@@ -112,7 +111,6 @@ class DeeplinkController extends Controller
 
         return view('deeplink.post', [
             'post' => $post,
-            'media' => $media,
             'thumbnailUrl' => $thumbnailUrl,
             'share' => $share // Pass the share object to the view
         ]);
