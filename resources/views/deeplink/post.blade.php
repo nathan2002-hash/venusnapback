@@ -20,7 +20,7 @@
 
     {{-- Deeplink logic --}}
     <script>
-        const deepLink = `venusnap://post/{{ $post->id }}/media/{{ $media->id }}?ref={{ request('ref') }}`;
+        const deepLink = `venusnap://post/{{ $post->id }}`;
         const fallbackUrl = "https://play.google.com/store/apps/details?id=com.venusnap.app";
 
         window.location = deepLink;
