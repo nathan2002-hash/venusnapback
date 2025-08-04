@@ -238,6 +238,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
 
     Route::post('/ad/seen', 'Api\PostExploreController@sendAdSeenRequest');
     Route::post('/ad/cta/click/{id}', 'Api\PostExploreController@sendAdCtaClick');
+    Route::get('/ad/share/url/{adId}','Api\MoreAdController@generateShareUrl');
 
     // Route::post('/create/paypal/order', 'Api\PayController@payment');
     // Route::post('/capture/paypal/order', 'Api\PayController@capture');
@@ -278,7 +279,6 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::put('/manage/album/update/{id}', 'Api\AlbumAccessController@albumupdate');
     Route::get('/album/requests', 'Api\AlbumAccessController@getRequests');
     Route::post('/album/requests/{id}/respond', 'Api\AlbumAccessController@respondToRequest');
-
 
     //genai
     Route::post('/generate-ad', 'Api\AIGenController@generateAd');
