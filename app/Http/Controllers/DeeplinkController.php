@@ -89,30 +89,10 @@ class DeeplinkController extends Controller
             }
         }
 
-        $share = LinkShare::with('user')->where('short_code', $request->ref)->first();
-
         // Track visit if share exists
-        if ($share) {
-            $visitData = [
-                'ip_address' => $request->header('cf-connecting-ip') ?? $request->ip(),
-                'user_agent' => $request->header('User-Agent'),
-                'device_info' => $request->header('Device-Info'),
-                'referrer' => $request->ref,
-                'link_share_id' => $share->id,
-                'is_logged_in' => Auth::check(),
-            ];
-
-            if (Auth::check()) {
-                $visitData['user_id'] = Auth::id();
-            }
-
-            $share->visits()->create($visitData);
-        }
-
         return view('deeplink.post', [
             'post' => $post,
             'thumbnailUrl' => $thumbnailUrl,
-            'share' => $share // Pass the share object to the view
         ]);
     }
 

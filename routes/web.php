@@ -15,7 +15,7 @@ Route::get('/chat', function () {
 });
 
 Route::get('/post/{post}/media/{media}', 'DeeplinkController@postmedia');
-Route::get('/post/{post}/media/{media}', 'DeeplinkController@postmedia');
+Route::get('/post/{post}', 'DeeplinkController@post');
 Route::get('/album/{album}', 'DeeplinkController@album');
 Route::get('/sponsored/{shortcode}', 'DeeplinkController@ad');
 

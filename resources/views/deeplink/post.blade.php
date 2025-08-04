@@ -7,7 +7,6 @@
 
     {{-- Open Graph Meta --}}
     @php
-        $sharedBy = isset($share) ? $share->user->name : null;
         $description = "Check out this post from the '".($post->album->name ?? 'album')."' on Venusnap.";
     @endphp
 
@@ -33,11 +32,7 @@
 </head>
 <body>
     <p style="text-align:center;margin-top:40px;font-family:sans-serif;">
-        @if(isset($share))
-            Post shared by {{ $share->user->name }}
-        @else
             Post from {{ $post->album->name ?? 'an album' }}
-        @endif
         <br><br>
         Redirecting you to the Venusnap app...
         <br><br>
