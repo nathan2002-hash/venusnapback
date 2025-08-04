@@ -40,4 +40,8 @@ class Ad extends Model
 
         return $added - $removed - $used;
     }
+
+    public function linkadshares(){
+        return $this->hasMany(LinkAdShare::class);
+    }
 }

@@ -15,4 +15,19 @@ class LinkAdShare extends Model
         'share_url',
         'short_code'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function ad()
+    {
+        return $this->belongsTo(Ad::class);
+    }
+
+    public function linkadvisits()
+    {
+        return $this->hasMany(LinkAdVisit::class);
+    }
 }
