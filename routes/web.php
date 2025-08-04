@@ -16,6 +16,7 @@ Route::get('/chat', function () {
 
 Route::get('/post/{post}/media/{media}', 'DeeplinkController@post');
 Route::get('/album/{album}', 'DeeplinkController@album');
+Route::get('/sponsored/{shortcode}', 'DeeplinkController@ad');
 
     $host = request()->header('host');
     $host = explode(':', $host)[0];

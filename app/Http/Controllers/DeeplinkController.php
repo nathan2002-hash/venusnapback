@@ -8,6 +8,8 @@ use App\Models\Post;
 use App\Models\PostMedia;
 use App\Models\Album;
 use App\Models\LinkShare;
+use App\Models\LinkAdShare;
+use App\Models\Ad;
 use Illuminate\Support\Facades\Auth;
 
 class DeeplinkController extends Controller
@@ -110,5 +112,68 @@ class DeeplinkController extends Controller
             'thumbnailUrl' => $thumbnailUrl,
             'share' => $share
         ]);
+    }
+
+    public function ad(Request $request, $shortCode)
+    {
+        // Find the share record
+        $share = LinkAdShare::with(['ad.adboard', 'user'])->where('short_code', $shortCode)->firstOrFail();
+        $ad = $share->ad;
+        $adBoard = $ad->adboard;
+
+        // Get the album (assuming ad is associated with an album)
+        $album = $ad->adboard->album; // Or whatever your relationship is called
+
+        // Determine thumbnail URL
+        $thumbnailUrl = $this->getAlbumThumbnailUrl($album);
+
+        // Track the visit
+        $this->trackVisit($request, $share);
+
+        return view('deeplink.ad', [
+            'ad' => $ad,
+            'adBoard' => $adBoard,
+            'album' => $album,
+            'thumbnailUrl' => $thumbnailUrl,
+            'share' => $share
+        ]);
+    }
+
+    protected function getAlbumThumbnailUrl($album)
+    {
+        if (!$album) return null;
+
+        if ($album->type === 'personal' || $album->type === 'creator') {
+            return $album->thumbnail_compressed
+                ? generateSecureMediaUrl($album->thumbnail_compressed)
+                : ($album->thumbnail_original
+                    ? generateSecureMediaUrl($album->thumbnail_original)
+                    : null);
+        } elseif ($album->type === 'business') {
+            return $album->business_logo_compressed
+                ? generateSecureMediaUrl($album->business_logo_compressed)
+                : ($album->business_logo_original
+                    ? generateSecureMediaUrl($album->business_logo_original)
+                    : null);
+        }
+
+        return null;
+    }
+
+    protected function trackVisit(Request $request, LinkAdShare $share)
+    {
+        $visitData = [
+            'ip_address' => $request->header('cf-connecting-ip') ?? $request->ip(),
+            'user_agent' => $request->header('User-Agent'),
+            'device_info' => $request->header('Device-Info'),
+            'referrer' => $request->ref,
+            'is_logged_in' => Auth::check(),
+        ];
+
+        if (Auth::check()) {
+            $visitData['user_id'] = Auth::id();
+        }
+
+        $share->visits()->create($visitData);
     }
 }

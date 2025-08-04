@@ -29,7 +29,7 @@ class MoreAdController extends Controller
             'device_info' => $request->header('Device-Info'),
             'ip_address' => $realIp,
             'share_method' => 'direct', // Default, can be updated when shared via specific platform
-            'share_url' => "https://www.venusnap.com/ads/{$adId}",
+            'share_url' => "https://www.venusnap.com/sponsored/{$shortCode}",
             'short_code' => $shortCode
         ]);
 
@@ -38,7 +38,7 @@ class MoreAdController extends Controller
 
         // Return the trackable URL
         return response()->json([
-            'share_url' => "https://www.venusnap.com/ads/{$adId}?ref={$shortCode}",
+            'share_url' => "https://www.venusnap.com/sponsored/{$shortCode}",
             'short_code' => $shortCode,
             'share_message' => $shareMessage,
             'share_subject' => $shareSubject
@@ -47,7 +47,7 @@ class MoreAdController extends Controller
 
     protected function generateShortCode()
     {
-        $length = 8;
+        $length = 10;
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomString = '';
