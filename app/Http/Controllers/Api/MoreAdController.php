@@ -33,7 +33,7 @@ class MoreAdController extends Controller
             'short_code' => $shortCode
         ]);
 
-        $shareMessage = "Check out \"{$ad->adboard->name}\" on Venusnap: https://www.venusnap.com/ads/{$adId}?ref={$shortCode}";
+        $shareMessage = "Check out \"{$ad->adboard->name}\" on Venusnap: https://www.venusnap.com/sponsored/{$shortCode}";
         $shareSubject = $ad->adboard->name;
 
         // Return the trackable URL
