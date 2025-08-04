@@ -239,6 +239,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/ad/seen', 'Api\PostExploreController@sendAdSeenRequest');
     Route::post('/ad/cta/click/{id}', 'Api\PostExploreController@sendAdCtaClick');
     Route::get('/ad/share/url/{adId}','Api\MoreAdController@generateShareUrl');
+    Route::get('/ad/resolve/{shortCode}','Api\MoreAdController@resolveShortCode');
 
     // Route::post('/create/paypal/order', 'Api\PayController@payment');
     // Route::post('/capture/paypal/order', 'Api\PayController@capture');

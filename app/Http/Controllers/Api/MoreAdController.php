@@ -66,4 +66,22 @@ class MoreAdController extends Controller
 
         return $randomString;
     }
+
+    public function resolveShortCode($shortCode)
+    {
+        // Find the share link with active ad
+        $shareLink = LinkAdShare::where('short_code', $shortCode)->first();
+
+        if (!$shareLink || !$shareLink->ad) {
+            return response()->json([
+                'error' => 'Ad not found or expired',
+                'status' => 404
+            ], 404);
+        }
+
+        // Return the ad data
+        return response()->json([
+            'ad_id' => $shareLink->ad_id,
+        ]);
+    }
 }
