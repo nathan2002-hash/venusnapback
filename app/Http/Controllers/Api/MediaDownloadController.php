@@ -75,16 +75,14 @@ class MediaDownloadController extends Controller
             $download->user_id = $user->id;
             $download->ip_address = $request->header('cf-connecting-ip') ?? $request->ip();
             $download->save();
-
-            $filePath = generateSecureMediaUrl($media->file_path);
-
+            $path = $media->file_path;
             // Add to response
             $response['images'][] = [
                 'id' => $media->id,
                 'url' => generateSecureMediaUrl($media->file_path),
                 'file_name' => 'VEN_IMG_' . $media->id . '.' . pathinfo($media->file_path, PATHINFO_EXTENSION),
-                'mime_type' => mime_content_type($filePath),
-                'size' => filesize($filePath),
+                'mime_type' => Storage::disk('s3')->mimeType($path),
+                'size' => Storage::disk('s3')->size($path),
                 'order' => $media->order ?? null,
             ];
         }
