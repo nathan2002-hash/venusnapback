@@ -66,9 +66,9 @@ class DeeplinkController extends Controller
         ]);
     }
 
-    public function post(Request $request, $postId, $mediaId)
+    public function post(Request $request, $post)
     {
-        $post = Post::with(['user', 'album'])->findOrFail($postId);
+        $post = Post::with(['user', 'album'])->findOrFail($post);
         $album = $post->album;
 
         $thumbnailUrl = null;
