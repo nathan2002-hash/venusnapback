@@ -14,7 +14,8 @@ Route::get('/chat', function () {
     return view('emails.receipts.payment');
 });
 
-Route::get('/post/{post}/media/{media}', 'DeeplinkController@post');
+Route::get('/post/{post}/media/{media}', 'DeeplinkController@postmedia');
+Route::get('/post/{post}/media/{media}', 'DeeplinkController@postmedia');
 Route::get('/album/{album}', 'DeeplinkController@album');
 Route::get('/sponsored/{shortcode}', 'DeeplinkController@ad');
 
