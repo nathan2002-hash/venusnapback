@@ -72,7 +72,7 @@ class PostController extends Controller
             $posts = $this->fetchFallbackPostsForUser($userId, $limit);
         } else {
             // Fetch posts based on recommendedPostIds preserving order
-            $posts = Post::with('media', 'album', 'user')
+            $posts = Post::with('postMedias', 'album', 'user')
                 ->whereIn('id', $recommendedPostIds)
                 ->get()
                 ->sortBy(function ($post) use ($recommendedPostIds) {
