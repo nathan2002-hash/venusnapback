@@ -609,4 +609,178 @@ class PostBackController extends Controller
             'has_more' => $posts->hasMorePages(),
         ]);
     }
+
+    public function indegx(Request $request)
+    {
+        $userId = Auth::id();
+        $limit = (int)$request->input('limit', 10);
+
+        // Step 1: Get all post IDs the user has seen via post_media_id -> post_id
+        $seenPostIds = DB::table('views')
+            ->join('post_media', 'views.post_media_id', '=', 'post_media.id')
+            ->where('views.user_id', $userId)
+            ->pluck('post_media.post_id')
+            ->unique()
+            ->toArray();
+
+        // Step 2: Prioritize fresh, unseen posts (newest first)
+        $freshUnseen = Post::with([
+                    'postmedias' => function ($query) use ($userId) {
+                        $query->orderBy('sequence_order')
+                            ->withCount(['comments', 'admires'])
+                            ->with(['comments.user', 'admires.user'])
+                            ->withExists(['admires as admired' => function($q) use ($userId) {
+                                $q->where('user_id', $userId);
+                            }]);
+                    },
+                    'album.supporters'
+                ])
+            ->where('status', 'active')
+            ->where('visibility', 'public')
+            ->whereNotIn('id', $seenPostIds)
+            ->orderBy('created_at', 'desc')
+            ->take($limit)
+            ->get();
+
+        $remaining = $limit - $freshUnseen->count();
+
+        // Step 3: Fill remaining with random unseen posts
+        $randomUnseen = collect();
+        if ($remaining > 0) {
+           $randomUnseen = Post::with([
+                    'postmedias' => function ($query) use ($userId) {
+                        $query->orderBy('sequence_order')
+                            ->withCount(['comments', 'admires'])
+                            ->with(['comments.user', 'admires.user'])
+                            ->withExists(['admires as admired' => function($q) use ($userId) {
+                                $q->where('user_id', $userId);
+                            }]);
+                    },
+                    'album.supporters'
+                ])
+                ->where('status', 'active')
+                ->where('visibility', 'public')
+                ->whereNotIn('id', array_merge($seenPostIds, $freshUnseen->pluck('id')->toArray()))
+                ->inRandomOrder()
+                ->take($remaining)
+                ->get();
+        }
+
+        // Step 4: Optional fallback to seen posts if feed is still not full
+        $posts = $freshUnseen->merge($randomUnseen);
+        $stillNeeded = $limit - $posts->count();
+        if ($stillNeeded > 0) {
+            $seenFillers = Post::with([
+                    'postmedias' => function ($query) use ($userId) {
+                        $query->orderBy('sequence_order')
+                            ->withCount(['comments', 'admires'])
+                            ->with(['comments.user', 'admires.user'])
+                            ->withExists(['admires as admired' => function($q) use ($userId) {
+                                $q->where('user_id', $userId);
+                            }]);
+                    },
+                    'album.supporters'
+                ])
+                ->where('status', 'active')
+                ->where('visibility', 'public')
+                ->whereIn('id', $seenPostIds)
+                ->inRandomOrder()
+                ->take($stillNeeded)
+                ->get();
+
+            $posts = $posts->merge($seenFillers);
+        }
+
+        $posts = $posts->shuffle()->values();
+
+        if ($posts->count() > 2) {
+            // Move first post (most likely repeat) to a random position other than 1st
+            $first = $posts->shift(); // Remove the first post
+            $insertAt = rand(1, min(4, $posts->count())); // Insert at 2nd to 4th position
+            $posts->splice($insertAt, 0, [$first]); // Reinsert it
+        }
+
+        // Format the posts data
+        $postsData = $posts->map(function ($post) {
+            $album = $post->album;
+            $profileUrl = asset('default/profile.png'); // Default fallback
+
+            if ($album) {
+                if ($album->type == 'personal' || $album->type == 'creator') {
+                    $profileUrl = $album->thumbnail_compressed
+                        ? generateSecureMediaUrl($album->thumbnail_compressed)
+                        : ($album->thumbnail_original
+                            ? generateSecureMediaUrl($album->thumbnail_original)
+                            : $profileUrl);
+                } elseif ($album->type == 'business') {
+                    $profileUrl = $album->business_logo_compressed
+                        ? generateSecureMediaUrl($album->business_logo_compressed)
+                        : ($album->business_logo_original
+                            ? generateSecureMediaUrl($album->business_logo_original)
+                            : $profileUrl);
+                }
+            }
+            $viewerTimezone = Auth::check() ? Auth::user()->timezone : 'Africa/Lusaka';
+
+            // Format post media
+            $postMediaData = $post->postmedias->map(function ($media) {
+                return [
+                    'id' => $media->id,
+                    'filepath' => generateSecureMediaUrl($media->file_path_compress),
+                    'sequence_order' => (int)$media->sequence_order,
+                    'comments_count' => $media->comments->count(),
+                    'likes_count' => $media->admires->count(),
+                    'admired' => $media->admired,
+                    'comments' => $media->comments->map(function ($comment) {
+                        return [
+                            'id' => $comment->id,
+                            'content' => $comment->content,
+                            'user' => [
+                                'id' => $comment->user->id,
+                                'name' => $comment->user->name,
+                                'profile_photo_url' => $comment->user->profile_photo_url
+                            ]
+                        ];
+                    }),
+                    'admires' => $media->admires->map(function ($admire) {
+                        return [
+                            'id' => $admire->id,
+                            'user' => [
+                                'id' => $admire->user->id,
+                                'name' => $admire->user->name,
+                                'profile_photo_url' => $admire->user->profile_photo_url
+                            ]
+                        ];
+                    })
+                ];
+            })->values()->all();
+
+            return [
+                'id' => $post->id,
+                'user_id' => $post->user_id,
+                'description' => $post->description ?? 'No description available',
+                'album_id' => $album ? (string)$album->id : null,
+                'visibility' => $post->visibility,
+                //'created_at' => $this->formatDateTimeForUser($post->created_at, $viewerTimezone),
+                'updated_at' => $post->updated_at,
+                'ag_description' => $post->ag_description,
+                'status' => $post->status,
+                'user' => $album ? $album->name : 'Unknown Album',
+                'supporters' => $album ? $album->supporters()->where('status', 'active')->count() : 0,
+                'album_name' => $album ? (string)$album->name : null,
+                'profile' => $profileUrl,
+                'album_description' => $album ? ($album->description ?? 'No description available') : null,
+                'post_media' => $postMediaData,
+                'is_verified' => $album ? ($album->is_verified == 1) : false,
+                'is_supported' => $album ? $album->is_supported : false,
+            ];
+        })->values()->toArray(); // Ensure we return a proper array without keys
+
+        return response()->json([
+            'posts' => $postsData,
+            'has_more' => Recommendation::where('user_id', $userId)
+                            ->where('status', 'active')
+                            ->exists()
+        ]);
+    }
 }

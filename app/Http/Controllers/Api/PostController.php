@@ -54,83 +54,32 @@ class PostController extends Controller
         $userId = Auth::id();
         $limit = (int)$request->input('limit', 10);
 
-        // Step 1: Get all post IDs the user has seen via post_media_id -> post_id
-        $seenPostIds = DB::table('views')
-            ->join('post_media', 'views.post_media_id', '=', 'post_media.id')
-            ->where('views.user_id', $userId)
-            ->pluck('post_media.post_id')
-            ->unique()
-            ->toArray();
-
-        // Step 2: Prioritize fresh, unseen posts (newest first)
-        $freshUnseen = Post::with([
-                    'postmedias' => function ($query) use ($userId) {
-                        $query->orderBy('sequence_order')
-                            ->withCount(['comments', 'admires'])
-                            ->with(['comments.user', 'admires.user'])
-                            ->withExists(['admires as admired' => function($q) use ($userId) {
-                                $q->where('user_id', $userId);
-                            }]);
-                    },
-                    'album.supporters'
-                ])
+        $recommendedPostIds = DB::table('recommendations')
+            ->where('user_id', $userId)
             ->where('status', 'active')
-            ->where('visibility', 'public')
-            ->whereNotIn('id', $seenPostIds)
-            ->orderBy('created_at', 'desc')
-            ->take($limit)
-            ->get();
+            ->orderBy('sequence_order')
+            ->limit($limit)
+            ->pluck('post_id');
 
-        $remaining = $limit - $freshUnseen->count();
+        // Mark fetched recommendations as seen
+        DB::table('recommendations')
+            ->where('user_id', $userId)
+            ->whereIn('post_id', $recommendedPostIds)
+            ->update(['status' => 'seen']);
 
-        // Step 3: Fill remaining with random unseen posts
-        $randomUnseen = collect();
-        if ($remaining > 0) {
-           $randomUnseen = Post::with([
-                    'postmedias' => function ($query) use ($userId) {
-                        $query->orderBy('sequence_order')
-                            ->withCount(['comments', 'admires'])
-                            ->with(['comments.user', 'admires.user'])
-                            ->withExists(['admires as admired' => function($q) use ($userId) {
-                                $q->where('user_id', $userId);
-                            }]);
-                    },
-                    'album.supporters'
-                ])
-                ->where('status', 'active')
-                ->where('visibility', 'public')
-                ->whereNotIn('id', array_merge($seenPostIds, $freshUnseen->pluck('id')->toArray()))
-                ->inRandomOrder()
-                ->take($remaining)
-                ->get();
+        if ($recommendedPostIds->isEmpty()) {
+            // No recommendations found, fallback to fresh/random/seen posts
+            $posts = $this->fetchFallbackPostsForUser($userId, $limit);
+        } else {
+            // Fetch posts based on recommendedPostIds preserving order
+            $posts = Post::with('media', 'album', 'user')
+                ->whereIn('id', $recommendedPostIds)
+                ->get()
+                ->sortBy(function ($post) use ($recommendedPostIds) {
+                    return array_search($post->id, $recommendedPostIds->toArray());
+                })
+                ->values();
         }
-
-        // Step 4: Optional fallback to seen posts if feed is still not full
-        $posts = $freshUnseen->merge($randomUnseen);
-        $stillNeeded = $limit - $posts->count();
-        if ($stillNeeded > 0) {
-            $seenFillers = Post::with([
-                    'postmedias' => function ($query) use ($userId) {
-                        $query->orderBy('sequence_order')
-                            ->withCount(['comments', 'admires'])
-                            ->with(['comments.user', 'admires.user'])
-                            ->withExists(['admires as admired' => function($q) use ($userId) {
-                                $q->where('user_id', $userId);
-                            }]);
-                    },
-                    'album.supporters'
-                ])
-                ->where('status', 'active')
-                ->where('visibility', 'public')
-                ->whereIn('id', $seenPostIds)
-                ->inRandomOrder()
-                ->take($stillNeeded)
-                ->get();
-
-            $posts = $posts->merge($seenFillers);
-        }
-
-        $posts = $posts->shuffle()->values();
 
         if ($posts->count() > 2) {
             // Move first post (most likely repeat) to a random position other than 1st
@@ -217,11 +166,92 @@ class PostController extends Controller
 
         return response()->json([
             'posts' => $postsData,
-            'has_more' => Recommendation::where('user_id', $userId)
-                            ->where('status', 'active')
-                            ->exists()
+            'has_more' => true,
         ]);
     }
+
+    private function fetchFallbackPostsForUser(int $userId, int $limit = 10)
+    {
+        // Step 1: Get all post IDs the user has seen via post_media_id -> post_id
+        $seenPostIds = DB::table('views')
+            ->join('post_media', 'views.post_media_id', '=', 'post_media.id')
+            ->where('views.user_id', $userId)
+            ->pluck('post_media.post_id')
+            ->unique()
+            ->toArray();
+
+        // Step 2: Prioritize fresh, unseen posts (newest first)
+        $freshUnseen = Post::with([
+                    'postmedias' => function ($query) use ($userId) {
+                        $query->orderBy('sequence_order')
+                            ->withCount(['comments', 'admires'])
+                            ->with(['comments.user', 'admires.user'])
+                            ->withExists(['admires as admired' => function($q) use ($userId) {
+                                $q->where('user_id', $userId);
+                            }]);
+                    },
+                    'album.supporters'
+                ])
+            ->where('status', 'active')
+            ->where('visibility', 'public')
+            ->whereNotIn('id', $seenPostIds)
+            ->orderBy('created_at', 'desc')
+            ->take($limit)
+            ->get();
+
+        $remaining = $limit - $freshUnseen->count();
+
+        // Step 3: Fill remaining with random unseen posts
+        $randomUnseen = collect();
+        if ($remaining > 0) {
+            $randomUnseen = Post::with([
+                    'postmedias' => function ($query) use ($userId) {
+                        $query->orderBy('sequence_order')
+                            ->withCount(['comments', 'admires'])
+                            ->with(['comments.user', 'admires.user'])
+                            ->withExists(['admires as admired' => function($q) use ($userId) {
+                                $q->where('user_id', $userId);
+                            }]);
+                    },
+                    'album.supporters'
+                ])
+                ->where('status', 'active')
+                ->where('visibility', 'public')
+                ->whereNotIn('id', array_merge($seenPostIds, $freshUnseen->pluck('id')->toArray()))
+                ->inRandomOrder()
+                ->take($remaining)
+                ->get();
+        }
+
+        // Step 4: Optional fallback to seen posts if feed is still not full
+        $posts = $freshUnseen->merge($randomUnseen);
+        $stillNeeded = $limit - $posts->count();
+
+        if ($stillNeeded > 0) {
+            $seenFillers = Post::with([
+                    'postmedias' => function ($query) use ($userId) {
+                        $query->orderBy('sequence_order')
+                            ->withCount(['comments', 'admires'])
+                            ->with(['comments.user', 'admires.user'])
+                            ->withExists(['admires as admired' => function($q) use ($userId) {
+                                $q->where('user_id', $userId);
+                            }]);
+                    },
+                    'album.supporters'
+                ])
+                ->where('status', 'active')
+                ->where('visibility', 'public')
+                ->whereIn('id', $seenPostIds)
+                ->inRandomOrder()
+                ->take($stillNeeded)
+                ->get();
+
+            $posts = $posts->merge($seenFillers);
+        }
+
+        return $posts->shuffle()->values();
+    }
+
 
     public function show(Request $request, $id)
     {
