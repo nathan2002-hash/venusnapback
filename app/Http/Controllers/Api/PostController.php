@@ -72,13 +72,25 @@ class PostController extends Controller
             $posts = $this->fetchFallbackPostsForUser($userId, $limit);
         } else {
             // Fetch posts based on recommendedPostIds preserving order
-            $posts = Post::with('postMedias', 'album', 'user')
-                ->whereIn('id', $recommendedPostIds)
-                ->get()
-                ->sortBy(function ($post) use ($recommendedPostIds) {
-                    return array_search($post->id, $recommendedPostIds->toArray());
-                })
-                ->values();
+            $posts = Post::with([
+                'postmedias' => function ($query) use ($userId) {
+                    $query->orderBy('sequence_order')
+                        ->withCount(['comments', 'admires'])
+                        ->with(['comments.user', 'admires.user'])
+                        ->withExists(['admires as admired' => function($q) use ($userId) {
+                            $q->where('user_id', $userId);
+                        }]);
+                },
+                'album.supporters',
+                'user'
+            ])
+            ->whereIn('id', $recommendedPostIds)
+            ->get()
+            ->sortBy(function ($post) use ($recommendedPostIds) {
+                return array_search($post->id, $recommendedPostIds->toArray());
+            })
+            ->values();
+
         }
 
         if ($posts->count() > 2) {
