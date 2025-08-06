@@ -1101,7 +1101,7 @@
           </a>
           <div class="footer-contact pt-3">
             <p>Address: 444 Alaska Avenue, California, Suite #CEC468</p>
-            <p class="mt-3"><strong>Phone:</strong> <span>+44 744 147 3240</span></p>
+            <p class="mt-3"><strong>Phone:</strong> <span>+44 7441 473240</span></p>
             <p><strong>Email:</strong> <span>support@venusnap.com</span></p>
           </div>
           {{-- <div class="social-links d-flex mt-4">
