@@ -10,7 +10,7 @@ class IncomingController extends Controller
     public function receive(Request $request)
     {
         // Check the secret key in the query string
-        $secretKey = 'vIARpkmuzpj6/BNVf1HGl6KFRxBznHVF/LF9NTKC/USuNsRnf+31IGPfaA0beDs8';  // your hardcoded secret key
+        $secretKey = 'vIARpkmuzpj6BNVf1HGl6KFRxBznHVFLF9NTKCUSuNsRnf31IGPfaA0beDs8';  // your hardcoded secret key
 
         if ($request->query('key') !== $secretKey) {
             \Log::warning('Unauthorized SMS webhook access attempt.', ['ip' => $request->ip()]);
