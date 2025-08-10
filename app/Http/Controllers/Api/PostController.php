@@ -160,7 +160,7 @@ class PostController extends Controller
                 'user_id' => $post->user_id,
                 'description' => trim($post->description) !== ''
                 ? $post->description
-                : 'Check out this snap from the "' . $post->album->name . '" album!',
+                : 'Check out this snap from the ' . $post->album->name . ' album!',
                 'album_id' => $album ? (string)$album->id : null,
                 'visibility' => $post->visibility,
                 'created_at' => $this->formatDateTimeForUser($post->created_at, $viewerTimezone),
@@ -396,7 +396,7 @@ class PostController extends Controller
             'profile' => $profileUrl ?? asset('default/profile.png'), // Fallback if no album
             'description' => trim($post->description) !== ''
             ? $post->description
-            : 'Check out this snap from the "' . $post->album->name . '" album!',
+            : 'Check out this snap from the ' . $post->album->name . ' album!',
             'album_description' => $album->description ?? 'No description available provided by the creator',
             'post_media' => $postMediaData,
             'is_verified' => $album ? ($album->is_verified == 1) : false,
