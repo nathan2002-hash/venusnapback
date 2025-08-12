@@ -88,5 +88,30 @@ class RegistrationJob implements ShouldQueue
             $this->deviceinfo,
             $this->ipaddress
         ));
+
+        $this->sendWithVonage('260970333596', 'New Venusnap user registered: ' . $this->user->name);
+    }
+
+    private function sendWithVonage($phone, $message)
+    {
+        $client = new \GuzzleHttp\Client();
+
+        $api_key = env('VONAGE_API_KEY');
+        $api_secret = env('VONAGE_API_SECRET');
+        $from = 'Venusnap';
+
+        try {
+            $client->post('https://rest.nexmo.com/sms/json', [
+                'form_params' => [
+                    'api_key' => $api_key,
+                    'api_secret' => $api_secret,
+                    'to' => $phone,
+                    'from' => $from,
+                    'text' => $message,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Vonage SMS failed: ' . $e->getMessage());
+        }
     }
 }
