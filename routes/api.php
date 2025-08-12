@@ -81,7 +81,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
 
 
     Route::get('/explore', 'Api\PostExploreController@index');
-    Route::get('/album/explore', 'Api\AlbumController@explore');
+    Route::get('/explore/albums', 'Api\ExploreController@exploreAlbums');
 
 
     Route::get('/posts/{id}', 'Api\PostController@show');
