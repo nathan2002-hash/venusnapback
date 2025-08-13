@@ -19,16 +19,17 @@ class ExploreController extends Controller
     $limit = $validated['limit'] ?? 8;
 
     $query = Album::where('status', 'active')
-        ->where('visibility', '!=', 'private')
-        ->withCount([
-            'supporters as supporters_count' => function($query) {
-                $query->where('status', 'active');
-            },
-            'posts as posts_count' => function($query) {
-                $query->whereIn('status', ['active', 'review']);
-            }
-        ])
-        ->orderByDesc('created_at');
+    ->where('visibility', '!=', 'private')
+    ->withCount([
+        'supporters as supporters_count' => function($query) {
+            $query->where('status', 'active');
+        },
+        'posts as posts_count' => function($query) {
+            $query->whereIn('status', ['active', 'review']);
+        }
+    ])
+    ->inRandomOrder(); // Shuffle results each request
+
 
     $paginatedAlbums = $query->paginate($limit, ['*'], 'page', $page);
 
