@@ -52,10 +52,10 @@ class ExploreController extends Controller
                     ? generateSecureMediaUrl($album->business_logo_original)
                     : null);
 
-            if ($album->cover_photo_compressed) {
-                $coverUrl = generateSecureMediaUrl($album->cover_photo_compressed);
-            } elseif ($album->cover_photo_original) {
-                $coverUrl = generateSecureMediaUrl($album->cover_photo_original);
+            if ($album->cover_image_compressed) {
+                $coverUrl = generateSecureMediaUrl($album->cover_image_compressed);
+            } elseif ($album->cover_image_original) {
+                $coverUrl = generateSecureMediaUrl($album->cover_image_original);
             } else {
                 $coverUrl = $thumbnailUrl;
             }
