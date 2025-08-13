@@ -19,7 +19,7 @@ class ExploreController extends Controller
     $limit = $validated['limit'] ?? 8;
 
     $query = Album::where('status', 'active')
-        ->where('type', '!=', 'private')
+        ->where('visibility', '!=', 'private')
         ->withCount([
             'supporters as supporters_count' => function($query) {
                 $query->where('status', 'active');
