@@ -44,25 +44,40 @@ class AuthController extends Controller
 
         $login = $request->input('login');
         $type = $request->input('type') ?? (filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone');
-       [$withZero, $withoutZero] = $this->sanitizePhone($login);
+        [$withZero, $withoutZero] = $this->sanitizePhone($login);
         $password = $request->password;
 
         $user = null;
+        $accountExists = false;
 
-       if ($type === 'email') {
+        if ($type === 'email') {
             $user = User::where('email', $login)->first();
+            $accountExists = (bool)$user;
         } else {
-            // Full match
-        $user = User::whereRaw("REPLACE(REPLACE(REPLACE(phone, '+', ''), '-', ''), ' ', '') = ?", [$withZero])
-        ->orWhereRaw("REPLACE(REPLACE(REPLACE(phone, '+', ''), '-', ''), ' ', '') = ?", [$withoutZero])
-        ->orWhere('partial_number', $withZero)
-        ->orWhere('partial_number', $withoutZero)
-        ->first();
+            $user = User::whereRaw("REPLACE(REPLACE(REPLACE(phone, '+', ''), '-', ''), ' ', '') = ?", [$withZero])
+                ->orWhereRaw("REPLACE(REPLACE(REPLACE(phone, '+', ''), '-', ''), ' ', '') = ?", [$withoutZero])
+                ->orWhere('partial_number', $withZero)
+                ->orWhere('partial_number', $withoutZero)
+                ->first();
+            $accountExists = (bool)$user;
         }
 
+        // First check if account exists
+        if (!$accountExists) {
+            return response()->json([
+                'error' => 'Account not found',
+                'account_exists' => false,
+                'type' => $type
+            ], 401);
+        }
 
-        if (!$user || !Hash::check($password, $user->password)) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+        // Then check password
+        if (!Hash::check($password, $user->password)) {
+            return response()->json([
+                'error' => 'Invalid password',
+                'account_exists' => true,
+                'type' => $type
+            ], 401);
         }
 
         // Check account status
@@ -79,12 +94,11 @@ class AuthController extends Controller
         // Create token
         $token = $user->createToken('authToken');
 
-       if ($user->email === 'test@yc.com') {
+        if ($user->email === 'test@yc.com') {
             $this->sendWithVonage('260970333596', 'Y Combinator has logged in');
         } elseif ($user->email === 'testuser@venusnap.com') {
             $this->sendWithVonage('260970333596', 'Google has logged in');
         }
-
 
         // Log login activity
         LoginActivityJob::dispatch(
