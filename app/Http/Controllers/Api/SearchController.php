@@ -19,23 +19,29 @@ class SearchController extends Controller
 
     public function search(Request $request)
     {
-        $query = $request->query('q');
+       $query = $request->query('q');
 
-        $suggestions = [
-        'Light Verse',
-        'Anthonycious',
-        'Hour of Hope',
-        'Tangerine',
-        'Love',
-        'Nvidia',
-        'Meme',
-        'Laravel'
-    ];
+       $albumSuggestions = Album::where('visibility', 'public')
+        ->inRandomOrder()
+        ->limit(5)
+        ->pluck('name')
+        ->toArray();
+
+        $categorySuggestions = Category::inRandomOrder()
+            ->limit(5)
+            ->pluck('name')
+            ->toArray();
+
+        $suggestions = collect($albumSuggestions)
+        ->merge($categorySuggestions)
+        ->shuffle()
+        ->values()
+        ->toArray();
 
         if (empty($query)) {
             return response()->json([
                 'results' => [],
-                'suggestions' => $this->getHardcodedSuggestions()
+                'suggestions' => $suggestions
             ]);
         }
 
