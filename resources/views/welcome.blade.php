@@ -1001,7 +1001,7 @@
                 <i class="bi bi-telephone"></i>
               </div>
               <h3>Contact Number</h3>
-              <p>Mobile: +260 970 333 596<br>
+              <p>Mobile: +44 7441 473240<br>
                 Email: support@venusnap.com</p>
             </div>
           </div>
