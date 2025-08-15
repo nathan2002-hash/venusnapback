@@ -32,6 +32,7 @@ class TemplateController extends Controller
         $userPoints = Auth::user()->points;
         $pointgen = '60';
 
+        // Transform templates into response format
         $transformed = $templates->getCollection()->map(function ($template) use ($userId) {
             return [
                 'id' => $template->id,
@@ -44,8 +45,15 @@ class TemplateController extends Controller
             ];
         });
 
+        // Separate templates into is_new and others
+        $newTemplates = $transformed->filter(fn($t) => $t['is_new'])->values();
+        $otherTemplates = $transformed->filter(fn($t) => !$t['is_new'])->shuffle()->values();
+
+        // Merge with is_new first
+        $shuffledTemplates = $newTemplates->merge($otherTemplates);
+
         return response()->json([
-            'templates' => $transformed,
+            'templates' => $shuffledTemplates,
             'pagination' => [
                 'current_page' => $templates->currentPage(),
                 'last_page' => $templates->lastPage(),
@@ -62,6 +70,7 @@ class TemplateController extends Controller
             ]
         ]);
     }
+
 
     public function generateTemplate(Request $request)
     {
