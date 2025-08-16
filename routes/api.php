@@ -21,7 +21,7 @@ Route::middleware('auth:api')->group(function () {
         Cache::put("web_login_token:$token", $request->user()->id, $expiresAt);
 
         return response()->json([
-            'web_url' => config('app.url')."/auto-login?token=$token",
+            'web_url' => "https://payment.venusnap.com/auto-login?token=$token",
             'expires_at' => $expiresAt->toDateTimeString(),
         ]);
     });
