@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\Admin\ProcessCommunication;
 use App\Models\Album;
 use App\Models\Communication;
 use App\Models\User;
@@ -54,23 +55,9 @@ class CommunicationController extends Controller
         ]);
 
         // Send the communication
-        try {
-            if ($validated['type'] === 'email') {
-                //$this->sendEmail($communication);
-            } else {
-                $this->sendSms($communication);
-            }
-
-            $communication->update(['status' => 'sent']);
-
-            return redirect()->back()->with('success', 'Communication sent successfully!');
-        } catch (\Exception $e) {
-            $communication->update(['status' => 'failed']);
-
-            return redirect()->back()
-                ->with('error', 'Failed to send communication: ' . $e->getMessage())
-                ->withInput();
-        }
+        ProcessCommunication::dispatch($communication);
+        return redirect()->back()
+        ->with('success', 'Communication is being processed. You will be notified when completed.');
     }
 
     protected function sendSms(Communication $communication)

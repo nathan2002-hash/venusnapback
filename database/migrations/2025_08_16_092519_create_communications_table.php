@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('status')->default('pending'); // pending, sent, failed
             $table->unsignedBigInteger('sent_by'); // admin user who sent it
             $table->string('sms_provider')->nullable();
+            $table->text('failure_reason')->nullable();
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('album_id')->references('id')->on('albums');
             $table->foreign('sent_by')->references('id')->on('users');
