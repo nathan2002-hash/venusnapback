@@ -253,7 +253,7 @@
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
                         <li><a href="/restricted/communications" key="t-data-tables">Communications</a></li>
-                        <li><a href="/restricted/create/communication" key="t-data-tables">Send Communications</a></li>
+                        <li><a href="/restricted/communication/create" key="t-data-tables">Send Communications</a></li>
                     </ul>
                 </li>
 
