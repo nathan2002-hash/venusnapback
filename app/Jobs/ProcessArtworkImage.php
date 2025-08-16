@@ -64,9 +64,6 @@ class ProcessArtworkImage implements ShouldQueue
                 // Deduct points within transaction
                 $user->decrement('points', 100);
 
-                // Dispatch compression job
-                CompressArtworkImage::dispatch($artwork->id);
-
                 $artwork->update([
                     'file_path' => $fileName,
                     'status' => 'awaiting_compression',
@@ -85,6 +82,8 @@ class ProcessArtworkImage implements ShouldQueue
                 ]);
 
                 DB::commit();
+                CompressArtworkImage::dispatch($artwork->id)
+                ->delay(now()->addSeconds(5)); // Small delay to ensure commit
             } else {
                 throw new \Exception('DALL-E API error: '.$response->body());
             }
