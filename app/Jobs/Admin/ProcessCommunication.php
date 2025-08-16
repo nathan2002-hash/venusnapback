@@ -131,7 +131,7 @@ class ProcessCommunication implements ShouldQueue
         $response = $client->post('https://apisms.beem.africa/v1/send', [
             'json' => $postData,
             'headers' => [
-                'Authorization' => 'Basic ' . base64_encode(env('BEEM_API_KEY') . ':' . env('BEEM_API_SECRET')),
+                'Authorization' => 'Basic ' . base64_encode(env('BEEM_API_KEY') . ':' . env('BEEM_SECRET_KEY')),
                 'Content-Type' => 'application/json',
             ],
         ]);
