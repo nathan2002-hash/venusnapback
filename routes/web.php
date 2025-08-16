@@ -42,7 +42,7 @@ Route::get('/auto-login', function (Request $request) {
 
     Auth::login($user);
 
-    return redirect('/dashboard'); // Change to your desired landing page
+    return redirect('/'); // Change to your desired landing page
 })->name('auto-login');
 
     $host = request()->header('host');
