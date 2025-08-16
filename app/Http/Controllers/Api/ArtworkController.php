@@ -97,7 +97,7 @@ class ArtworkController extends Controller
         // Create transaction record immediately
         $transaction = PointTransaction::create([
             'user_id' => $user->id,
-            'points' => 60,
+            'points' => 50,
             'type' => 'image_generation',
             'resource_id' => '1',
             'status' => 'pending',
@@ -106,12 +106,12 @@ class ArtworkController extends Controller
             'balance_after' => $user->points // Will be updated if successful
         ]);
 
-        if ($user->points < 60) {
+        if ($user->points < 50) {
             $transaction->update([
                 'status' => 'failed',
                 'description' => 'Insufficient points for image generation',
                 'metadata' => json_encode([
-                    'required_points' => 60,
+                    'required_points' => 50,
                     'available_points' => $user->points
                 ])
             ]);
@@ -252,7 +252,7 @@ class ArtworkController extends Controller
         // Create transaction record
         $transaction = PointTransaction::create([
             'user_id' => $user->id,
-            'points' => 100,
+            'points' => 50,
             'type' => 'image_regeneration',
             'resource_id' => $artwork->id,
             'status' => 'pending',
@@ -261,7 +261,7 @@ class ArtworkController extends Controller
             'balance_after' => $user->points
         ]);
 
-        if ($user->points < 100) {
+        if ($user->points < 50) {
             $transaction->update([
                 'status' => 'failed',
                 'description' => 'Insufficient points for image regeneration'

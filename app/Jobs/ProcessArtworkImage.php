@@ -62,7 +62,9 @@ class ProcessArtworkImage implements ShouldQueue
                 Storage::disk('s3')->put($fileName, $imageContents);
 
                 // Deduct points within transaction
-                $user->decrement('points', 100);
+                $user->decrement('points', 50);
+
+                CompressArtworkImage::dispatch($artwork->id);
 
                 $artwork->update([
                     'file_path' => $fileName,
@@ -82,8 +84,6 @@ class ProcessArtworkImage implements ShouldQueue
                 ]);
 
                 DB::commit();
-                CompressArtworkImage::dispatch($artwork->id)
-                ->delay(now()->addSeconds(5)); // Small delay to ensure commit
             } else {
                 throw new \Exception('DALL-E API error: '.$response->body());
             }
