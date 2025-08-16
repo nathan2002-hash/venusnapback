@@ -212,6 +212,26 @@ class AIGenController extends Controller
             ->values(); // Reset array keys after filtering
     }
 
+    // In your AdController.php
+    public function getDownloadUrl($id)
+    {
+        $ad = GenAi::where('user_id', Auth::user()->id)
+                ->findOrFail($id);
+
+        if (!$ad->file_path) {
+            return response()->json(['error' => 'Ad image not available'], 404);
+        }
+
+        // Use your secure URL generator instead of Storage
+        $url = generateSecureMediaUrl($ad->file_path);
+
+        return response()->json([
+            'download_url' => $url,
+            'filename' => basename($ad->file_path)
+        ]);
+    }
+
+
     // public function regenerateAd(Request $request, $id)
     // {
     //     $user = Auth::user();

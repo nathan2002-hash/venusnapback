@@ -19,6 +19,31 @@ Route::get('/post/{post}', 'DeeplinkController@post');
 Route::get('/album/{album}', 'DeeplinkController@album');
 Route::get('/sponsored/{shortcode}', 'DeeplinkController@ad');
 
+Route::get('/auto-login', function (Request $request) {
+    $token = $request->query('token');
+
+    if (!$token) {
+        return redirect('/login')->with('error', 'Invalid login link');
+    }
+
+    $cacheKey = "web_login_token:$token";
+    $userId = Cache::pull($cacheKey); // Retrieve and delete
+
+    if (!$userId) {
+        return redirect('/login')->with('error', 'Link expired or invalid');
+    }
+
+    $user = App\Models\User::find($userId);
+
+    if (!$user) {
+        return redirect('/login')->with('error', 'User not found');
+    }
+
+    Auth::login($user);
+
+    return redirect('/dashboard'); // Change to your desired landing page
+})->name('auto-login');
+
     $host = request()->header('host');
     $host = explode(':', $host)[0];
     if (in_array($host, ['app.venusnap.com', 'venusnap.com', 'www.venusnap.com'])) {

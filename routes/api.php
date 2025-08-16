@@ -12,6 +12,21 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:api');
 
+Route::middleware('auth:api')->group(function () {
+    Route::post('/generate-web-token', function (Request $request) {
+        $token = Str::random(64);
+        $expiresAt = now()->addMinutes(35);
+
+        // Store the token with user ID
+        Cache::put("web_login_token:$token", $request->user()->id, $expiresAt);
+
+        return response()->json([
+            'web_url' => config('app.url')."/auto-login?token=$token",
+            'expires_at' => $expiresAt->toDateTimeString(),
+        ]);
+    });
+});
+
 Route::post('/incoming-sms', 'IncomingController@receive');
 
 Route::post('/decrypt/filepath', function (Request $request) {
@@ -290,6 +305,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/placeholder-ads', 'Api\AIGenController@placeholders');
     Route::get('/genai/points', 'Api\AIGenController@GenPoints');
     Route::get('/genai/images', 'Api\AIGenController@GenImages');
+    Route::get('/ads/{id}/download-url', 'Api\AIGenController@getDownloadUrl');
 
     //artwork ai
     Route::post('/generate/ai/image', 'Api\ArtworkController@generateImage');
