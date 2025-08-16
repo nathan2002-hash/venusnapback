@@ -126,7 +126,7 @@ private function sendSingleSmsViaVonage($client, $from, $user, $message)
 private function sendWithBeem(Communication $communication)
 {
     $client = new \GuzzleHttp\Client(['verify' => false]);
-    $senderId = env('BEEM_SENDER_ID', 'Venusnap');
+    $senderId = env('BEEM_SENDER_ID', 'Quixnes');
 
     if ($communication->recipient_type === 'user') {
         // Send to single selected user
