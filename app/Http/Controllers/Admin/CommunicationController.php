@@ -83,124 +83,94 @@ class CommunicationController extends Controller
     }
 
     private function sendWithVonage(Communication $communication)
-    {
-        $client = new \GuzzleHttp\Client();
-        $from = env('VONAGE_SENDER_ID', 'Venusnap');
+{
+    $client = new \GuzzleHttp\Client();
+    $from = env('VONAGE_SENDER_ID', 'Venusnap');
 
-        if ($communication->recipient_type === 'user') {
-            // Send to single user
-            $user = User::findOrFail($communication->user_id);
-            $phone = $this->normalizePhoneNumber($user->phone);
+    if ($communication->recipient_type === 'user') {
+        // Send to single selected user
+        $user = User::findOrFail($communication->user_id);
+        $this->sendSingleSmsViaVonage($client, $from, $user, $communication->body);
+    } else {
+        // Send to the user who owns the selected album
+        $album = Album::with('user')->findOrFail($communication->album_id);
+        $this->sendSingleSmsViaVonage($client, $from, $album->user, $communication->body);
+    }
+}
 
-            $response = $client->post('https://rest.nexmo.com/sms/json', [
-                'form_params' => [
-                    'api_key' => env('VONAGE_API_KEY'),
-                    'api_secret' => env('VONAGE_API_SECRET'),
-                    'to' => $phone,
-                    'from' => $from,
-                    'text' => $communication->body,
-                ]
-            ]);
-
-            $responseData = json_decode($response->getBody(), true);
-
-            if ($responseData['messages'][0]['status'] != '0') {
-                throw new \Exception('Vonage error: ' . $responseData['messages'][0]['error-text']);
-            }
-        } else {
-            // Send to all users in album
-            $album = Album::with('users')->findOrFail($communication->album_id);
-            foreach ($album->users as $user) {
-                if ($user->phone) {
-                    $phone = $this->normalizePhoneNumber($user->phone);
-
-                    $response = $client->post('https://rest.nexmo.com/sms/json', [
-                        'form_params' => [
-                            'api_key' => env('VONAGE_API_KEY'),
-                            'api_secret' => env('VONAGE_API_SECRET'),
-                            'to' => $phone,
-                            'from' => $from,
-                            'text' => $communication->body,
-                        ]
-                    ]);
-
-                    $responseData = json_decode($response->getBody(), true);
-
-                    if ($responseData['messages'][0]['status'] != '0') {
-                        \Log::error("Failed to send SMS to {$user->phone}: " . $responseData['messages'][0]['error-text']);
-                    }
-                }
-            }
-        }
+private function sendSingleSmsViaVonage($client, $from, $user, $message)
+{
+    if (empty($user->phone)) {
+        throw new \Exception("User {$user->id} has no phone number");
     }
 
-    private function sendWithBeem(Communication $communication)
-    {
-        $client = new \GuzzleHttp\Client(['verify' => false]);
-        $senderId = env('BEEM_SENDER_ID', 'Venusnap');
+    $phone = $this->normalizePhoneNumber($user->phone);
 
-        if ($communication->recipient_type === 'user') {
-            // Send to single user
-            $user = User::findOrFail($communication->user_id);
-            $phone = $this->normalizePhoneNumber($user->phone);
+    $response = $client->post('https://rest.nexmo.com/sms/json', [
+        'form_params' => [
+            'api_key' => env('VONAGE_API_KEY'),
+            'api_secret' => env('VONAGE_API_SECRET'),
+            'to' => $phone,
+            'from' => $from,
+            'text' => $message,
+        ]
+    ]);
 
-            $postData = [
-                'source_addr' => $senderId,
-                'encoding' => 0,
-                'schedule_time' => '',
-                'message' => $communication->body,
-                'recipients' => [
-                    ['recipient_id' => '1', 'dest_addr' => $phone],
-                ]
-            ];
+    $responseData = json_decode($response->getBody(), true);
 
-            $response = $client->post('https://apisms.beem.africa/v1/send', [
-                'json' => $postData,
-                'headers' => [
-                    'Authorization' => 'Basic ' . base64_encode(env('BEEM_API_KEY') . ':' . env('BEEM_API_SECRET')),
-                    'Content-Type' => 'application/json',
-                ],
-            ]);
-
-            $responseData = json_decode($response->getBody(), true);
-
-            if (isset($responseData['code']) && $responseData['code'] != 100) {
-                throw new \Exception('Beem error: ' . ($responseData['message'] ?? 'Unknown error'));
-            }
-        } else {
-            // Send to all users in album
-            $album = Album::with('users')->findOrFail($communication->album_id);
-            foreach ($album->users as $user) {
-                if ($user->phone) {
-                    $phone = $this->normalizePhoneNumber($user->phone);
-
-                    $postData = [
-                        'source_addr' => $senderId,
-                        'encoding' => 0,
-                        'schedule_time' => '',
-                        'message' => $communication->body,
-                        'recipients' => [
-                            ['recipient_id' => '1', 'dest_addr' => $phone],
-                        ]
-                    ];
-
-                    $response = $client->post('https://apisms.beem.africa/v1/send', [
-                        'json' => $postData,
-                        'headers' => [
-                            'Authorization' => 'Basic ' . base64_encode(env('BEEM_API_KEY') . ':' . env('BEEM_API_SECRET')),
-                            'Content-Type' => 'application/json',
-                        ],
-                    ]);
-
-                    $responseData = json_decode($response->getBody(), true);
-
-                    if (isset($responseData['code']) && $responseData['code'] != 100) {
-                        \Log::error("Failed to send SMS to {$user->phone}: " . ($responseData['message'] ?? 'Unknown error'));
-                    }
-                }
-            }
-        }
+    if ($responseData['messages'][0]['status'] != '0') {
+        throw new \Exception('Vonage error: ' . $responseData['messages'][0]['error-text']);
     }
+}
+
+private function sendWithBeem(Communication $communication)
+{
+    $client = new \GuzzleHttp\Client(['verify' => false]);
+    $senderId = env('BEEM_SENDER_ID', 'Venusnap');
+
+    if ($communication->recipient_type === 'user') {
+        // Send to single selected user
+        $user = User::findOrFail($communication->user_id);
+        $this->sendSingleSmsViaBeem($client, $senderId, $user, $communication->body);
+    } else {
+        // Send to the user who owns the selected album
+        $album = Album::with('user')->findOrFail($communication->album_id);
+        $this->sendSingleSmsViaBeem($client, $senderId, $album->user, $communication->body);
+    }
+}
+
+private function sendSingleSmsViaBeem($client, $senderId, $user, $message)
+{
+    if (empty($user->phone)) {
+        throw new \Exception("User {$user->id} has no phone number");
+    }
+
+    $phone = $this->normalizePhoneNumber($user->phone);
+
+    $postData = [
+        'source_addr' => $senderId,
+        'encoding' => 0,
+        'schedule_time' => '',
+        'message' => $message,
+        'recipients' => [
+            ['recipient_id' => '1', 'dest_addr' => $phone],
+        ]
+    ];
+
+    $response = $client->post('https://apisms.beem.africa/v1/send', [
+        'json' => $postData,
+        'headers' => [
+            'Authorization' => 'Basic ' . base64_encode(env('BEEM_API_KEY') . ':' . env('BEEM_API_SECRET')),
+            'Content-Type' => 'application/json',
+        ],
+    ]);
+
+    $responseData = json_decode($response->getBody(), true);
+
+    if (isset($responseData['code']) && $responseData['code'] != 100) {
+        throw new \Exception('Beem error: ' . ($responseData['message'] ?? 'Unknown error'));
+    }
+}
 
     private function normalizePhoneNumber($phone)
     {
