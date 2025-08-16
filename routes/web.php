@@ -118,6 +118,11 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     Route::get('/album/create', 'Admin\AlbumController@create');
     Route::post('/album/store', 'Admin\AlbumController@store');
 
+    //communications routes
+    Route::get('/communications', 'Admin\CommunicationController@index');
+    Route::get('/communication/create', 'Admin\CommunicationController@create');
+    Route::post('/communication/store', 'Admin\CommunicationController@store');
+
     //location routes
     Route::get('/settings/countries', 'Admin\SettingController@countries');
     Route::get('/settings/country/create', 'Admin\SettingController@countrycreate');

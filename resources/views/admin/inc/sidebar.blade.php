@@ -233,7 +233,7 @@
                     </ul>
                 </li>
 
-                  <li class="menu-title" key="t-components">Point Management</li>
+                <li class="menu-title" key="t-components">Point Management</li>
                    <li>
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
                         <i class="bx bx-list-ul"></i>
@@ -242,6 +242,18 @@
                     <ul class="sub-menu" aria-expanded="false">
                         <li><a href="/restricted/points/manage" key="t-data-tables">Manage</a></li>
                         <li><a href="/restricted/points/allocations" key="t-data-tables">Allocations</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-title" key="t-components">Communication</li>
+                   <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="bx bx-list-ul"></i>
+                        <span key="t-tables">Communication</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="/restricted/communications" key="t-data-tables">Communications</a></li>
+                        <li><a href="/restricted/create/communication" key="t-data-tables">Send Communications</a></li>
                     </ul>
                 </li>
 
