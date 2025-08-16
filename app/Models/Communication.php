@@ -15,6 +15,7 @@ class Communication extends Model
         'album_id',
         'attachment_path',
         'status',
-        'sent_by'
+        'sent_by',
+        'sms_provider'
     ];
 }
