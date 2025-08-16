@@ -99,7 +99,7 @@ class ProcessCommunication implements ShouldQueue
     private function sendWithBeem()
     {
         $client = new Client(['verify' => false]);
-        $senderId = env('BEEM_SENDER_ID', 'Venusnap');
+        $senderId = env('BEEM_SENDER_ID', 'Quixnes');
 
         if ($this->communication->recipient_type === 'user') {
             $user = User::findOrFail($this->communication->user_id);
