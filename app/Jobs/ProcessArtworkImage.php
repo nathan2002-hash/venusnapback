@@ -58,7 +58,7 @@ class ProcessArtworkImage implements ShouldQueue
             if ($response->successful()) {
                 $imageUrl = $response->json('data.0.url');
                 $imageContents = Http::get($imageUrl)->body();
-                $fileName = 'artworks/original/' . uniqid() . '.jpeg';
+                $fileName = 'uploads/artworks/originals/' . uniqid() . '.jpeg';
                 Storage::disk('s3')->put($fileName, $imageContents);
 
                 // Deduct points within transaction

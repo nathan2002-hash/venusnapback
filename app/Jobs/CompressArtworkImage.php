@@ -36,7 +36,7 @@ class CompressArtworkImage implements ShouldQueue
         $image->scale(width: 800);
 
         $compressedImage = $image->encode(new WebpEncoder(quality: 75));
-        $compressedPath = 'artworks/thumbnails/' . pathinfo($path, PATHINFO_FILENAME) . '.webp';
+        $compressedPath = 'uploads/artworks/compressed/' . pathinfo($path, PATHINFO_FILENAME) . '.webp';
 
         Storage::disk('s3')->put($compressedPath, (string) $compressedImage);
 
