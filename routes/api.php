@@ -298,6 +298,8 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/recent/ai/images', 'Api\ArtworkController@recentImages');
     Route::get('/prompt/ai/examples', 'Api\ArtworkController@promptExamples');
     Route::get('/artwork/ai/status/{id}', 'Api\ArtworkController@checkStatus');
+    Route::get('/image/generate/points', 'Api\ArtworkController@GenPoints');
+    Route::get('/artworks/{id}/download-url', 'Api\ArtworkController@getDownloadUrl');
 
     //media download
     Route::post('/post/media/download', 'Api\MediaDownloadController@download');

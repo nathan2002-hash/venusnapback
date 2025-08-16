@@ -89,6 +89,18 @@ class ArtworkController extends Controller
         return response()->json(['message' => 'Artwork deleted successfully'], 200);
     }
 
+    public function GenPoints(Request $request)
+    {
+        $available = Auth::user()->points;
+
+        $available_points = (int) $available;
+        // Return response in JSON format
+        return response()->json([
+            'available_points' => $available_points,
+            'gen_points' => (int) 50
+        ]);
+    }
+
     public function generateImage(Request $request)
     {
         $user = Auth::user();
@@ -302,5 +314,23 @@ class ArtworkController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function getDownloadUrl($id)
+    {
+        $artwork = Artwork::where('user_id', Auth::user()->id)
+                        ->findOrFail($id);
+
+        if (!$artwork->file_path) {
+            return response()->json(['error' => 'Image not available'], 404);
+        }
+
+        // Use your helper to generate a secure URL
+        $url = generateSecureMediaUrl($artwork->file_path);
+
+        return response()->json([
+            'download_url' => $url,
+            'filename' => basename($artwork->file_path)
+        ]);
     }
 }

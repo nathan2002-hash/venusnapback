@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->nullable(); // Null for public prompts
             $table->string('title');
             $table->text('prompt');
+            $table->text('type');
             $table->text('description')->nullable();
             $table->string('category')->nullable();
             $table->boolean('is_public')->default(false);
