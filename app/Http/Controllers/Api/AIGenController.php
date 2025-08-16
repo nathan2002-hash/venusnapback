@@ -21,7 +21,7 @@ class AIGenController extends Controller
         // Create transaction record immediately
         $transaction = PointTransaction::create([
             'user_id' => $user->id,
-            'points' => 60,
+            'points' => 100,
             'type' => 'ad_generation',
             'resource_id' => '1',
             'status' => 'pending',
@@ -30,7 +30,7 @@ class AIGenController extends Controller
             'balance_after' => $user->points // Will be updated if successful
         ]);
 
-        if ($user->points < 60) {
+        if ($user->points < 100) {
             $transaction->update([
                 'status' => 'failed',
                 'description' => 'Insufficient points for ad generation',
@@ -53,7 +53,7 @@ class AIGenController extends Controller
                 'status' => 'pending',
                 'provider' => 'OPEN_AI',
                 'original_description' => $request->description,
-                'venusnap_points' => 60,
+                'venusnap_points' => 100,
                 'type' => 'Ad',
                 'point_transaction_id' => $transaction->id // Link to transaction
             ]);
@@ -85,84 +85,6 @@ class AIGenController extends Controller
             ], 500);
         }
     }
-
-    // public function regenerateAd(Request $request, $id)
-    // {
-    //     $user = Auth::user();
-    //     $originalAd = GenAi::where('user_id', $user->id)->findOrFail($id);
-
-    //     // Check user has enough points
-    //     if ($user->points < 30) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Insufficient points'
-    //         ], 400);
-    //     }
-
-    //     try {
-    //         $description = $request->edited_description ?? $originalAd->original_description;
-
-    //         // Call Stable Diffusion API (SD3)
-    //         $response = Http::withHeaders([
-    //             'Authorization' => 'Bearer ' . env('STABLE_DIFFUSION_API_KEY'),
-    //             'Accept' => 'image/*',
-    //         ])
-    //         ->asMultipart()
-    //         ->post($this->stableDiffusionUrl, [
-    //             [
-    //                 'name' => 'prompt',
-    //                 'contents' => $description
-    //             ],
-    //             [
-    //                 'name' => 'output_format',
-    //                 'contents' => 'jpeg'
-    //             ],
-    //             [
-    //                 'name' => 'none',
-    //                 'contents' => '',
-    //                 'filename' => 'none'
-    //             ]
-    //         ]);
-
-    //         if ($response->successful()) {
-    //             // Save the new image
-    //             $imageData = $response->body();
-    //             $fileName = 'genai/' . uniqid() . '.jpeg';
-    //             Storage::put($fileName, $imageData);
-
-    //             // Deduct points
-    //             $user->decrement('points', 30);
-
-    //             // Create new GenAi record
-    //             $genai = new GenAi();
-    //             $genai->user_id = $user->id;
-    //             $genai->provider = 'stable diffusion';
-    //             $genai->venusnap_points = 30;
-    //             $genai->file_path = $fileName;
-    //             $genai->original_description = $description;
-    //             $genai->type = 'Ad';
-    //             $genai->save();
-
-    //             return response()->json([
-    //                 'success' => true,
-    //                 'genai_id' => $genai->id,
-    //                 'file_path' => generateSecureMediaUrl($fileName)
-    //             ]);
-    //         }
-
-    //         $errorResponse = $response->json();
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => $errorResponse['message'] ?? 'Failed to regenerate image'
-    //         ], 500);
-
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
 
     public function getAd($id)
     {
@@ -258,7 +180,7 @@ class AIGenController extends Controller
         // Return response in JSON format
         return response()->json([
             'available_points' => $available_points,
-            'gen_points' => (int) 60
+            'gen_points' => (int) 100
         ]);
     }
 
@@ -289,5 +211,83 @@ class AIGenController extends Controller
             })
             ->values(); // Reset array keys after filtering
     }
+
+    // public function regenerateAd(Request $request, $id)
+    // {
+    //     $user = Auth::user();
+    //     $originalAd = GenAi::where('user_id', $user->id)->findOrFail($id);
+
+    //     // Check user has enough points
+    //     if ($user->points < 30) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Insufficient points'
+    //         ], 400);
+    //     }
+
+    //     try {
+    //         $description = $request->edited_description ?? $originalAd->original_description;
+
+    //         // Call Stable Diffusion API (SD3)
+    //         $response = Http::withHeaders([
+    //             'Authorization' => 'Bearer ' . env('STABLE_DIFFUSION_API_KEY'),
+    //             'Accept' => 'image/*',
+    //         ])
+    //         ->asMultipart()
+    //         ->post($this->stableDiffusionUrl, [
+    //             [
+    //                 'name' => 'prompt',
+    //                 'contents' => $description
+    //             ],
+    //             [
+    //                 'name' => 'output_format',
+    //                 'contents' => 'jpeg'
+    //             ],
+    //             [
+    //                 'name' => 'none',
+    //                 'contents' => '',
+    //                 'filename' => 'none'
+    //             ]
+    //         ]);
+
+    //         if ($response->successful()) {
+    //             // Save the new image
+    //             $imageData = $response->body();
+    //             $fileName = 'genai/' . uniqid() . '.jpeg';
+    //             Storage::put($fileName, $imageData);
+
+    //             // Deduct points
+    //             $user->decrement('points', 30);
+
+    //             // Create new GenAi record
+    //             $genai = new GenAi();
+    //             $genai->user_id = $user->id;
+    //             $genai->provider = 'stable diffusion';
+    //             $genai->venusnap_points = 30;
+    //             $genai->file_path = $fileName;
+    //             $genai->original_description = $description;
+    //             $genai->type = 'Ad';
+    //             $genai->save();
+
+    //             return response()->json([
+    //                 'success' => true,
+    //                 'genai_id' => $genai->id,
+    //                 'file_path' => generateSecureMediaUrl($fileName)
+    //             ]);
+    //         }
+
+    //         $errorResponse = $response->json();
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => $errorResponse['message'] ?? 'Failed to regenerate image'
+    //         ], 500);
+
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
 
 }

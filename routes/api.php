@@ -291,6 +291,14 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/genai/points', 'Api\AIGenController@GenPoints');
     Route::get('/genai/images', 'Api\AIGenController@GenImages');
 
+    //artwork ai
+    Route::post('/generate/ai/image', 'Api\ArtworkController@generateImage');
+    Route::post('/regenerate/ai/image/{id}', 'Api\ArtworkController@regenerateImage');
+    Route::get('/generated/ai/images/{id}', 'Api\ArtworkController@getImage');
+    Route::get('/recent/ai/images', 'Api\ArtworkController@recentImages');
+    Route::get('/prompt/ai/examples', 'Api\ArtworkController@promptExamples');
+    Route::get('/artwork/ai/status/{id}', 'Api\ArtworkController@checkStatus');
+
     //media download
     Route::post('/post/media/download', 'Api\MediaDownloadController@download');
     Route::post('/post/download', 'Api\MediaDownloadController@downloadpostimages');
