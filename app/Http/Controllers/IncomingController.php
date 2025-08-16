@@ -50,6 +50,4 @@ class IncomingController extends Controller
 
         return response()->json(['status' => 'SMS received']);
     }
-
-
 }

@@ -16,7 +16,7 @@ class CommunicationController extends Controller
     public function create()
     {
         $users = User::where('role', 'user')->get(); // Assuming you want to get only regular users
-        $albums = Album::all();
+        $albums = Album::where('visibility', 'public')->get(); // Assuming you want to get only public albums
 
         return view('admin.communication.create', compact('users', 'albums'));
     }
