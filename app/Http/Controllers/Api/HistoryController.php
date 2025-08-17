@@ -17,100 +17,100 @@ class HistoryController extends Controller
 public function getUserHistory(Request $request)
 {
     $userId = Auth::id();
-    $perPage = 10; // Number of items per page
+    $perPage = 15; // Number of post groups per page
     $page = $request->input('page', 1);
+    $viewerTimezone = Auth::check() ? Auth::user()->timezone : 'Africa/Lusaka';
 
-    // First get all distinct dates with views
-    $dates = View::where('user_id', $userId)
+    // 1. Get all views with needed relations
+    $history = View::where('user_id', $userId)
         ->where('history_status', null)
-        ->whereHas('postMedia')
-        ->selectRaw('DATE(created_at) as view_date')
-        ->groupBy('view_date')
-        ->orderBy('view_date', 'desc')
-        ->paginate($perPage, ['*'], 'page', $page);
+        ->whereHas('postMedia.post', fn($q) => $q->where('status', 'active'))
+        ->with([
+            'postMedia.post.album',
+            'postMedia.post.postmedias' => fn($q) => $q->withCount(['admires', 'comments']),
+        ])
+        ->orderBy('created_at', 'desc')
+        ->get();
 
+    // 2. Group by post ID (each post appears once)
+    $groupedPosts = $history->groupBy(fn($view) => $view->postMedia->post->id ?? null)
+        ->map(fn($views) => $views->first())
+        ->filter()
+        ->values();
+
+    // 3. Paginate manually
+    $paginatedPosts = $groupedPosts->slice(($page - 1) * $perPage, $perPage)->values();
+
+    // 4. Format response grouped by date
     $result = [];
 
-    foreach ($dates as $date) {
-        // Get views for this specific date
-        $viewsOnDate = View::where('user_id', $userId)
-            ->where('history_status', null)
-            ->whereDate('created_at', $date->view_date)
-            ->whereHas('postMedia')
-            ->with(['postMedia.post.album', 'postMedia.post.postmedias'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+    $groupedByDate = $paginatedPosts->groupBy(fn($view) => $view->created_at->format('Y-m-d'));
 
-        // Group by post ID
-        $groupedByPost = $viewsOnDate->groupBy(fn($view) => $view->postMedia->post->id ?? null)
-            ->map(function ($views) use ($userId) {
-                $firstView = $views->first();
-                $post = $firstView->postMedia->post ?? null;
+    foreach ($groupedByDate as $date => $viewsOnDate) {
+        $items = $viewsOnDate->map(function ($view) use ($userId, $viewerTimezone) {
+            $post = $view->postMedia->post;
+            if (!$post) return null;
 
-                if (!$post || $post->status !== 'active') {
-                    return null;
+            $album = $post->album ?? null;
+
+            // Skip private posts if user is not owner
+            if (strtolower($post->visibility) === 'private' && $post->user_id != $userId) return null;
+
+            // Album image
+            $profileUrl = asset('default/profile.png');
+            if ($album) {
+                if (in_array($album->type, ['personal', 'creator'])) {
+                    $profileUrl = $album->thumbnail_compressed
+                        ? generateSecureMediaUrl($album->thumbnail_compressed)
+                        : ($album->thumbnail_original
+                            ? generateSecureMediaUrl($album->thumbnail_original)
+                            : asset('default/profile.png'));
+                } elseif ($album->type === 'business') {
+                    $profileUrl = $album->business_logo_compressed
+                        ? generateSecureMediaUrl($album->business_logo_compressed)
+                        : ($album->business_logo_original
+                            ? generateSecureMediaUrl($album->business_logo_original)
+                            : asset('default/profile.png'));
                 }
+            }
 
-                if (strtolower($post->visibility) === 'private' && $post->user_id != $userId) {
-                    return null;
-                }
+            return [
+                'post_id' => $post->id,
+                'post_description' => $post->description ?? 'No description',
+                'albumName' => $album->name ?? 'Unknown',
+                'albumLogo' => $profileUrl,
+                'album_verified' => $album && $album->is_verified == 1,
+                'admire_count' => $post->postmedias->sum('admires_count'),
+                'comments_count' => $post->postmedias->sum('comments_count'),
+                'media_count' => $post->postmedias->count(),
+                'latest_view_date' => formatDateTimeForUser($view->created_at, $viewerTimezone),
+                'viewed_images' => $post->postmedias->map(fn($media) => [
+                    'image_url' => $media->file_path_compress
+                        ? generateSecureMediaUrl($media->file_path_compress)
+                        : '',
+                    'view_date' => $view->created_at->format('Y-m-d H:i:s'),
+                ])->toArray(),
+            ];
+        })->filter()->values();
 
-                $album = $post->album ?? null;
-
-                $totalAdmireCount = Admire::whereIn('post_media_id', $post->postmedias->pluck('id'))->count();
-                $totalCommentsCount = Comment::whereIn('post_media_id', $post->postmedias->pluck('id'))->count();
-                $totalMediaCount = $post->postmedias->count();
-                $albumVerified = $album && $album->is_verified == 1;
-
-                $profileUrl = asset('default/profile.png');
-                if ($album) {
-                    if (in_array($album->type, ['personal', 'creator'])) {
-                        $profileUrl = $album->thumbnail_compressed
-                            ? generateSecureMediaUrl($album->thumbnail_compressed)
-                            : ($album->thumbnail_original
-                                ? generateSecureMediaUrl($album->thumbnail_original)
-                                : asset('default/profile.png'));
-                    } elseif ($album->type == 'business') {
-                        $profileUrl = $album->business_logo_compressed
-                            ? generateSecureMediaUrl($album->business_logo_compressed)
-                            : ($album->business_logo_original
-                                ? generateSecureMediaUrl($album->business_logo_original)
-                                : asset('default/profile.png'));
-                    }
-                }
-
-                return [
-                    'post_id' => $post->id ?? null,
-                    'post_description' => $post->description ?? 'No description',
-                    'albumName' => $album->name ?? 'Unknown',
-                    'albumLogo' => $profileUrl,
-                    'album_verified' => $albumVerified,
-                    'admire_count' => $totalAdmireCount,
-                    'comments_count' => $totalCommentsCount,
-                    'media_count' => $totalMediaCount,
-                    'latest_view_date' => formatDateTimeForUser($firstView->created_at, Auth::user()->timezone ?? 'Africa/Lusaka'),
-                    'viewed_images' => $post->postmedias->map(fn($media) => [
-                        'image_url' => $media->file_path_compress
-                            ? generateSecureMediaUrl($media->file_path_compress)
-                            : '',
-                        'view_date' => $firstView->created_at->format('Y-m-d H:i:s'),
-                    ])->toArray(),
-                ];
-            })->filter()->values();
-
-        $result[] = [
-            'date' => Carbon::parse($date->view_date)->format('D, d M, Y'),
-            'items' => $groupedByPost->toArray()
-        ];
+        if ($items->isNotEmpty()) {
+            $result[] = [
+                'date' => Carbon::parse($date)->format('D, d M, Y'),
+                'items' => $items->toArray(),
+            ];
+        }
     }
 
+    // 5. Return paginated response metadata
     return response()->json([
+        'current_page' => (int) $page,
+        'per_page' => (int) $perPage,
+        'total' => $groupedPosts->count(),
+        'last_page' => ceil($groupedPosts->count() / $perPage),
         'data' => $result,
-        'current_page' => $dates->currentPage(),
-        'next_page_url' => $dates->nextPageUrl(),
-        'total' => $dates->total(),
     ]);
 }
+
 
     public function deleteHistory(Request $request)
     {
