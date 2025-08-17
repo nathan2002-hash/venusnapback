@@ -16,6 +16,7 @@ class Communication extends Model
         'attachment_path',
         'status',
         'sent_by',
-        'sms_provider'
+        'sms_provider',
+        'failure_reason'
     ];
 }
