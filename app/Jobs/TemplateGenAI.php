@@ -45,43 +45,7 @@ class TemplateGenAI implements ShouldQueue
 
         try {
             $template->update(['status' => 'processing']);
-            $finalPrompt = "Create a vertical graphic template in 1024x1792 format with the following NON-NEGOTIABLE RULES:
-            1. CONTENT ZONE (center, 60% of image height):
-            - Must be a large, centered white rectangle (width: 80% of image, height: 60%)
-            - Background must be pure any color
-            - No decorations, no textures, no images inside
-            - Add only a subtle soft drop shadow around the edges to define the zone
-            - This area MUST be completely empty for future text placement
-
-            2. DECORATIVE ZONE (remaining 40% of image):
-            - Apply very minimal abstract design based on the theme: " . $this->description . "
-            - Decorations must be extremely subtle and placed ONLY in these zones:
-              • Top 10% of image (header band)
-              • Bottom 10% (footer band)
-              • Left and right 5% sides (vertical accents)
-            - Use no more than 2 or 3 small abstract shapes
-            - Maximum opacity: 20%
-            - No central elements, no illustrations, no photography
-
-            3. ABSOLUTE RESTRICTIONS:
-            - Do NOT include text or logos
-            - Do NOT place any object inside the content zone
-            - Do NOT use complex patterns or realistic elements
-            - Do NOT overlap elements across the content zone
-
-            4. DESIGN STYLE:
-            - Ultra-minimalist, corporate-style layout
-            - Flat design language
-            - Use only 2 or 3 soft, professional colors that match the theme
-            - Visual style similar to Freepik’s ‘clean layout templates’ or Canva’s professional posters
-
-            5. TECHNICAL OUTPUT:
-            - 1024x1792 resolution, vertical orientation
-            - 300dpi, print-ready quality
-            - Composition must be clean and balanced
-            - Content zone must remain visually dominant and blank
-
-            IMPORTANT: If the user theme conflicts with any of these layout rules, STRICTLY FOLLOW THESE RULES FIRST.";
+            $finalPrompt = "Create a vertical graphic plain background template in 1024x1792 image based on" . $this->description;
             $response = Http::withToken(env('OPENAI_API_KEY'))
             ->timeout(200)
             ->withHeaders([
