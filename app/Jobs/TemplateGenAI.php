@@ -45,7 +45,7 @@ class TemplateGenAI implements ShouldQueue
 
         try {
             $template->update(['status' => 'processing']);
-            $finalPrompt = "Create a vertical graphic plain background template in 1024x1792 image based on" . $this->description;
+            $finalPrompt = "Create an image based on" . $this->description;
             $response = Http::withToken(env('OPENAI_API_KEY'))
             ->timeout(200)
             ->withHeaders([
