@@ -16,6 +16,7 @@ class HistoryController extends Controller
     public function getUserHistory()
     {
         $userId = Auth::id();
+        $viewerTimezone = Auth::check() ? Auth::user()->timezone : 'Africa/Lusaka';
 
         // Remove the 24-hour limit to get all history
         $history = View::where('user_id', $userId)
@@ -76,7 +77,6 @@ class HistoryController extends Controller
                                     : asset('default/profile.png'));
                         }
                     }
-                    $viewerTimezone = Auth::check() ? Auth::user()->timezone : 'Africa/Lusaka';
 
                     return [
                         'post_id' => $post->id ?? null,
@@ -87,7 +87,7 @@ class HistoryController extends Controller
                         'admire_count' => $totalAdmireCount,
                         'comments_count' => $totalCommentsCount,
                         'media_count' => $totalMediaCount,
-                        'latest_view_date' => formatDateTimeForUser($firstView->created_at, $viewerTimezone),
+                        'latest_view_date' => formatDateTimeForUser($firstView->created_at, Auth::user()->timezone ?? 'Africa/Lusaka'),
                         //'latest_view_date' => $firstView->created_at->format('Y-m-d H:i:s'),
                         'viewed_images' => $post->postmedias->map(fn($media) => [
                             'image_url' => $media->file_path_compress
