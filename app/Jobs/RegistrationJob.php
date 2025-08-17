@@ -67,6 +67,7 @@ class RegistrationJob implements ShouldQueue
 
         $usersetting = new UserSetting();
         $usersetting->user_id = $this->user->id;
+        $usersetting->sms_alert = 1;
         $usersetting->save();
 
         $account = Account::firstOrCreate(
