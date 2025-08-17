@@ -43,8 +43,8 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Helpers/MediaHelper.php",
-            "app/Helpers/timehelper.php"
+            "app/Helpers/DateHelper.php",
+            "app/Helpers/MediaHelper.php"
         ]
     },
     "autoload-dev": {
