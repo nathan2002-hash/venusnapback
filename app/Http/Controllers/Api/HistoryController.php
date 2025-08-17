@@ -23,6 +23,7 @@ class HistoryController extends Controller
             ->whereHas('postMedia') // Exclude views without postMedia
             ->with(['postMedia.post.album', 'postMedia.post.postmedias'])
             ->orderBy('created_at', 'desc')
+            ->take(15)
             ->get();
 
         // First group by date (day)
