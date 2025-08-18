@@ -93,6 +93,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     //Route::get('/user/profile', 'Api\ProfileController@index');
 
     Route::get('/posts', 'Api\PostController@index');
+    Route::get('/post/{post}/status', 'Api\PostController@checkStatus');
 
 
     Route::get('/explore', 'Api\PostExploreController@index');

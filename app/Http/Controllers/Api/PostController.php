@@ -441,6 +441,59 @@ class PostController extends Controller
         ]);
     }
 
+    public function checkStatus(Request $request, $postId)
+    {
+        // 1. Verify authentication
+        if (!$request->user()) {
+            return response()->json([
+                'error' => 'Unauthorized',
+                'message' => 'Authentication required'
+            ], 401);
+        }
+
+        // 2. Get post status directly from database
+        $post = DB::table('posts')
+            ->where('id', $postId)
+            ->select('status', 'user_id')
+            ->first();
+
+        // 3. Verify post exists and belongs to user
+        if (!$post || $post->user_id != $request->user()->id) {
+            return response()->json([
+                'error' => 'Not found',
+                'message' => 'Post not found or access denied'
+            ], 404);
+        }
+
+        // 4. Return status with appropriate messages
+        $response = [
+            'status' => $post->status,
+            'post_id' => $postId
+        ];
+
+        switch ($post->status) {
+            case 'active':
+                $response['message'] = 'Post is live';
+                break;
+
+            case 'review':
+            case 'pending':
+                $response['message'] = 'Finalizing content';
+                break;
+
+            case 'rejected':
+            case 'inappropriate':
+                $response['message'] = 'Content rejected';
+                break;
+
+            default:
+                $response['message'] = 'Processing content';
+                break;
+        }
+
+        return response()->json($response);
+    }
+
     public function postdelete(Request $request, $id)
     {
         $user = Auth::user(); // Assuming you're using Laravel auth
