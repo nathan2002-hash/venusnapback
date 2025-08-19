@@ -5,6 +5,8 @@ namespace App\Jobs;
 use App\Models\Post;
 use App\Models\History;
 use App\Models\View;
+use App\Models\User;
+use App\Models\UserSetting;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -61,6 +63,16 @@ class LogPostMediaView implements ShouldQueue
             'device_info' => $this->deviceInfo,
             'clicked' => $this->clicked,
         ]);
+
+        $user = User::find($this->userId);
+        if (!$user) return;
+
+        // Fetch user settings only (do not create default)
+        $settings = UserSetting::where('user_id', $this->userId)->first();
+
+        if (!$settings || !$settings->history) {
+            return;
+        }
 
         History::create([
             'user_id' => $this->userId,

@@ -5,6 +5,8 @@ namespace App\Jobs;
 use App\Models\View;
 use App\Models\PostMedia;
 use App\Models\History;
+use App\Models\User;
+use App\Models\UserSetting;
 use App\Models\Recommendation;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -51,7 +53,19 @@ class TrackPostViewJob implements ShouldQueue
                 'user_agent' => $this->userAgent,
                 'clicked' => false,
             ]);
+        }
 
+        $user = User::find($this->userId);
+        if (!$user) return;
+
+        // Fetch user settings only (do not create default)
+        $settings = UserSetting::where('user_id', $this->userId)->first();
+
+        if (!$settings || !$settings->history) {
+            return;
+        }
+
+        if ($postMediaId) {
             History::create([
                 'user_id' => $this->userId,
                 'post_id' => $this->postId,
