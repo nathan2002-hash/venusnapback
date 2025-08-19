@@ -195,12 +195,14 @@ public function getUserHilstory(Request $request)
                         'admire_count' => $totalAdmireCount,
                         'comments_count' => $totalCommentsCount,
                         'media_count' => $totalMediaCount,
-                        'latest_view_date' => $firstHistory->created_at->toIso8601String(),
+                        //'latest_view_date' => $firstHistory->created_at->toIso8601String(),
+                        'latest_view_date' => formatDateTimeForUser($firstHistory->created_at, $viewerTimezone),
                         'viewed_images' => $post->postmedias->map(fn($media) => [
                             'image_url' => $media->file_path_compress
                                 ? generateSecureMediaUrl($media->file_path_compress)
                                 : '',
-                            'view_date' => $firstHistory->created_at->format('Y-m-d H:i:s'),
+                            'view_date' => formatDateTimeForUser($firstHistory->created_at, $viewerTimezone),
+                            //'view_date' => $firstHistory->created_at->format('Y-m-d H:i:s'),
                         ])->toArray(),
                     ];
                 })->filter()->values();
