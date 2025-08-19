@@ -187,4 +187,8 @@ class User extends Authenticatable
     public function pointmanagements(){
         return $this->hasMany(PointManage::class);
     }
+
+    public function histories(){
+        return $this->hasMany(History::class);
+    }
 }

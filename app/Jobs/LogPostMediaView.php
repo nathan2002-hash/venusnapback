@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Post;
+use App\Models\History;
 use App\Models\View;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -59,6 +60,15 @@ class LogPostMediaView implements ShouldQueue
             'user_agent' => $this->userAgent,
             'device_info' => $this->deviceInfo,
             'clicked' => $this->clicked,
+        ]);
+
+        History::create([
+            'user_id' => $this->userId,
+            'post_id' => $postMedia->post_id,
+            'ip_address' => $this->ipAddress,
+            'clicked' => $this->clicked, // or true if this is a click
+            'user_agent' => $this->userAgent,
+            'device_info' => $this->deviceInfo, // optional: add device info if you have it
         ]);
     }
 }

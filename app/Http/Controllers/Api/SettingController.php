@@ -13,11 +13,12 @@ class SettingController extends Controller
     {
         $user = Auth::user();
         $settings = UserSetting::firstOrCreate(['user_id' => $user->id], [
-            'sms_alert' => 0,
+            'sms_alert' => 1,
             'email_notifications' => 1,
             'tfa' => 0,
             'push_notifications' => 1,
-            'dark_mode' => 0
+            'dark_mode' => 0,
+            'history' => 1
         ]);
 
         return response()->json([
@@ -25,7 +26,8 @@ class SettingController extends Controller
             'email_notifications' => (bool) $settings->email_notifications,
             'tfa' => (bool) $settings->tfa,
             'push_notifications' => (bool) $settings->push_notifications,
-            'dark_mode' => (bool) $settings->dark_mode
+            'dark_mode' => (bool) $settings->dark_mode,
+            'history' => (bool) $settings->history
         ]);
     }
 
@@ -33,7 +35,7 @@ class SettingController extends Controller
     {
         $user = Auth::user();
         $validated = $request->validate([
-            'setting_key' => 'required|string|in:sms_alert,email_notifications,tfa,push_notifications,dark_mode',
+            'setting_key' => 'required|string|in:sms_alert,email_notifications,tfa,push_notifications,dark_mode,history',
             'setting_value' => 'required|boolean',
         ]);
 

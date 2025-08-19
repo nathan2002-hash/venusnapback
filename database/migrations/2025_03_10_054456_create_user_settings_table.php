@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('tfa')->default(0);
             $table->string('push_notifications')->default(1);
             $table->string('dark_mode')->default(0);
+            $table->string('history')->default(1);
             $table->timestamps();
         });
     }
