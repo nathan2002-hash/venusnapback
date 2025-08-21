@@ -254,10 +254,6 @@
                 <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" class="action-btn download-btn">
                     <i class="fab fa-google-play"></i> Download the App
                 </a>
-
-                <a href="venusnap://post/{{ $post->id }}/media/{{ $media->id }}?ref={{ request('ref') }}" class="action-btn open-btn">
-                    <i class="fas fa-external-link-alt"></i> Open in App
-                </a>
             </div>
 
             <div class="more-content">
@@ -285,7 +281,7 @@
     </div>
 
     <div class="footer">
-        <p>&copy; 2023 Venusnap. All rights reserved.</p>
+        <p>&copy; 2025 Venusnap. All rights reserved.</p>
     </div>
 
     <script>
