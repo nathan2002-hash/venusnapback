@@ -57,18 +57,22 @@ class SettingController extends Controller
             'setting_value' => 'required|boolean',
         ]);
 
-        // Map save_history → history
-        $key = $validated['setting_key'] === 'save_history' ? 'history' : $validated['setting_key'];
+        // Map save_history → history for DB
+        $dbKey = $validated['setting_key'] === 'save_history' ? 'history' : $validated['setting_key'];
 
         $settings = UserSetting::firstOrCreate(['user_id' => $user->id]);
-        $settings->update([$key => $validated['setting_value']]);
+        $settings->update([$dbKey => $validated['setting_value']]);
+
+        // Return the original key Flutter sent (save_history) if that’s what was used
+        $responseKey = $validated['setting_key'] === 'history' ? 'save_history' : $validated['setting_key'];
 
         return response()->json([
             'message' => 'Setting updated successfully',
-            'updated_setting' => $key,
+            'updated_setting' => $responseKey,
             'new_value' => $validated['setting_value']
         ]);
     }
+
 
 
     public function getMonetizationStatus()
