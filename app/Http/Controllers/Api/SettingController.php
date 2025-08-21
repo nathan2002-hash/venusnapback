@@ -27,7 +27,7 @@ class SettingController extends Controller
             'tfa' => (bool) $settings->tfa,
             'push_notifications' => (bool) $settings->push_notifications,
             'dark_mode' => (bool) $settings->dark_mode,
-            'history' => (bool) $settings->history
+            'save_history' => (bool) $settings->history
         ]);
     }
 
