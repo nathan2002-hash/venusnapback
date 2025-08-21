@@ -3,7 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     @php
+        $sharedBy = isset($share) ? $share->user->name : null;
+        $description = $sharedBy
+            ? "You have been invited to check out this post shared by $sharedBy on Venusnap."
+            : "You have been invited to check out this post from the '".($post->album->name ?? 'album')."' on Venusnap.";
+    @endphp
+
     <title>{{ $post->album->name ?? 'Venusnap Post' }}</title>
+    <meta property="og:title" content="{{ $post->album->name ?? 'Venusnap Post' }}">
+    <meta property="og:description" content="{{ $description }}">
+    <meta property="og:image" content="{{ $thumbnailUrl ?? asset('default.jpg') }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:type" content="article">
+
+    <meta name="description" content="{{ $description }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -218,17 +232,19 @@
 
             <div class="album-name">{{ $post->album->name ?? 'Exclusive Album' }}</div>
 
-            @if(!empty($post->description))
+            @if (!empty($post->description))
             <div class="post-description">
                 "{{ $post->description }}"
             </div>
+            @else
+                Check out this snap from the {{ $post->album->name }} album!
             @endif
 
             <div class="sharing-message">
                 @if(isset($share))
-                {{ $share->user->name }} has shared this photo with you
+                    You have been invited by {{ $share->user->name }} to view this snap with you download the app to view it.
                 @else
-                You've been invited to view this private photo
+                    You've been invited to view this snap with you download the app to view it.
                 @endif
             </div>
         </div>
