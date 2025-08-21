@@ -56,24 +56,28 @@
             object-fit: cover;
         }
 
-        .logo {
-            font-size: 28px;
-            margin-bottom: 10px;
-            color: #ffdd40;
-        }
-
-        h1 {
+        .album-name {
             font-size: 24px;
             margin-bottom: 10px;
             font-weight: 700;
+            color: #ffdd40;
         }
 
-        .description {
+        .post-description {
             font-size: 16px;
             opacity: 0.9;
             max-width: 400px;
-            margin: 0 auto;
+            margin: 0 auto 15px;
             line-height: 1.5;
+        }
+
+        .sharing-message {
+            font-size: 16px;
+            opacity: 0.9;
+            font-style: italic;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
         }
 
         .content {
@@ -186,11 +190,11 @@
                 height: 80px;
             }
 
-            h1 {
+            .album-name {
                 font-size: 20px;
             }
 
-            .description {
+            .post-description, .sharing-message {
                 font-size: 14px;
             }
 
@@ -212,17 +216,21 @@
                 <img src="{{ $thumbnailUrl ?? 'https://images.unsplash.com/photo-1554080353-321e452ccf19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80' }}" alt="Post preview">
             </div>
 
-            <div class="logo">
-                <i class="fas fa-camera"></i> Venusnap
+            <div class="album-name">{{ $post->album->name ?? 'Exclusive Album' }}</div>
+
+            @if(!empty($post->description))
+            <div class="post-description">
+                "{{ $post->description }}"
             </div>
-            <h1>Exclusive Content Shared With You</h1>
-            <p class="description">
+            @endif
+
+            <div class="sharing-message">
                 @if(isset($share))
-                {{ $share->user->name }} has shared a photo with you on Venusnap
+                {{ $share->user->name }} has shared this photo with you
                 @else
-                You've been invited to view a private photo
+                You've been invited to view this private photo
                 @endif
-            </p>
+            </div>
         </div>
 
         <div class="content">
