@@ -241,16 +241,36 @@
             opacity: 0.8;
         }
 
-        .countdown {
-            font-size: 16px;
-            margin-top: 10px;
-            color: #ffdd40;
-            font-weight: 600;
+        .app-open-section {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
         }
 
-        .auto-open {
-            margin-top: 15px;
-            font-size: 14px;
+        .open-app-btn {
+            display: inline-flex;
+            align-items: center;
+            background: #ffdd40;
+            color: #333;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            margin-top: 10px;
+        }
+
+        .open-app-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            background: #fff;
+        }
+
+        .open-app-btn i {
+            margin-right: 8px;
         }
 
         @media (max-width: 600px) {
@@ -321,6 +341,13 @@
                 </div>
             </div>
 
+            <div class="app-open-section">
+                <p>If you already have Venusnap installed, open the app to view this content</p>
+                <a href="venusnap://post/{{ $post->id }}/media/{{ $media->id }}?ref={{ request('ref') }}" class="open-app-btn">
+                    <i class="fas fa-external-link-alt"></i> Open in Venusnap App
+                </a>
+            </div>
+
             <div class="details">
                 <div class="detail-card">
                     <i class="fas fa-images"></i>
@@ -340,9 +367,8 @@
             </div>
 
             <div class="download-section">
-                <h2>Download Venusnap to View This Content</h2>
-                <p>Join thousands of users enjoying exclusive content from creators worldwide.
-                   @if(isset($share)) {{ $share->user->name }} has shared this with you personally. @endif</p>
+                <h2>Don't have Venusnap yet?</h2>
+                <p>Download the app to view this exclusive content and connect with creators</p>
 
                 <div class="app-badges">
                     <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" class="app-badge">
@@ -352,8 +378,6 @@
                         <i class="fab fa-apple"></i> App Store
                     </a>
                 </div>
-
-                <p class="auto-open">We'll try to automatically open the app in <span class="countdown">5</span> seconds</p>
             </div>
 
             <div class="features">
@@ -381,33 +405,22 @@
     </div>
 
     <script>
-        // Deep link and fallback URL
-        const deepLink = "venusnap://post/{{ $post->id }}/media/{{ $media->id }}?ref={{ request('ref') }}";
-        const fallbackUrl = "https://play.google.com/store/apps/details?id=com.venusnap.app";
+        // No automatic redirects - let the user choose when to download the app
 
-        // Countdown timer
-        let countdown = 5;
-        const countdownElement = document.querySelector('.countdown');
+        // Simple animation for the app badges
+        document.addEventListener('DOMContentLoaded', function() {
+            const badges = document.querySelectorAll('.app-badge');
+            badges.forEach((badge, index) => {
+                badge.style.opacity = 0;
+                badge.style.transform = 'translateY(20px)';
 
-        const countdownInterval = setInterval(() => {
-            countdown--;
-            countdownElement.textContent = countdown;
-
-            if (countdown <= 0) {
-                clearInterval(countdownInterval);
-                window.location.href = fallbackUrl;
-            }
-        }, 1000);
-
-        // Try to open the app immediately
-        setTimeout(() => {
-            window.location.href = deepLink;
-        }, 500);
-
-        // Fallback to app store if app isn't installed
-        setTimeout(() => {
-            window.location.href = fallbackUrl;
-        }, 5500);
+                setTimeout(() => {
+                    badge.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    badge.style.opacity = 1;
+                    badge.style.transform = 'translateY(0)';
+                }, 300 + (index * 200));
+            });
+        });
     </script>
 </body>
 </html>
