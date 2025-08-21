@@ -4,6 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $album->name ?? 'Venusnap Album' }}</title>
+     @php
+        $albumName = $album->name ?? 'Untitled Album';
+        $type = $album->type ?? 'personal';
+        $snapCount = $album->posts->sum(fn($post) => $post->postMedias->count());
+        $roundedSnapCount = ($snapCount < 10) ? 'a few' : (floor($snapCount / 10) * 10) . '+';
+
+        // Check if album name already contains the word "album"
+        $includesAlbum = str_contains(strtolower($albumName), 'album');
+
+        $ownerName = ($type === 'personal') ? ($album->user->name ?? 'Someone') : null;
+
+        switch ($type) {
+            case 'creator':
+                $description = $includesAlbum
+                    ? "Explore {$roundedSnapCount} creative snaps and inspiration on Venusnap."
+                    : "Explore {$roundedSnapCount} creative snaps and inspiration on Venusnap.";
+                break;
+
+            case 'business':
+                $description = $includesAlbum
+                    ? "Discover {$roundedSnapCount} product snaps and updates on Venusnap."
+                    : "Discover {$roundedSnapCount} product snaps and updates on Venusnap.";
+                break;
+
+            case 'personal':
+            default:
+                $description = $includesAlbum
+                    ? "Take a glimpse into {$ownerName}’s '{$albumName}' — {$roundedSnapCount} memories and meaningful snaps on Venusnap."
+                    : "Take a glimpse into {$ownerName}’s album '{$albumName}' — {$roundedSnapCount} memories and meaningful snaps on Venusnap.";
+                break;
+        }
+    @endphp
     <meta property="og:title" content="{{ $album->name ?? 'Venusnap Album' }}">
     <meta property="og:description" content="{{ $description }}">
     <meta property="og:image" content="{{ $thumbnailUrl ?? asset('default.jpg') }}">
