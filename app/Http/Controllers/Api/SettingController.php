@@ -31,7 +31,7 @@ class SettingController extends Controller
         ]);
     }
 
-    public function updateUserSetting(Request $request)
+    public function updateUserSeting(Request $request)
     {
         $user = Auth::user();
         $validated = $request->validate([
@@ -48,6 +48,28 @@ class SettingController extends Controller
             'new_value' => $validated['setting_value']
         ]);
     }
+
+    public function updateUserSetting(Request $request)
+    {
+        $user = Auth::user();
+        $validated = $request->validate([
+            'setting_key' => 'required|string|in:sms_alert,email_notifications,tfa,push_notifications,dark_mode,history,save_history',
+            'setting_value' => 'required|boolean',
+        ]);
+
+        // Map save_history → history
+        $key = $validated['setting_key'] === 'save_history' ? 'history' : $validated['setting_key'];
+
+        $settings = UserSetting::firstOrCreate(['user_id' => $user->id]);
+        $settings->update([$key => $validated['setting_value']]);
+
+        return response()->json([
+            'message' => 'Setting updated successfully',
+            'updated_setting' => $key,
+            'new_value' => $validated['setting_value']
+        ]);
+    }
+
 
     public function getMonetizationStatus()
     {
