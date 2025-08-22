@@ -10,4 +10,9 @@ class Influencer extends Model
         'user_id',
         'monetization_balance',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

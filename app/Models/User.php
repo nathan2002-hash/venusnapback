@@ -191,4 +191,8 @@ class User extends Authenticatable
     public function histories(){
         return $this->hasMany(History::class);
     }
+
+    public function influencer(){
+        return $this->hasOne(Influencer::class);
+    }
 }

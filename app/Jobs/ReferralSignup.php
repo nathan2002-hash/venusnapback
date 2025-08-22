@@ -37,61 +37,67 @@ class ReferralSignup implements ShouldQueue
      * Execute the job.
      */
     public function handle()
-    {
-        $post = Post::with('album', 'user.account', 'user.influencer')->find($this->postId);
+{
+    $post = Post::with('album', 'user.account', 'user.influencer')->find($this->postId);
 
-        if (!$post) return;
+    if (!$post) return;
 
-        $influencer = $post->user; // The owner of the post
-        if (!$influencer || !$influencer->account) return;
+    $user = $post->user; // Post owner
 
-        // Check if already rewarded (avoid double-crediting)
-        $already = InfluencerReferral::where('influencer_id', $influencer->id)
-            ->where('referred_user_id', $this->userId)
-            ->where('post_id', $post->id)
-            ->exists();
-
-        if ($already) return;
-
-        $reward = 0.20; // e.g., $0.20 per click
-
-        // Create referral record
-        InfluencerReferral::create([
-            'influencer_id'    => $influencer->id,
-            'referred_user_id' => $this->userId,
-            'post_id'          => $post->id,
-            'reward'           => $reward,
-            'milestone_type'   => 'post_click',
-            'milestone_value'  => 1,
-            'credited'         => true,
-        ]);
-
-        // Credit influencer's account
-        $influencer->account->increment('available_balance', $reward);
-        $influencer->account->increment('account_balance', $reward);
-
-        // Credit influencer's monetization balance
-        if ($influencer->influencer) {
-            $influencer->influencer->increment('monetization_balance', $reward);
-        }
-
-        // Log in Earning
-        Earning::create([
-            'album_id' => $post->album_id ?? null,
-            'batch_id' => null,
-            'earning' => $reward,
-            'points' => 0,
-            'type' => 'influencer_click',
-            'meta' => json_encode([
-                'post_id' => $post->id,
-                'influencer_id' => $influencer->id,
-                'referred_user_id' => $this->userId,
-                'ip' => $this->ipAddress,
-                'user_agent' => $this->userAgent,
-                'device_info' => $this->deviceInfo,
-                'timestamp' => now()->toDateTimeString(),
-            ]),
-        ]);
+    // ✅ Only continue if the post owner is an influencer
+    if (!$user || !$user->influencer) {
+        return; // Not an influencer, no reward
     }
+    // if (!$user || !$user->account || !$user->influencer) {
+    //     return; // Not an influencer, no reward
+    // }
+
+
+    // Check if already rewarded (avoid double-crediting)
+    $already = InfluencerReferral::where('influencer_id', $user->id)
+        ->where('referred_user_id', $this->userId)
+        ->where('post_id', $post->id)
+        ->exists();
+
+    if ($already) return;
+
+    $reward = 0.20; // e.g., $0.20 per click
+
+    // Create referral record
+    InfluencerReferral::create([
+        'influencer_id'    => $user->id,
+        'referred_user_id' => $this->userId,
+        'post_id'          => $post->id,
+        'reward'           => $reward,
+        'milestone_type'   => 'post_click',
+        'milestone_value'  => 1,
+        'credited'         => true,
+    ]);
+
+    // Credit influencer’s account balances
+    $user->account->increment('available_balance', $reward);
+    $user->account->increment('account_balance', $reward);
+
+    // Credit influencer’s monetization balance
+    $user->influencer->increment('monetization_balance', $reward);
+
+    // Log in Earning
+    Earning::create([
+        'album_id' => $post->album_id ?? null,
+        'batch_id' => null,
+        'earning' => $reward,
+        'points' => 0,
+        'type' => 'influencer_click',
+        'meta' => json_encode([
+            'post_id' => $post->id,
+            'influencer_id' => $user->id,
+            'referred_user_id' => $this->userId,
+            'ip' => $this->ipAddress,
+            'user_agent' => $this->userAgent,
+            'device_info' => $this->deviceInfo,
+            'timestamp' => now()->toDateTimeString(),
+        ]),
+    ]);
+}
 
 }
