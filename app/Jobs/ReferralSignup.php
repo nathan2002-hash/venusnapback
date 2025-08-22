@@ -45,13 +45,9 @@ class ReferralSignup implements ShouldQueue
     $user = $post->user; // Post owner
 
     // ✅ Only continue if the post owner is an influencer
-    if (!$user || !$user->influencer) {
+    if (!$user || !$user->account || !$user->influencer) {
         return; // Not an influencer, no reward
     }
-    // if (!$user || !$user->account || !$user->influencer) {
-    //     return; // Not an influencer, no reward
-    // }
-
 
     // Check if already rewarded (avoid double-crediting)
     $already = InfluencerReferral::where('influencer_id', $user->id)
