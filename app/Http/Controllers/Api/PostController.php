@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Http\Request;
 use App\Jobs\CompressImageJob;
 use App\Jobs\LogPostMediaView;
-use App\Models\Recommendation;
+use App\Jobs\ReferralSignup;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -319,6 +319,15 @@ class PostController extends Controller
         }
 
         LogPostMediaView::dispatch(
+            $id,
+            Auth::user()->id,
+            $ipaddress,
+            $request->header('User-Agent'),
+            $request->header('Device-Info'),
+            6, // Initial duration, can be updated later
+            true // clicked = true
+        );
+        ReferralSignup::dispatch(
             $id,
             Auth::user()->id,
             $ipaddress,
