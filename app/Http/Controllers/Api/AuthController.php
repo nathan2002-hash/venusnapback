@@ -249,39 +249,6 @@ class AuthController extends Controller
         ], 200);
     }
 
-
-    public function riegister(Request $request)
-    {
-        $request->validate([
-            'full_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-        $userAgent = $request->header('User-Agent');
-        $deviceinfo = $request->header('Device-Info');
-        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
-        $ipaddress = $realIp;
-
-        $user = User::create([
-            'name' => $request->full_name,
-            'email' => $request->email,
-            'username' => $request->full_name,
-            'phone' => $request->phone_number,
-            'country' => $request->country,
-            'points' => '300',
-            'preference' => '1',
-            'password' => Hash::make($request->password),
-        ]);
-
-        RegistrationJob::dispatch($user, $userAgent, $deviceinfo, $ipaddress);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Registration successful'
-        ], 200);
-    }
-
-
     public function changePassword(Request $request)
     {
         $request->validate([

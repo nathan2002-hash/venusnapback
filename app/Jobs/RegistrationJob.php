@@ -12,6 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\WelcomeFromCeoMail;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class RegistrationJob implements ShouldQueue
 {
@@ -39,19 +40,30 @@ class RegistrationJob implements ShouldQueue
 
         $timezone = 'Africa/Lusaka'; // default fallback
         try {
-            $key = 'RcpPDNk33XlJPkUgFiSsyecGdGWPD3oOG0b0rHRVzuIhTzcabQ';
-            $response = Http::get("https://ipapi.co/{$this->ipaddress}/json/?key={$key}");
+            // Call ipinfo API
+            $response = Http::get("http://ipinfo.io/{$this->ipaddress}/json");
 
             if ($response->successful()) {
                 $data = $response->json();
-                $timezone = $data['timezone'] ?? 'Africa/Lusaka';
 
-                // Save timezone to user
-                $this->user->timezone = $timezone;
-                $this->user->save();
+                // City + Country
+                if (!empty($data['city']) && !empty($data['country'])) {
+                    $location = $data['city'] . ', ' . $data['country'];
+                }
+
+                // Timezone
+                if (!empty($data['timezone'])) {
+                    $timezone = $data['timezone'];
+                }
+
+                // Save timezone to user if model available
+                if (isset($this->user)) {
+                    $this->user->timezone = $timezone;
+                    $this->user->save();
+                }
             }
         } catch (\Exception $e) {
-            \Log::error("Failed to fetch timezone from ipapi.co: " . $e->getMessage());
+            Log::error("Failed to fetch IP info for {$this->ipaddress}: " . $e->getMessage());
         }
 
         $activity = new Activity();
