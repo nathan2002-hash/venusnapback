@@ -80,7 +80,7 @@ class ExploreController extends Controller
             'is_verified' => (bool) $album->is_verified,
             'supporters_count' => $album->supporters_count,
             'posts_count' => $album->posts_count,
-            'supporter' => isset($album->is_supporter) && $album->is_supporter > 0, // 👈 true/false
+            'is_supporter' => isset($album->is_supporter) && $album->is_supporter > 0, // 👈 true/false
             'created_at' => $album->created_at->toIso8601String(),
         ];
     });
