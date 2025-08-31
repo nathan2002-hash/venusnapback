@@ -27,7 +27,7 @@ class NoticeController extends Controller
                     'is_important' => $notice->is_important,
                     'action_url' => $notice->action_url,
                     'action_text' => $notice->action_text,
-                    'is_read' => $notice->pivot->is_read,
+                    'is_read' => false,
                     'formatted_date' => $notice->created_at->format('M j, Y \a\t g:i A'),
                     'created_at' => $notice->created_at,
                 ];
