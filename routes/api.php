@@ -327,8 +327,8 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/app/message/track', 'Api\AppStatusController@trackMessageAction');
 
     //user notices
-    Route::get('/notices', 'Api\NoticeController@index');
-    Route::get('/notices/{notice}', 'Api\NoticeController@show');
-    Route::post('/notices/{notice}/mark-as-read', 'Api\NoticeController@markAsRead');
-    Route::post('/notices/mark-all-read', 'Api\NoticeController@markAllAsRead');
+    Route::get('/messages', 'Api\NoticeController@index');
+    Route::get('/messages/{notice}', 'Api\NoticeController@show');
+    Route::post('/messages/{notice}/mark-as-read', 'Api\NoticeController@markAsRead');
+    Route::post('/messages/mark-all-read', 'Api\NoticeController@markAllAsRead');
 });
