@@ -254,6 +254,7 @@
                     <ul class="sub-menu" aria-expanded="false">
                         <li><a href="/restricted/communications" key="t-data-tables">Communications</a></li>
                         <li><a href="/restricted/communication/create" key="t-data-tables">Send Communications</a></li>
+                        <li><a href="/restricted/notices" key="t-data-tables">Send App Notification</a></li>
                     </ul>
                 </li>
 

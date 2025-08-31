@@ -22,7 +22,7 @@ class AppMessageController extends Controller
                             ->take(10)
                             ->get();
 
-        return view('admin.notices.create', compact('users', 'recentNotices'));
+        return view('admin.communication.appnotification', compact('users', 'recentNotices'));
     }
 
 
