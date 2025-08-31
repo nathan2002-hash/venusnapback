@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('notices', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->string('not_title');
             $table->text('content');
             $table->boolean('is_important')->default(false);
             $table->string('action_url')->nullable();

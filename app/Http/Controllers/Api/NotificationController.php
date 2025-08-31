@@ -174,7 +174,7 @@ class NotificationController extends Controller
     {
         if ($type === 'message_center') {
             $data = json_decode($notification->data, true);
-            return $data['title'] ?? 'You have a new message';
+            return $data['not_title'] ?? 'You have a new message';
         }
         if ($type === 'album_new_post') {
             $data = json_decode($notification->data, true);

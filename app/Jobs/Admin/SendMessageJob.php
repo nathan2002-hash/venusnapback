@@ -53,7 +53,7 @@ class SendMessageJob implements ShouldQueue
             $notificationData = [
                 'user_id' => $this->targetUserId,
                 'action' => 'message_center',
-                'notifiable_type' => 'App\Models\MessageCenter', // Custom type for message center
+                'notifiable_type' => 'App\Models\Notice', // Custom type for message center
                 'notifiable_id' => 0, // No specific notifiable object
                 'data' => $this->prepareNotificationDataForStorage(),
                 'group_count' => 0,
