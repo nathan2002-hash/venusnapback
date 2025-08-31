@@ -122,6 +122,15 @@ class NotificationController extends Controller
             'notifiablemedia_id' => null
         ];
 
+        // For message center, use the notice ID from metadata if available
+        if ($type === 'message_center') {
+            $data = json_decode($notification->data, true);
+            if (isset($data['notice_id'])) {
+                $result['notifiable_id'] = $data['notice_id'];
+            }
+            return $result;
+        }
+
         // For post and comment types, we need to get both the post_id and media_id
          if (in_array($type, ['post', 'comment', 'album_new_post'])) {
             try {
@@ -155,6 +164,7 @@ class NotificationController extends Controller
             'replied' => 'comment',
             'viewed_album' => 'album_view',
             'album_new_post' => 'album_new_post',
+            'message_center' => 'message_center',
         ];
 
         return $typeMap[$action] ?? 'post';
@@ -162,6 +172,10 @@ class NotificationController extends Controller
 
     private function buildGroupedMessage($usernames, $userCount, $action, $type, $notification, $group)
     {
+        if ($type === 'message_center') {
+            $data = json_decode($notification->data, true);
+            return $data['title'] ?? 'You have a new message';
+        }
         if ($type === 'album_new_post') {
             $data = json_decode($notification->data, true);
             $albumName = $this->formatAlbumName($data['album_name'] ?? null);
@@ -252,6 +266,11 @@ class NotificationController extends Controller
 
     private function getActionPhrase($action, $type, $notification)
     {
+        if ($type === 'message_center') {
+            $data = json_decode($notification->data, true);
+            return $data['message'] ?? 'You have a new message';
+        }
+
         $data = json_decode($notification->data, true);
         $isAlbumOwner = $data['is_album_owner'] ?? false;
         $albumName = $data['album_name'] ?? null;
@@ -301,6 +320,7 @@ class NotificationController extends Controller
             'viewed_album' => 'album',
             'invited' => 'group_add',
             'album_new_post' => 'photo_library',
+            'message_center' => 'email',
         ];
 
         return $icons[$action] ?? 'notifications';
