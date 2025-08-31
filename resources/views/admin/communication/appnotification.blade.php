@@ -122,10 +122,14 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="action_url" class="form-label">Action URL (Optional)</label>
+                                            <label for="action_url" class="form-label">Action URL</label>
                                             <select class="form-select" name="action_url" id="action_url">
-                                                <option value="">No Action</option>
                                                 <option value="notifications">Notifications Page</option>
+                                                <option value="profile">Profile Page</option>
+                                                <option value="settings">Settings Page</option>
+                                                <option value="message_center">Message Center</option>
+                                                <option value="custom">Custom URL</option>
+                                                 <option value="notifications">Notifications Page</option>
                                                 <option value="profile">Profile Page</option>
                                                 <option value="settings">Settings Page</option>
                                                 <option value="message_center">Message Center</option>
@@ -285,6 +289,7 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
 <script>
     $(document).ready(function() {
         // Initialize Select2 for user selection
