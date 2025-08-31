@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Passport\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -194,5 +195,18 @@ class User extends Authenticatable
 
     public function influencer(){
         return $this->hasOne(Influencer::class);
+    }
+
+    public function notices(): BelongsToMany
+    {
+        return $this->belongsToMany(Notice::class, 'user_notices')
+                    ->withPivot('is_read', 'read_at')
+                    ->withTimestamps()
+                    ->orderBy('created_at', 'desc');
+    }
+
+    public function unreadNotices(): BelongsToMany
+    {
+        return $this->notices()->wherePivot('is_read', false);
     }
 }
