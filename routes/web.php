@@ -156,6 +156,9 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     Route::post('/settings/country/store', 'Admin\SettingController@storeCountry');
     Route::post('/settings/continent/store', 'Admin\SettingController@storeContinent');
 
+    Route::get('/notices', 'Admin\AppMessageController@create')->name('admin.notices.create');
+    Route::post('/notices', 'Admin\AppMessageController@store')->name('admin.notices.store');
+
 
      Route::get('/start-ad-check', function() {
         CheckAdPointsJob::dispatch()
