@@ -14,6 +14,7 @@ use App\Jobs\TrackPostViewJob;
 use App\Models\Recommendation;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Jobs\ReferralSignup;
 
 class ViewController extends Controller
 {
@@ -174,6 +175,19 @@ class ViewController extends Controller
             'is_logged_in' => $request->input('is_logged_in', false),
         ]);
 
+        $userId = null;
+        if (Auth::check()) {
+            $userId = Auth::id();
+            ReferralSignup::dispatch(
+                $request->resource_id,
+                $userId,
+                $request->header('cf-connecting-ip') ?? $request->ip(),
+                $request->header('User-Agent'),
+                $request->header('Device-Info'),
+                6, // Initial duration
+                true // clicked = true
+            );
+        }
         return response()->json([
             'success' => true,
             'visit_id' => $visit->id,

@@ -327,15 +327,15 @@ class PostController extends Controller
             6, // Initial duration, can be updated later
             true // clicked = true
         );
-        ReferralSignup::dispatch(
-            $id,
-            Auth::user()->id,
-            $ipaddress,
-            $request->header('User-Agent'),
-            $request->header('Device-Info'),
-            6, // Initial duration, can be updated later
-            true // clicked = true
-        );
+        // ReferralSignup::dispatch(
+        //     $id,
+        //     Auth::user()->id,
+        //     $ipaddress,
+        //     $request->header('User-Agent'),
+        //     $request->header('Device-Info'),
+        //     6, // Initial duration, can be updated later
+        //     true // clicked = true
+        // );
 
         // Sort post media by sequence_order before mapping
         $sortedMedia = $post->postMedias->sortBy('sequence_order');
