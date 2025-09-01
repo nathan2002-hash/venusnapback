@@ -1,21 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>@yield('title') | Welcome</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="Venusnap" name="description" />
-    <meta content="Quixnes" name="author" />
-    <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
+	<meta name="description" content="Kanakku is a Sales, Invoices & Accounts Admin template for Accountant or Companies/Offices with various features for all your needs. Try Demo and Buy Now.">
+	<meta name="keywords" content="admin, estimates, bootstrap, business, corporate, creative, management, minimal, modern, accounts, invoice, html5, responsive, CRM, Projects">
+	<meta name="author" content="Dreams Technologies">
 
-    <!-- Bootstrap Css -->
-    <link href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
-    <!-- Icons Css -->
-    <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
-    <!-- App Css-->
-    <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+	<!-- Favicon -->
+	<link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.png">
+
+	<!-- Apple Touch Icon -->
+	<link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
+
+    <!-- Theme Script js -->
+    <script src="{{ asset('assets/js/theme-script.js') }}" type="e71244daa4fa1b0497881cc8-text/javascript"></script>
+
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+
+	<!-- Tabler Icon CSS -->
+	<link rel="stylesheet" href="{{ asset('assets/plugins/tabler-icons/tabler-icons.min.css') }}">
+
+	<!-- Daterangepikcer CSS -->
+	<link rel="stylesheet" href="{{ asset('assets/plugins/daterangepicker/daterangepicker.css') }}">
+
+	<!-- Datetimepicker CSS -->
+	<link rel="stylesheet" href="{{ asset('assets/css/bootstrap-datetimepicker.min.css') }}">
+
+    <!-- Fontawesome CSS -->
+    <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome/css/fontawesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome/css/all.min.css') }}">
+
+	<!-- Tabler Icon CSS -->
+	<link rel="stylesheet" href="{{ asset('assets/plugins/tabler-icons/tabler-icons.min.css') }}">
+
+    <!-- Simplebar CSS -->
+    <link rel="stylesheet" href="{{ asset('assets/plugins/simplebar/simplebar.min.css') }}">
+
+	<!-- Iconsax CSS -->
+	<link rel="stylesheet" href="{{ asset('assets/css/iconsax.css') }}">
+
+	<!-- Main CSS -->
+	<link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
 
 </head>
 <!-- body start -->
@@ -61,21 +90,32 @@
       </div>
     </div>
 <!-- Vendor -->
- <!-- JAVASCRIPT -->
- <script src="{{ asset('assets/libs/jquery/jquery.min.js') }}"></script>
- <script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
- <script src="{{ asset('assets/libs/metismenu/metisMenu.min.js') }}"></script>
- <script src="{{ asset('assets/libs/simplebar/simplebar.min.js') }}"></script>
- <script src="{{ asset('assets/libs/node-waves/waves.min.js') }}"></script>
+<!-- jQuery -->
+	<script src="{{ asset('assets/js/jquery-3.7.1.min.js') }}" type="e71244daa4fa1b0497881cc8-text/javascript"></script>
 
- <!-- apexcharts -->
- <script src="{{ asset('assets/libs/apexcharts/apexcharts.min.js') }}"></script>
+	<!-- Bootstrap Core JS -->
+	<script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}" type="e71244daa4fa1b0497881cc8-text/javascript"></script>
 
- <!-- dashboard init -->
- <script src="{{ asset('assets/js/pages/dashboard.init.js') }}"></script>
+	<!-- Daterangepikcer JS -->
+	<script src="{{ asset('assets/js/moment.min.js') }}" type="e71244daa4fa1b0497881cc8-text/javascript"></script>
+	<script src="{{ asset('assets/plugins/daterangepicker/daterangepicker.js') }}" type="e71244daa4fa1b0497881cc8-text/javascript"></script>
 
- <!-- App js -->
- <script src="{{ asset('assets/js/app.js') }}"></script>
+	<!-- Simplebar JS -->
+	<script src="{{ asset('assets/plugins/simplebar/simplebar.min.js') }}" type="e71244daa4fa1b0497881cc8-text/javascript"></script>
+
+	<!-- Datetimepicker JS -->
+	<script src="{{ asset('assets/js/bootstrap-datetimepicker.min.js') }}" type="e71244daa4fa1b0497881cc8-text/javascript"></script>
+
+	<!-- Chart JS -->
+	<script src="{{ asset('assets/plugins/apexchart/apexcharts.min.js') }}" type="e71244daa4fa1b0497881cc8-text/javascript"></script>
+	<script src="{{ asset('assets/plugins/apexchart/chart-data.js') }}" type="e71244daa4fa1b0497881cc8-text/javascript"></script>
+
+	<!-- Datatable JS -->
+	<script src="{{ asset('assets/js/jquery.dataTables.min.js') }}" type="e71244daa4fa1b0497881cc8-text/javascript"></script>
+    <script src="{{ asset('assets/js/dataTables.bootstrap5.min.js') }}" type="e71244daa4fa1b0497881cc8-text/javascript"></script>
+
+	<!-- Custom JS -->
+	<script src="{{ asset('assets/js/script.js') }}" type="e71244daa4fa1b0497881cc8-text/javascript"></script>
 
 <script>
     // Get references to the buttons and the form

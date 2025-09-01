@@ -9,510 +9,902 @@
 
 @section('content')
 
-<div class="page-content">
-    <div class="container-fluid">
+<div class="content">
 
-        <!-- start page title -->
-        <div class="row">
-            <div class="col-12">
-                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Dashboard</h4>
-
-                </div>
-            </div>
-        </div>
-        <!-- end page title -->
-
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card overflow-hidden">
-                    <div class="card-body">
-                        <h4 class="card-title mb-4">Monthly Earning</h4>
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <p class="text-muted">This month</p>
-                                <h3>${{ $paymentsComplete }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="row">
-             <div class="col-md-12">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Users</p>
-                                        <h4 class="mb-0">{{ $usersc }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
-                                            <span class="avatar-title">
-                                                <i class="bx bx-copy-alt font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Albums</p>
-                                        <h4 class="mb-0">{{ $album }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center ">
-                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
-                                            <span class="avatar-title rounded-circle bg-primary">
-                                                <i class="bx bx-archive-in font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Posts</p>
-                                        <h4 class="mb-0">{{ $posts }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
-                                            <span class="avatar-title rounded-circle bg-primary">
-                                                <i class="bx bx-purchase-tag-alt font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                     <div class="col-md-3">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Post Medias</p>
-                                        <h4 class="mb-0">{{ $postmedias }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
-                                            <span class="avatar-title rounded-circle bg-primary">
-                                                <i class="bx bx-purchase-tag-alt font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- end row -->
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Artworks</p>
-                                        <h4 class="mb-0">{{ $ads }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
-                                            <span class="avatar-title">
-                                                <i class="bx bx-copy-alt font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">User Templates</p>
-                                        <h4 class="mb-0">{{ $usertemplates }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center ">
-                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
-                                            <span class="avatar-title rounded-circle bg-primary">
-                                                <i class="bx bx-archive-in font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Venusnap Templates</p>
-                                        <h4 class="mb-0">{{ $venusnaptemplates }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
-                                            <span class="avatar-title rounded-circle bg-primary">
-                                                <i class="bx bx-purchase-tag-alt font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Total Templates</p>
-                                        <h4 class="mb-0">{{ $venusnaptemplates + $usertemplates }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
-                                            <span class="avatar-title rounded-circle bg-primary">
-                                                <i class="bx bx-purchase-tag-alt font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                 <div class="row">
-                    <div class="col-md-3">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium"> Adboards</p>
-                                        <h4 class="mb-0">{{ $adboards }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
-                                            <span class="avatar-title">
-                                                <i class="bx bx-copy-alt font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Running Ads</p>
-                                        <h4 class="mb-0">{{ $runningads }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
-                                            <span class="avatar-title">
-                                                <i class="bx bx-copy-alt font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Paused Ads</p>
-                                        <h4 class="mb-0">{{ $pausedads }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center ">
-                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
-                                            <span class="avatar-title rounded-circle bg-primary">
-                                                <i class="bx bx-archive-in font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Total Ads</p>
-                                        <h4 class="mb-0">{{ $ads }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
-                                            <span class="avatar-title rounded-circle bg-primary">
-                                                <i class="bx bx-purchase-tag-alt font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">User Points</p>
-                                        <h4 class="mb-0">{{ number_format($totalpoints) }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
-                                            <span class="avatar-title">
-                                                <i class="bx bx-copy-alt font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">User Points Amount</p>
-                                        <h4 class="mb-0">${{ $pointamount }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center ">
-                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
-                                            <span class="avatar-title rounded-circle bg-primary">
-                                                <i class="bx bx-archive-in font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Templates</p>
-                                        <h4 class="mb-0">{{ $templates }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
-                                            <span class="avatar-title rounded-circle bg-primary">
-                                                <i class="bx bx-purchase-tag-alt font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                 <div class="row">
-                    <div class="col-md-4">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Completed Amount </p>
-                                        <h4 class="mb-0">${{ $paymentsComplete }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
-                                            <span class="avatar-title">
-                                                <i class="bx bx-copy-alt font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Pending Amount</p>
-                                        <h4 class="mb-0">${{ $paymentsPending }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center ">
-                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
-                                            <span class="avatar-title rounded-circle bg-primary">
-                                                <i class="bx bx-archive-in font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted fw-medium">Failed Amount</p>
-                                        <h4 class="mb-0">${{ $paymentsFailed }}</h4>
-                                    </div>
-
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
-                                            <span class="avatar-title rounded-circle bg-primary">
-                                                <i class="bx bx-purchase-tag-alt font-size-24"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- end row -->
-
-         <!-- end row -->
-
-            </div>
-        </div>
-        <!-- end row -->
+<!-- Start Breadcrumb -->
+<div class="d-flex d-block align-items-center justify-content-between flex-wrap gap-3 mb-3">
+    <div>
+        <h6>Dashboard</h6>
     </div>
-    <!-- container-fluid -->
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap gap-2">
+        <div id="reportrange" class="reportrange-picker d-flex align-items-center">
+            <i class="isax isax-calendar text-gray-5 fs-14 me-1"></i><span class="reportrange-picker-field">16 Apr 25 - 16 Apr 25</span>
+        </div>
+        <div class="dropdown">
+            <a class="btn btn-primary d-flex align-items-center justify-content-center dropdown-toggle" data-bs-toggle="dropdown" href="javascript:void(0);" role="button">
+                Create New
+            </a>
+            <ul class="dropdown-menu dropdown-menu-start">
+                <li>
+                    <a href="add-invoice.html" class="dropdown-item d-flex align-items-center">
+                        <i class="isax isax-document-text-1 me-2"></i>Invoice
+                    </a>
+                </li>
+                <li>
+                    <a href="expenses.html" class="dropdown-item d-flex align-items-center">
+                        <i class="isax isax-money-send me-2"></i>Expense
+                    </a>
+                </li>
+                <li>
+                    <a href="add-credit-notes.html" class="dropdown-item d-flex align-items-center">
+                        <i class="isax isax-money-add me-2"></i>Credit Notes
+                    </a>
+                </li>
+                <li>
+                    <a href="add-debit-notes.html" class="dropdown-item d-flex align-items-center">
+                        <i class="isax isax-money-recive me-2"></i>Debit Notes
+                    </a>
+                </li>
+                <li>
+                    <a href="add-purchases-orders.html" class="dropdown-item d-flex align-items-center">
+                        <i class="isax isax-document me-2"></i>Purchase Order
+                    </a>
+                </li>
+                <li>
+                    <a href="add-quotation.html" class="dropdown-item d-flex align-items-center">
+                        <i class="isax isax-document-download me-2"></i>Quotation
+                    </a>
+                </li>
+                <li>
+                    <a href="add-delivery-challan.html" class="dropdown-item d-flex align-items-center">
+                        <i class="isax isax-document-forward me-2"></i>Delivery Challan
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="dropdown">
+            <a href="javascript:void(0);" class="btn btn-outline-white d-inline-flex align-items-center"  data-bs-toggle="dropdown">
+                <i class="isax isax-export-1 me-1"></i>Export
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" href="javascript:void(0);">Download as PDF</a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="javascript:void(0);">Download as Excel</a>
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>
-<!-- End Page-content -->
+<!-- End Breadcrumb -->
 
-<!-- Transaction Modal -->
-<div class="modal fade transaction-detailModal" tabindex="-1" role="dialog" aria-labelledby="transaction-detailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="transaction-detailModalLabel">Order Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="bg-primary rounded welcome-wrap position-relative mb-3">
+
+    <!-- start row -->
+    <div class="row">
+        <div class="col-lg-8 col-md-9 col-sm-7">
+            <div>
+                <h5 class="text-white mb-1">Welcome for work, {{ Auth::user()->name }}</h5>
+                <p class="text-white mb-3">You have 15+ invoices saved to draft that has to send to customers</p>
+                <div class="d-flex align-items-center flex-wrap gap-3">
+                    <p class="d-flex align-items-center fs-13 text-white mb-0"><i class="isax isax-calendar5 me-1"></i>Friday, 24 Mar 2025</p>
+                    <p class="d-flex align-items-center fs-13 text-white mb-0"><i class="isax isax-clock5 me-1"></i>11:24 AM</p>
+                </div>
             </div>
-            <div class="modal-body">
-                <p class="mb-2">Product id: <span class="text-primary">#SK2540</span></p>
-                <p class="mb-4">Billing Name: <span class="text-primary">Neal Matthews</span></p>
+        </div><!-- end col -->
+    </div>
+    <!-- end row -->
 
+    <div class="position-absolute end-0 top-50 translate-middle-y p-2 d-none d-sm-block">
+        <img src="assets/img/icons/dashboard.svg" alt="img">
+    </div>
+</div>
+
+<!-- start row -->
+<div class="row">
+    <div class="col-md-4 d-flex">
+        <div class="card flex-fill">
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="d-flex align-items-center mb-1"><i class="isax isax-category5 text-default me-2"></i>App Growth</h6>
+                </div>
+                <div class="row g-4">
+                    <div class="col-xl-6">
+                        <div class="d-flex align-items-center">
+                            <span class="avatar avatar-44 avatar-rounded bg-primary-subtle text-primary flex-shrink-0 me-2">
+                                <i class="isax isax-document-text-1 fs-20"></i>
+                            </span>
+                            <div>
+                                <p class="mb-1 text-truncate">Albums</p>
+                                <h6 class="fs-16 fw-semibold mb-0 text-truncate">{{ $album }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="d-flex align-items-center me-2">
+                            <span class="avatar avatar-44 avatar-rounded bg-success-subtle text-success-emphasis flex-shrink-0 me-2">
+                                <i class="isax isax-profile-2user fs-20"></i>
+                            </span>
+                            <div>
+                                <p class="mb-1 text-truncate">Users</p>
+                                <h6 class="fs-16 fw-semibold mb-0 text-truncate">{{ $usersc }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="d-flex align-items-center">
+                            <span class="avatar avatar-44 avatar-rounded bg-warning-subtle text-warning-emphasis flex-shrink-0 me-2">
+                                <i class="isax isax-dcube fs-20"></i>
+                            </span>
+                            <div>
+                                <p class="mb-1 text-truncate">Posts</p>
+                                <h6 class="fs-16 fw-semibold mb-0 text-truncate">{{ $posts }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="d-flex align-items-center me-2">
+                            <span class="avatar avatar-44 avatar-rounded bg-info-subtle text-info-emphasis flex-shrink-0 me-2">
+                                <i class="isax isax-document-text fs-20"></i>
+                            </span>
+                            <div>
+                                <p class="mb-1 text-truncate">Post Medias</p>
+                                <h6 class="fs-16 fw-semibold mb-0 text-truncate">{{ $postmedias }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- end card body -->
+        </div> <!-- end card -->
+    </div> <!-- end col -->
+    <div class="col-md-4 d-flex">
+        <div class="card flex-fill">
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="d-flex align-items-center mb-1"><i class="isax isax-chart-215 text-default me-2"></i>Work Eng</h6>
+                </div>
+                <div class="row g-4">
+                    <div class="col-xl-6">
+                        <div class="d-flex align-items-center">
+                            <span class="avatar avatar-44 avatar-rounded bg-primary-subtle text-primary flex-shrink-0 me-2">
+                                <i class="isax isax-document-forward fs-20"></i>
+                            </span>
+                            <div>
+                                <p class="mb-1 text-truncate">Artworks</p>
+                                <h6 class="fs-16 fw-semibold mb-0">$40,569</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="d-flex align-items-center me-2">
+                            <span class="avatar avatar-44 avatar-rounded bg-success-subtle text-success-emphasis flex-shrink-0 me-2">
+                                <i class="isax isax-programming-arrow fs-20"></i>
+                            </span>
+                            <div>
+                                <p class="mb-1 text-truncate">User Temp</p>
+                                <h6 class="fs-16 fw-semibold mb-0 text-truncate">{{ $usertemplates }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="d-flex align-items-center">
+                            <span class="avatar avatar-44 avatar-rounded bg-warning-subtle text-warning-emphasis flex-shrink-0 me-2">
+                                <i class="isax isax-dollar-circle fs-20"></i>
+                            </span>
+                            <div>
+                                <p class="mb-1 mb-0">Venusnap Temp</p>
+                                <h6 class="fs-16 fw-semibold text-truncate">{{ $venusnaptemplates }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="d-flex align-items-center me-2">
+                            <span class="avatar avatar-44 avatar-rounded bg-info-subtle text-info-emphasis flex-shrink-0 me-2">
+                                <i class="isax isax-flag fs-20"></i>
+                            </span>
+                            <div>
+                                <p class="mb-1 text-truncate">Total Temp</p>
+                                <h6 class="fs-16 fw-semibold mb-0 text-truncate">{{ $venusnaptemplates + $usertemplates }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- end card body -->
+        </div> <!-- end card -->
+    </div> <!-- end col -->
+    <div class="col-md-4 d-flex">
+        <div class="card flex-fill">
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="d-flex align-items-center mb-1"><i class="isax isax-chart-success5 text-default me-2"></i>Sales Analytics</h6>
+                </div>
+                <div class="row g-4">
+                    <div class="col-xl-6">
+                        <div class="d-flex align-items-center">
+                            <span class="avatar avatar-44 avatar-rounded bg-primary-subtle text-primary flex-shrink-0 me-2">
+                                <i class="isax isax-document fs-20"></i>
+                            </span>
+                            <div>
+                                <p class="mb-1 text-truncate">Adboards</p>
+                                <h6 class="fs-16 fw-semibold mb-0">{{ $adboards }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="d-flex align-items-center me-2">
+                            <span class="avatar avatar-44 avatar-rounded bg-success-subtle text-success-emphasis flex-shrink-0 me-2">
+                                <i class="isax isax-document-forward fs-20"></i>
+                            </span>
+                            <div>
+                                <p class="mb-1 text-truncate">Running Ads</p>
+                                <h6 class="fs-16 fw-semibold mb-0 text-truncate">{{ $runningads }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="d-flex align-items-center">
+                            <span class="avatar avatar-44 avatar-rounded bg-warning-subtle text-warning-emphasis flex-shrink-0 me-2">
+                                <i class="isax isax-document-previous fs-20"></i>
+                            </span>
+                            <div>
+                                <p class="mb-1 text-truncate">Paused Ads</p>
+                                <h6 class="fs-16 fw-semibold mb-0 text-truncate">{{ $pausedads }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="d-flex align-items-center me-2">
+                            <span class="avatar avatar-44 avatar-rounded bg-info-subtle text-info-emphasis flex-shrink-0 me-2">
+                                <i class="isax isax-dislike fs-20"></i>
+                            </span>
+                            <div>
+                                <p class="mb-1 text-truncate">Total Ads</p>
+                                <h6 class="fs-16 fw-semibold text-truncate mb-0">{{ $ads }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- end card body -->
+        </div> <!-- end card -->
+    </div> <!-- end col -->
+</div>
+<!-- end row -->
+
+<!-- start row -->
+    <div class="row">
+    <div class="col-md-4 d-flex flex-column">
+        <div class="card overflow-hidden z-1 flex-fill">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between border-bottom mb-2 pb-2">
+                    <div>
+                        <p class="mb-1">User Points</p>
+                        <div class="d-flex align-items-center">
+                            <h6 class="fs-16 fw-semibold me-2">{{ number_format($totalpoints) }}</h6>
+                            <span class="badge badge-sm badge-soft-success">+45<i class="isax isax-arrow-up-15 ms-1"></i></span>
+                        </div>
+                    </div>
+                    <span class="avatar avatar-lg bg-light text-dark avatar-rounded">
+                        <i class="isax isax-document-text fs-16"></i>
+                    </span>
+                </div>
+                <a href="inventory.html" class="fw-medium text-decoration-underline">View Inventory</a>
+            </div> <!-- end card body -->
+            <div class="position-absolute end-0 bottom-0 z-n1">
+                <img src="assets/img/bg/card-bg-01.svg" alt="img">
+            </div>
+        </div> <!-- end card -->
+    </div> <!-- end col -->
+    <div class="col-md-4 d-flex flex-column">
+        <div class="card overflow-hidden z-1 flex-fill">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between border-bottom mb-2 pb-2">
+                    <div>
+                        <p class="mb-1">User Points Amount</p>
+                        <div class="d-flex align-items-center">
+                            <h6 class="fs-16 fw-semibold me-2">${{ $pointamount }}</h6>
+                            <span class="badge badge-sm badge-soft-success">+45<i class="isax isax-arrow-up-15 ms-1"></i></span>
+                        </div>
+                    </div>
+                    <span class="avatar avatar-lg bg-light text-dark avatar-rounded">
+                        <i class="isax isax-document-text fs-16"></i>
+                    </span>
+                </div>
+                <a href="invoices.html" class="fw-medium text-decoration-underline">View Invoices</a>
+            </div> <!-- end card body -->
+            <div class="position-absolute end-0 bottom-0 z-n1">
+                <img src="assets/img/bg/card-bg-02.svg" alt="img">
+            </div>
+        </div> <!-- end card -->
+    </div> <!-- end col -->
+    <div class="col-md-4 d-flex flex-column">
+        <div class="card overflow-hidden z-1 flex-fill">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between border-bottom mb-2 pb-2">
+                    <div>
+                        <p class="mb-1">Templates</p>
+                        <div class="d-flex align-items-center">
+                            <h6 class="fs-16 fw-semibold me-2">{{ $templates }}</h6>
+                            <span class="badge badge-sm badge-soft-success">+45<i class="isax isax-arrow-up-15 ms-1"></i></span>
+                        </div>
+                    </div>
+                    <span class="avatar avatar-lg bg-light text-dark avatar-rounded">
+                        <i class="isax isax-document-text fs-16"></i>
+                    </span>
+                </div>
+                <a href="quotations.html" class="fw-medium text-decoration-underline">View All</a>
+            </div> <!-- end card body -->
+            <div class="position-absolute end-0 bottom-0 z-n1">
+                <img src="assets/img/bg/card-bg-03.svg" alt="img">
+            </div>
+        </div> <!-- end card -->
+    </div>
+    </div>
+<!-- end row -->
+
+<!-- start row -->
+<div class="row">
+    <div class="col-xl-6 d-flex">
+        <div class="card flex-fill">
+            <div class="card-body pb-0">
+                <div class="mb-3">
+                    <h6 class="mb-1">Revenue</h6>
+                </div>
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <p class="mb-1">Total Revenue</p>
+                        <div class="d-flex align-items-center">
+                            <h6 class="fs-16 fw-semibold me-2">897</h6>
+                            <span class="badge badge-sm badge-soft-success">+45<i class="isax isax-arrow-up-15 ms-1"></i></span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <p class="fs-13 text-dark d-flex align-items-center mb-0"><i class="fa-solid fa-circle text-primary-transparent fs-12 me-1"></i>Received </p>
+                        <p class="fs-13 text-dark d-flex align-items-center mb-0"><i class="fa-solid fa-circle text-primary fs-12 me-1"></i>Outstanding</p>
+                    </div>
+                </div>
+                <div id="revenue_chart"></div>
+            </div> <!-- end card body -->
+        </div> <!-- end card -->
+    </div> <!-- end col -->
+    <div class="col-xl-6 d-flex">
+        <div class="card flex-fill">
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="mb-1">Customers</h6>
+                </div>
                 <div class="table-responsive">
-                    <table class="table align-middle table-nowrap">
-                        <thead>
-                            <tr>
-                                <th scope="col">Product</th>
-                                <th scope="col">Product Name</th>
-                                <th scope="col">Price</th>
-                            </tr>
-                        </thead>
+                    <table class="table table-nowrap table-borderless custom-table">
                         <tbody>
                             <tr>
-                                <th scope="row">
-                                    <div>
-                                        <img src="assets/images/product/img-7.png" alt="" class="avatar-sm">
-                                    </div>
-                                </th>
                                 <td>
-                                    <div>
-                                        <h5 class="text-truncate font-size-14">Wireless Headphone (Black)</h5>
-                                        <p class="text-muted mb-0">$ 225 x 1</p>
+                                    <div class="d-flex align-items-center">
+                                        <a href="customer-details.html" class="avatar avatar-lg rounded-circle me-2 flex-shrink-0">
+                                            <img src="assets/img/users/user-06.jpg" class="rounded-circle" alt="img">
+                                        </a>
+                                        <div>
+                                            <h6 class="fs-14 fw-medium mb-1"><a href="customer-details.html">Emily Clark</a></h6>
+                                            <p class="fs-13">No of Invoices : 45</p>
+                                        </div>
                                     </div>
                                 </td>
-                                <td>$ 255</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">
-                                    <div>
-                                        <img src="assets/images/product/img-4.png" alt="" class="avatar-sm">
-                                    </div>
-                                </th>
                                 <td>
-                                    <div>
-                                        <h5 class="text-truncate font-size-14">Phone patterned cases</h5>
-                                        <p class="text-muted mb-0">$ 145 x 1</p>
-                                    </div>
-                                </td>
-                                <td>$ 145</td>
-                            </tr>
-                            <tr>
-                                <td colspan="2">
-                                    <h6 class="m-0 text-right">Sub Total:</h6>
+                                    <p class="mb-1">Outstanding </p>
+                                    <h6 class="fs-14 fw-semibold">$3589</h6>
                                 </td>
                                 <td>
-                                    $ 400
+                                    <div class="d-flex align-items-center justify-content-end gap-2">
+                                        <a href="add-invoice.html" class="btn btn-icon btn-sm btn-light" data-bs-toggle="tooltip" data-bs-title="New Invoice"><i class="isax isax-add-circle"></i></a>
+                                        <div data-bs-toggle="tooltip" data-bs-title="Add Ledger">
+                                            <a href="#" class="btn btn-icon btn-sm btn-light"  data-bs-toggle="modal" data-bs-target="#add_ledger"><i class="isax isax-document-text-1"></i></a>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2">
-                                    <h6 class="m-0 text-right">Shipping:</h6>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <a href="customer-details.html" class="avatar avatar-lg rounded-circle me-2 flex-shrink-0">
+                                            <img src="assets/img/users/user-01.jpg" class="rounded-circle" alt="img">
+                                        </a>
+                                        <div>
+                                            <h6 class="fs-14 fw-medium mb-1"><a href="customer-details.html">John Smith</a></h6>
+                                            <p class="fs-13">No of Invoices : 16</p>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td>
-                                    Free
+                                    <p class="mb-1">Outstanding </p>
+                                    <h6 class="fs-14 fw-semibold">$5426</h6>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center justify-content-end gap-2">
+                                        <a href="add-invoice.html" class="btn btn-icon btn-sm btn-light" data-bs-toggle="tooltip" data-bs-title="New Invoice"><i class="isax isax-add-circle"></i></a>
+                                        <div data-bs-toggle="tooltip" data-bs-title="Add Ledger">
+                                            <a href="#" class="btn btn-icon btn-sm btn-light"  data-bs-toggle="modal" data-bs-target="#add_ledger"><i class="isax isax-document-text-1"></i></a>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2">
-                                    <h6 class="m-0 text-right">Total:</h6>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <a href="customer-details.html" class="avatar avatar-lg rounded-circle me-2 flex-shrink-0">
+                                            <img src="assets/img/users/user-38.jpg" class="rounded-circle" alt="img">
+                                        </a>
+                                        <div>
+                                            <h6 class="fs-14 fw-medium mb-1"><a href="customer-details.html">Olivia Harris</a></h6>
+                                            <p class="fs-13">No of Invoices : 23</p>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td>
-                                    $ 400
+                                    <p class="mb-1">Outstanding </p>
+                                    <h6 class="fs-14 fw-semibold">$1493</h6>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center justify-content-end gap-2">
+                                        <a href="add-invoice.html" class="btn btn-icon btn-sm btn-light" data-bs-toggle="tooltip" data-bs-title="New Invoice"><i class="isax isax-add-circle"></i></a>
+                                        <div data-bs-toggle="tooltip" data-bs-title="Add Ledger">
+                                            <a href="#" class="btn btn-icon btn-sm btn-light"  data-bs-toggle="modal" data-bs-target="#add_ledger"><i class="isax isax-document-text-1"></i></a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <a href="customer-details.html" class="avatar avatar-lg rounded-circle me-2 flex-shrink-0">
+                                            <img src="assets/img/users/user-12.jpg" class="rounded-circle" alt="img">
+                                        </a>
+                                        <div>
+                                            <h6 class="fs-14 fw-medium mb-1"><a href="customer-details.html">William Parker</a></h6>
+                                            <p class="fs-13">No of Invoices : 58</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p class="mb-1">Outstanding </p>
+                                    <h6 class="fs-14 fw-semibold">$7854</h6>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center justify-content-end gap-2">
+                                        <a href="add-invoice.html" class="btn btn-icon btn-sm btn-light" data-bs-toggle="tooltip" data-bs-title="New Invoice"><i class="isax isax-add-circle"></i></a>
+                                        <div data-bs-toggle="tooltip" data-bs-title="Add Ledger">
+                                            <a href="#" class="btn btn-icon btn-sm btn-light"  data-bs-toggle="modal" data-bs-target="#add_ledger"><i class="isax isax-document-text-1"></i></a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <a href="customer-details.html" class="avatar avatar-lg rounded-circle me-2 flex-shrink-0">
+                                            <img src="assets/img/users/user-02.jpg" class="rounded-circle" alt="img">
+                                        </a>
+                                        <div>
+                                            <h6 class="fs-14 fw-medium mb-1"><a href="customer-details.html">Charlotte Brown</a></h6>
+                                            <p class="fs-13">No of Invoices : 09</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p class="mb-1">Outstanding </p>
+                                    <h6 class="fs-14 fw-semibold">$4989</h6>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center justify-content-end gap-2">
+                                        <a href="add-invoice.html" class="btn btn-icon btn-sm btn-light" data-bs-toggle="tooltip" data-bs-title="New Invoice"><i class="isax isax-add-circle"></i></a>
+                                        <div data-bs-toggle="tooltip" data-bs-title="Add Ledger">
+                                            <a href="#" class="btn btn-icon btn-sm btn-light"  data-bs-toggle="modal" data-bs-target="#add_ledger"><i class="isax isax-document-text-1"></i></a>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
+                <a href="customers.html" class="btn btn-light btn-lg w-100 text-decoration-underline mt-3">All Customers</a>
+            </div> <!-- end card body -->
+        </div> <!-- end card -->
+    </div> <!-- end col -->
 </div>
+<!-- end row -->
+
+<!-- start row -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-3">
+                    <h6 class="mb-1">Invoices</h6>
+                    <a href="invoices.html" class="btn btn-primary mb-1">View all Invoices</a>
+                </div>
+                <div class="table-responsive no-filter no-pagination">
+                    <table class="table table-nowrap border mb-0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Customer</th>
+                                <th>Created On</th>
+                                <th>Amount</th>
+                                <th>Paid</th>
+                                <th>Payment Mode</th>
+                                <th>Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <a href="invoice-details.html" class="link-default">INV00025</a>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <a href="customer-details.html" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
+                                            <img src="assets/img/users/user-22.jpg" class="rounded-circle" alt="img">
+                                        </a>
+                                        <div>
+                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">Emily Clark</a></h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>22 Feb 2025</td>
+                                <td class="text-dark">$10,000</td>
+                                <td>$5,000</td>
+                                <td class="text-dark">Cash</td>
+                                <td>04 Mar 2025</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <a href="invoice-details.html" class="link-default">INV00024</a>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <a href="customer-details.html" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
+                                            <img src="assets/img/users/user-07.jpg" class="rounded-circle" alt="img">
+                                        </a>
+                                        <div>
+                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">John Carter</a></h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>07 Feb 2025</td>
+                                <td class="text-dark">$25,750</td>
+                                <td>$5,000</td>
+                                <td class="text-dark">Check</td>
+                                <td>20 Feb 2025</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <a href="invoice-details.html" class="link-default">INV00023</a>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <a href="customer-details.html" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
+                                            <img src="assets/img/users/user-16.jpg" class="rounded-circle" alt="img">
+                                        </a>
+                                        <div>
+                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">Sophia White</a></h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>09 Dec 2024</td>
+                                <td class="text-dark">$1,20,500</td>
+                                <td>$60,000</td>
+                                <td class="text-dark">Check</td>
+                                <td>12 Nov 2024</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <a href="invoice-details.html" class="link-default">INV00022</a>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <a href="customer-details.html" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
+                                            <img src="assets/img/users/user-08.jpg" class="rounded-circle" alt="img">
+                                        </a>
+                                        <div>
+                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">Michael Johnson</a></h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>30 Nov 2024</td>
+                                <td class="text-dark">$7,50,300</td>
+                                <td>$60,000</td>
+                                <td class="text-dark">Check</td>
+                                <td>25 Oct 2024</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <a href="invoice-details.html" class="link-default">INV00016</a>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <a href="customer-details.html" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
+                                            <img src="assets/img/users/user-15.jpg" class="rounded-circle" alt="img">
+                                        </a>
+                                        <div>
+                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">Daniel Martinez</a></h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>12 Oct 2024</td>
+                                <td class="text-dark">$9,99,999</td>
+                                <td>$4,00,000</td>
+                                <td class="text-dark">Cash</td>
+                                <td>18 Oct 2024</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <a href="invoice-details.html" class="link-default">INV00015</a>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <a href="customer-details.html" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
+                                            <img src="assets/img/users/user-27.jpg" class="rounded-circle" alt="img">
+                                        </a>
+                                        <div>
+                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">Charlotte Brown</a></h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>05 Oct 2024</td>
+                                <td class="text-dark">$87,650</td>
+                                <td>$40,000</td>
+                                <td class="text-dark">Check</td>
+                                <td>22 Sep 2024</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <a href="invoice-details.html" class="link-default">INV00014</a>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <a href="customer-details.html" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
+                                            <img src="assets/img/users/user-14.jpg" class="rounded-circle" alt="img">
+                                        </a>
+                                        <div>
+                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">William Parker</a></h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>09 Sep 2024</td>
+                                <td class="text-dark">$69,420</td>
+                                <td>$30,000</td>
+                                <td class="text-dark">Cash</td>
+                                <td>15 Sep 2024</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <a href="invoice-details.html" class="link-default">INV00013</a>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <a href="customer-details.html" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
+                                            <img src="assets/img/users/user-25.jpg" class="rounded-circle" alt="img">
+                                        </a>
+                                        <div>
+                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">Mia Thompson</a></h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>02 Sep 2024</td>
+                                <td class="text-dark">$33,210</td>
+                                <td>$15,000</td>
+                                <td class="text-dark">Check</td>
+                                <td>20 Aug 2024</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div> <!-- end card body -->
+        </div> <!-- end card -->
+    </div> <!-- end col -->
+</div>
+<!-- end row -->
+
+<!-- start row -->
+<div class="row">
+    <div class="col-lg-12 col-xl-4 d-flex">
+        <div class="card flex-fill">
+            <div class="card-body pb-1">
+                <div class="mb-3">
+                    <h6 class="mb-1">Recent Transactions</h6>
+                </div>
+                <h6 class="fs-14 fw-semibold mb-3">Today</h6>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <a href="javascript:void(0);" class="avatar avatar-md flex-shrink-0 me-2">
+                            <img src="assets/img/icons/transaction-01.svg" class="rounded-circle" alt="img">
+                        </a>
+                        <div>
+                            <h6 class="fs-14 fw-semibold mb-1"><a href="javascript:void(0);">Andrew James</a></h6>
+                            <p class="fs-13"><a href="invoice-details.html" class="link-default">#INV45478</a></p>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge badge-lg badge-soft-success">+ $989.15</span>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <a href="javascript:void(0);" class="avatar avatar-md flex-shrink-0 me-2">
+                            <img src="assets/img/icons/transaction-02.svg" class="rounded-circle" alt="img">
+                        </a>
+                        <div>
+                            <h6 class="fs-14 fw-semibold mb-1"><a href="javascript:void(0);">John Carter</a></h6>
+                            <p class="fs-13"><a href="invoice-details.html" class="link-default">#INV45477</a></p>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge badge-lg badge-soft-danger">- $300.12</span>
+                    </div>
+                </div>
+                <hr>
+                <h6 class="fs-14 fw-semibold mb-3">Yesterday</h6>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <a href="javascript:void(0);" class="avatar avatar-md flex-shrink-0 me-2">
+                            <img src="assets/img/icons/transaction-02.svg" class="rounded-circle" alt="img">
+                        </a>
+                        <div>
+                            <h6 class="fs-14 fw-semibold mb-1"><a href="javascript:void(0);">Sophia White</a></h6>
+                            <p class="fs-13"><a href="invoice-details.html" class="link-default">#INV45476</a></p>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge badge-lg badge-soft-success"> + $669</span>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <a href="javascript:void(0);" class="avatar avatar-md flex-shrink-0 me-2">
+                            <img src="assets/img/icons/transaction-02.svg" class="rounded-circle" alt="img">
+                        </a>
+                        <div>
+                            <h6 class="fs-14 fw-semibold mb-1"><a href="javascript:void(0);">Daniel Martinez</a></h6>
+                            <p class="fs-13"><a href="invoice-details.html" class="link-default">#INV45475</a></p>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge badge-lg badge-soft-success"> + $474.22</span>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center">
+                        <a href="javascript:void(0);" class="avatar avatar-md flex-shrink-0 me-2">
+                            <img src="assets/img/icons/transaction-01.svg" class="rounded-circle" alt="img">
+                        </a>
+                        <div>
+                            <h6 class="fs-14 fw-semibold mb-1"><a href="javascript:void(0);">Amelia Robinson</a></h6>
+                            <p class="fs-13"><a href="invoice-details.html" class="link-default">#INV45474</a></p>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge badge-lg badge-soft-success"> + $339.79</span>
+                    </div>
+                </div>
+            </div> <!-- end card body -->
+        </div> <!-- end card -->
+    </div> <!-- end col -->
+
+    <div class="col-md-6 col-xl-4 d-flex">
+        <div class="card flex-fill">
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="mb-1">Quotations</h6>
+                </div>
+                <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3">
+                    <div class="d-flex align-items-center">
+                        <a href="customer-details.html" class="avatar avatar-lg flex-shrink-0 me-2">
+                            <img src="assets/img/users/user-02.jpg" class="rounded-circle" alt="img">
+                        </a>
+                        <div>
+                            <h6 class="fs-14 fw-semibold mb-1"><a href="customer-details.html">Emily Clark</a></h6>
+                            <p class="fs-13">QU0014</p>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge badge-sm badge-soft-success d-inline-flex align-items-center mb-1">Accepted<i class="isax isax-tick-circle ms-1"></i></span>
+                        <p class="fs-13">25 Mar 2025</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3">
+                    <div class="d-flex align-items-center">
+                        <a href="customer-details.html" class="avatar avatar-lg flex-shrink-0 me-2">
+                            <img src="assets/img/users/user-07.jpg" class="rounded-circle" alt="img">
+                        </a>
+                        <div>
+                            <h6 class="fs-14 fw-semibold mb-1"><a href="customer-details.html">David Anderson</a></h6>
+                            <p class="fs-13">QU0147</p>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge badge-sm badge-soft-info d-inline-flex align-items-center mb-1">Sent<i class="isax isax-arrow-right-24 ms-1"></i></span>
+                        <p class="fs-13">12 Feb 2025</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3">
+                    <div class="d-flex align-items-center">
+                        <a href="customer-details.html" class="avatar avatar-lg flex-shrink-0 me-2">
+                            <img src="assets/img/users/user-16.jpg" class="rounded-circle" alt="img">
+                        </a>
+                        <div>
+                            <h6 class="fs-14 fw-semibold mb-1"><a href="customer-details.html">Sophia White</a></h6>
+                            <p class="fs-13">QU1947</p>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge badge-sm badge-soft-light d-inline-flex align-items-center text-dark mb-1">Expired<i class="isax isax-timer-pause ms-1"></i></span>
+                        <p class="fs-13">08 Mar 2025</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3">
+                    <div class="d-flex align-items-center">
+                        <a href="customer-details.html" class="avatar avatar-lg flex-shrink-0 me-2">
+                            <img src="assets/img/users/user-08.jpg" class="rounded-circle" alt="img">
+                        </a>
+                        <div>
+                            <h6 class="fs-14 fw-semibold mb-1"><a href="customer-details.html">Michael Johnson</a></h6>
+                            <p class="fs-13">QU2842</p>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge badge-sm badge-soft-danger d-inline-flex align-items-center mb-1">Declined<i class="isax isax-close-circle ms-1"></i></span>
+                        <p class="fs-13">31 Jan 2025</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <a href="customer-details.html" class="avatar avatar-lg flex-shrink-0 me-2">
+                            <img src="assets/img/users/user-22.jpg" class="rounded-circle" alt="img">
+                        </a>
+                        <div>
+                            <h6 class="fs-14 fw-semibold mb-1"><a href="customer-details.html">Emily Clark</a></h6>
+                            <p class="fs-13">QU7868</p>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge badge-sm badge-soft-success d-inline-flex align-items-center mb-1">Accepted<i class="isax isax-tick-circle ms-1"></i></span>
+                        <p class="fs-13">18 Jan 2025</p>
+                    </div>
+                </div>
+            </div> <!-- end card body -->
+        </div> <!-- end card -->
+    </div> <!-- end col -->
+    <div class="col-md-6 col-xl-4 d-flex flex-column">
+        <div class="card d-flex">
+            <div class="card-body flex-fill">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="mb-1">Total Income on Invoice</p>
+                        <h6 class="fs-16 fw-semibold">$98,545</h6>
+                    </div>
+                    <div>
+                        <h6 class="fs-14 fw-semibold mb-1">30.2 <i class="isax isax-arrow-circle-up4 text-success"></i></h6>
+                        <p class="fs-13">Vs Last Week</p>
+                    </div>
+                </div>
+            </div> <!-- end card body -->
+            <div id="invoice_income"></div>
+        </div> <!-- end card -->
+        <div class="card d-flex">
+            <div class="card-body flex-fill">
+                <h6 class="mb-3">Top Sales Statistics</h6>
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-1 mb-3">
+                    <p class="d-flex align-items-center fs-13 text-dark mb-0"><i class="fa-solid fa-circle fs-8 me-1 text-pink"></i>Dell XPS 13</p>
+                    <p class="d-flex align-items-center fs-13 text-dark mb-0"><i class="fa-solid fa-circle fs-8 me-1 text-secondary"></i>Nike T-shirt</p>
+                    <p class="d-flex align-items-center fs-13 text-dark mb-0"><i class="fa-solid fa-circle fs-8 me-1 text-success"></i>Apple iPhone 15</p>
+                </div>
+                <div id="total_sales"></div>
+            </div> <!-- end card body -->
+        </div> <!-- end card -->
+    </div> <!-- end col -->
+</div>
+<!-- end row -->
+
+</div>
+<!-- End Content -->
 @endsection
 
 
