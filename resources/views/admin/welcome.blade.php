@@ -9,9 +9,8 @@
 
 @section('content')
 
-<div class="content">
-
-<!-- Start Breadcrumb -->
+<div>
+    <!-- Start Breadcrumb -->
 <div class="d-flex d-block align-items-center justify-content-between flex-wrap gap-3 mb-3">
     <div>
         <h6>Dashboard</h6>
@@ -902,9 +901,8 @@
     </div> <!-- end col -->
 </div>
 <!-- end row -->
-
-</div>
 <!-- End Content -->
+</div>
 @endsection
 
 

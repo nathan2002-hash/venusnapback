@@ -1,9 +1,12 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark" data-sidebar="light" data-color="primary" data-topbar="white" data-layout="default" data-size="default" data-width="fluid">
 <head>
+
+	<!-- Meta Tags -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>@yield('title') | Welcome</title>
+     <title>@yield('title') | Welcome</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="description" content="Kanakku is a Sales, Invoices & Accounts Admin template for Accountant or Companies/Offices with various features for all your needs. Try Demo and Buy Now.">
 	<meta name="keywords" content="admin, estimates, bootstrap, business, corporate, creative, management, minimal, modern, accounts, invoice, html5, responsive, CRM, Projects">
@@ -47,50 +50,88 @@
 	<link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
 
 </head>
-<!-- body start -->
-<body data-sidebar="dark" data-layout-mode="light">
 
-    <!-- Begin page -->
-    <div id="wrapper">
-    <div class="vertical-overlay"></div>
+<body>
 
-    @include('admin.inc.header')
+	<!-- Begin Wrapper -->
+	<div class="main-wrapper">
 
+		<!-- Topbar Start -->
+		         @include('admin.inc.header')
+		<!-- Topbar End -->
 
+		<!-- Sidenav Menu Start -->
+	         @include('admin.inc.sidebar')
+		<!-- Sidenav Menu End -->
 
+		<!-- ========================
+			Start Page Content
+		========================= -->
+        <div class="page-wrapper">
+            <!-- Start Content -->
+            <div class="content">
+                @yield('content')
+            </div>
+        </div>
 
+		<!-- ========================
+			End Page Content
+		========================= -->
 
-    <div class="main-sidebar">
+		<!-- Start Add Ledger  -->
+		<div id="add_ledger" class="modal fade">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Add New Ledger</h4>
+						<button type="button" class="btn-close btn-close-modal custom-btn-close" data-bs-dismiss="modal" aria-label="Close"><i class="fa-solid fa-x"></i></button>
+					</div>
+					<form action="https://kanakku.dreamstechnologies.com/html/template/index.html">
+						<div class="modal-body pb-1">
+							<div class="mb-3">
+								<label class="form-label">Amount</label>
+								<input type="text" class="form-control">
+							</div>
+							<div class="mb-3">
+								<label class="form-label">Date</label>
+								<div class="input-group position-relative">
+									<input type="text" class="form-control datetimepicker rounded-end" placeholder="dd/mm/yyyy">
+									<span class="input-icon-addon fs-16 text-gray-9">
+										<i class="isax isax-calendar-2"></i>
+									</span>
+								</div>
+							</div>
+							<div class="mb-3">
+								<label class="form-label">Mode</label>
+								<div class="d-flex align-items-center">
+									<div class="form-check me-3">
+										<input class="form-check-input" type="radio" name="Radio" id="Radio-sm-1">
+										<label class="form-check-label" for="Radio-sm-1">
+											Credit
+										</label>
+									</div>
+									<div class="form-check">
+										<input class="form-check-input" type="radio" name="Radio" id="Radio-sm-2" checked="">
+										<label class="form-check-label" for="Radio-sm-2">
+											Debit
+										</label>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer d-flex align-items-center justify-content-between gap-1">
+							<button type="button" class="btn btn-outline-white" data-bs-dismiss="modal">Cancel</button>
+							<button type="submit" class="btn btn-primary">Create</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<!-- End Add Ledger -->
 
-        @include('admin.inc.sidebar')
+	</div>
+	<!-- End Wrapper -->
 
-    </div>
-
-
-
-
-
-    <div class="main-content">
-
-        @yield('content')
-
-    </div>
-
-
-
-
-
-    <footer class="main-footer">
-
-        @include('admin.inc.footer')
-
-    </footer>
-
-
-      </div>
-    </div>
-<!-- Vendor -->
-<!-- jQuery -->
 	<script src="{{ asset('assets/js/jquery-3.7.1.min.js') }}" type="e71244daa4fa1b0497881cc8-text/javascript"></script>
 
 	<!-- Bootstrap Core JS -->
@@ -117,32 +158,9 @@
 	<!-- Custom JS -->
 	<script src="{{ asset('assets/js/script.js') }}" type="e71244daa4fa1b0497881cc8-text/javascript"></script>
 
-<script>
-    // Get references to the buttons and the form
-    var signInButton = document.getElementById('submit-data-button');
-    var loadingButton = document.getElementById('loading-button');
-    var form = document.getElementById('submitdata'); // Replace 'your-form-id' with the actual ID of your form
+<script src="{{ asset('assets/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js') }}" data-cf-settings="e71244daa4fa1b0497881cc8-|49" defer></script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"9784b0879f424ebb","version":"2025.8.0","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"token":"3ca157e612a14eccbb30cf6db6691c29","b":1}' crossorigin="anonymous"></script>
 
-    // Add event listener to the sign-in button
-    signInButton.addEventListener('click', function(event) {
-        // Check if the form is valid
-        if (form.checkValidity()) {
-            // Hide the sign-in button
-            signInButton.style.display = 'none';
-            // Show the loading button
-            loadingButton.style.display = 'block';
-
-            // You can submit the form here
-            form.submit();
-        } else {
-            // Prevent the default form submission
-            event.preventDefault();
-            // Trigger the browser's native validation message
-            form.reportValidity();
-        }
-    });
-</script>
 </body>
-    @yield('scripts')
-    </html>
 
+ @yield('scripts')
+</html>
