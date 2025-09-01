@@ -30,7 +30,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="delivery-challans.html">
+                                <a href="delivery-challas.html">
                                     <i class="isax isax-bookmark-25"></i><span>Delivery Challans</span>
                                 </a>
                             </li>
