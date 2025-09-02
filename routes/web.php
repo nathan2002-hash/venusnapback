@@ -86,6 +86,10 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     Route::get('/users', 'Admin\UserController@index');
     Route::get('/user/{id}', 'Admin\UserController@show');
 
+     //user routes
+    Route::get('/accounts', 'Admin\UserController@accounts');
+    //Route::get('/user/{id}', 'Admin\UserController@show');
+
     //posts routes
     Route::get('/posts', 'Admin\PostController@index');
     Route::get('/post/{id}', 'Admin\PostController@show');

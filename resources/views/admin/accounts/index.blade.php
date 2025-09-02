@@ -3,18 +3,18 @@
 
 
 @section('title')
-    Posts
+    Accounts
 @endsection
 
 
 @section('content')
- <!-- Start Content -->
+<!-- Start Content -->
             <div class="content content-two">
 
-                <!-- Start Breadcrumb -->
+                <!-- Page Header -->
                 <div class="d-flex d-block align-items-center justify-content-between flex-wrap gap-3 mb-3">
                     <div>
-                        <h6>Posts</h6>
+                        <h6>Accounts</h6>
                     </div>
                     <div class="d-flex my-xl-auto right-content align-items-center flex-wrap gap-2">
                         <div class="dropdown">
@@ -31,17 +31,15 @@
                             </ul>
                         </div>
                         <div>
-                            <a href="#" class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#add_modal">
-                                <i class="isax isax-add-circle5 me-1"></i>New Inventory
+                            <a href="javascript:void(0);" class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#add_modal">
+                                <i class="isax isax-add-circle5 me-1"></i>New User
                             </a>
                         </div>
                     </div>
                 </div>
-                <!-- End Breadcrumb -->
+                <!-- End Page Header -->
 
-                <!-- Table Search Start -->
                 <div class="mb-3">
-
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                         <div class="d-flex align-items-center flex-wrap gap-2">
                             <div class="table-search d-flex align-items-center mb-0">
@@ -76,48 +74,41 @@
                                         <label class="dropdown-item d-flex align-items-center form-switch">
                                             <i class="fa-solid fa-grip-vertical me-3 text-default"></i>
                                             <input class="form-check-input m-0 me-2" type="checkbox" checked>
-                                            <span>Product/Service</span>
+                                            <span>User</span>
                                         </label>
                                     </li>
                                     <li>
                                         <label class="dropdown-item d-flex align-items-center form-switch">
                                             <i class="fa-solid fa-grip-vertical me-3 text-default"></i>
                                             <input class="form-check-input m-0 me-2" type="checkbox" checked>
-                                            <span>Code</span>
+                                            <span>Phone</span>
                                         </label>
                                     </li>
                                     <li>
                                         <label class="dropdown-item d-flex align-items-center form-switch">
                                             <i class="fa-solid fa-grip-vertical me-3 text-default"></i>
                                             <input class="form-check-input m-0 me-2" type="checkbox" checked>
-                                            <span>Unit</span>
-                                        </label>
-                                    </li>
-                                    <li>
-                                        <label class="dropdown-item d-flex align-items-center form-switch">
-                                            <i class="fa-solid fa-grip-vertical me-3 text-default"></i>
-                                            <input class="form-check-input m-0 me-2" type="checkbox" checked>
-                                            <span>Quantity</span>
-                                        </label>
-                                    </li>
-                                    <li>
-                                        <label class="dropdown-item d-flex align-items-center form-switch">
-                                            <i class="fa-solid fa-grip-vertical me-3 text-default"></i>
-                                            <input class="form-check-input m-0 me-2" type="checkbox" checked>
-                                            <span>Selling Price</span>
+                                            <span>Role</span>
                                         </label>
                                     </li>
                                     <li>
                                         <label class="dropdown-item d-flex align-items-center form-switch">
                                             <i class="fa-solid fa-grip-vertical me-3 text-default"></i>
                                             <input class="form-check-input m-0 me-2" type="checkbox">
-                                            <span>Purchase Price</span>
+                                            <span>Last Activity</span>
                                         </label>
                                     </li>
                                     <li>
                                         <label class="dropdown-item d-flex align-items-center form-switch">
                                             <i class="fa-solid fa-grip-vertical me-3 text-default"></i>
-                                            <input class="form-check-input m-0 me-2" type="checkbox">
+                                            <input class="form-check-input m-0 me-2" type="checkbox" checked>
+                                            <span>Created On</span>
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="dropdown-item d-flex align-items-center form-switch">
+                                            <i class="fa-solid fa-grip-vertical me-3 text-default"></i>
+                                            <input class="form-check-input m-0 me-2" type="checkbox" checked>
                                             <span>Status</span>
                                         </label>
                                     </li>
@@ -125,72 +116,66 @@
                             </div>
                         </div>
                     </div>
+                    <div class="align-items-center gap-2 flex-wrap filter-info mt-3">
+                        <h6 class="fs-13 fw-semibold">Filters</h6>
+                        <span class="tag bg-light border rounded-1 fs-12 text-dark badge"><span class="num-count d-inline-flex align-items-center justify-content-center bg-success fs-10 me-1">5</span>Users Selected<span class="ms-1 tag-close"><i class="fa-solid fa-x fs-10"></i></span></span>
+                        <span class="tag bg-light border rounded-1 fs-12 text-dark badge"><span class="num-count d-inline-flex align-items-center justify-content-center bg-success fs-10 me-1">5</span>Status Selected<span class="ms-1 tag-close"><i class="fa-solid fa-x fs-10"></i></span></span>
+                        <a href="#" class="link-danger fw-medium text-decoration-underline ms-md-1">Clear All</a>
+                    </div>
                 </div>
-                <!-- Table Search End -->
 
-                <!-- Table List Start -->
                 <div class="table-responsive">
                     <table class="table table-nowrap datatable">
                         <thead class="thead-light">
                             <tr>
-                                <th class="no-sort">
-                                    <div class="form-check form-check-md">
-                                        <input class="form-check-input" type="checkbox" id="select-all">
-                                    </div>
-                                </th>
-                                <th class="no-sort">ID</th>
-                                <th class="no-sort">Album</th>
-                                <th class="no-sort">User</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Media Count</th>
-                                <th class="no-sort">Action</th>
+                                <th>User</th>
+                                <th>Balance</th>
+                                <th>Available</th>
+                                <th class="no-sort">Country</th>
+                                <th>Currency</th>
+                                <th class="no-sort">Status</th>
+                                <th class="no-sort"></th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($posts as $post)
-                                <tr>
-                                <td>
-                                    <div class="form-check form-check-md">
-                                        <input class="form-check-input" type="checkbox">
-                                    </div>
-                                </td>
-                                 <td class="text-dark">{{ $post->id }}</td>
+                           @foreach ($accounts as $account)
+                            <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <a href="javascript:void(0);" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
                                             <img src="https://www.gravatar.com/avatar" class="rounded-circle" alt="img">
                                         </a>
                                         <div>
-                                            <h6 class="fs-14 fw-medium mb-0"><a href="javascript:void(0);">{{ $post->album->name }}</a></h6>
+                                            <h6 class="fs-14 fw-medium mb-0"><a href="javascript:void(0);">{{ $account->user->name }}</a></h6>
                                         </div>
                                     </div>
                                 </td>
+                                <td class="text-dark">${{ $account->account_balance }}</td>
+                                <td class="text-dark">${{ $account->available_balance }}</td>
+                               <td class="text-dark"> {{ $account->country }}</td>
+                               <td class="text-dark"> {{ $account->currency }}</td>
                                 <td>
-                                    <a href="javascript:void(0);" class="link-default">{{ $post->user->name }}</a>
+                                   @if ($account->monetization_status == 'active')
+                                    <span class="badge badge-soft-success d-inline-flex align-items-center">Active
+                                        <i class="isax isax-tick-circle ms-1"></i>
+                                    </span>
+                                    @elseif ($account->monetization_status == 'inactive')
+                                     <span class="badge badge-soft-primary d-inline-flex align-items-center">Inactive
+                                        <i class="isax isax-tick-circle ms-1"></i>
+                                    </span>
+                                   @else
+                                    <span class="badge badge-soft-warning d-inline-flex align-items-center">Pending
+                                        <i class="isax isax-tick-circle ms-1"></i>
+                                    </span>
+                                   @endif
                                 </td>
-                                <td class="text-dark">{{ $post->created_at->format('d-M-Y') }}</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        @if ($post->status == 'active')
-                                             <a href="#" class="btn btn-sm btn-soft-success border-0  d-inline-flex align-items-center me-1 fs-12 fw-regular" data-bs-toggle="modal" data-bs-target="#add_stockin">
-                                            <i class="isax isax-document-sketch5 me-1"></i> Active
-                                        </a>
-                                        @else
-                                              <a href="#" class="btn btn-sm btn-soft-danger border-0 d-inline-flex align-items-center fs-12 fw-regular" data-bs-toggle="modal" data-bs-target="#add_stockout">
-                                            <i class="isax isax-document-sketch5 me-1"></i> Deleted
-                                        </a>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td class="text-dark">{{ $post->postmedias->count() }}</td>
                                 <td class="action-item">
                                     <a href="javascript:void(0);" data-bs-toggle="dropdown">
                                         <i class="isax isax-more"></i>
                                     </a>
                                     <ul class="dropdown-menu">
                                         <li>
-                                            <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#edit_modal"><i class="isax isax-edit me-2"></i>Pause</a>
+                                            <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#edit_modal"><i class="isax isax-edit me-2"></i>Edit</a>
                                         </li>
                                         <li>
                                             <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#delete_modal"><i class="isax isax-trash me-2"></i>Delete</a>
@@ -198,35 +183,24 @@
                                     </ul>
                                 </td>
                             </tr>
-                            @endforeach
+                           @endforeach
                         </tbody>
                     </table>
-                </div>
-                <!-- Table List End -->
+					<!-- end table -->
 
-            </div>
-            <!-- End Content -->
+                </div>
+
 @endsection
 
 
 @section('scripts')
-   <!-- Required datatable js -->
-   <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-   <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-   <!-- Buttons examples -->
-   <script src="{{ asset('assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
-   <script src="{{ asset('assets/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js') }}"></script>
-   <script src="{{ asset('assets/libs/jszip/jszip.min.js') }}"></script>
-   <script src="{{ asset('assets/libs/pdfmake/build/pdfmake.min.js') }}"></script>
-   <script src="{{ asset('assets/libs/pdfmake/build/vfs_fonts.js') }}"></script>
-   <script src="{{ asset('assets/libs/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
-   <script src="{{ asset('assets/libs/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
-   <script src="{{ asset('assets/libs/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
+    <!-- Select2 JS -->
 
-   <!-- Responsive examples -->
-   <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
-   <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+    <!-- Datatable JS -->
+    <script src="{{ asset('assets/js/jquery.dataTables.min.js') }}" type="77e4a79c6b89a118c0e3576b-text/javascript"></script>
+    <script src="{{ asset('assets/js/dataTables.bootstrap5.min.js') }}" type="77e4a79c6b89a118c0e3576b-text/javascript"></script>
 
-   <!-- Datatable init js -->
-   <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+    <!-- Custom JS -->
+    <script src="assets/js/script.js" type="77e4a79c6b89a118c0e3576b-text/javascript"></script>
+
 @endsection

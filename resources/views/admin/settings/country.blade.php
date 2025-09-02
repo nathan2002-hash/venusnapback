@@ -8,66 +8,136 @@
 
 
 @section('content')
-<link href="{{ asset('assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-        <link href="{{ asset('assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
 
-        <!-- Responsive datatable examples -->
-        <link href="{{ asset('assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-<div class="page-content">
-    <div class="container-fluid">
 
-        <!-- start page title -->
-        <div class="row">
-            <div class="col-12">
-                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Countries</h4>
+<!-- Start Content -->
+            <div class="content content-two">
 
-                </div>
-            </div>
-        </div>
-        <!-- end page title -->
-
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="col-4">
-                        <a href="/restricted/settings/country/create" class="btn btn-primary waves-effect waves-light">New Country</a>
+                <!-- Page Header -->
+                <div class="d-flex d-block align-items-center justify-content-between flex-wrap gap-3 mb-3">
+                    <div>
+                        <h6>Countries</h6>
                     </div>
-                    <div class="card-body">
-                        <table id="datatable" class="table table-bordered dt-responsive  nowrap w-100">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Name</th>
-                                    <th>C Code</th>
-                                    <th>Capital</th>
-                                    <th>Currency</th>
-                                    <th>Currency Code</th>
-                                    <th>P Code</th>
-                                    <th>Sample Phone</th>
-                                    <th>Phone Len</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($countries as $country)
-                                <tr>
-                                    <td>{{ $country->name }}</td>
-                                    <td>{{ $country->code }}</td>
-                                    <td>{{ $country->capital }}</td>
-                                    <td>{{ $country->currency }}</td>
-                                    <td>{{ $country->currency_code }}</td>
-                                    <td>{{ $country->phone_code }}</td>
-                                    <td>{{ $country->sample_phone }}</td>
-                                    <td>{{ $country->phone_number_length }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap gap-2">
+                        <div class="dropdown">
+                            <a href="javascript:void(0);" class="btn btn-outline-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+                                <i class="isax isax-export-1 me-1"></i>Export
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="#">Download as PDF</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">Download as Excel</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <a href="#" class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#country">
+                                <i class="isax isax-add-circle5 me-1"></i>New Country
+
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
+                <!-- End Page Header -->
 
-        <div class="modal fade" id="country" tabindex="-1" aria-labelledby="country" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                <!-- Table Search Start -->
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div class="d-flex align-items-center flex-wrap gap-2">
+                            <div class="table-search d-flex align-items-center mb-0">
+                                <div class="search-input">
+                                    <a href="javascript:void(0);" class="btn-searchset"><i class="isax isax-search-normal fs-12"></i></a>
+                                </div>
+                            </div>
+                            <a class="btn btn-outline-white fw-normal d-inline-flex align-items-center" href="javascript:void(0);" data-bs-toggle="offcanvas" data-bs-target="#customcanvas">
+                                <i class="isax isax-filter me-1"></i>Filter
+                            </a>
+                        </div>
+                        <div class="d-flex align-items-center flex-wrap gap-2">
+                            <div class="dropdown">
+                                <a href="javascript:void(0);" class="dropdown-toggle btn btn-outline-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+                                    <i class="isax isax-sort me-1"></i>Sort By : <span class="fw-normal ms-1">Latest</span>
+                                </a>
+                                <ul class="dropdown-menu  dropdown-menu-end">
+                                    <li>
+                                        <a href="javascript:void(0);" class="dropdown-item">Latest</a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0);" class="dropdown-item">Oldest</a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- Table Search End -->
+
+                <!-- Table List Start -->
+                <div class="table-responsive">
+                    <table class="table table-nowrap datatable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th class="no-sort">
+                                    <div class="form-check form-check-md">
+                                        <input class="form-check-input" type="checkbox" id="select-all">
+                                    </div>
+                                </th>
+                                <th class="no-sort">Name</th>
+                                <th class="no-sort">Capital</th>
+                                <th class="no-sort">Currency</th>
+                                <th class="no-sort">Phone Code</th>
+                                <th class="no-sort">Sample Phone</th>
+                                <th class="no-sort"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                           @foreach ($countries as $country)
+                                <tr>
+                                <td>
+                                    <div class="form-check form-check-md">
+                                        <input class="form-check-input" type="checkbox">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <a href="javascript:void(0);" class="avatar avatar-xs me-2 flex-shrink-0">
+                                            <img src="{{ asset('assets/img/flags/us.png') }}" alt="img">
+                                        </a>
+                                        <div>
+                                            <h6 class="fs-14 fw-medium mb-0"><a href="javascript:void(0);">{{ $country->name }} ({{ $country->code }})</a></h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ $country->capital }}</td>
+                                <td>{{ $country->currency }} ({{ $country->currency_code }})</td>
+                                <td>{{ $country->phone_code }}</td>
+                                <td>{{ $country->sample_phone }}</td>
+                                <td class="action-item">
+                                    <a href="javascript:void(0);" data-bs-toggle="dropdown">
+                                        <i class="isax isax-more"></i>
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="countries.html" class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#edit_modal"><i class="isax isax-edit me-2"></i>Edit</a>
+                                        </li>
+                                        <li>
+                                            <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#delete_modal"><i class="isax isax-trash me-2"></i>Delete</a>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                           @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Table List End -->
+
+            </div>
+			<!-- End Content -->
+             <div class="modal fade" id="country" tabindex="-1" aria-labelledby="country" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -135,10 +205,6 @@
         </div>
     </div>
 </div>
-
-    </div> <!-- container-fluid -->
-</div>
-<!-- End Page-content -->
 @endsection
 
 

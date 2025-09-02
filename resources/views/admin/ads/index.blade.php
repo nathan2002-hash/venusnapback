@@ -1,107 +1,209 @@
 @extends('layouts.admin')
 
-
-
 @section('title')
     Ads
 @endsection
 
-
 @section('content')
-<link href="{{ asset('assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-        <link href="{{ asset('assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+<div class="content content-two">
+    <!-- Page Header -->
+    <div class="d-flex d-block align-items-center justify-content-between flex-wrap gap-3 mb-3">
+        <div>
+            <h6>Ads Management</h6>
+        </div>
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap gap-2">
+            <div class="dropdown">
+                <a href="javascript:void(0);" class="btn btn-outline-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+                    <i class="isax isax-export-1 me-1"></i>Export
+                </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item" href="javascript:void(0);">Download as PDF</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="javascript:void(0);">Download as Excel</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- End Page Header -->
 
-        <!-- Responsive datatable examples -->
-        <link href="{{ asset('assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-<div class="page-content">
-    <div class="container-fluid">
-
-        <!-- start page title -->
-        <div class="row">
-            <div class="col-12">
-                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Ads</h4>
-
+    <!-- Table Search -->
+    <div class="mb-3">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <div class="table-search d-flex align-items-center mb-0">
+                    <div class="search-input">
+                        <a href="javascript:void(0);" class="btn-searchset"><i class="isax isax-search-normal fs-12"></i></a>
+                    </div>
+                </div>
+                <a class="btn btn-outline-white fw-normal d-inline-flex align-items-center" href="javascript:void(0);" data-bs-toggle="offcanvas" data-bs-target="#customcanvas">
+                    <i class="isax isax-filter me-1"></i>Filter
+                </a>
+            </div>
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <div class="dropdown">
+                    <a href="javascript:void(0);" class="dropdown-toggle btn btn-outline-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+                        <i class="isax isax-sort me-1"></i>Sort By : <span class="fw-normal ms-1">Latest</span>
+                    </a>
+                    <ul class="dropdown-menu  dropdown-menu-end">
+                        <li>
+                            <a href="javascript:void(0);" class="dropdown-item">Latest</a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0);" class="dropdown-item">Oldest</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="dropdown">
+                    <a href="javascript:void(0);" class="dropdown-toggle btn btn-outline-white d-inline-flex align-items-center" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                        <i class="isax isax-grid-3 me-1"></i>Column
+                    </a>
+                    <ul class="dropdown-menu  dropdown-menu">
+                        <li>
+                            <label class="dropdown-item d-flex align-items-center form-switch">
+                                <i class="fa-solid fa-grip-vertical me-3 text-default"></i>
+                                <input class="form-check-input m-0 me-2" type="checkbox" checked>
+                                <span>ID</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item d-flex align-items-center form-switch">
+                                <i class="fa-solid fa-grip-vertical me-3 text-default"></i>
+                                <input class="form-check-input m-0 me-2" type="checkbox" checked>
+                                <span>Adboard</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item d-flex align-items-center form-switch">
+                                <i class="fa-solid fa-grip-vertical me-3 text-default"></i>
+                                <input class="form-check-input m-0 me-2" type="checkbox" checked>
+                                <span>Album</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item d-flex align-items-center form-switch">
+                                <i class="fa-solid fa-grip-vertical me-3 text-default"></i>
+                                <input class="form-check-input m-0 me-2" type="checkbox" checked>
+                                <span>Date</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item d-flex align-items-center form-switch">
+                                <i class="fa-solid fa-grip-vertical me-3 text-default"></i>
+                                <input class="form-check-input m-0 me-2" type="checkbox" checked>
+                                <span>Status</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="dropdown-item d-flex align-items-center form-switch">
+                                <i class="fa-solid fa-grip-vertical me-3 text-default"></i>
+                                <input class="form-check-input m-0 me-2" type="checkbox" checked>
+                                <span>Points</span>
+                            </label>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
-        <!-- end page title -->
+    </div>
+    <!-- /Table Search -->
 
-        <style>
-    .carousel-inner {
-        max-height: 400px;
-    }
-    .carousel-item img {
-        object-fit: contain;
-        max-height: 400px;
-        width: 100%;
-    }
-    .carousel-control-prev, .carousel-control-next {
-        background-color: rgba(0,0,0,0.2);
-    }
-</style>
+    <!-- Table List -->
+    <div class="table-responsive">
+        <table class="table table-nowrap datatable">
+            <thead>
+                <tr>
+                    <th class="no-sort">
+                        <div class="form-check form-check-md">
+                            <input class="form-check-input" type="checkbox" id="select-all">
+                        </div>
+                    </th>
+                    <th>ID</th>
+                    <th>Adboard</th>
+                    <th>Album</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Points</th>
+                    <th class="no-sort"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($ads as $ad)
+                <tr>
+                    <td>
+                        <div class="form-check form-check-md">
+                            <input class="form-check-input" type="checkbox">
+                        </div>
+                    </td>
+                    <td>
+                        <a href="javascript:void(0);" class="link-default">{{ $ad->id }}</a>
+                    </td>
+                    <td>{{ $ad->adboard->name }}</td>
+                    <td>{{ $ad->adboard->album->name }}</td>
+                    <td>{{ $ad->created_at->format('d M, Y') }}</td>
+                    <td>
+                        @if ($ad->status == 'active')
+                            <span class="badge badge-soft-success badge-sm d-inline-flex align-items-center">
+                                Active <i class="isax isax-tick-circle4 ms-1"></i>
+                            </span>
+                        @elseif ($ad->status == 'paused')
+                            <span class="badge badge-soft-warning badge-sm d-inline-flex align-items-center">
+                                Paused <i class="isax isax-timer ms-1"></i>
+                            </span>
+                        @else
+                            <span class="badge badge-soft-danger badge-sm d-inline-flex align-items-center">
+                                Pending <i class="isax isax-close-circle ms-1"></i>
+                            </span>
+                        @endif
+                    </td>
+                    <td class="text-dark">{{ $ad->adboard->points }}</td>
+                    <td class="action-item">
+                        <a href="javascript:void(0);" data-bs-toggle="dropdown">
+                            <i class="isax isax-more"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="javascript:void(0);"
+                                   class="dropdown-item d-flex align-items-center view-details"
+                                   data-ad-id="{{ $ad->id }}"
+                                   data-adboard="{{ $ad->adboard->name }}"
+                                   data-album="{{ $ad->adboard->album->name }}"
+                                   data-date="{{ $ad->created_at->format('d M, Y') }}"
+                                   data-status="{{ $ad->status }}"
+                                   data-points="{{ $ad->adboard->points }}"
+                                   data-cta-name="{{ $ad->cta_name }}"
+                                   data-cta-link="{{ $ad->cta_link }}"
+                                   data-media='@json($ad->media->map(function($m) {
+                                       return ['filepath' => Storage::disk('s3')->url($m->file_path)];
+                                   }))'
+                                   data-id="{{ $ad->id }}">
+                                    <i class="isax isax-eye me-2"></i>View Details
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center approve-btn" data-ad-id="{{ $ad->id }}">
+                                    <i class="isax isax-tick-circle me-2"></i>Approve
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" class="dropdown-item d-flex align-items-center reject-btn" data-ad-id="{{ $ad->id }}">
+                                    <i class="isax isax-close-circle me-2"></i>Reject
+                                </a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    <!-- /Table List -->
 
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <table id="datatable" class="table table-bordered dt-responsive  nowrap w-100">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Ad ID</th>
-                                    <th>Adboard</th>
-                                    <th>Album</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Points</th>
-                                    <th>View Details</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($ads as $ad)
-                                <tr>
-                                    <td>{{ $ad->id }}</td>
-                                    <td>{{ $ad->adboard->name }}</td>
-                                    <td>
-                                        {{ $ad->adboard->album->name }}
-                                    </td>
-                                    <td>
-                                        {{ $ad->created_at->format('d M, Y') }}
-                                    </td>
-                                    <td>
-                                        @if ($ad->status == 'active')
-                                            <span class="badge-soft-success font-size-13">Active</span>
-                                        @elseif ($ad->status == 'paused')
-                                            <span class="badge-soft-warning font-size-13">Paused</span>
-                                        @else
-                                            <span class="badge-soft-danger font-size-13">Pending</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        {{ $ad->adboard->points }}
-                                    </td>
-                                   <td>
-                                    <a href="javascript:void(0);"
-                                        class="btn btn-sm btn-primary view-details"
-                                        data-ad-id="{{ $ad->id }}"
-                                        data-adboard="{{ $ad->adboard->name }}"
-                                        data-album="{{ $ad->adboard->album->name }}"
-                                        data-date="{{ $ad->created_at->format('d M, Y') }}"
-                                        data-status="{{ $ad->status }}"
-                                        data-points="{{ $ad->adboard->points }}"
-                                        data-cta-name="{{ $ad->cta_name }}"
-                                        data-cta-link="{{ $ad->cta_link }}"
-                                        data-media='@json($ad->media->map(function($m) {
-                                            return ['filepath' => Storage::disk('s3')->url($m->file_path)];
-                                        }))'
-                                        data-id="{{ $ad->id }}">
-                                        View Details
-                                        </a>
-</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+</div>
+<!-- End Content -->
+
 <!-- Modal -->
 <div class="modal fade" id="adDetailsModal" tabindex="-1" aria-labelledby="adDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -149,130 +251,106 @@
     </div>
 </div>
 
-    </div> <!-- container-fluid -->
-</div>
-<!-- End Page-content -->
 @endsection
-
 
 @section('scripts')
 <script>
-        $(document).ready(function() {
-            // View Details button click handler
-            $('.view-details').click(function() {
-                const adId = $(this).data('ad-id');
-                const adboard = $(this).data('adboard');
-                const album = $(this).data('album');
-                const date = $(this).data('date');
-                const status = $(this).data('status');
-                const points = $(this).data('points');
-                const ctaName = $(this).data('cta-name');
-                const ctaLink = $(this).data('cta-link');
-                 const media = $(this).data('media');
-                //const media = JSON.parse($(this).data('media'));
+    $(document).ready(function() {
+        // View Details button click handler
+        $('.view-details').click(function() {
+            const adId = $(this).data('ad-id');
+            const adboard = $(this).data('adboard');
+            const album = $(this).data('album');
+            const date = $(this).data('date');
+            const status = $(this).data('status');
+            const points = $(this).data('points');
+            const ctaName = $(this).data('cta-name');
+            const ctaLink = $(this).data('cta-link');
+            const media = $(this).data('media');
 
-                // Set modal content
-                $('#modalAdId').text(adId);
-                $('#modalAdboard').text(adboard);
-                $('#modalAlbum').text(album);
-                $('#modalDate').text(date);
-                $('#modalPoints').text(points);
-                $('#modalCta').html(`<a href="${ctaLink}" target="_blank">${ctaName}</a>`);
+            // Set modal content
+            $('#modalAdId').text(adId);
+            $('#modalAdboard').text(adboard);
+            $('#modalAlbum').text(album);
+            $('#modalDate').text(date);
+            $('#modalPoints').text(points);
+            $('#modalCta').html(`<a href="${ctaLink}" target="_blank">${ctaName}</a>`);
 
-                // Set status with appropriate badge
-                let statusBadge = '';
-                if (status == 'active') {
-                    statusBadge = '<span class="badge-soft-success font-size-13">Active</span>';
-                } else if (status == 'paused') {
-                    statusBadge = '<span class="badge-soft-warning font-size-13">Paused</span>';
-                } else {
-                    statusBadge = '<span class="badge-soft-danger font-size-13">Pending</span>';
-                }
-                $('#modalStatus').html(statusBadge);
+            // Set status with appropriate badge
+            let statusBadge = '';
+            if (status == 'active') {
+                statusBadge = '<span class="badge badge-soft-success badge-sm d-inline-flex align-items-center">Active <i class="isax isax-tick-circle4 ms-1"></i></span>';
+            } else if (status == 'paused') {
+                statusBadge = '<span class="badge badge-soft-warning badge-sm d-inline-flex align-items-center">Paused <i class="isax isax-timer ms-1"></i></span>';
+            } else {
+                statusBadge = '<span class="badge badge-soft-danger badge-sm d-inline-flex align-items-center">Pending <i class="isax isax-close-circle ms-1"></i></span>';
+            }
+            $('#modalStatus').html(statusBadge);
 
-                // Build carousel items
-                let carouselItems = '';
-                media.forEach((item, index) => {
-                    const activeClass = index === 0 ? 'active' : '';
-                    carouselItems += `
-                        <div class="carousel-item ${activeClass}">
-                            <img src="${item.filepath}" class="d-block w-100" alt="Ad image ${index + 1}">
-                        </div>
-                    `;
-                });
-
-                // Insert carousel items and show if there are images
-                const $carouselInner = $('#modalAdContent');
-                $carouselInner.html(carouselItems);
-
-                // Set ad ID on action buttons
-                $('.approve-btn, .reject-btn').attr('data-ad-id', adId);
-
-                // Show modal
-                $('#adDetailsModal').modal('show');
+            // Build carousel items
+            let carouselItems = '';
+            media.forEach((item, index) => {
+                const activeClass = index === 0 ? 'active' : '';
+                carouselItems += `
+                    <div class="carousel-item ${activeClass}">
+                        <img src="${item.filepath}" class="d-block w-100" alt="Ad image ${index + 1}">
+                    </div>
+                `;
             });
 
-            // Approve button click handler
-            $('.approve-btn').click(function() {
-                const adId = $(this).data('ad-id');
-                updateAdStatus(adId, 'active');
-            });
+            // Insert carousel items and show if there are images
+            const $carouselInner = $('#modalAdContent');
+            $carouselInner.html(carouselItems);
 
-            // Reject button click handler
-            $('.reject-btn').click(function() {
-                const adId = $(this).data('ad-id');
-                updateAdStatus(adId, 'rejected');
-            });
+            // Set ad ID on action buttons
+            $('.modal-footer .approve-btn, .modal-footer .reject-btn').attr('data-ad-id', adId);
 
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                }
-            });
+            // Show modal
+            $('#adDetailsModal').modal('show');
+        });
 
-            // Function to update ad status
-            function updateAdStatus(adId, status) {
-                if (confirm(`Are you sure you want to ${status} this ad?`)) {
-                    $.ajax({
-                        url: "{{ route('ads.updateStatus') }}",
-                        method: 'POST',
-                        data: {
-                            ad_id: adId,
-                            status: status
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                $('#adDetailsModal').modal('hide');
-                                location.reload(); // Reload page to reflect changes
-                            } else {
-                                alert('Error: ' + response.message);
-                            }
-                        },
-                        error: function(xhr) {
-                            alert('Error: ' + xhr.responseJSON.message);
-                        }
-                    });
-                }
+        // Approve button click handler
+        $('.approve-btn').click(function() {
+            const adId = $(this).data('ad-id');
+            updateAdStatus(adId, 'active');
+        });
+
+        // Reject button click handler
+        $('.reject-btn').click(function() {
+            const adId = $(this).data('ad-id');
+            updateAdStatus(adId, 'rejected');
+        });
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
             }
         });
-    </script>
-   <!-- Required datatable js -->
-   <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-   <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-   <!-- Buttons examples -->
-   <script src="{{ asset('assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
-   <script src="{{ asset('assets/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js') }}"></script>
-   <script src="{{ asset('assets/libs/jszip/jszip.min.js') }}"></script>
-   <script src="{{ asset('assets/libs/pdfmake/build/pdfmake.min.js') }}"></script>
-   <script src="{{ asset('assets/libs/pdfmake/build/vfs_fonts.js') }}"></script>
-   <script src="{{ asset('assets/libs/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
-   <script src="{{ asset('assets/libs/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
-   <script src="{{ asset('assets/libs/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
- <script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-   <!-- Responsive examples -->
-   <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
-   <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
-   <!-- Datatable init js -->
-   <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+        // Function to update ad status
+        function updateAdStatus(adId, status) {
+            if (confirm(`Are you sure you want to ${status} this ad?`)) {
+                $.ajax({
+                    url: "{{ route('ads.updateStatus') }}",
+                    method: 'POST',
+                    data: {
+                        ad_id: adId,
+                        status: status
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#adDetailsModal').modal('hide');
+                            location.reload(); // Reload page to reflect changes
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('Error: ' + xhr.responseJSON.message);
+                    }
+                });
+            }
+        }
+    });
+</script>
 @endsection

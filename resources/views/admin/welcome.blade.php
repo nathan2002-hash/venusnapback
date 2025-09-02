@@ -87,8 +87,8 @@
                 <h5 class="text-white mb-1">Welcome for work, {{ Auth::user()->name }}</h5>
                 <p class="text-white mb-3">You have 15+ invoices saved to draft that has to send to customers</p>
                 <div class="d-flex align-items-center flex-wrap gap-3">
-                    <p class="d-flex align-items-center fs-13 text-white mb-0"><i class="isax isax-calendar5 me-1"></i>Friday, 24 Mar 2025</p>
-                    <p class="d-flex align-items-center fs-13 text-white mb-0"><i class="isax isax-clock5 me-1"></i>11:24 AM</p>
+                    <p class="d-flex align-items-center fs-13 text-white mb-0" id="current-date"><i class="isax isax-calendar5 me-1"></i>Friday, 24 Mar 2025</p>
+                    <p class="d-flex align-items-center fs-13 text-white mb-0" id="current-time"><i class="isax isax-clock5 me-1"></i>11:24 AM</p>
                 </div>
             </div>
         </div><!-- end col -->
@@ -148,7 +148,7 @@
                                 <i class="isax isax-document-text fs-20"></i>
                             </span>
                             <div>
-                                <p class="mb-1 text-truncate">Post Medias</p>
+                                <p class="mb-1 text-truncate">Medias</p>
                                 <h6 class="fs-16 fw-semibold mb-0 text-truncate">{{ $postmedias }}</h6>
                             </div>
                         </div>
@@ -181,7 +181,7 @@
                                 <i class="isax isax-programming-arrow fs-20"></i>
                             </span>
                             <div>
-                                <p class="mb-1 text-truncate">User Temp</p>
+                                <p class="mb-1 text-truncate">UTemp</p>
                                 <h6 class="fs-16 fw-semibold mb-0 text-truncate">{{ $usertemplates }}</h6>
                             </div>
                         </div>
@@ -192,7 +192,7 @@
                                 <i class="isax isax-dollar-circle fs-20"></i>
                             </span>
                             <div>
-                                <p class="mb-1 mb-0">Venusnap Temp</p>
+                                <p class="mb-1 mb-0">VTemp</p>
                                 <h6 class="fs-16 fw-semibold text-truncate">{{ $venusnaptemplates }}</h6>
                             </div>
                         </div>
@@ -203,7 +203,7 @@
                                 <i class="isax isax-flag fs-20"></i>
                             </span>
                             <div>
-                                <p class="mb-1 text-truncate">Total Temp</p>
+                                <p class="mb-1 text-truncate">TTemp</p>
                                 <h6 class="fs-16 fw-semibold mb-0 text-truncate">{{ $venusnaptemplates + $usertemplates }}</h6>
                             </div>
                         </div>
@@ -236,7 +236,7 @@
                                 <i class="isax isax-document-forward fs-20"></i>
                             </span>
                             <div>
-                                <p class="mb-1 text-truncate">Running Ads</p>
+                                <p class="mb-1 text-truncate">Active Ads</p>
                                 <h6 class="fs-16 fw-semibold mb-0 text-truncate">{{ $runningads }}</h6>
                             </div>
                         </div>
@@ -287,11 +287,7 @@
                         <i class="isax isax-document-text fs-16"></i>
                     </span>
                 </div>
-                <a href="inventory.html" class="fw-medium text-decoration-underline">View Inventory</a>
             </div> <!-- end card body -->
-            <div class="position-absolute end-0 bottom-0 z-n1">
-                <img src="assets/img/bg/card-bg-01.svg" alt="img">
-            </div>
         </div> <!-- end card -->
     </div> <!-- end col -->
     <div class="col-md-4 d-flex flex-column">
@@ -309,11 +305,7 @@
                         <i class="isax isax-document-text fs-16"></i>
                     </span>
                 </div>
-                <a href="invoices.html" class="fw-medium text-decoration-underline">View Invoices</a>
             </div> <!-- end card body -->
-            <div class="position-absolute end-0 bottom-0 z-n1">
-                <img src="assets/img/bg/card-bg-02.svg" alt="img">
-            </div>
         </div> <!-- end card -->
     </div> <!-- end col -->
     <div class="col-md-4 d-flex flex-column">
@@ -331,183 +323,10 @@
                         <i class="isax isax-document-text fs-16"></i>
                     </span>
                 </div>
-                <a href="quotations.html" class="fw-medium text-decoration-underline">View All</a>
             </div> <!-- end card body -->
-            <div class="position-absolute end-0 bottom-0 z-n1">
-                <img src="assets/img/bg/card-bg-03.svg" alt="img">
-            </div>
         </div> <!-- end card -->
     </div>
     </div>
-<!-- end row -->
-
-<!-- start row -->
-<div class="row">
-    <div class="col-xl-6 d-flex">
-        <div class="card flex-fill">
-            <div class="card-body pb-0">
-                <div class="mb-3">
-                    <h6 class="mb-1">Revenue</h6>
-                </div>
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                    <div>
-                        <p class="mb-1">Total Revenue</p>
-                        <div class="d-flex align-items-center">
-                            <h6 class="fs-16 fw-semibold me-2">897</h6>
-                            <span class="badge badge-sm badge-soft-success">+45<i class="isax isax-arrow-up-15 ms-1"></i></span>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <p class="fs-13 text-dark d-flex align-items-center mb-0"><i class="fa-solid fa-circle text-primary-transparent fs-12 me-1"></i>Received </p>
-                        <p class="fs-13 text-dark d-flex align-items-center mb-0"><i class="fa-solid fa-circle text-primary fs-12 me-1"></i>Outstanding</p>
-                    </div>
-                </div>
-                <div id="revenue_chart"></div>
-            </div> <!-- end card body -->
-        </div> <!-- end card -->
-    </div> <!-- end col -->
-    <div class="col-xl-6 d-flex">
-        <div class="card flex-fill">
-            <div class="card-body">
-                <div class="mb-3">
-                    <h6 class="mb-1">Customers</h6>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-nowrap table-borderless custom-table">
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <a href="customer-details.html" class="avatar avatar-lg rounded-circle me-2 flex-shrink-0">
-                                            <img src="assets/img/users/user-06.jpg" class="rounded-circle" alt="img">
-                                        </a>
-                                        <div>
-                                            <h6 class="fs-14 fw-medium mb-1"><a href="customer-details.html">Emily Clark</a></h6>
-                                            <p class="fs-13">No of Invoices : 45</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <p class="mb-1">Outstanding </p>
-                                    <h6 class="fs-14 fw-semibold">$3589</h6>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center justify-content-end gap-2">
-                                        <a href="add-invoice.html" class="btn btn-icon btn-sm btn-light" data-bs-toggle="tooltip" data-bs-title="New Invoice"><i class="isax isax-add-circle"></i></a>
-                                        <div data-bs-toggle="tooltip" data-bs-title="Add Ledger">
-                                            <a href="#" class="btn btn-icon btn-sm btn-light"  data-bs-toggle="modal" data-bs-target="#add_ledger"><i class="isax isax-document-text-1"></i></a>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <a href="customer-details.html" class="avatar avatar-lg rounded-circle me-2 flex-shrink-0">
-                                            <img src="assets/img/users/user-01.jpg" class="rounded-circle" alt="img">
-                                        </a>
-                                        <div>
-                                            <h6 class="fs-14 fw-medium mb-1"><a href="customer-details.html">John Smith</a></h6>
-                                            <p class="fs-13">No of Invoices : 16</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <p class="mb-1">Outstanding </p>
-                                    <h6 class="fs-14 fw-semibold">$5426</h6>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center justify-content-end gap-2">
-                                        <a href="add-invoice.html" class="btn btn-icon btn-sm btn-light" data-bs-toggle="tooltip" data-bs-title="New Invoice"><i class="isax isax-add-circle"></i></a>
-                                        <div data-bs-toggle="tooltip" data-bs-title="Add Ledger">
-                                            <a href="#" class="btn btn-icon btn-sm btn-light"  data-bs-toggle="modal" data-bs-target="#add_ledger"><i class="isax isax-document-text-1"></i></a>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <a href="customer-details.html" class="avatar avatar-lg rounded-circle me-2 flex-shrink-0">
-                                            <img src="assets/img/users/user-38.jpg" class="rounded-circle" alt="img">
-                                        </a>
-                                        <div>
-                                            <h6 class="fs-14 fw-medium mb-1"><a href="customer-details.html">Olivia Harris</a></h6>
-                                            <p class="fs-13">No of Invoices : 23</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <p class="mb-1">Outstanding </p>
-                                    <h6 class="fs-14 fw-semibold">$1493</h6>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center justify-content-end gap-2">
-                                        <a href="add-invoice.html" class="btn btn-icon btn-sm btn-light" data-bs-toggle="tooltip" data-bs-title="New Invoice"><i class="isax isax-add-circle"></i></a>
-                                        <div data-bs-toggle="tooltip" data-bs-title="Add Ledger">
-                                            <a href="#" class="btn btn-icon btn-sm btn-light"  data-bs-toggle="modal" data-bs-target="#add_ledger"><i class="isax isax-document-text-1"></i></a>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <a href="customer-details.html" class="avatar avatar-lg rounded-circle me-2 flex-shrink-0">
-                                            <img src="assets/img/users/user-12.jpg" class="rounded-circle" alt="img">
-                                        </a>
-                                        <div>
-                                            <h6 class="fs-14 fw-medium mb-1"><a href="customer-details.html">William Parker</a></h6>
-                                            <p class="fs-13">No of Invoices : 58</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <p class="mb-1">Outstanding </p>
-                                    <h6 class="fs-14 fw-semibold">$7854</h6>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center justify-content-end gap-2">
-                                        <a href="add-invoice.html" class="btn btn-icon btn-sm btn-light" data-bs-toggle="tooltip" data-bs-title="New Invoice"><i class="isax isax-add-circle"></i></a>
-                                        <div data-bs-toggle="tooltip" data-bs-title="Add Ledger">
-                                            <a href="#" class="btn btn-icon btn-sm btn-light"  data-bs-toggle="modal" data-bs-target="#add_ledger"><i class="isax isax-document-text-1"></i></a>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <a href="customer-details.html" class="avatar avatar-lg rounded-circle me-2 flex-shrink-0">
-                                            <img src="assets/img/users/user-02.jpg" class="rounded-circle" alt="img">
-                                        </a>
-                                        <div>
-                                            <h6 class="fs-14 fw-medium mb-1"><a href="customer-details.html">Charlotte Brown</a></h6>
-                                            <p class="fs-13">No of Invoices : 09</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <p class="mb-1">Outstanding </p>
-                                    <h6 class="fs-14 fw-semibold">$4989</h6>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center justify-content-end gap-2">
-                                        <a href="add-invoice.html" class="btn btn-icon btn-sm btn-light" data-bs-toggle="tooltip" data-bs-title="New Invoice"><i class="isax isax-add-circle"></i></a>
-                                        <div data-bs-toggle="tooltip" data-bs-title="Add Ledger">
-                                            <a href="#" class="btn btn-icon btn-sm btn-light"  data-bs-toggle="modal" data-bs-target="#add_ledger"><i class="isax isax-document-text-1"></i></a>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <a href="customers.html" class="btn btn-light btn-lg w-100 text-decoration-underline mt-3">All Customers</a>
-            </div> <!-- end card body -->
-        </div> <!-- end card -->
-    </div> <!-- end col -->
-</div>
 <!-- end row -->
 
 <!-- start row -->
@@ -907,5 +726,51 @@
 
 
 @section('scripts')
-    //
+    <script>
+        // Update time and date
+        function updateDateTime() {
+            const now = new Date();
+
+            // Format time
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            const formattedTime = now.toLocaleTimeString('en-US', timeOptions);
+
+            // Format date
+            const dateOptions = { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' };
+            const formattedDate = now.toLocaleDateString('en-US', dateOptions);
+
+            // Update DOM
+            document.getElementById('current-time').textContent = formattedTime;
+            document.getElementById('current-date').textContent = formattedDate;
+
+            // Update message based on time of day
+            updateWelcomeMessage(now);
+        }
+
+        // Update welcome message based on time of day
+        function updateWelcomeMessage(now) {
+            const hour = now.getHours();
+            const messageElement = document.getElementById('dynamic-message');
+            let message = '';
+
+            if (hour < 5) {
+                message = 'Late night? You have 15+ invoices saved to draft that need to be sent to customers';
+            } else if (hour < 12) {
+                message = 'Good morning! You have 15+ invoices saved to draft that need to be sent to customers';
+            } else if (hour < 17) {
+                message = 'Good afternoon! You have 15+ invoices saved to draft that need to be sent to customers';
+            } else {
+                message = 'Good evening! You have 15+ invoices saved to draft that need to be sent to customers';
+            }
+
+            messageElement.textContent = message;
+        }
+
+        // Initialize and update time every second
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        // Simulate user name - in a real application this would come from your backend
+        document.getElementById('username').textContent = 'Alex Johnson';
+    </script>
 @endsection
