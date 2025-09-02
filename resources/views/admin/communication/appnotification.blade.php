@@ -124,16 +124,19 @@
                                         <div class="mb-3">
                                             <label for="action_url" class="form-label">Action URL</label>
                                             <select class="form-select" name="action_url" id="action_url">
-                                                <option value="notifications">Notifications Page</option>
-                                                <option value="profile">Profile Page</option>
-                                                <option value="settings">Settings Page</option>
-                                                <option value="message_center">Message Center</option>
-                                                <option value="custom">Custom URL</option>
-                                                 <option value="notifications">Notifications Page</option>
-                                                <option value="profile">Profile Page</option>
-                                                <option value="settings">Settings Page</option>
-                                                <option value="message_center">Message Center</option>
-                                                <option value="custom">Custom URL</option>
+                                                <option value="album_create">Album Create</option>
+                                                <option value="creators_album_create">Creator Album Create</option>
+                                                <option value="business_album_create">Business Album Create</option>
+                                                <option value="personal_album_create">Personal Album Create</option>
+                                                <option value="gallery_post_page">Post Page</option>
+                                                <option value="venusnap_images">Venusnap Images</option>
+                                                <option value="albums">Albums Page</option>
+                                                <option value="venusnap_create_page">Venusnap Discovery</option>
+                                                <option value="creative_tools">Venusnap Creator Tool</option>
+                                                <option value="post_explore">Post Explore</option>
+                                                <option value="album_explore">Album Explore</option>
+                                                <option value="profile">Profile</option>
+                                                <option value="home_feed">Home Feed</option>
                                             </select>
                                             <small class="form-text text-muted">
                                                 Where should the action button take users?
