@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('title')
-    Communication
+    SMS Communication
 @endsection
 
 @section('content')
@@ -12,7 +12,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                        <h4 class="mb-sm-0 font-size-18">Send Communication</h4>
+                        <h4 class="mb-sm-0 font-size-18">Send SMS</h4>
                     </div>
                 </div>
             </div>
@@ -22,23 +22,12 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-body">
-                            <p class="card-title-desc">Send messages or emails to your customers</p>
-                            <form action="/restricted/communication/store" method="POST" enctype="multipart/form-data" id="communicationForm" class="needs-validation" novalidate>
+                            <p class="card-title-desc">Send SMS messages to your customers</p>
+                            <form action="/restricted/communication/store" method="POST" id="communicationForm" class="needs-validation" novalidate>
                                 @csrf
+                                <input type="hidden" name="type" value="sms">
+
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="communicationType" class="form-label">Communication Type</label>
-                                            <select class="form-select" name="type" id="communicationType" required>
-                                                <option selected disabled value="">Choose Type...</option>
-                                                <option value="sms">SMS</option>
-                                                <option value="email">Email</option>
-                                            </select>
-                                            <div class="invalid-feedback">
-                                                Please select a communication type.
-                                            </div>
-                                        </div>
-                                    </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="recipientType" class="form-label">Recipient Type</label>
@@ -52,6 +41,19 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="smsProvider" class="form-label">SMS Provider</label>
+                                            <select class="form-select" name="sms_provider" id="smsProvider" required>
+                                                <option selected disabled value="">Select Provider...</option>
+                                                <option value="vonage">Vonage</option>
+                                                <option value="beem">Beem</option>
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                Please select an SMS provider.
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="row">
@@ -61,7 +63,7 @@
                                             <select class="form-select" name="user_id" id="userSelect">
                                                 <option selected disabled value="">Select User...</option>
                                                 @foreach($users as $user)
-                                                    <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                                                    <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->phone }})</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -80,31 +82,14 @@
                                     </div>
                                 </div>
 
-                                <!-- SMS Provider Selection (shown only when SMS is selected) -->
-                                <div class="row" id="smsProviderContainer" style="display: none;">
-                                    <div class="col-md-12">
-                                        <div class="mb-3">
-                                            <label for="smsProvider" class="form-label">SMS Provider</label>
-                                            <select class="form-select" name="sms_provider" id="smsProvider">
-                                                <option selected disabled value="">Select Provider...</option>
-                                                <option value="vonage">Vonage</option>
-                                                <option value="beem">Beem</option>
-                                            </select>
-                                            <div class="invalid-feedback">
-                                                Please select an SMS provider.
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="mb-3">
-                                            <label for="subject" class="form-label">Subject</label>
+                                            <label for="subject" class="form-label">Subject (For Reference)</label>
                                             <input type="text" name="subject" class="form-control" id="subject"
                                                 placeholder="Message Subject" required>
-                                            <div class="valid-feedback">
-                                                Looks good!
+                                            <div class="invalid-feedback">
+                                                Please provide a subject for reference.
                                             </div>
                                         </div>
                                     </div>
@@ -115,7 +100,7 @@
                                         <div class="mb-3">
                                             <label for="messageBody" class="form-label">Message Body</label>
                                             <textarea name="body" required class="form-control" id="messageBody" rows="5"></textarea>
-                                            <div id="smsCounter" style="display: none; margin-top: 5px;">
+                                            <div id="smsCounter" style="margin-top: 5px;">
                                                 <small>Character count: <span id="charCount">0</span></small>
                                                 <small class="float-end">Messages: <span id="messageCount">0</span></small>
                                             </div>
@@ -123,17 +108,8 @@
                                     </div>
                                 </div>
 
-                                <div class="row" id="emailAttachmentContainer" style="display: none;">
-                                    <div class="col-md-12">
-                                        <div class="mb-3">
-                                            <label for="attachment" class="form-label">Attachment (Email only)</label>
-                                            <input type="file" name="attachment" class="form-control" id="attachment">
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <div>
-                                    <button id="submit-button" class="btn btn-primary btn-block col-12" type="submit">Send Communication</button>
+                                    <button id="submit-button" class="btn btn-primary btn-block col-12" type="submit">Send SMS</button>
                                     <button id="loading-button" class="btn btn-primary btn-block col-12" style="display: none;" type="button" disabled>
                                         <span class="btn-loading" role="status" aria-hidden="true"></span>
                                         &nbsp; &nbsp; &nbsp; Sending...
@@ -169,28 +145,9 @@
             }
         });
 
-        // Show/hide SMS counter, provider selection, and email attachment based on communication type
-        $('#communicationType').change(function() {
-            const selectedType = $(this).val();
-
-            if (selectedType === 'sms') {
-                $('#smsCounter').show();
-                $('#smsProviderContainer').show();
-                $('#emailAttachmentContainer').hide();
-                // Trigger character count on initial load
-                countSmsCharacters();
-            } else {
-                $('#smsCounter').hide();
-                $('#smsProviderContainer').hide();
-                $('#emailAttachmentContainer').show();
-            }
-        });
-
         // SMS character counter
         $('#messageBody').on('input', function() {
-            if ($('#communicationType').val() === 'sms') {
-                countSmsCharacters();
-            }
+            countSmsCharacters();
         });
 
         function countSmsCharacters() {
@@ -205,13 +162,19 @@
             }
             $('#messageCount').text(messageCount);
 
-            // Add warning if approaching limit (optional)
+            // Add warning if approaching limit
             if (charCount > 140) {
                 $('#smsCounter small').css('color', 'red');
             } else {
                 $('#smsCounter small').css('color', 'inherit');
             }
         }
+
+        // Initialize character count
+        countSmsCharacters();
+
+        // Trigger recipient type change to show/hide appropriate fields
+        $('#recipientType').trigger('change');
 
         // Form submission handling
         var submitButton = $('#submit-button');
