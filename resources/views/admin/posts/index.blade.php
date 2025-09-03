@@ -160,7 +160,7 @@
                                     $thumbnailUrl = null;
                                     if ($post->album->type === 'personal' || $post->album->type === 'creator') {
                                         $thumbnailUrl = $post->album->thumbnail_compressed
-                                            ? generateSecureMediaUrl($album->thumbnail_compressed)
+                                            ? generateSecureMediaUrl($post->album->thumbnail_compressed)
                                             : ($post->album->thumbnail_original
                                                 ? generateSecureMediaUrl($post->album->thumbnail_original)
                                                 : null);
