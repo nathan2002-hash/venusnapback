@@ -21,6 +21,14 @@ class CommunicationController extends Controller
         return view('admin.communication.create', compact('users', 'albums'));
     }
 
+    public function emailcreate()
+    {
+        $users = User::where('role', 'user')->get(); // Assuming you want to get only regular users
+        $albums = Album::where('visibility', 'public')->get(); // Assuming you want to get only public albums
+
+        return view('admin.communication.createemail', compact('users', 'albums'));
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

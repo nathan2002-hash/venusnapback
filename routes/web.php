@@ -151,6 +151,7 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     //communications routes
     Route::get('/communications', 'Admin\CommunicationController@index');
     Route::get('/communication/create', 'Admin\CommunicationController@create');
+     Route::get('/communication/email/create', 'Admin\CommunicationController@emailcreate');
     Route::post('/communication/store', 'Admin\CommunicationController@store');
 
     //location routes

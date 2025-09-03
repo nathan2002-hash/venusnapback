@@ -199,7 +199,7 @@
 											<span class="menu-arrow"></span>
 										</a>
 										<ul>
-											<li><a href="/restricted/communication/create">Send Email</a></li>
+											<li><a href="/restricted/communication/email/create">Send Email</a></li>
 											<li><a href="/restricted/communications">Emails</a></li>
 										</ul>
 									</li>
