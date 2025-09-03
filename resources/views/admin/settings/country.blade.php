@@ -103,10 +103,8 @@
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                       <a href="javascript:void(0);" class="avatar avatar-xs me-2 flex-shrink-0">
-                                            <img src="https://flagcdn.com/w40/{{ strtolower($country->code) }}.png"
-                                                alt="{{ $country->name }}"
-                                                onerror="this.onerror=null; this.src='{{ asset('assets/img/flags/default.png') }}';">
+                                        <a href="javascript:void(0);" class="avatar avatar-xs me-2 flex-shrink-0">
+                                            <img src="{{ $country->flag }}" alt="img">
                                         </a>
                                         <div>
                                             <h6 class="fs-14 fw-medium mb-0"><a href="javascript:void(0);">{{ $country->name }} ({{ $country->code }})</a></h6>
