@@ -47,7 +47,7 @@ class UserController extends Controller
     {
         $accounts = Account::whereHas('user') // only accounts with a related user
             ->orderBy('created_at', 'desc')
-            ->paginate(30);
+            ->paginate(40);
 
         return view('admin.accounts.index', [
         'accounts' => $accounts,
