@@ -154,10 +154,26 @@
                                         <input class="form-check-input" type="checkbox">
                                     </div>
                                 </td>
+                                @php
+                                    $thumbnailUrl = null;
+                                    if ($album->type === 'personal' || $album->type === 'creator') {
+                                        $thumbnailUrl = $album->thumbnail_compressed
+                                            ? generateSecureImageUrl($album->thumbnail_compressed)
+                                            : ($album->thumbnail_original
+                                                ? generateSecureImageUrl($album->thumbnail_original)
+                                                : null);
+                                    } elseif ($album->type === 'business') {
+                                        $thumbnailUrl = $album->business_logo_compressed
+                                            ? generateSecureImageUrl($album->business_logo_compressed)
+                                            : ($album->business_logo_original
+                                                ? generateSecureImageUrl($album->business_logo_original)
+                                                : null);
+                                    }
+                                @endphp
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <a href="javascript:void(0);" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
-                                            <img src="https://www.gravatar.com/avatar" class="rounded-circle" alt="img">
+                                            <img src="{{ $thumbnailUrl ?? 'https://www.gravatar.com/avatar' }}" class="rounded-circle" alt="img">
                                         </a>
                                         <div>
                                             <h6 class="fs-14 fw-medium mb-0"><a href="javascript:void(0);">{{ $album->name }}</a></h6>
