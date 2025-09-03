@@ -143,7 +143,10 @@
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <a href="javascript:void(0);" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
-                                            <img src="https://www.gravatar.com/avatar" class="rounded-circle" alt="img">
+                                            <img src="https://www.gravatar.com/avatar/{{ md5(strtolower(trim($user->email))) }}?s=80&d=404"
+                                                class="rounded-circle"
+                                                alt="{{ $user->name }}"
+                                                onerror="this.onerror=null; this.src='{{ asset('assets/img/users/default.png') }}';">
                                         </a>
                                         <div>
                                             <h6 class="fs-14 fw-medium mb-0"><a href="javascript:void(0);">{{ $user->name }}</a></h6>
