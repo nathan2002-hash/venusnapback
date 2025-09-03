@@ -164,7 +164,7 @@
                                             : ($post->album->thumbnail_original
                                                 ? generateSecureMediaUrl($post->album->thumbnail_original)
                                                 : null);
-                                    } elseif ($album->type === 'business') {
+                                    } elseif ($post->album->type === 'business') {
                                         $thumbnailUrl = $post->album->business_logo_compressed
                                             ? generateSecureMediaUrl($post->album->business_logo_compressed)
                                             : ($post->album->business_logo_original
