@@ -173,7 +173,10 @@
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <a href="javascript:void(0);" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
-                                            <img src="{{ $thumbnailUrl ?? 'https://www.gravatar.com/avatar' }}" class="rounded-circle" alt="img">
+                                            <img src="{{ $thumbnailUrl ?? 'https://www.gravatar.com/avatar' }}"
+                                                alt="img"
+                                                class="rounded-circle"
+                                                style="width: 40px; height: 40px; object-fit: cover;">
                                         </a>
                                         <div>
                                             <h6 class="fs-14 fw-medium mb-0"><a href="javascript:void(0);">{{ $album->name }}</a></h6>

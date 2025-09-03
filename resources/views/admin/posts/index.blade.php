@@ -156,10 +156,29 @@
                                     </div>
                                 </td>
                                  <td class="text-dark">{{ $post->id }}</td>
+                                  @php
+                                    $thumbnailUrl = null;
+                                    if ($post->album->type === 'personal' || $post->album->type === 'creator') {
+                                        $thumbnailUrl = $post->album->thumbnail_compressed
+                                            ? generateSecureMediaUrl($album->thumbnail_compressed)
+                                            : ($post->album->thumbnail_original
+                                                ? generateSecureMediaUrl($post->album->thumbnail_original)
+                                                : null);
+                                    } elseif ($album->type === 'business') {
+                                        $thumbnailUrl = $post->album->business_logo_compressed
+                                            ? generateSecureMediaUrl($post->album->business_logo_compressed)
+                                            : ($post->album->business_logo_original
+                                                ? generateSecureMediaUrl($post->album->business_logo_original)
+                                                : null);
+                                    }
+                                @endphp
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <a href="javascript:void(0);" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
-                                            <img src="https://www.gravatar.com/avatar" class="rounded-circle" alt="img">
+                                         <a href="javascript:void(0);" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
+                                            <img src="{{ $thumbnailUrl ?? 'https://www.gravatar.com/avatar' }}"
+                                                alt="img"
+                                                class="rounded-circle"
+                                                style="width: 40px; height: 40px; object-fit: cover;">
                                         </a>
                                         <div>
                                             <h6 class="fs-14 fw-medium mb-0"><a href="javascript:void(0);">{{ $post->album->name }}</a></h6>
