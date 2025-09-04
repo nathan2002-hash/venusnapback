@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Artwork;
 use App\Models\User;
 use App\Models\PointTransaction;
+use OpenAI\Client;
 
 class ProcessArtworkImage implements ShouldQueue
 {
@@ -29,89 +30,132 @@ class ProcessArtworkImage implements ShouldQueue
     /**
      * Execute the job.
      */
+
     public function handle()
-{
-    $artwork = Artwork::findOrFail($this->artworkId);
-    $user = User::findOrFail($this->userId);
-    $transaction = PointTransaction::findOrFail($this->transactionId);
+    {
+        $artwork = Artwork::findOrFail($this->artworkId);
+        $user = User::findOrFail($this->userId);
+        $transaction = PointTransaction::findOrFail($this->transactionId);
 
-    DB::beginTransaction();
+        DB::beginTransaction();
 
-    try {
-        $artwork->update(['status' => 'processing']);
+        try {
+            $artwork->update(['status' => 'processing']);
 
-        $finalPrompt = "Create a high-quality digital artwork based on: " . $this->prompt;
+            // Enhance the prompt using GPT-3.5 Turbo
+            $enhancedPrompt = $this->enhancePromptWithGPT5Nano($this->prompt);
 
-        // Ideogram API call
-        $response = Http::withHeaders([
-            'Api-Key' => env('IDEOGRAM_API_KEY'),
-            'Content-Type' => 'application/json',
-        ])
-        ->timeout(200)
-        ->post('https://api.ideogram.ai/v1/ideogram-v3/generate', [
-            'prompt' => $finalPrompt,
-            'rendering_speed' => 'TURBO', // Optional: TURBO or STANDARD
-            'aspect_ratio' => '9x16', // Optional: if you want specific aspect ratio
-            // 'style_type' => 'GENERAL' // Optional: GENERAL, PHOTO, etc.
-        ]);
-
-        if ($response->successful()) {
-            $responseData = $response->json();
-
-            // Check if data exists and has at least one item
-            if (!isset($responseData['data'][0]['url'])) {
-                throw new \Exception('Ideogram API response missing image URL');
-            }
-
-            $imageUrl = $responseData['data'][0]['url'];
-            $imageContents = Http::get($imageUrl)->body();
-            $fileName = 'uploads/artworks/originals/' . uniqid() . '.jpeg';
-            Storage::disk('s3')->put($fileName, $imageContents);
-
-            // Deduct points within transaction
-            $user->decrement('points', 50);
-
-            CompressArtworkImage::dispatch($artwork->id);
-
-            $artwork->update([
-                'file_path' => $fileName,
-                'status' => 'awaiting_compression',
+            // Ideogram API call with enhanced prompt
+            $response = Http::withHeaders([
+                'Api-Key' => env('IDEOGRAM_API_KEY'),
+                'Content-Type' => 'application/json',
+            ])
+            ->timeout(200)
+            ->post('https://api.ideogram.ai/v1/ideogram-v3/generate', [
+                'prompt' => $enhancedPrompt,
+                'aspect_ratio' => '9x16',
+                'rendering_speed' => 'TURBO',
             ]);
 
+            if ($response->successful()) {
+                $responseData = $response->json();
+
+                if (!isset($responseData['data'][0]['url'])) {
+                    throw new \Exception('Ideogram API response missing image URL');
+                }
+
+                $imageUrl = $responseData['data'][0]['url'];
+                $imageContents = Http::get($imageUrl)->body();
+                $fileName = 'uploads/artworks/originals/' . uniqid() . '.jpeg';
+                Storage::disk('s3')->put($fileName, $imageContents);
+
+                // Deduct points
+                $user->decrement('points', 50);
+
+                CompressArtworkImage::dispatch($artwork->id);
+
+                $artwork->update([
+                    'file_path' => $fileName,
+                    'status' => 'awaiting_compression',
+                ]);
+
+                $transaction->update([
+                    'status' => 'completed',
+                    'resource_id' => $artwork->id,
+                    'balance_after' => $user->points,
+                    'description' => 'Successfully generated artwork',
+                    'metadata' => json_encode([
+                        'artwork_id' => $artwork->id,
+                        'image_path' => $fileName,
+                        'api_response' => $responseData,
+                        'original_prompt' => $this->prompt,
+                        'enhanced_prompt' => $enhancedPrompt,
+                        'prompt_used' => $enhancedPrompt,
+                        'generator' => 'ideogram',
+                        'aspect_ratio' => '9x16'
+                    ])
+                ]);
+
+                DB::commit();
+            } else {
+                throw new \Exception('Ideogram API error: '.$response->body());
+            }
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            $artwork->update(['status' => 'failed']);
+
             $transaction->update([
-                'status' => 'completed',
-                'resource_id' => $artwork->id,
-                'balance_after' => $user->points,
-                'description' => 'Successfully generated artwork',
+                'status' => 'failed',
+                'description' => 'Artwork generation failed: '.$e->getMessage(),
                 'metadata' => json_encode([
-                    'artwork_id' => $artwork->id,
-                    'image_path' => $fileName,
-                    'api_response' => $responseData,
-                    'prompt_used' => $finalPrompt,
-                    'generator' => 'ideogram'
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
                 ])
             ]);
 
-            DB::commit();
-        } else {
-            throw new \Exception('Ideogram API error: '.$response->body());
+            Log::error("Artwork generation failed: " . $e->getMessage());
         }
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-
-        $artwork->update(['status' => 'failed']);
-
-        $transaction->update([
-            'status' => 'failed',
-            'description' => 'Artwork generation failed: '.$e->getMessage(),
-            'metadata' => json_encode([
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ])
-        ]);
-
-        Log::error("Artwork generation failed: " . $e->getMessage());
     }
-}
+
+    private function enhancePromptWithGPT5Nano(string $userPrompt): string
+    {
+        try {
+            $openai = new Client(env('OPENAI_API_KEY'));
+
+            $response = $openai->chat()->create([
+                'model' => 'gpt-5-nano', // Use GPT-5 nano
+                'messages' => [
+                    [
+                        'role' => 'system',
+                        'content' => 'You are a prompt engineering expert helping generate engaging images for Venusnap, a social platform where users post creative snaps, memes, motivational quotes, and album covers.
+If the user provides text, keep and improve it.
+If the user does not provide text (e.g., “create a motivational quote” or “make a meme”), invent a short, catchy and original text that fits the request.
+Always make the prompt visually detailed and creative for Ideogram, focusing on:
+1) Visual details
+2) Style references
+3) Composition
+4) Mood/atmosphere
+5) Strong, legible text placement.
+
+Return ONLY the enhanced prompt, no explanations. Keep it under 100 words.
+'
+                    ],
+                    [
+                        'role' => 'user',
+                        'content' => $userPrompt
+                    ]
+                ],
+                'max_tokens' => 100,
+                'temperature' => 0.7
+            ]);
+
+            return trim($response->choices[0]->message->content);
+
+        } catch (\Exception $e) {
+            Log::warning("GPT-5 nano enhancement failed: " . $e->getMessage());
+            return $this->$userPrompt;
+        }
+    }
 }
