@@ -149,7 +149,7 @@ Return ONLY the enhanced prompt, no explanations. Keep it under 100 words.'
                     'content' => $userPrompt
                 ]
             ],
-            'max_completion_tokens' => 500,
+             'max_tokens' => 150,
             //'temperature' => 0.7
         ]);
 
