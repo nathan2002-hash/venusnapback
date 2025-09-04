@@ -120,18 +120,21 @@ class ProcessArtworkImage implements ShouldQueue
     }
 
     private function enhancePromptWithGPT5Nano(string $userPrompt): string
-    {
-        try {
-            $openai = new Client(env('OPENAI_API_KEY'));
-
-            $response = $openai->chat()->create([
-                'model' => 'gpt-5-nano', // Use GPT-5 nano
-                'messages' => [
-                    [
-                        'role' => 'system',
-                        'content' => 'You are a prompt engineering expert helping generate engaging images for Venusnap, a social platform where users post creative snaps, memes, motivational quotes, and album covers.
+{
+    try {
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
+            'Content-Type' => 'application/json',
+        ])
+        ->timeout(30)
+        ->post('https://api.openai.com/v1/chat/completions', [
+            'model' => 'gpt-5-nano',
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => 'You are a prompt engineering expert helping generate engaging images for Venusnap, a social platform where users post creative snaps, memes, motivational quotes, and album covers.
 If the user provides text, keep and improve it.
-If the user does not provide text (e.g., “create a motivational quote” or “make a meme”), invent a short, catchy and original text that fits the request.
+If the user does not provide text (e.g., "create a motivational quote" or "make a meme"), invent a short, catchy and original text that fits the request.
 Always make the prompt visually detailed and creative for Ideogram, focusing on:
 1) Visual details
 2) Style references
@@ -139,23 +142,26 @@ Always make the prompt visually detailed and creative for Ideogram, focusing on:
 4) Mood/atmosphere
 5) Strong, legible text placement.
 
-Return ONLY the enhanced prompt, no explanations. Keep it under 100 words.
-'
-                    ],
-                    [
-                        'role' => 'user',
-                        'content' => $userPrompt
-                    ]
+Return ONLY the enhanced prompt, no explanations. Keep it under 100 words.'
                 ],
-                'max_tokens' => 100,
-                'temperature' => 0.7
-            ]);
+                [
+                    'role' => 'user',
+                    'content' => $userPrompt
+                ]
+            ],
+            'max_tokens' => 100,
+            'temperature' => 0.7
+        ]);
 
-            return trim($response->choices[0]->message->content);
-
-        } catch (\Exception $e) {
-            Log::warning("GPT-5 nano enhancement failed: " . $e->getMessage());
-            return $this->$userPrompt;
+        if ($response->successful()) {
+            return trim($response->json()['choices'][0]['message']['content']);
         }
+
+        throw new \Exception('OpenAI API error: ' . $response->body());
+
+    } catch (\Exception $e) {
+        Log::warning("GPT-5 nano enhancement failed: " . $e->getMessage());
+        return $userPrompt; // Return original prompt as fallback
     }
+}
 }
