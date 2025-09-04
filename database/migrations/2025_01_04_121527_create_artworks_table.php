@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('background_image')->nullable();
             $table->string('background_color')->nullable();
             $table->string('content')->nullable();
+            $table->string('refine_prompt')->nullable();
             $table->string('content_color')->nullable();
             $table->string('thumbnail')->nullable();
             $table->string('file_path')->nullable();
