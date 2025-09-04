@@ -128,7 +128,7 @@ class ProcessArtworkImage implements ShouldQueue
         ])
         ->timeout(30)
         ->post('https://api.openai.com/v1/chat/completions', [
-            'model' => 'gpt-5-nano',
+            'model' => 'gpt-5-mini',
             'messages' => [
                 [
                     'role' => 'system',
@@ -150,7 +150,7 @@ Return ONLY the enhanced prompt, no explanations. Keep it under 100 words.'
                 ]
             ],
             'max_completion_tokens' => 100,
-            'temperature' => 0.7
+            //'temperature' => 0.7
         ]);
 
         if ($response->successful()) {
