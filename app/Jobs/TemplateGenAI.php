@@ -136,7 +136,11 @@ private function enhanceTemplatePromptWithGPT4Mini(string $description): string
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => 'You are a creative AI prompt expert specialized in abstract and background images for social media templates. Do NOT include any words or text. Enhance the user input into a visually striking, high-quality template prompt for Ideogram. Focus on: 1) Colors 2) Style 3) Composition 4) Mood 5) Usable blank space for text overlay. Return ONLY the enhanced prompt.'
+                    'content' => 'You are a creative AI prompt expert specialized in abstract and background images for social media templates.
+Do NOT include any words, letters, or text in the image.
+Enhance the user input into a visually striking, high-quality template prompt for Ideogram.
+Focus ONLY on colors, style, composition, shapes, mood, and atmosphere.
+The image should be fully abstract or decorative, with no literal text or labels.'
                 ],
                 [
                     'role' => 'user',
