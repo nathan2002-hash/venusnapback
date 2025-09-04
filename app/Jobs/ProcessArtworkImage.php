@@ -119,7 +119,7 @@ class ProcessArtworkImage implements ShouldQueue
         }
     }
 
-    private function enhancePromptWithGPT5Nano(string $userPrompt): string
+ private function enhancePromptWithGPT5Nano(string $userPrompt): string
 {
     try {
         $response = Http::withHeaders([
@@ -132,36 +132,82 @@ class ProcessArtworkImage implements ShouldQueue
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => 'You are a prompt engineering expert helping generate engaging images for Venusnap, a social platform where users post creative snaps, memes, motivational quotes, and album covers.
-If the user provides text, keep and improve it.
-If the user does not provide text (e.g., "create a motivational quote" or "make a meme"), invent a short, catchy and original text that fits the request.
-Always make the prompt visually detailed and creative for Ideogram, focusing on:
-1) Visual details
-2) Style references
-3) Composition
-4) Mood/atmosphere
-5) Strong, legible text placement.
-
-Return ONLY the enhanced prompt, no explanations. Keep it under 100 words.'
+                    'content' => 'You are a prompt expert for Venusnap social platform. Enhance image prompts for memes, quotes, and creative snaps. If user provides text, improve it. If no text (e.g., "create motivational quote"), invent catchy text. Make prompts visually detailed for Ideogram with: 1) Visual details 2) Style 3) Composition 4) Mood 5) Legible text. Return ONLY the enhanced prompt, under 80 words.'
                 ],
                 [
                     'role' => 'user',
                     'content' => $userPrompt
                 ]
             ],
-             'max_tokens' => 150,
-            //'temperature' => 0.7
+            'max_completion_tokens' => 100, // Reduced from 500 to 100
+            //'temperature' => 0.8
         ]);
 
         if ($response->successful()) {
-            return trim($response->json()['choices'][0]['message']['content']);
+            $responseData = $response->json();
+
+            // Check if choices array exists and has content
+            if (!isset($responseData['choices'][0]['message']['content'])) {
+                Log::warning("GPT response missing content", ['response' => $responseData]);
+                return $this->enhancePromptFallback($userPrompt);
+            }
+
+            $content = trim($responseData['choices'][0]['message']['content']);
+
+            // Check if content is empty
+            if (empty($content)) {
+                Log::warning("GPT returned empty content", ['response' => $responseData]);
+                return $this->enhancePromptFallback($userPrompt);
+            }
+
+            return $content;
         }
 
-        throw new \Exception('OpenAI API error: ' . $response->body());
+        // Handle API error
+        $errorBody = $response->body();
+        Log::error("OpenAI API error: " . $errorBody);
+        throw new \Exception('OpenAI API error: ' . $errorBody);
 
     } catch (\Exception $e) {
-        Log::warning("GPT-5 nano enhancement failed: " . $e->getMessage());
-        return $userPrompt; // Return original prompt as fallback
+        Log::warning("GPT-5 mini enhancement failed: " . $e->getMessage());
+        return $userPrompt;
     }
+}
+
+private function enhancePromptFallback(string $userPrompt): string
+{
+    $enhancements = [
+        'meme' => 'funny viral meme with bold text, internet humor, popular format, social media trend',
+        'quote' => 'inspirational quote with elegant typography, motivational message, beautiful design',
+        'bible' => 'biblical inspiration with spiritual imagery, divine message, faith-based, religious art',
+        'inspiration' => 'motivational quote with uplifting message, beautiful typography, inspiring design',
+        'motivational' => 'inspiring message with powerful words, encouraging design, positive vibes',
+        'create' => 'creative design with unique concept, visually striking composition, artistic',
+        'make' => 'creative design with unique concept, visually striking composition, artistic'
+    ];
+
+    $enhanced = $userPrompt;
+
+    // Add specific enhancements based on keywords
+    $foundMatch = false;
+    foreach ($enhancements as $keyword => $enhancement) {
+        if (stripos($userPrompt, $keyword) !== false) {
+            $enhanced .= ', ' . $enhancement;
+            $foundMatch = true;
+            break;
+        }
+    }
+
+    // Add general enhancements for all prompts
+    $enhanced .= ', high quality, detailed, professional, social media content';
+
+    // Add platform context
+    $enhanced .= ', vertical phone wallpaper, ideogram AI generated, legible text, clear typography';
+
+    // Clean up any double commas or extra spaces
+    $enhanced = preg_replace('/\s*,\s*,/', ',', $enhanced);
+    $enhanced = trim($enhanced, ', ');
+
+    return $enhanced;
 }
 }
