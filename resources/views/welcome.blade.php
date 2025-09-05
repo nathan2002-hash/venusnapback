@@ -1104,7 +1104,7 @@
             <p class="mt-3"><strong>SMS:</strong> <span>+44 744 147 3240</span></p>
             <p class="mt-3"><strong>Call:</strong> <span>+44 121 823 1829</span></p>
             <p class="mt-3"><strong>SMS/Call:</strong> <span>+260 970 333 596</span></p>
-            <p><strong>Email:</strong> <span>support@venusnap.com</span></p>
+            <p class="mt-3"><strong>Email:</strong> <span>support@venusnap.com</span></p>
           </div>
            {{-- <div class="footer-contact pt-3">
             <p><strong>Address</strong>: 444 Alaska Avenue, California, Suite #CEC468</p>
