@@ -31,8 +31,8 @@
             case 'personal':
             default:
                 $description = $includesAlbum
-                    ? "Take a glimpse into {$ownerName}’s '{$albumName}' — {$roundedSnapCount} memories and meaningful snaps on Venusnap."
-                    : "Take a glimpse into {$ownerName}’s album '{$albumName}' — {$roundedSnapCount} memories and meaningful snaps on Venusnap.";
+                    ? "Take a glimpse into {$albumName} — {$roundedSnapCount} memories and meaningful snaps on Venusnap."
+                    : "Take a glimpse into {$albumName} album — {$roundedSnapCount} memories and meaningful snaps on Venusnap.";
                 break;
         }
     @endphp
