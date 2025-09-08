@@ -61,6 +61,7 @@ Route::get('/auto-login', function (Request $request) {
     }
 
     Route::get('/terms/of/service', 'HomeController@terms');
+    Route::get('/welcome', 'HomeController@welcome');
     Route::get('/child/safety', 'HomeController@childsafety');
     Route::get('/terms/conditions', function () {
         return redirect('/terms/of/service');

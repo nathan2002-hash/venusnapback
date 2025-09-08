@@ -39,4 +39,10 @@ class HomeController extends Controller
         return view('child', [
         ]);
     }
+
+    public function welcome()
+    {
+        return view('landing', [
+        ]);
+    }
 }

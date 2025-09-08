@@ -1128,6 +1128,7 @@
             <li><a href="/terms/of/service">Terms of service</a></li>
             <li><a href="/privacy/policy">Privacy policy</a></li>
             <li><a href="/child/safety">Child Safety</a></li>
+            <li><a href="/welcome">Welcome</a></li>
           </ul>
         </div>
 
