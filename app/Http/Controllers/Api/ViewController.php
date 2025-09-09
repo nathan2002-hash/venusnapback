@@ -15,6 +15,7 @@ use App\Models\Recommendation;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Jobs\ReferralSignup;
+use App\Models\LinkVisit;
 
 class ViewController extends Controller
 {
@@ -191,6 +192,61 @@ class ViewController extends Controller
         return response()->json([
             'success' => true,
             'visit_id' => $visit->id,
+        ]);
+    }
+
+    public function trackExploreVisit(Request $request)
+    {
+        $request->validate([
+            'post_id' => 'required|integer|exists:posts,id',
+            'short_code' => 'nullable|string',
+            'is_logged_in' => 'sometimes|boolean',
+        ]);
+
+        $share = LinkShare::where('short_code', $request->short_code)->first();
+
+        if (!$share) {
+            return response()->json(['error' => 'Invalid short code'], 404);
+        }
+
+        if (Auth::check()) {
+            $userId = Auth::id();
+        } else {
+            $userId = null;
+        }
+
+        $userAgent = $request->header('User-Agent');
+        $deviceInfo = $request->header('Device-Info');
+        $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+
+        // Create the explore visit record
+        $exploreVisit = LinkVisit::create([
+            'link_share_id' => $share->id,
+            'ip_address' => $realIp,
+            'user_id' => $userId,
+            'is_logged_in' => $request->input('is_logged_in', false),
+            'user_agent' => $userAgent,
+            'referrer' => $request->short_code,
+            'device_info' => $deviceInfo,
+            'duration' => 5, // Fixed duration of 5 as requested
+        ]);
+
+        // If user is logged in, dispatch referral processing
+        if (Auth::check()) {
+            ReferralSignup::dispatch(
+                $request->post_id, // Use post_id as resource_id
+                $userId,
+                $realIp,
+                $userAgent,
+                $deviceInfo,
+                5, // Duration of 5 as requested
+                true // clicked = true
+            );
+        }
+
+        return response()->json([
+            'success' => true,
+            'visit_id' => $exploreVisit->id,
         ]);
     }
 }

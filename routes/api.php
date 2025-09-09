@@ -119,6 +119,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/post/media/state', 'Api\ViewController@more');
     Route::post('/track/post/visit', 'Api\ViewController@trackVisit');
     Route::get('/ad/sponsored/{id}', 'Api\PostExploreController@getAdById');
+    Route::post('/track/explore/visit', 'Api\ViewController@trackExploreVisit');
 
 
     Route::post('/post/admire', 'Api\AdmireController@admire');
