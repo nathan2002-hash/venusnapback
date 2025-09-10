@@ -90,11 +90,9 @@ class ProcessAdShareRewardJob implements ShouldQueue
             }
 
             // Continue with normal processing for logged-in users
-            $shareLinkWithUser = LinkAdShare::with(['user.account', 'user.album' => function($query) {
-                $query->where('monetization_status', 'active');
-            }, 'ad'])
-                ->where('short_code', $this->shortCode)
-                ->first();
+             $shareLinkWithUser = LinkAdShare::with(['user.account', 'ad'])
+            ->where('short_code', $this->shortCode)
+            ->first();
 
             if (!$shareLinkWithUser) {
                 Log::warning('Share link not found', ['short_code' => $this->shortCode]);
@@ -121,8 +119,13 @@ class ProcessAdShareRewardJob implements ShouldQueue
             $totalPointsFromAd = 6; // Total points from ad click
             $pointsPerDollar = $venusnap->points_per_dollar;
 
-            // Check if sharing user has active monetization
-            $hasActiveMonetization = $sharingUser->album && $sharingUser->album->monetization_status === 'active';
+            // Check if sharing user has any album with active monetization
+            $monetizedAlbum = DB::table('albums')
+                ->where('user_id', $sharingUser->id)
+                ->where('monetization_status', 'active')
+                ->first();
+
+            $hasActiveMonetization = !is_null($monetizedAlbum);
 
             if ($hasActiveMonetization && $sharingUser->account) {
                 // User has active monetization - add to account balance
@@ -150,7 +153,7 @@ class ProcessAdShareRewardJob implements ShouldQueue
             // Only create earning entry if user has active monetization
             if ($hasActiveMonetization) {
                 Earning::create([
-                    'album_id' => $sharingUser->album->id,
+                    'album_id' => $monetizedAlbum->id,
                     'user_id' => $sharingUser->id,
                     'batch_id' => 'ad_share_' . $this->shortCode,
                     'earning' => $amountToAdd,
@@ -181,13 +184,5 @@ class ProcessAdShareRewardJob implements ShouldQueue
 
             Log::info("Processed ad share reward: {$rewardDescription} for user {$sharingUser->id}, Venusnap received {$pointsToVenusnap} points");
         });
-    }
-
-    public function failed(\Throwable $exception)
-    {
-        Log::error('ProcessAdShareRewardJob failed: ' . $exception->getMessage(), [
-            'short_code' => $this->shortCode,
-            'exception' => $exception->getTraceAsString()
-        ]);
     }
 }
