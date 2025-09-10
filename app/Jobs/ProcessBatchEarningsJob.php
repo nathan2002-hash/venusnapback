@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\VenusnapSystem;
+use App\Models\Adboard;
 use Illuminate\Support\Facades\DB;
 
 class ProcessBatchEarningsJob implements ShouldQueue
@@ -19,6 +20,8 @@ class ProcessBatchEarningsJob implements ShouldQueue
     protected $adsIncluded;
     protected $totalPostsCount;
     protected $monetizedPostsCount;
+    protected $adIds;
+    protected $adboardIds;
 
     /**
      * Create a new job instance.
@@ -31,6 +34,8 @@ class ProcessBatchEarningsJob implements ShouldQueue
         $this->adsIncluded = $data['ads_included'] ?? false;
         $this->totalPostsCount = $data['total_posts_count'] ?? 0;
         $this->monetizedPostsCount = $data['monetized_posts_count'] ?? 0;
+        $this->adIds = $data['ad_ids'] ?? []; // New
+        $this->adboardIds = $data['adboard_ids'] ?? []; // New
     }
 
     /**
@@ -48,6 +53,24 @@ class ProcessBatchEarningsJob implements ShouldQueue
 
             $pointsPerDiscovery = $venusnap->points_per_discovery; // e.g., 2 points
             $pointsPerDollar = $venusnap->points_per_dollar; // e.g., 1000 points per dollar
+
+            // Step 0: Decrement adboard points for ads that were shown
+            $totalAdPointsDeducted = 0;
+            if ($this->adsIncluded && !empty($this->adboardIds)) {
+                foreach ($this->adboardIds as $adboardId) {
+                    $adboard = Adboard::find($adboardId);
+                    if ($adboard && $adboard->points > 0) {
+                        $pointsToDeduct = 3; // 3 points per ad view (as per your example)
+                        if ($adboard->points >= $pointsToDeduct) {
+                            $adboard->decrement('points', $pointsToDeduct);
+                            $totalAdPointsDeducted += $pointsToDeduct;
+                            Log::info("Deducted {$pointsToDeduct} points from adboard {$adboardId}");
+                        } else {
+                            Log::warning("Insufficient points in adboard {$adboardId}");
+                        }
+                    }
+                }
+            }
 
             // Step 1: Process monetized posts - reward creators
             $monetizedPosts = Post::with('album.user.account')
@@ -108,7 +131,7 @@ class ProcessBatchEarningsJob implements ShouldQueue
             $adPoints = 0;
             if ($this->adsIncluded) {
                 // Assuming 2 ads were shown, each giving 6 points to system
-                $adPoints = 6; // 2 ads * 6 points each
+                $adPoints = 6; // 2 ads * 3 points each
                 $systemReservePoints += $adPoints;
             }
 
@@ -120,27 +143,6 @@ class ProcessBatchEarningsJob implements ShouldQueue
             $venusnap->increment('total_points_spent', $totalPointsDistributed);
             $venusnap->increment('total_points_earned', $systemReservePoints);
 
-            // Log system earnings entry
-            // Earning::create([
-            //     'album_id' => null,
-            //     'user_id' => null,
-            //     'batch_id' => $this->batchId,
-            //     'earning' => $systemMoneyToAdd,
-            //     'points' => $systemReservePoints,
-            //     'type' => 'system_reserve',
-            //     'status' => 'completed',
-            //     'meta' => json_encode([
-            //         'non_monetized_posts' => $nonMonetizedPostsCount,
-            //         'points_from_non_monetized' => $nonMonetizedPostsCount * 2,
-            //         'ad_points' => $adPoints,
-            //         'ads_included' => $this->adsIncluded,
-            //         'points_per_dollar' => $pointsPerDollar,
-            //         'calculation' => "{$systemReservePoints} points / {$pointsPerDollar} = \${$systemMoneyToAdd}",
-            //         'total_posts_in_batch' => $this->totalPostsCount,
-            //         'monetized_posts' => $this->monetizedPostsCount,
-            //         'timestamp' => now()->toDateTimeString(),
-            //     ]),
-            // ]);
 
             // Log batch processing
             Log::info("Processed earnings batch", [

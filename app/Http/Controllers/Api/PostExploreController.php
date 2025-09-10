@@ -153,11 +153,15 @@ class PostExploreController extends Controller
             $fetchedPostIds[] = $targetPostId;
         }
 
+        $adIds = $ads->pluck('id')->toArray();
+        $adboardIds = $ads->pluck('adboard_id')->toArray();
+
         // Get monetized post IDs for earnings calculation
         $monetizedPostIds = $posts->filter(function($post) {
             $album = $post->album;
             return $album && $album->monetization_status === 'active';
         })->pluck('id')->toArray();
+
 
         Queue::push(new ProcessBatchEarningsJob([
             'batch_id' => $batchId,
@@ -166,6 +170,8 @@ class PostExploreController extends Controller
             'ads_included' => $ads->isNotEmpty(),
             'total_posts_count' => $posts->count(),
             'monetized_posts_count' => count($monetizedPostIds),
+            'ad_ids' => $adIds, // Pass the actual ad IDs
+            'adboard_ids' => $adboardIds, // Pass the adboard IDs
         ]));
 
         return response()->json([
@@ -433,15 +439,7 @@ class PostExploreController extends Controller
         }
 
         $pointsUsed = 3; // Seen ad costs 6 points
-        $adboard->decrement('points', $pointsUsed);
-
-        // Get Venusnap system and calculate money value
-        $venusnap = VenusnapSystem::first();
-        $moneyValue = $pointsUsed / $venusnap->points_per_dollar;
-
-        // Update Venusnap system
-        $venusnap->increment('system_money', $moneyValue);
-        $venusnap->increment('total_points_spent', $pointsUsed);
+        //$adboard->decrement('points', $pointsUsed);
 
         // Session
         $session = new AdSession();
@@ -459,7 +457,7 @@ class PostExploreController extends Controller
         $impression->points_used = $pointsUsed;
         $impression->save();
 
-        return response()->json(['message' => 'Ad', 'points_used' => $pointsUsed, 'money_added' => $moneyValue], 200);
+        return response()->json(['message' => 'Ad', 'points_used' => $pointsUsed], 200);
     }
 
     public function sendAdCtaClick(Request $request, $id)
@@ -473,7 +471,7 @@ class PostExploreController extends Controller
             return response()->json(['error' => 'Adboard not found or insufficient points'], 400);
         }
 
-        $pointsUsed = 2; // CTA click costs 2 points
+        $pointsUsed = 6; // CTA click costs 2 points
         $adboard->decrement('points', $pointsUsed);
 
         // Get Venusnap system and calculate money value
