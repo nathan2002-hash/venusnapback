@@ -9,6 +9,8 @@ use App\Models\AdSession;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\VenusnapSystem;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AdClickJob implements ShouldQueue
 {
@@ -37,44 +39,71 @@ class AdClickJob implements ShouldQueue
      */
     public function handle()
     {
-        $ad = Ad::find($this->ad_id);
-        $adboard = Adboard::find($ad->adboard_id);
+        DB::transaction(function () {
+            // Check if this user has already clicked this ad in the last 8 hours
+            $recentClick = DB::table('ad_clicks')
+                ->where('ad_id', $this->ad_id)
+                ->where('user_id', $this->user_id)
+                ->where('created_at', '>', now()->subHours(8))
+                ->exists();
 
-        if (!$adboard || $adboard->points <= 0) {
-            return response()->json(['error' => 'Adboard not found or insufficient points'], 400);
-        }
+            if ($recentClick) {
+                Log::warning('Duplicate ad click detected for user', [
+                    'ad_id' => $this->ad_id,
+                    'user_id' => $this->user_id,
+                    'ip_address' => $this->ip_address
+                ]);
+                return; // Exit early if duplicate click by same user
+            }
 
-        $pointsUsed = 6; // Ad click costs 6 points
-        $adboard->decrement('points', $pointsUsed);
+            $ad = Ad::find($this->ad_id);
+            if (!$ad) {
+                Log::warning('Ad not found', ['ad_id' => $this->ad_id]);
+                return;
+            }
 
-        // Get Venusnap system and calculate money value
-        $venusnap = VenusnapSystem::first();
-        if (!$venusnap) {
-            // Handle case where Venusnap system is not configured
-            logger()->error('Venusnap system not found');
-            return;
-        }
+            $adboard = Adboard::find($ad->adboard_id);
+            if (!$adboard || $adboard->points <= 0) {
+                Log::warning('Adboard not found or insufficient points', [
+                    'ad_id' => $this->ad_id,
+                    'adboard_id' => $ad->adboard_id
+                ]);
+                return;
+            }
 
-        $moneyValue = $pointsUsed / $venusnap->points_per_dollar;
+            $pointsUsed = 6; // Ad click costs 6 points
+            $adboard->decrement('points', $pointsUsed);
 
-        // Update Venusnap system
-        $venusnap->increment('system_money', $moneyValue);
-        $venusnap->increment('total_points_spent', $pointsUsed);
+            // Get Venusnap system and calculate money value
+            $venusnap = VenusnapSystem::first();
+            if (!$venusnap) {
+                Log::error('Venusnap system not found');
+                return;
+            }
 
-        // Session
-        $session = new AdSession();
-        $session->ip_address = $this->ip_address;
-        $session->user_id = $this->user_id;
-        $session->device_info = $this->device_info;
-        $session->user_agent = $this->user_agent;
-        $session->save();
+            $moneyValue = $pointsUsed / $venusnap->points_per_dollar;
 
-        // Impressions
-        $adclick = new AdClick();
-        $adclick->ad_id = $this->ad_id;
-        $adclick->user_id = $this->user_id;
-        $adclick->ad_session_id = $session->id;
-        $adclick->points_used = $pointsUsed;
-        $adclick->save();
+            // Update Venusnap system
+            $venusnap->increment('system_money', $moneyValue);
+            $venusnap->increment('total_points_spent', $pointsUsed);
+
+            // Session
+            $session = new AdSession();
+            $session->ip_address = $this->ip_address;
+            $session->user_id = $this->user_id;
+            $session->device_info = $this->device_info;
+            $session->user_agent = $this->user_agent;
+            $session->save();
+
+            // Impressions
+            $adclick = new AdClick();
+            $adclick->ad_id = $this->ad_id;
+            $adclick->user_id = $this->user_id;
+            $adclick->ad_session_id = $session->id;
+            $adclick->points_used = $pointsUsed;
+            $adclick->save();
+
+            Log::info("Processed ad click for user {$this->user_id} on ad {$this->ad_id}, points used: {$pointsUsed}");
+        });
     }
 }
