@@ -172,6 +172,7 @@ class PostExploreController extends Controller
             'monetized_posts_count' => count($monetizedPostIds),
             'ad_ids' => $adIds, // Pass the actual ad IDs
             'adboard_ids' => $adboardIds, // Pass the adboard IDs
+            'user_id' => Auth::id(),
         ]));
 
         return response()->json([
