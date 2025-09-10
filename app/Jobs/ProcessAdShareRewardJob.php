@@ -20,6 +20,13 @@ class ProcessAdShareRewardJob implements ShouldQueue
     protected $ipAddress;
     protected $userAgent;
 
+    public function __construct($shortCode, $viewerUserId = null, $ipAddress = null, $userAgent = null)
+    {
+        $this->shortCode = $shortCode;
+        $this->viewerUserId = $viewerUserId;
+        $this->ipAddress = $ipAddress;
+        $this->userAgent = $userAgent;
+    }
 
     /**
      * Create a new job instance.

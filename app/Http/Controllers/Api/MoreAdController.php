@@ -80,11 +80,13 @@ class MoreAdController extends Controller
             ], 404);
         }
 
+         $userId = Auth::id();
+
         ProcessAdShareRewardJob::dispatch(
-            $shortCode,
-            Auth::id(), // The viewer who clicked the link (optional)
-            $request->ip(),
-            $request->userAgent()
+            $shortCode,        // This should be the short code string
+            $userId,           // User ID (can be null)
+            $request->ip(),    // IP address
+            $request->userAgent() // User agent
         );
 
         // Return the ad data
