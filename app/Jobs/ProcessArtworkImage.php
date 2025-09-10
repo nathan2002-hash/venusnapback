@@ -72,7 +72,7 @@ class ProcessArtworkImage implements ShouldQueue
                 Storage::disk('s3')->put($fileName, $imageContents);
 
                 // Deduct points
-                $user->decrement('points', 50);
+                $user->decrement('points', 30);
 
                 CompressArtworkImage::dispatch($artwork->id);
 
@@ -121,60 +121,60 @@ class ProcessArtworkImage implements ShouldQueue
         }
     }
 
-private function enhancePromptWithGPT4Mini(string $userPrompt): string
-{
-    try {
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
-            'Content-Type' => 'application/json',
-        ])
-        ->timeout(30)
-        ->post('https://api.openai.com/v1/chat/completions', [
-            'model' => 'gpt-4.1-mini',
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => 'You are a prompt engineering expert helping generate engaging images for Venusnap, a social platform where users post creative snaps, memes, motivational quotes, and album covers.
-If the user provides text, keep and improve it.
-If the user does not provide text (e.g., "create a motivational quote" or "make a meme"), invent a short, catchy and original text that fits the request.
-Always make the prompt visually detailed and creative for Ideogram, focusing on:
-1) Visual details
-2) Style references
-3) Composition
-4) Mood/atmosphere
-5) Strong, legible text placement.
+    private function enhancePromptWithGPT4Mini(string $userPrompt): string
+    {
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
+                'Content-Type' => 'application/json',
+            ])
+            ->timeout(30)
+            ->post('https://api.openai.com/v1/chat/completions', [
+                'model' => 'gpt-4.1-mini',
+                'messages' => [
+                    [
+                        'role' => 'system',
+                        'content' => 'You are a prompt engineering expert helping generate engaging images for Venusnap, a social platform where users post creative snaps, memes, motivational quotes, and album covers.
+                        If the user provides text, keep and improve it.
+                        If the user does not provide text (e.g., "create a motivational quote" or "make a meme"), invent a short, catchy and original text that fits the request.
+                        Always make the prompt visually detailed and creative for Ideogram, focusing on:
+                        1) Visual details
+                        2) Style references
+                        3) Composition
+                        4) Mood/atmosphere
+                        5) Strong, legible text placement.
 
-Return ONLY the enhanced prompt, no explanations. Keep it under 100 words.'
+                        Return ONLY the enhanced prompt, no explanations. Keep it under 100 words.'
+                    ],
+                    [
+                        'role' => 'user',
+                        'content' => $userPrompt
+                    ]
                 ],
-                [
-                    'role' => 'user',
-                    'content' => $userPrompt
-                ]
-            ],
-            'max_completion_tokens' => 300, // adjust for longer enhanced prompts
-            //'temperature' => 1 // GPT-4.1 mini uses default temperature; no custom needed
-        ]);
+                'max_completion_tokens' => 300, // adjust for longer enhanced prompts
+                //'temperature' => 1 // GPT-4.1 mini uses default temperature; no custom needed
+            ]);
 
-        if ($response->successful()) {
-            $responseData = $response->json();
+            if ($response->successful()) {
+                $responseData = $response->json();
 
-            $content = $responseData['choices'][0]['message']['content'] ?? '';
+                $content = $responseData['choices'][0]['message']['content'] ?? '';
 
-            if (empty(trim($content))) {
-                Log::warning("GPT-4.1 mini returned empty content", ['response' => $responseData]);
-                return $userPrompt;
+                if (empty(trim($content))) {
+                    Log::warning("GPT-4.1 mini returned empty content", ['response' => $responseData]);
+                    return $userPrompt;
+                }
+
+                return trim($content);
             }
 
-            return trim($content);
+            throw new \Exception('OpenAI API error: ' . $response->body());
+
+        } catch (\Exception $e) {
+            Log::warning("GPT-4.1 mini enhancement failed: " . $e->getMessage());
+            return $userPrompt;
         }
-
-        throw new \Exception('OpenAI API error: ' . $response->body());
-
-    } catch (\Exception $e) {
-        Log::warning("GPT-4.1 mini enhancement failed: " . $e->getMessage());
-        return $userPrompt;
     }
-}
 
 /**
  * Fallback enhancer in case GPT returns empty or fails

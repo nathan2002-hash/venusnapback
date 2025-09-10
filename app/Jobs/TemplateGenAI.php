@@ -77,7 +77,7 @@ class TemplateGenAI implements ShouldQueue
             Storage::disk('s3')->put($fileName, $imageContents);
 
             // Deduct points
-            $user->decrement('points', 50);
+            $user->decrement('points', 30);
 
             TemplateCompress::dispatch($template);
 

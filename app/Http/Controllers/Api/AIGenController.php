@@ -35,7 +35,7 @@ class AIGenController extends Controller
                 'status' => 'failed',
                 'description' => 'Insufficient points for ad generation',
                 'metadata' => json_encode([
-                    'required_points' => 30,
+                    'required_points' => 100,
                     'available_points' => $user->points
                 ])
             ]);
@@ -51,7 +51,7 @@ class AIGenController extends Controller
             $genai = GenAi::create([
                 'user_id' => $user->id,
                 'status' => 'pending',
-                'provider' => 'OPEN_AI',
+                'provider' => 'IDEOGRAM',
                 'original_description' => $request->description,
                 'venusnap_points' => 100,
                 'type' => 'Ad',

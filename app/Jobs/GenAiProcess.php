@@ -55,7 +55,7 @@ class GenAiProcess implements ShouldQueue
         ->post('https://api.ideogram.ai/v1/ideogram-v3/generate', [
             'prompt' => $enhancedPrompt,
             'aspect_ratio' => '9x16',
-            'rendering_speed' => 'TURBO',
+            'rendering_speed' => 'QUALITY',
         ]);
 
         if ($response->successful()) {

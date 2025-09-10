@@ -30,7 +30,7 @@ class TemplateController extends Controller
 
         // Include user points in response
         $userPoints = Auth::user()->points;
-        $pointgen = '60';
+        $pointgen = '30';
 
         // Transform templates into response format
         $transformed = $templates->getCollection()->map(function ($template) use ($userId) {
@@ -81,7 +81,7 @@ class TemplateController extends Controller
             'style' => 'sometimes|string'
         ]);
 
-        $template_points = 40;
+        $template_points = 30;
 
         if ($user->points < $template_points) {
             return response()->json(['message' => 'Insufficient points'], 400);
