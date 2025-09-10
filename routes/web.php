@@ -19,6 +19,10 @@ Route::get('/post/{post}/media/{media}', 'DeeplinkController@postmedia');
 Route::get('/post/{post}', 'DeeplinkController@post');
 Route::get('/album/{album}', 'DeeplinkController@album');
 Route::get('/sponsored/{shortcode}', 'DeeplinkController@ad');
+// routes/web.php
+Route::get('/explore/{postId?}', 'DeeplinkController@explore')
+    ->where('postId', '[0-9]+')
+    ->name('explore.deeplink');
 
 Route::get('/auto-login', function (Request $request) {
     $token = $request->query('token');
