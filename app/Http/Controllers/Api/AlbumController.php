@@ -888,11 +888,11 @@ class AlbumController extends Controller
     {
         $album = Album::find($id);
 
-        $albumId = $id;
-
         if (!$album) {
             return response()->json(['message' => 'Album not found'], 404);
         }
+
+        $albumId = $id;
 
         // Get all post IDs in this album
         $postIds = Post::where('album_id', $albumId)->pluck('id');
@@ -917,12 +917,23 @@ class AlbumController extends Controller
         $postCount = $postIds->count();
         $mediaCount = $postMediaIds->count();
 
-        // Optional: Top viewed media
+        // Optional: Top viewed media including post_id
         $topMedia = View::whereIn('post_media_id', $postMediaIds)
             ->select('post_media_id', DB::raw('COUNT(*) as views'))
             ->groupBy('post_media_id')
             ->orderByDesc('views')
             ->first();
+
+        // Include the post_id of the top media
+        $topMediaData = null;
+        if ($topMedia) {
+            $postMedia = PostMedia::find($topMedia->post_media_id);
+            $topMediaData = [
+                'media_id' => $topMedia->post_media_id,
+                'post_id' => $postMedia ? $postMedia->post_id : null,
+                'views' => $topMedia->views,
+            ];
+        }
 
         return response()->json([
             'album_id' => $albumId,
@@ -940,10 +951,8 @@ class AlbumController extends Controller
                 'post_count' => $postCount,
                 'media_count' => $mediaCount,
             ],
-            'top_media' => $topMedia ? [
-                'media_id' => $topMedia->post_media_id,
-                'views' => $topMedia->views,
-            ] : null
+            'top_media' => $topMediaData
         ]);
     }
+
 }
