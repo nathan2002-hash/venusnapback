@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('venusnap_systems', function (Blueprint $table) {
             $table->id();
             // Total money currently in the system (e.g., from advertisers)
-            $table->decimal('system_money', 15, 2)->default(0);
+            $table->decimal('system_money', 15, 3)->default(0);
             // Amount of points that can still be allocated to creators
             $table->integer('reserved_points')->default(0);
             // Conversion rate: how many points per $1
