@@ -108,7 +108,7 @@ class ProcessBatchEarningsJob implements ShouldQueue
             $adPoints = 0;
             if ($this->adsIncluded) {
                 // Assuming 2 ads were shown, each giving 6 points to system
-                $adPoints = 12; // 2 ads * 6 points each
+                $adPoints = 6; // 2 ads * 6 points each
                 $systemReservePoints += $adPoints;
             }
 
