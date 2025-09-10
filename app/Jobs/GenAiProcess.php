@@ -55,7 +55,7 @@ class GenAiProcess implements ShouldQueue
         ->post('https://api.ideogram.ai/v1/ideogram-v3/generate', [
             'prompt' => $enhancedPrompt,
             'aspect_ratio' => '9x16',
-            'rendering_speed' => 'QUALITY',
+            'rendering_speed' => 'DEFAULT',
         ]);
 
         if ($response->successful()) {
@@ -71,7 +71,7 @@ class GenAiProcess implements ShouldQueue
             Storage::disk('s3')->put($fileName, $imageContents);
 
             // Deduct points
-            $user->decrement('points', 100);
+            $user->decrement('points', 80);
 
             CompressGenAiImage::dispatch($genai->id);
 

@@ -21,7 +21,7 @@ class AIGenController extends Controller
         // Create transaction record immediately
         $transaction = PointTransaction::create([
             'user_id' => $user->id,
-            'points' => 100,
+            'points' => 80,
             'type' => 'ad_generation',
             'resource_id' => '1',
             'status' => 'pending',
@@ -30,12 +30,12 @@ class AIGenController extends Controller
             'balance_after' => $user->points // Will be updated if successful
         ]);
 
-        if ($user->points < 100) {
+        if ($user->points < 80) {
             $transaction->update([
                 'status' => 'failed',
                 'description' => 'Insufficient points for ad generation',
                 'metadata' => json_encode([
-                    'required_points' => 100,
+                    'required_points' => 80,
                     'available_points' => $user->points
                 ])
             ]);
@@ -53,7 +53,7 @@ class AIGenController extends Controller
                 'status' => 'pending',
                 'provider' => 'IDEOGRAM',
                 'original_description' => $request->description,
-                'venusnap_points' => 100,
+                'venusnap_points' => 80,
                 'type' => 'Ad',
                 'point_transaction_id' => $transaction->id // Link to transaction
             ]);
@@ -180,7 +180,7 @@ class AIGenController extends Controller
         // Return response in JSON format
         return response()->json([
             'available_points' => $available_points,
-            'gen_points' => (int) 100
+            'gen_points' => (int) 80
         ]);
     }
 
