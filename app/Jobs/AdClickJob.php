@@ -8,6 +8,7 @@ use App\Models\AdClick;
 use App\Models\AdSession;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Models\VenusnapSystem;
 
 class AdClickJob implements ShouldQueue
 {
@@ -38,12 +39,29 @@ class AdClickJob implements ShouldQueue
     {
         $ad = Ad::find($this->ad_id);
         $adboard = Adboard::find($ad->adboard_id);
+
         if (!$adboard || $adboard->points <= 0) {
             return response()->json(['error' => 'Adboard not found or insufficient points'], 400);
         }
-        $adboard->decrement('points', 2);
 
-        //session
+        $pointsUsed = 6; // Ad click costs 6 points
+        $adboard->decrement('points', $pointsUsed);
+
+        // Get Venusnap system and calculate money value
+        $venusnap = VenusnapSystem::first();
+        if (!$venusnap) {
+            // Handle case where Venusnap system is not configured
+            logger()->error('Venusnap system not found');
+            return;
+        }
+
+        $moneyValue = $pointsUsed / $venusnap->points_per_dollar;
+
+        // Update Venusnap system
+        $venusnap->increment('system_money', $moneyValue);
+        $venusnap->increment('total_points_spent', $pointsUsed);
+
+        // Session
         $session = new AdSession();
         $session->ip_address = $this->ip_address;
         $session->user_id = $this->user_id;
@@ -51,12 +69,12 @@ class AdClickJob implements ShouldQueue
         $session->user_agent = $this->user_agent;
         $session->save();
 
-        //impressions
+        // Impressions
         $adclick = new AdClick();
         $adclick->ad_id = $this->ad_id;
         $adclick->user_id = $this->user_id;
         $adclick->ad_session_id = $session->id;
-        $adclick->points_used = 2;
+        $adclick->points_used = $pointsUsed;
         $adclick->save();
     }
 }
