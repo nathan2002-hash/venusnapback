@@ -16,6 +16,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Jobs\ReferralSignup;
 use App\Models\LinkVisit;
+use App\Models\Post;
 
 class ViewController extends Controller
 {
@@ -140,6 +141,63 @@ class ViewController extends Controller
     {
         // Implement your short code generation logic
         return substr(md5(uniqid()), 0, 8);
+    }
+
+    public function sharePost($postId)
+    {
+        $post = Post::with('album')->find($postId);
+
+        if (!$post) {
+            return response()->json(['error' => 'Post not found'], 404);
+        }
+
+        // Check if user has access to this post
+        if (Auth::id() !== $post->album->user_id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Get the first media of the post
+        $postMedia = PostMedia::where('post_id', $postId)->orderBy('id')->first();
+        $mediaId = $postMedia ? $postMedia->id : null;
+
+        // Generate or get existing short code
+        $shortCode = $this->generateShortCode($post);
+
+        $share = LinkShare::create([
+            'user_id' => Auth::user()->id,
+            'post_id' => $postId,
+            'post_media_id' => $mediaId,
+            'share_method' => 'explore', // Default, can be updated when shared via specific platform
+            'share_url' => "https://www.venusnap.com/explore/$postId",
+        ]);
+
+        // Create the full URL
+        $shareUrl = "https://www.venusnap.com/explore/{$post->id}/?ref={$shortCode}";
+
+        // Build the complete formatted message
+        $shareMessage = $this->buildShareMessage($post, $shareUrl);
+        $shareSubject = $post->title ?? 'Venusnap Post';
+
+        return response()->json([
+            'share_message' => $shareMessage,
+            'share_subject' => $shareSubject,
+            'share_url' => $shareUrl,
+            'short_code' => $shortCode,
+        ]);
+    }
+
+    private function buildShareMessage($post, $shareUrl)
+    {
+        $title = $post->title ?? 'Amazing Content';
+        $description = $post->description ?? 'Check out this incredible content on Venusnap!';
+
+        // Build the complete formatted message with URL
+        $message = "🌟 {$title} 🌟\n\n";
+        $message .= "{$description}\n\n";
+        $message .= "👉 {$shareUrl}\n\n";
+        $message .= "#Venusnap #ContentSharing";
+
+        return $message;
     }
 
     public function trackVisit(Request $request)

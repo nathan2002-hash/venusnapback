@@ -172,6 +172,8 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
 
     Route::get('/album/analytics/{id}', 'Api\AlbumController@albumAnalytics');
 
+    Route::post('/post/share/{id}', 'Api\ViewController@sharePost');
+
     //artwork routes
     Route::post('/artwork/save', 'Api\ArtworkController@store');
     Route::get('/user/artwork', 'Api\ArtworkController@fetchArtworks');
