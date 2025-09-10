@@ -17,7 +17,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Jobs\ProcessBatchEarningsJob;
 use Illuminate\Support\Facades\Queue;
-use Illuminate\Support\Facades\Storage;
+ use App\Models\VenusnapSystem;
 
 class PostExploreController extends Controller
 {
@@ -404,9 +404,18 @@ private function transformAds($ads)
             return response()->json(['error' => 'Adboard not found or insufficient points'], 400);
         }
 
-        $adboard->decrement('points', 1);
+        $pointsUsed = 6; // Seen ad costs 6 points
+        $adboard->decrement('points', $pointsUsed);
 
-        //session
+        // Get Venusnap system and calculate money value
+        $venusnap = VenusnapSystem::first();
+        $moneyValue = $pointsUsed / $venusnap->points_per_dollar;
+
+        // Update Venusnap system
+        $venusnap->increment('system_money', $moneyValue);
+        $venusnap->increment('total_points_spent', $pointsUsed);
+
+        // Session
         $session = new AdSession();
         $session->ip_address = $ipaddress;
         $session->user_id = Auth::user()->id;
@@ -414,14 +423,15 @@ private function transformAds($ads)
         $session->user_agent = $request->header('User-Agent');
         $session->save();
 
-        //impressions
+        // Impressions
         $impression = new AdImpression();
         $impression->ad_id = $ad->id;
         $impression->user_id = Auth::user()->id;
         $impression->ad_session_id = $session->id;
-        $impression->points_used = 1;
+        $impression->points_used = $pointsUsed;
         $impression->save();
-        return response()->json(['message' => 'Ad'], 200);
+
+        return response()->json(['message' => 'Ad', 'points_used' => $pointsUsed, 'money_added' => $moneyValue], 200);
     }
 
     public function sendAdCtaClick(Request $request, $id)
@@ -435,9 +445,18 @@ private function transformAds($ads)
             return response()->json(['error' => 'Adboard not found or insufficient points'], 400);
         }
 
-        $adboard->decrement('points', 2);
+        $pointsUsed = 2; // CTA click costs 2 points
+        $adboard->decrement('points', $pointsUsed);
 
-        //session
+        // Get Venusnap system and calculate money value
+        $venusnap = VenusnapSystem::first();
+        $moneyValue = $pointsUsed / $venusnap->points_per_dollar;
+
+        // Update Venusnap system
+        $venusnap->increment('system_money', $moneyValue);
+        $venusnap->increment('total_points_spent', $pointsUsed);
+
+        // Session
         $session = new AdSession();
         $session->ip_address = $ipaddress;
         $session->user_id = Auth::user()->id;
@@ -445,13 +464,14 @@ private function transformAds($ads)
         $session->user_agent = $request->header('User-Agent');
         $session->save();
 
-        //impressions
+        // CTA Clicks
         $adcta = new AdCtaClick();
         $adcta->ad_id = $ad->id;
         $adcta->user_id = Auth::user()->id;
         $adcta->ad_session_id = $session->id;
-        $adcta->points_used = 2;
+        $adcta->points_used = $pointsUsed;
         $adcta->save();
-        return response()->json(['message' => 'Ad Cta'], 200);
+
+        return response()->json(['message' => 'Ad Cta', 'points_used' => $pointsUsed, 'money_added' => $moneyValue], 200);
     }
 }
