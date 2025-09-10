@@ -73,9 +73,9 @@ class ProcessAdShareRewardJob implements ShouldQueue
                     $pointsPerDollar = $venusnap->points_per_dollar;
                     $systemMoneyToAdd = $pointsToVenusnap / $pointsPerDollar;
 
-                    $venusnap->increment('system_money', $systemMoneyToAdd);
-                    $venusnap->increment('reserved_points', $pointsToVenusnap);
-                    $venusnap->increment('total_points_earned', $pointsToVenusnap);
+                    // $venusnap->increment('system_money', $systemMoneyToAdd);
+                    // $venusnap->increment('reserved_points', $pointsToVenusnap);
+                    // $venusnap->increment('total_points_earned', $pointsToVenusnap);
 
                     Log::info("Guest click on share link {$this->shortCode}, Venusnap received all 6 points");
                 }
@@ -136,9 +136,9 @@ class ProcessAdShareRewardJob implements ShouldQueue
 
             // Always add 4 points to Venusnap system reserve
             $systemMoneyToAdd = $pointsToVenusnap / $pointsPerDollar;
-            $venusnap->increment('system_money', $systemMoneyToAdd);
-            $venusnap->increment('reserved_points', $pointsToVenusnap);
-            $venusnap->increment('total_points_earned', $pointsToVenusnap);
+            // $venusnap->increment('system_money', $systemMoneyToAdd);
+            // $venusnap->increment('reserved_points', $pointsToVenusnap);
+            // $venusnap->increment('total_points_earned', $pointsToVenusnap);
 
             // Only create earning entry if user has active monetization
             if ($hasActiveMonetization) {
