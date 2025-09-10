@@ -109,7 +109,7 @@ class ProcessBatchEarningsJob implements ShouldQueue
             }
         }
 
-        // Step 1: Process monetized posts - reward creators
+        // Step 1: Process monetized posts - reward creators ONLY when ads are included
         $monetizedPosts = Post::with('album.user.account')
             ->whereIn('id', $this->monetizedPosts)
             ->get();
@@ -126,54 +126,73 @@ class ProcessBatchEarningsJob implements ShouldQueue
                 continue;
             }
 
-            // Calculate points: 1 point per post from this album
-            $pointsEarned = $posts->count();
-            $totalPointsDistributed += $pointsEarned;
+            // ONLY reward creators when ads are included
+            if ($this->adsIncluded) {
+                // Calculate points: 1 point per post from this album
+                $pointsEarned = $posts->count();
+                $totalPointsDistributed += $pointsEarned;
 
-            // Convert points to money (points / points_per_dollar)
-            $amountToAdd = $pointsEarned / $pointsPerDollar;
+                // Convert points to money (points / points_per_dollar)
+                $amountToAdd = $pointsEarned / $pointsPerDollar;
 
-            // Update user balance
-            $user->account->increment('available_balance', $amountToAdd);
-            $user->account->increment('account_balance', $amountToAdd);
+                // Update user balance
+                $user->account->increment('available_balance', $amountToAdd);
+                $user->account->increment('account_balance', $amountToAdd);
 
-            // Log earning entry
-            Earning::create([
-                'album_id' => $albumId,
-                'user_id' => $user->id,
-                'batch_id' => $this->batchId,
-                'earning' => $amountToAdd,
-                'points' => $pointsEarned,
-                'type' => 'discovery_reward',
-                'status' => 'completed',
-                'meta' => json_encode([
-                    'post_ids' => $posts->pluck('id')->toArray(),
-                    'points_per_discovery' => $pointsPerDiscovery,
-                    'points_per_dollar' => $pointsPerDollar,
-                    'calculation' => "{$pointsEarned} points / {$pointsPerDollar} = \${$amountToAdd}",
-                    'timestamp' => now()->toDateTimeString(),
-                ]),
-            ]);
+                // Log earning entry
+                Earning::create([
+                    'album_id' => $albumId,
+                    'user_id' => $user->id,
+                    'batch_id' => $this->batchId,
+                    'earning' => $amountToAdd,
+                    'points' => $pointsEarned,
+                    'type' => 'discovery_reward',
+                    'status' => 'completed',
+                    'meta' => json_encode([
+                        'post_ids' => $posts->pluck('id')->toArray(),
+                        'points_per_discovery' => $pointsPerDiscovery,
+                        'points_per_dollar' => $pointsPerDollar,
+                        'calculation' => "{$pointsEarned} points / {$pointsPerDollar} = \${$amountToAdd}",
+                        'timestamp' => now()->toDateTimeString(),
+                    ]),
+                ]);
 
-            Log::info("Rewarded user {$user->id} with {$pointsEarned} points (\${$amountToAdd}) for album {$albumId}");
+                Log::info("Rewarded user {$user->id} with {$pointsEarned} points (\${$amountToAdd}) for album {$albumId}");
+            } else {
+                Log::info("No ads included, skipping rewards for user {$user->id} and album {$albumId}");
+            }
         }
 
-        // Step 2: Calculate system reserve points from non-monetized content
-        $nonMonetizedPostsCount = $this->totalPostsCount - $this->monetizedPostsCount;
+        // Step 2: Calculate system reserve points
+        $systemReservePoints = 0;
 
-        // System gets 2 points for each non-monetized post
-        $systemReservePoints = $nonMonetizedPostsCount * 2;
+        // System only gets points when ads are included
+        if ($this->adsIncluded) {
+            // System gets 2 points for each non-monetized post (ONLY when ads are included)
+            $nonMonetizedPostsCount = $this->totalPostsCount - $this->monetizedPostsCount;
+            $systemReservePoints = $nonMonetizedPostsCount * 2;
 
-        // Only add points from non-abusive ad views
-        $systemReservePoints += $validAdPoints;
+            // Also add points from non-abusive ad views
+            $systemReservePoints += $validAdPoints;
+        } else {
+            Log::info("No ads included, skipping system reserve points for batch: {$this->batchId}");
+        }
 
         // Convert system reserve points to money and update Venusnap system
-        $systemMoneyToAdd = $systemReservePoints / $pointsPerDollar;
+        if ($systemReservePoints > 0) {
+            $systemMoneyToAdd = $systemReservePoints / $pointsPerDollar;
 
-        $venusnap->increment('system_money', $systemMoneyToAdd);
-        $venusnap->increment('reserved_points', $systemReservePoints);
-        $venusnap->increment('total_points_spent', $totalPointsDistributed);
-        $venusnap->increment('total_points_earned', $systemReservePoints);
+            $venusnap->increment('system_money', $systemMoneyToAdd);
+            $venusnap->increment('reserved_points', $systemReservePoints);
+            $venusnap->increment('total_points_earned', $systemReservePoints);
+
+            Log::info("Added {$systemReservePoints} points to Venusnap system reserve");
+        }
+
+        // Only count distributed points when ads are included
+        if ($this->adsIncluded) {
+            $venusnap->increment('total_points_spent', $totalPointsDistributed);
+        }
 
         // Log batch processing
         Log::info("Processed earnings batch", [
