@@ -121,26 +121,26 @@ class ProcessBatchEarningsJob implements ShouldQueue
             $venusnap->increment('total_points_earned', $systemReservePoints);
 
             // Log system earnings entry
-            Earning::create([
-                'album_id' => null,
-                'user_id' => null,
-                'batch_id' => $this->batchId,
-                'earning' => $systemMoneyToAdd,
-                'points' => $systemReservePoints,
-                'type' => 'system_reserve',
-                'status' => 'completed',
-                'meta' => json_encode([
-                    'non_monetized_posts' => $nonMonetizedPostsCount,
-                    'points_from_non_monetized' => $nonMonetizedPostsCount * 2,
-                    'ad_points' => $adPoints,
-                    'ads_included' => $this->adsIncluded,
-                    'points_per_dollar' => $pointsPerDollar,
-                    'calculation' => "{$systemReservePoints} points / {$pointsPerDollar} = \${$systemMoneyToAdd}",
-                    'total_posts_in_batch' => $this->totalPostsCount,
-                    'monetized_posts' => $this->monetizedPostsCount,
-                    'timestamp' => now()->toDateTimeString(),
-                ]),
-            ]);
+            // Earning::create([
+            //     'album_id' => null,
+            //     'user_id' => null,
+            //     'batch_id' => $this->batchId,
+            //     'earning' => $systemMoneyToAdd,
+            //     'points' => $systemReservePoints,
+            //     'type' => 'system_reserve',
+            //     'status' => 'completed',
+            //     'meta' => json_encode([
+            //         'non_monetized_posts' => $nonMonetizedPostsCount,
+            //         'points_from_non_monetized' => $nonMonetizedPostsCount * 2,
+            //         'ad_points' => $adPoints,
+            //         'ads_included' => $this->adsIncluded,
+            //         'points_per_dollar' => $pointsPerDollar,
+            //         'calculation' => "{$systemReservePoints} points / {$pointsPerDollar} = \${$systemMoneyToAdd}",
+            //         'total_posts_in_batch' => $this->totalPostsCount,
+            //         'monetized_posts' => $this->monetizedPostsCount,
+            //         'timestamp' => now()->toDateTimeString(),
+            //     ]),
+            // ]);
 
             // Log batch processing
             Log::info("Processed earnings batch", [
