@@ -50,40 +50,6 @@ class ViewController extends Controller
         return response()->json(['message' => 'Job dispatched for tracking post view']);
     }
 
-    public function viewg(Request $request)
-    {
-        // Track the view duration
-        $view = new View();
-        $view->user_id = Auth::user()->id;
-        $view->ip_address = $request->ip();
-        $view->post_media_id = $request->input('post_media_id');
-        $view->duration = $request->input('duration');
-        $view->user_agent = $request->header('User-Agent');
-        $view->save();
-
-        // Update the recommendation status to "seen"
-        $postMediaId = $request->input('post_media_id');
-        $userId = Auth::user()->id;
-
-        $postmedia = PostMedia::find($postMediaId);
-        if (!$postmedia) {
-            return response()->json(['message' => 'Post media not found'], 404);
-        }
-
-        $postId = $postmedia->post_id;
-
-        // ✅ Update recommendations with 'active' or 'fetched' status to 'seen'
-        $updated = Recommendation::where('user_id', $userId)
-            ->where('post_id', $postId)
-            ->whereIn('status', ['active', 'fetched']) // Include both statuses
-            ->update(['status' => 'seen']);
-
-        return response()->json([
-            'message' => 'View duration tracked and recommendation marked as seen',
-            'updated_records' => $updated
-        ]);
-    }
-
     public function more(Request $request)
     {
         $mediaId = $request->query('media_id');

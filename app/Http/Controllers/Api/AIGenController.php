@@ -168,7 +168,6 @@ class AIGenController extends Controller
         return response()->json([
             'status' => $genai->status,
             'image_url' => $genai->file_path_compress ? generateSecureMediaUrl($genai->file_path_compress) : null,
-            // ... other fields
         ]);
     }
 

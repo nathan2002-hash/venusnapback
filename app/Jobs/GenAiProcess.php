@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\User;
 use App\Models\GenAi;
+use App\Models\VenusnapSystem;
 use App\Models\PointTransaction;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -92,6 +93,14 @@ class GenAiProcess implements ShouldQueue
                     'enhanced_prompt' => $enhancedPrompt
                 ])
             ]);
+
+
+            $venusnap = VenusnapSystem::first();
+            $systemMoneyToAdd = 80 / $venusnap->points_per_dollar;
+            $venusnap->increment('system_money', $systemMoneyToAdd);
+            $venusnap->increment('reserved_points', 20);
+            $venusnap->increment('total_points_spent', 80);
+            $venusnap->increment('total_points_earned', 20);
 
             DB::commit();
         } else {

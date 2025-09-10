@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Ad;
 use App\Models\LinkAdShare;
-use App\Models\LinkAdVisit;
+use App\Jobs\ProcessAdShareRewardJob;
+use Illuminate\Support\Facades\Auth;
 
 class MoreAdController extends Controller
 {
@@ -67,7 +68,7 @@ class MoreAdController extends Controller
         return $randomString;
     }
 
-    public function resolveShortCode($shortCode)
+    public function resolveShortCode(Request $request, $shortCode)
     {
         // Find the share link with active ad
         $shareLink = LinkAdShare::where('short_code', $shortCode)->first();
@@ -78,6 +79,13 @@ class MoreAdController extends Controller
                 'status' => 404
             ], 404);
         }
+
+        ProcessAdShareRewardJob::dispatch(
+            $shortCode,
+            Auth::id(), // The viewer who clicked the link (optional)
+            $request->ip(),
+            $request->userAgent()
+        );
 
         // Return the ad data
         return response()->json([
