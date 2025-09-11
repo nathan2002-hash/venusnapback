@@ -80,7 +80,7 @@
                                                                 <img src="{{ $imageUrl }}" alt="Post image" class="img-fluid">
                                                                 <div class="post-card-overlay">
                                                                     <div class="form-check">
-                                                                        <input type="radio" name="post_selection" class="form-check-input post-selection-radio" value="{{ $post->id }}" id="post_{{ $post->id }}">
+                                                                        <input type="radio" name="post_id" class="form-check-input post-selection-radio" value="{{ $post->id }}" id="post_{{ $post->id }}">
                                                                         <label class="form-check-label" for="post_{{ $post->id }}"></label>
                                                                     </div>
                                                                 </div>
