@@ -204,7 +204,7 @@ class ProcessBatchEarningsJob implements ShouldQueue
             'albums_rewarded' => $groupedByAlbum->count(),
             'total_points_distributed' => $totalPointsDistributed,
             'system_reserve_points' => $systemReservePoints,
-            'system_money_added' => $systemMoneyToAdd,
+            'system_money_added' => $systemMoneyToAdd ?? 0,
             'ads_included' => $this->adsIncluded,
             'total_ad_points_deducted' => $totalAdPointsDeducted,
             'valid_ad_points_used' => $validAdPoints,
