@@ -112,7 +112,7 @@ class ManualPostNotificationJob implements ShouldQueue
         $imageUrl = $media ? generateSecureMediaUrl($media->file_path_compress) : null;
 
         // Prepare notification data - MATCH THE STRUCTURE OF CreateNotificationJob
-        $notificationData = $this->preparePushData($notification, $imageUrl);
+        $notificationData = $this->preparePushData($notification, $imageUrl, $media);
 
         // Extract image URL from data if present
         $imageUrlForAndroid = $notificationData['image'] ?? null;
@@ -184,33 +184,37 @@ class ManualPostNotificationJob implements ShouldQueue
     }
 }
 
-// Update preparePushData to include image in the data payload
-protected function preparePushData($notification, $imageUrl = null): array
+// FIXED: Update preparePushData to use correct post ID and media ID
+protected function preparePushData($notification, $imageUrl = null, $media = null): array
 {
     $data = json_decode($notification->data, true);
+
+    // Get the media ID if available
+    $mediaId = $media ? (string)$media->id : '0';
 
     return [
         'type' => 'album_new_post',
         'action' => 'album_new_post',
-        'notifiable_id' => (string)$data['post_id'],
-        'notifiablemedia_id' => '0',
+        'notifiable_id' => (string)$notification->notifiable_id, // Use the notification's notifiable_id (which is the post ID)
+        'notifiablemedia_id' => $mediaId, // Use the actual media ID
         'screen_to_open' => 'post',
         'metadata' => $this->sanitizeData($data),
         'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-        'image' => $imageUrl, // Keep image in data payload
-        'is_big_picture' => 'true', // Add this if you want big picture style
+        'image' => $imageUrl,
+        'is_big_picture' => 'true',
     ];
 }
-    // ADD THIS METHOD TO SANITIZE DATA
-    protected function sanitizeData(array $data): array
-    {
-        array_walk_recursive($data, function (&$value) {
-            if (is_array($value)) {
-                $value = json_encode($value);
-            } elseif (!is_scalar($value)) {
-                $value = (string)$value;
-            }
-        });
-        return $data;
-    }
+
+// ADD THIS METHOD TO SANITIZE DATA
+protected function sanitizeData(array $data): array
+{
+    array_walk_recursive($data, function (&$value) {
+        if (is_array($value)) {
+            $value = json_encode($value);
+        } elseif (!is_scalar($value)) {
+            $value = (string)$value;
+        }
+    });
+    return $data;
+}
 }
