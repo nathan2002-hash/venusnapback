@@ -78,7 +78,7 @@ class ManualPostNotificationJob implements ShouldQueue
         }
     }
 
- protected function sendPushNotification($notification)
+protected function sendPushNotification($notification)
 {
     // Get all active FCM tokens for the recipient
     $activeTokens = FcmToken::where('user_id', $this->recipient->id)
@@ -111,56 +111,46 @@ class ManualPostNotificationJob implements ShouldQueue
         $media = $this->post->postmedias->first();
         $imageUrl = $media ? generateSecureMediaUrl($media->file_path_compress) : null;
 
-        // Prepare notification data - MATCH THE STRUCTURE OF CreateNotificationJob
-        $notificationData = $this->preparePushData($notification, $imageUrl, $media);
+        // Get album thumbnail if available
+        $album = $this->post->album;
+        $albumimageUrl = null;
 
-        // Extract image URL from data if present
-        $imageUrlForAndroid = $notificationData['image'] ?? null;
-
-        // Keep image in data payload for Flutter to access
-        // Don't unset it like in CreateNotificationJob
-
-        // Ensure all data values are strings (like CreateNotificationJob does)
-        $stringData = [];
-        foreach ($notificationData as $key => $value) {
-            if (is_array($value)) {
-                $stringData[$key] = json_encode($value);
-            } else {
-                $stringData[$key] = (string)$value;
+        if ($album) {
+            if ($album->type == 'personal' || $album->type == 'creator') {
+                $albumimageUrl = $album->thumbnail_compressed
+                    ? generateSecureMediaUrl($album->thumbnail_compressed)
+                    : ($album->thumbnail_original
+                        ? generateSecureMediaUrl($album->thumbnail_original)
+                        : null);
+            } elseif ($album->type == 'business') {
+                $albumimageUrl = $album->business_logo_compressed
+                    ? generateSecureMediaUrl($album->business_logo_compressed)
+                    : ($album->business_logo_original
+                        ? generateSecureMediaUrl($album->business_logo_original)
+                        : null);
             }
         }
+
+        // Use the EXACT same format as sendBigPicturePushNotification
+        $message = CloudMessage::new()
+            ->withNotification(FirebaseNotification::create($this->title, $this->message))
+            ->withData([
+                'type' => 'album_new_post',
+                'action' => 'album_new_post',
+                'post_id' => (string)$this->post->id, // Use post_id directly
+                'media_id' => $media ? (string)$media->id : '0', // Use media_id directly
+                'album_id' => $album ? (string)$album->id : '0', // Use album_id directly
+                'is_big_picture' => 'true',
+                'image' => $imageUrl,
+                'thumbnail' => $albumimageUrl ?? $imageUrl, // Fallback to image if no thumbnail
+                'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                'screen_to_open' => 'post'
+            ]);
 
         // Send to each active token
         foreach ($activeTokens as $token) {
             try {
-                $message = CloudMessage::withTarget('token', $token)
-                    ->withNotification(FirebaseNotification::create($this->title, $this->message))
-                    ->withHighestPossiblePriority()
-                    ->withData($stringData);
-
-                if ($imageUrlForAndroid) {
-                    $androidConfig = [
-                        'notification' => [
-                            'image' => $imageUrlForAndroid
-                        ]
-                    ];
-                    $message = $message->withAndroidConfig($androidConfig);
-
-                    // Also add for iOS if needed
-                    $apnsConfig = [
-                        'payload' => [
-                            'aps' => [
-                                'mutable-content' => 1
-                            ]
-                        ],
-                        'fcm_options' => [
-                            'image' => $imageUrlForAndroid
-                        ]
-                    ];
-                    $message = $message->withApnsConfig($apnsConfig);
-                }
-
-                $messaging->send($message);
+                $messaging->send($message->withChangedTarget('token', $token));
             } catch (\Exception $e) {
                 \Log::error('Failed to send to token: ' . $token, [
                     'error' => $e->getMessage(),
@@ -185,7 +175,7 @@ class ManualPostNotificationJob implements ShouldQueue
 }
 
 // FIXED: Update preparePushData to use correct post ID and media ID
-protected function preparePushData($notification, $media = null): array
+protected function preparePushDaa($notification, $media = null): array
 {
     $data = json_decode($notification->data, true);
 
