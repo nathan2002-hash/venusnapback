@@ -111,17 +111,22 @@ class ManualPostNotificationJob implements ShouldQueue
             $media = $this->post->postmedias->first();
             $imageUrl = $media ? generateSecureMediaUrl($media->file_path_compress) : null;
 
-            // Prepare notification data
-            $notificationData = [
-                'type' => 'album_new_post',
-                'action' => 'album_new_post',
-                'post_id' => (string)$this->post->id,
-                'sender_id' => (string)$this->post->user_id,
-                'is_important' => $this->isImportant ? 'true' : 'false',
-                'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                'screen_to_open' => 'post',
-                'image' => $imageUrl,
-            ];
+            // Prepare notification data - MATCH THE STRUCTURE OF CreateNotificationJob
+            $notificationData = $this->preparePushData($notification, $imageUrl);
+
+            // Extract image URL from data if present
+            $imageUrl = $notificationData['image'] ?? null;
+            unset($notificationData['image']); // Remove from data payload
+
+            // Ensure all data values are strings (like CreateNotificationJob does)
+            $stringData = [];
+            foreach ($notificationData as $key => $value) {
+                if (is_array($value)) {
+                    $stringData[$key] = json_encode($value);
+                } else {
+                    $stringData[$key] = (string)$value;
+                }
+            }
 
             // Send to each active token
             foreach ($activeTokens as $token) {
@@ -129,7 +134,7 @@ class ManualPostNotificationJob implements ShouldQueue
                     $message = CloudMessage::withTarget('token', $token)
                         ->withNotification(FirebaseNotification::create($this->title, $this->message))
                         ->withHighestPossiblePriority()
-                        ->withData($notificationData);
+                        ->withData($stringData);
 
                     if ($imageUrl) {
                         $androidConfig = [
@@ -162,5 +167,35 @@ class ManualPostNotificationJob implements ShouldQueue
                 unlink($tempFilePath);
             }
         }
+    }
+
+    // ADD THIS METHOD TO MATCH CreateNotificationJob's STRUCTURE
+    protected function preparePushData($notification, $imageUrl = null): array
+    {
+        $data = json_decode($notification->data, true);
+
+        return [
+            'type' => 'album_new_post',
+            'action' => 'album_new_post',
+            'notifiable_id' => (string)$data['post_id'], // This is the key change
+            'notifiablemedia_id' => '0',
+            'screen_to_open' => 'post',
+            'metadata' => $this->sanitizeData($data),
+            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+            'image' => $imageUrl,
+        ];
+    }
+
+    // ADD THIS METHOD TO SANITIZE DATA
+    protected function sanitizeData(array $data): array
+    {
+        array_walk_recursive($data, function (&$value) {
+            if (is_array($value)) {
+                $value = json_encode($value);
+            } elseif (!is_scalar($value)) {
+                $value = (string)$value;
+            }
+        });
+        return $data;
     }
 }
