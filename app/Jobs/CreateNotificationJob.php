@@ -339,7 +339,7 @@ class CreateNotificationJob implements ShouldQueue
                 ->withData([
                     'type' => 'album_new_post',
                     'action' => 'album_new_post',
-                    'post_id' => (string)$this->post->id,
+                    'notifiable_id' => (string)$this->post->id,
                     'media_id' => (string)$this->randomMedia->id,
                     'album_id' => (string)$this->album->id,
                     'is_big_picture' => 'true',
