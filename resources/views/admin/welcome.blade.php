@@ -138,7 +138,7 @@
                             </span>
                             <div>
                                 <p class="mb-1 text-truncate">Posts</p>
-                                <h6 class="fs-16 fw-semibold mb-0 text-truncate">{{ $posts }}</h6>
+                                <h6 class="fs-16 fw-semibold mb-0 text-truncate">{{ $postsc }}</h6>
                             </div>
                         </div>
                     </div>
@@ -343,175 +343,66 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Customer</th>
-                                <th>Created On</th>
-                                <th>Amount</th>
-                                <th>Paid</th>
+                                <th>Album</th>
+                                <th>User</th>
+                                <th>Status</th>
+                                <th>Media</th>
                                 <th>Payment Mode</th>
-                                <th>Due Date</th>
+                                <th>Date</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach ($posts as $post)
+                             @php
+                                    $thumbnailUrl = null;
+                                    if ($post->album->type === 'personal' || $post->album->type === 'creator') {
+                                        $thumbnailUrl = $post->album->thumbnail_compressed
+                                            ? generateSecureMediaUrl($post->album->thumbnail_compressed)
+                                            : ($post->album->thumbnail_original
+                                                ? generateSecureMediaUrl($post->album->thumbnail_original)
+                                                : null);
+                                    } elseif ($post->album->type === 'business') {
+                                        $thumbnailUrl = $post->album->business_logo_compressed
+                                            ? generateSecureMediaUrl($post->album->business_logo_compressed)
+                                            : ($post->album->business_logo_original
+                                                ? generateSecureMediaUrl($post->album->business_logo_original)
+                                                : null);
+                                    }
+                                @endphp
                             <tr>
                                 <td>
-                                    <a href="invoice-details.html" class="link-default">INV00025</a>
+                                    <a href="invoice-details.html" class="link-default">{{ $post->id }}</a>
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <a href="customer-details.html" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
-                                            <img src="assets/img/users/user-22.jpg" class="rounded-circle" alt="img">
+                                            <img src="{{ $thumbnailUrl ?? 'https://www.gravatar.com/avatar' }}"
+                                                alt="img"
+                                                class="rounded-circle"
+                                                style="width: 40px; height: 40px; object-fit: cover;">
                                         </a>
                                         <div>
-                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">Emily Clark</a></h6>
+                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">{{ $post->album->name }}</a></h6>
                                         </div>
                                     </div>
                                 </td>
-                                <td>22 Feb 2025</td>
-                                <td class="text-dark">$10,000</td>
-                                <td>$5,000</td>
+                                <td>{{ $post->user->name }}</td>
+                                <td class="text-dark">
+                                     @if ($post->status == 'active')
+                                        <a href="#" class="btn btn-sm btn-soft-success border-0  d-inline-flex align-items-center me-1 fs-12 fw-regular" data-bs-toggle="modal" data-bs-target="#add_stockin">
+                                            <i class="isax isax-document-sketch5 me-1"></i> Active
+                                        </a>
+                                    @else
+                                        <a href="#" class="btn btn-sm btn-soft-danger border-0 d-inline-flex align-items-center fs-12 fw-regular" data-bs-toggle="modal" data-bs-target="#add_stockout">
+                                            <i class="isax isax-document-sketch5 me-1"></i> Deleted
+                                        </a>
+                                    @endif
+                                </td>
+                                <td>{{ $post->postmedias->count() }}</td>
                                 <td class="text-dark">Cash</td>
-                                <td>04 Mar 2025</td>
+                                <td>{{ $post->created_at->format('D M Y') }}</td>
                             </tr>
-                            <tr>
-                                <td>
-                                    <a href="invoice-details.html" class="link-default">INV00024</a>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <a href="customer-details.html" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
-                                            <img src="assets/img/users/user-07.jpg" class="rounded-circle" alt="img">
-                                        </a>
-                                        <div>
-                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">John Carter</a></h6>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>07 Feb 2025</td>
-                                <td class="text-dark">$25,750</td>
-                                <td>$5,000</td>
-                                <td class="text-dark">Check</td>
-                                <td>20 Feb 2025</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="invoice-details.html" class="link-default">INV00023</a>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <a href="customer-details.html" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
-                                            <img src="assets/img/users/user-16.jpg" class="rounded-circle" alt="img">
-                                        </a>
-                                        <div>
-                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">Sophia White</a></h6>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>09 Dec 2024</td>
-                                <td class="text-dark">$1,20,500</td>
-                                <td>$60,000</td>
-                                <td class="text-dark">Check</td>
-                                <td>12 Nov 2024</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="invoice-details.html" class="link-default">INV00022</a>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <a href="customer-details.html" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
-                                            <img src="assets/img/users/user-08.jpg" class="rounded-circle" alt="img">
-                                        </a>
-                                        <div>
-                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">Michael Johnson</a></h6>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>30 Nov 2024</td>
-                                <td class="text-dark">$7,50,300</td>
-                                <td>$60,000</td>
-                                <td class="text-dark">Check</td>
-                                <td>25 Oct 2024</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="invoice-details.html" class="link-default">INV00016</a>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <a href="customer-details.html" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
-                                            <img src="assets/img/users/user-15.jpg" class="rounded-circle" alt="img">
-                                        </a>
-                                        <div>
-                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">Daniel Martinez</a></h6>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>12 Oct 2024</td>
-                                <td class="text-dark">$9,99,999</td>
-                                <td>$4,00,000</td>
-                                <td class="text-dark">Cash</td>
-                                <td>18 Oct 2024</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="invoice-details.html" class="link-default">INV00015</a>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <a href="customer-details.html" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
-                                            <img src="assets/img/users/user-27.jpg" class="rounded-circle" alt="img">
-                                        </a>
-                                        <div>
-                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">Charlotte Brown</a></h6>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>05 Oct 2024</td>
-                                <td class="text-dark">$87,650</td>
-                                <td>$40,000</td>
-                                <td class="text-dark">Check</td>
-                                <td>22 Sep 2024</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="invoice-details.html" class="link-default">INV00014</a>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <a href="customer-details.html" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
-                                            <img src="assets/img/users/user-14.jpg" class="rounded-circle" alt="img">
-                                        </a>
-                                        <div>
-                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">William Parker</a></h6>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>09 Sep 2024</td>
-                                <td class="text-dark">$69,420</td>
-                                <td>$30,000</td>
-                                <td class="text-dark">Cash</td>
-                                <td>15 Sep 2024</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="invoice-details.html" class="link-default">INV00013</a>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <a href="customer-details.html" class="avatar avatar-sm rounded-circle me-2 flex-shrink-0">
-                                            <img src="assets/img/users/user-25.jpg" class="rounded-circle" alt="img">
-                                        </a>
-                                        <div>
-                                            <h6 class="fs-14 fw-medium mb-0"><a href="customer-details.html">Mia Thompson</a></h6>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>02 Sep 2024</td>
-                                <td class="text-dark">$33,210</td>
-                                <td>$15,000</td>
-                                <td class="text-dark">Check</td>
-                                <td>20 Aug 2024</td>
-                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>

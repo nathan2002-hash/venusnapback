@@ -22,7 +22,8 @@ class WelcomeController extends Controller
     {
         $users = User::orderBy('created_at', 'desc')->paginate(10);
         $usersc = User::count();
-        $posts = Post::count();
+        $postsc = Post::count();
+        $posts = Post::orderBy('created_at', 'desc')->paginate(10);
         $album = Album::count();
         $adboards = Adboard::count();
         $ads = Ad::count();
@@ -67,6 +68,7 @@ class WelcomeController extends Controller
         ->count();
         return view('admin.welcome', [
            'users' => $users,
+           'postsc' => $postsc,
            'posts' => $posts,
            'postmedias' => $postmedias,
            'album' => $album,
