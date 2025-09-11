@@ -347,7 +347,6 @@
                                 <th>User</th>
                                 <th>Status</th>
                                 <th>Media</th>
-                                <th>Payment Mode</th>
                                 <th>Date</th>
                             </tr>
                         </thead>
@@ -399,8 +398,7 @@
                                     @endif
                                 </td>
                                 <td>{{ $post->postmedias->count() }}</td>
-                                <td class="text-dark">Cash</td>
-                                <td>{{ $post->created_at->format('D M Y') }}</td>
+                                <td>{{ $post->created_at->format('d M Y') }}</td>
                             </tr>
                             @endforeach
                         </tbody>
