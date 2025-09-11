@@ -185,7 +185,7 @@ class ManualPostNotificationJob implements ShouldQueue
 }
 
 // FIXED: Update preparePushData to use correct post ID and media ID
-protected function preparePushData($notification, $imageUrl = null, $media = null): array
+protected function preparePushData($notification, $media = null): array
 {
     $data = json_decode($notification->data, true);
 
@@ -193,7 +193,32 @@ protected function preparePushData($notification, $imageUrl = null, $media = nul
     $mediaId = $media ? (string)$media->id : '0';
 
     // Get album ID if available
+    $album = $this->post->album;
     $albumId = $this->post->album ? (string)$this->post->album->id : '0';
+
+    if (!$media) {
+        $media = $this->post->postmedias()->first();
+    }
+
+    // Use post media image for the notification
+    $imageUrl = $media ? generateSecureMediaUrl($media->file_path_compress ?? $media->file_path) : null;
+
+    $albumImageUrl = null;
+    if ($album) {
+        if ($album->type === 'personal' || $album->type === 'creator') {
+            $albumImageUrl = $album->thumbnail_compressed
+                ? generateSecureMediaUrl($album->thumbnail_compressed)
+                : ($album->thumbnail_original
+                    ? generateSecureMediaUrl($album->thumbnail_original)
+                    : null);
+        } elseif ($album->type === 'business') {
+            $albumImageUrl = $album->business_logo_compressed
+                ? generateSecureMediaUrl($album->business_logo_compressed)
+                : ($album->business_logo_original
+                    ? generateSecureMediaUrl($album->business_logo_original)
+                    : null);
+        }
+    }
 
     return [
         'type' => 'album_new_post',
@@ -203,7 +228,7 @@ protected function preparePushData($notification, $imageUrl = null, $media = nul
         'album_id' => $albumId, // Use album_id for big picture
         'is_big_picture' => 'true',
         'image' => $imageUrl,
-        'thumbnail' => $imageUrl, // Use same image as thumbnail if no separate thumbnail
+        'thumbnail' => $albumImageUrl, // Use same image as thumbnail if no separate thumbnail
         'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
         'screen_to_open' => 'post',
         // Include metadata if needed
