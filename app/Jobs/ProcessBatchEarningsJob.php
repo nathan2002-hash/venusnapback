@@ -165,6 +165,7 @@ class ProcessBatchEarningsJob implements ShouldQueue
 
         // Step 2: Calculate system reserve points
         $systemReservePoints = 0;
+        $nonMonetizedPostsCount = 0;
 
         // System only gets points when ads are included
         if ($this->adsIncluded) {

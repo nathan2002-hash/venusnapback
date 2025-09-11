@@ -210,7 +210,7 @@
 										</a>
 										<ul>
 											<li><a href="/restricted/notices">Send App Message</a></li>
-											<li><a href="/restricted/notices">App Messages</a></li>
+											<li><a href="/restricted/app/notices">Send App Post Message</a></li>
 										</ul>
 									</li>
 									<li class="submenu">

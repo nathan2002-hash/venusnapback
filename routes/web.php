@@ -169,6 +169,10 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     Route::get('/notices', 'Admin\AppMessageController@create')->name('admin.notices.create');
     Route::post('/notices', 'Admin\AppMessageController@store')->name('admin.notices.store');
 
+    Route::get('/app/notices', 'Admin\AppMessageController@showPostNotificationForm');
+    Route::post('/app/send/notice', 'Admin\AppMessageController@postnoticecreate')->name('admin.notices.send-post-notification');
+
+
 
      Route::get('/start-ad-check', function() {
         CheckAdPointsJob::dispatch()
