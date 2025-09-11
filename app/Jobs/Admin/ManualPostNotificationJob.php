@@ -108,7 +108,7 @@ class ManualPostNotificationJob implements ShouldQueue
             $messaging = $factory->createMessaging();
 
             // Get a media item from the post for the image
-            $media = $this->post->media->first();
+            $media = $this->post->postmedias->first();
             $imageUrl = $media ? generateSecureMediaUrl($media->file_path_compress) : null;
 
             // Prepare notification data
