@@ -173,63 +173,6 @@ protected function sendPushNotification($notification)
         }
     }
 }
-
-// FIXED: Update preparePushData to use correct post ID and media ID
-protected function preparePushDaa($notification, $media = null): array
-{
-    $data = json_decode($notification->data, true);
-
-    // Get the media ID if available
-    $mediaId = $media ? (string)$media->id : '0';
-
-    // Get album ID if available
-    $album = $this->post->album;
-    $albumId = $this->post->album ? (string)$this->post->album->id : '0';
-
-    if (!$media) {
-        $media = $this->post->postmedias()->first();
-    }
-
-    // Use post media image for the notification
-    $imageUrl = $media ? generateSecureMediaUrl($media->file_path_compress ?? $media->file_path) : null;
-
-    $albumImageUrl = null;
-    if ($album) {
-        if ($album->type === 'personal' || $album->type === 'creator') {
-            $albumImageUrl = $album->thumbnail_compressed
-                ? generateSecureMediaUrl($album->thumbnail_compressed)
-                : ($album->thumbnail_original
-                    ? generateSecureMediaUrl($album->thumbnail_original)
-                    : null);
-        } elseif ($album->type === 'business') {
-            $albumImageUrl = $album->business_logo_compressed
-                ? generateSecureMediaUrl($album->business_logo_compressed)
-                : ($album->business_logo_original
-                    ? generateSecureMediaUrl($album->business_logo_original)
-                    : null);
-        }
-    }
-
-    return [
-        'type' => 'album_new_post',
-        'action' => 'album_new_post',
-        'post_id' => (string)$notification->notifiable_id, // Use post_id for big picture
-        'media_id' => $mediaId, // Use media_id for big picture
-        'album_id' => $albumId, // Use album_id for big picture
-        'is_big_picture' => 'true',
-        'image' => $imageUrl,
-        'thumbnail' => $albumImageUrl, // Use same image as thumbnail if no separate thumbnail
-        'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-        'screen_to_open' => 'post',
-        // Include metadata if needed
-        'metadata' => json_encode([
-            'title' => $data['title'] ?? '',
-            'message' => $data['message'] ?? '',
-            'sender_name' => $data['sender_name'] ?? '',
-        ]),
-    ];
-}
-
 // ADD THIS METHOD TO SANITIZE DATA
 protected function sanitizeData(array $data): array
 {
