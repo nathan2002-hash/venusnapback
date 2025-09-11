@@ -192,16 +192,26 @@ protected function preparePushData($notification, $imageUrl = null, $media = nul
     // Get the media ID if available
     $mediaId = $media ? (string)$media->id : '0';
 
+    // Get album ID if available
+    $albumId = $this->post->album ? (string)$this->post->album->id : '0';
+
     return [
         'type' => 'album_new_post',
         'action' => 'album_new_post',
-        'notifiable_id' => (string)$notification->notifiable_id, // Use the notification's notifiable_id (which is the post ID)
-        'notifiablemedia_id' => $mediaId, // Use the actual media ID
-        'screen_to_open' => 'post',
-        'metadata' => $this->sanitizeData($data),
-        'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-        'image' => $imageUrl,
+        'post_id' => (string)$notification->notifiable_id, // Use post_id for big picture
+        'media_id' => $mediaId, // Use media_id for big picture
+        'album_id' => $albumId, // Use album_id for big picture
         'is_big_picture' => 'true',
+        'image' => $imageUrl,
+        'thumbnail' => $imageUrl, // Use same image as thumbnail if no separate thumbnail
+        'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+        'screen_to_open' => 'post',
+        // Include metadata if needed
+        'metadata' => json_encode([
+            'title' => $data['title'] ?? '',
+            'message' => $data['message'] ?? '',
+            'sender_name' => $data['sender_name'] ?? '',
+        ]),
     ];
 }
 
