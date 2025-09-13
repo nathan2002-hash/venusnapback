@@ -1068,4 +1068,11 @@ class AdController extends Controller
             ])
             ]);
     }
+
+    public function fetchAdbackground()
+    {
+        return response()->json([
+                'background_image_url' => generateSecureMediaUrl('uploads/ads/ads3.jpg'),
+        ]);
+    }
 }

@@ -246,6 +246,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::post('/ad/add-points/{ad}', 'Api\PointController@addPoints');
     Route::get('/ad/regions', 'Api\AdController@regions');
     Route::get('/ad/terms', 'Api\AdController@adTerms');
+    Route::get('/ad/background/image', 'Api\AdController@fetchAdbackground');
 
     //ad edit
     Route::get('/adboard/edit/{id}', 'Api\AdController@adboardedit');

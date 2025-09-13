@@ -501,4 +501,11 @@ class PostExploreController extends Controller
 
         return response()->json(['message' => 'Ad Cta', 'points_used' => $pointsUsed, 'money_added' => $moneyValue], 200);
     }
+
+    public function fetchAdbackground()
+    {
+        return response()->json([
+                'background_image_url' => generateSecureMediaUrl('uploads/ads/ads3.jpg'),
+        ]);
+    }
 }
