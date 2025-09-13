@@ -49,6 +49,7 @@ class ProfileController extends Controller
                 'total_posts' => (string) $user->posts()->whereIn('status', ['active', 'review'])->count(),
                 'total_albums' => (string) $user->albums->count(),
                 'supporters' => (string) $totalSupporters,
+                'points' => (string) $user->points,
             ]
         ]);
     }
