@@ -121,80 +121,92 @@ class ProfileController extends Controller
         ], 200);
     }
 
-    public function update(Request $request)
-    {
-        $user = Auth::user();
+   public function update(Request $request)
+{
+    $user = Auth::user();
 
-        if (!$user) {
-            return response()->json([
-                'error' => 'Unauthenticated user'
-            ], 401);
-        }
+    if (!$user) {
+        return response()->json([
+            'error' => 'Unauthenticated user'
+        ], 401);
+    }
 
-        // Validate the request with proper error handling for API
-        $validator = Validator::make($request->all(), [
-            'username' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'full_name' => 'required|string|max:255',
-            'country' => 'required|string|max:500',
-            'phone_number' => 'required|string|max:20',
-            'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20000',
-            'cover_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20000',
-        ]);
+    // Validate the request with proper error handling for API
+    $validationRules = [
+        'username' => 'required|string|max:255',
+        'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
+        'full_name' => 'required|string|max:255',
+        'country' => 'required|string|max:500',
+        'phone_number' => 'nullable|string|max:20',
+        'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20000',
+        'cover_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20000',
+    ];
 
-        if ($validator->fails()) {
-            return response()->json([
-                'error' => 'Validation failed',
-                'messages' => $validator->errors()
-            ], 422);
-        }
+    // Create validator instance
+    $validator = Validator::make($request->all(), $validationRules);
 
-        $user = User::find($user->id);
+    if ($validator->fails()) { // ← FIXED: Call fails() on validator, not validationRules
+        return response()->json([
+            'error' => 'Validation failed',
+            'messages' => $validator->errors() // ← FIXED: Call errors() on validator
+        ], 422);
+    }
 
-        // Clean phone number - remove all non-digit characters including +
-        $cleanedPhone = preg_replace('/[^0-9]/', '', $request->phone_number);
+    $user = User::find($user->id);
 
-        // Check if phone/email have changed
-        if ($request->email !== $user->email) {
-            $user->email_verified_at = null;
-        }
+    // Clean phone number - only if provided
+    $cleanedPhone = $request->has('phone_number')
+        ? preg_replace('/[^0-9]/', '', $request->phone_number)
+        : $user->phone;
 
-        if ($cleanedPhone !== preg_replace('/[^0-9]/', '', $user->phone)) {
-            $user->phone_verified_at = null;
-        }
+    // Check if phone/email have changed (only check if provided)
+    if ($request->has('email') && $request->email !== $user->email) {
+        $user->email_verified_at = null;
+    }
 
-        // Update user data
-        $user->username = $request->username;
+    if ($request->has('phone_number') && $cleanedPhone !== preg_replace('/[^0-9]/', '', $user->phone)) {
+        $user->phone_verified_at = null;
+    }
+
+    // Update user data - only update fields that are provided
+    $user->username = $request->username;
+
+    if ($request->has('email')) {
         $user->email = $request->email;
-        $user->phone = $cleanedPhone; // Store clean numeric version
+    }
+
+    if ($request->has('phone_number')) {
+        $user->phone = $cleanedPhone;
         $user->partial_number = $request->partial_phone;
         $user->country_code = $request->country_code;
-        $user->name = $request->full_name;
-        $user->country = $request->country;
-        $user->dob = $request->dob;
-        $user->gender = $request->gender;
-
-        // Save profile image
-        if ($request->hasFile('profile')) {
-            $profilePath = $request->file('profile')->store('uploads/profiles/originals/profile', 's3');
-            $user->profile_original = $profilePath;
-        }
-
-        // Save cover photo
-        if ($request->hasFile('cover_photo')) {
-            $coverPath = $request->file('cover_photo')->store('uploads/profiles/originals/cover', 's3');
-            $user->cover_original = $coverPath;
-        }
-
-        $user->save();
-
-        ProfileUpdate::dispatch($user);
-
-        return response()->json([
-            'message' => 'Updated Successfully',
-            'user' => $user->fresh()
-        ], 200);
     }
+
+    $user->name = $request->full_name;
+    $user->country = $request->country;
+    $user->dob = $request->dob;
+    $user->gender = $request->gender;
+
+    // Save profile image
+    if ($request->hasFile('profile')) {
+        $profilePath = $request->file('profile')->store('uploads/profiles/originals/profile', 's3');
+        $user->profile_original = $profilePath;
+    }
+
+    // Save cover photo
+    if ($request->hasFile('cover_photo')) {
+        $coverPath = $request->file('cover_photo')->store('uploads/profiles/originals/cover', 's3');
+        $user->cover_original = $coverPath;
+    }
+
+    $user->save();
+
+    ProfileUpdate::dispatch($user);
+
+    return response()->json([
+        'message' => 'Updated Successfully',
+        'user' => $user->fresh()
+    ], 200);
+}
 
 
     private function formatNumber($number) {
