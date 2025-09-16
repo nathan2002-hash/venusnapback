@@ -244,9 +244,62 @@
             allowClear: true
         });
 
-        // Initialize Select2 for post selection
-        $('#post_id').select2({
-            placeholder: "Select a post...",
+        // Post cards horizontal scrolling functionality
+        const scroller = $('#post-cards-scroller');
+        const scrollPrev = $('#scroll-prev');
+        const scrollNext = $('#scroll-next');
+        const cardWidth = $('.post-card').outerWidth(true);
+
+        // Scroll navigation buttons
+        scrollPrev.on('click', function() {
+            scroller.animate({scrollLeft: scroller.scrollLeft() - cardWidth * 2}, 300);
+        });
+
+        scrollNext.on('click', function() {
+            scroller.animate({scrollLeft: scroller.scrollLeft() + cardWidth * 2}, 300);
+        });
+
+        // Update navigation button visibility based on scroll position
+        scroller.on('scroll', function() {
+            const scrollLeft = scroller.scrollLeft();
+            const maxScroll = scroller[0].scrollWidth - scroller.width();
+
+            scrollPrev.toggle(scrollLeft > 0);
+            scrollNext.toggle(scrollLeft < maxScroll - 5); // 5px tolerance
+        });
+
+        // Trigger initial scroll event to set button visibility
+        scroller.trigger('scroll');
+
+        // Post selection functionality
+        $('.post-card').on('click', function() {
+            $('.post-card').removeClass('selected');
+            $(this).addClass('selected');
+            $('#selected_post_id').val($(this).data('post-id'));
+            $('#post-selection-error').hide();
+
+            // Auto-generate title and message
+            const username = $(this).data('user');
+            if (!$('#title').val()) {
+                $('#title').val(`New content from ${username}`);
+            }
+            if (!$('#message').val()) {
+                $('#message').val(`${username} has shared new content you might be interested in. Check it out now!`);
+            }
+        });
+
+        // Post search functionality
+        $('#post-search').on('input', function() {
+            const searchTerm = $(this).val().toLowerCase();
+
+            $('.post-card').each(function() {
+                const postText = $(this).text().toLowerCase();
+                $(this).toggle(postText.includes(searchTerm));
+            });
+        });
+
+        $('#clear-search').on('click', function() {
+            $('#post-search').val('').trigger('input');
         });
 
         // Show/hide user selection based on recipient type
@@ -261,27 +314,22 @@
             }
         });
 
-        // Auto-generate title and message based on selected post
-        $('#post_id').change(function() {
-            const selectedOption = $(this).find('option:selected');
-            const username = selectedOption.data('user');
-
-            // Set default title and message
-            if (!$('#title').val()) {
-                $('#title').val(`New content from ${username}`);
-            }
-
-            if (!$('#message').val()) {
-                $('#message').val(`${username} has shared new content you might be interested in. Check it out now!`);
-            }
-        });
-
         // Form submission handling
         const form = $('#postNoticeForm');
         const submitButton = $('#submit-button');
         const loadingButton = $('#loading-button');
 
         form.on('submit', function(e) {
+            // Validate post selection
+            if (!$('#selected_post_id').val()) {
+                e.preventDefault();
+                $('#post-selection-error').show();
+                $('html, body').animate({
+                    scrollTop: $('.post-cards-container').offset().top - 100
+                }, 500);
+                return false;
+            }
+
             if (form[0].checkValidity()) {
                 // Show loading state
                 submitButton.hide();
