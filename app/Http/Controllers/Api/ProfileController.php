@@ -11,6 +11,7 @@ use App\Jobs\ProfileUpdate;
 use App\Models\Country;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Str;
 
 class ProfileController extends Controller
@@ -54,7 +55,7 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function update(Request $request)
+    public function updates(Request $request)
     {
         $user = Auth::user();
 
@@ -117,6 +118,81 @@ class ProfileController extends Controller
 
         return response()->json([
             'message' => 'Updated Successfully'
+        ], 200);
+    }
+
+    public function update(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'error' => 'Unauthenticated user'
+            ], 401);
+        }
+
+        // Validate the request with proper error handling for API
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'full_name' => 'required|string|max:255',
+            'country' => 'required|string|max:500',
+            'phone_number' => 'required|string|max:20',
+            'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20000',
+            'cover_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => 'Validation failed',
+                'messages' => $validator->errors()
+            ], 422);
+        }
+
+        $user = User::find($user->id);
+
+        // Clean phone number - remove all non-digit characters including +
+        $cleanedPhone = preg_replace('/[^0-9]/', '', $request->phone_number);
+
+        // Check if phone/email have changed
+        if ($request->email !== $user->email) {
+            $user->email_verified_at = null;
+        }
+
+        if ($cleanedPhone !== preg_replace('/[^0-9]/', '', $user->phone)) {
+            $user->phone_verified_at = null;
+        }
+
+        // Update user data
+        $user->username = $request->username;
+        $user->email = $request->email;
+        $user->phone = $cleanedPhone; // Store clean numeric version
+        $user->partial_number = $request->partial_phone;
+        $user->country_code = $request->country_code;
+        $user->name = $request->full_name;
+        $user->country = $request->country;
+        $user->dob = $request->dob;
+        $user->gender = $request->gender;
+
+        // Save profile image
+        if ($request->hasFile('profile')) {
+            $profilePath = $request->file('profile')->store('uploads/profiles/originals/profile', 's3');
+            $user->profile_original = $profilePath;
+        }
+
+        // Save cover photo
+        if ($request->hasFile('cover_photo')) {
+            $coverPath = $request->file('cover_photo')->store('uploads/profiles/originals/cover', 's3');
+            $user->cover_original = $coverPath;
+        }
+
+        $user->save();
+
+        ProfileUpdate::dispatch($user);
+
+        return response()->json([
+            'message' => 'Updated Successfully',
+            'user' => $user->fresh()
         ], 200);
     }
 
