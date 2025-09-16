@@ -139,13 +139,31 @@
                                     <div class="col-md-6" id="userSelectionContainer" style="display: none;">
                                         <div class="mb-3">
                                             <label for="user_ids" class="form-label">Select Users</label>
-                                            <select class="form-select select2" name="user_ids[]" id="user_ids" multiple>
-                                                @foreach($users as $user)
-                                                    <option value="{{ $user->id }}">
-                                                        {{ $user->name }} ({{ $user->email }})
-                                                    </option>
-                                                @endforeach
-                                            </select>
+                                            <div class="searchable-multiselect">
+                                                <div class="search-input-container">
+                                                    <input type="text" class="form-control user-search-input"
+                                                        placeholder="Search users by name or email...">
+                                                    <i class="mdi mdi-magnify search-icon"></i>
+                                                </div>
+                                                <div class="selected-users-pills mb-2" id="selectedUsersPills"></div>
+                                                <div class="users-dropdown" id="usersDropdown">
+                                                    <div class="users-list-container">
+                                                        @foreach($users as $user)
+                                                            <div class="user-option" data-user-id="{{ $user->id }}"
+                                                                data-user-name="{{ $user->name }}" data-user-email="{{ $user->email }}">
+                                                                <div class="form-check">
+                                                                    <input type="checkbox" class="form-check-input user-checkbox"
+                                                                        name="user_ids[]" value="{{ $user->id }}" id="user_{{ $user->id }}">
+                                                                    <label class="form-check-label" for="user_{{ $user->id }}">
+                                                                        <span class="user-name">{{ $user->name }}</span>
+                                                                        <span class="user-email text-muted">({{ $user->email }})</span>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -237,12 +255,80 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
 <script>
-    $(document).ready(function() {
-        // Initialize Select2 for user selection
-        $('#user_ids').select2({
-            placeholder: "Select users...",
-            allowClear: true
+    // Enhanced user selection functionality
+$(document).ready(function() {
+    const userSearchInput = $('.user-search-input');
+    const usersDropdown = $('#usersDropdown');
+    const selectedUsersPills = $('#selectedUsersPills');
+    const userOptions = $('.user-option');
+
+    // Toggle dropdown on search input focus
+    userSearchInput.on('focus', function() {
+        usersDropdown.show();
+    });
+
+    // Filter users based on search input
+    userSearchInput.on('input', function() {
+        const searchTerm = $(this).val().toLowerCase();
+
+        userOptions.each(function() {
+            const userName = $(this).data('user-name').toLowerCase();
+            const userEmail = $(this).data('user-email').toLowerCase();
+
+            if (userName.includes(searchTerm) || userEmail.includes(searchTerm)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
         });
+    });
+
+    // Handle user selection
+    $('.user-checkbox').change(function() {
+        const userId = $(this).val();
+        const userName = $(this).closest('.user-option').data('user-name');
+        const userEmail = $(this).closest('.user-option').data('user-email');
+
+        if ($(this).is(':checked')) {
+            // Add pill for selected user
+            selectedUsersPills.append(`
+                <div class="selected-user-pill" data-user-id="${userId}">
+                    ${userName}
+                    <span class="remove-user" data-user-id="${userId}">×</span>
+                </div>
+            `);
+        } else {
+            // Remove pill for deselected user
+            $(`.selected-user-pill[data-user-id="${userId}"]`).remove();
+        }
+
+        updateSelectedCount();
+    });
+
+    // Remove user from selection when clicking the × button
+    selectedUsersPills.on('click', '.remove-user', function() {
+        const userId = $(this).data('user-id');
+        $(`#user_${userId}`).prop('checked', false).trigger('change');
+    });
+
+    // Close dropdown when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.searchable-multiselect').length) {
+            usersDropdown.hide();
+        }
+    });
+
+    function updateSelectedCount() {
+        const selectedCount = $('.user-checkbox:checked').length;
+        if (selectedCount > 0) {
+            userSearchInput.attr('placeholder', `${selectedCount} user(s) selected...`);
+        } else {
+            userSearchInput.attr('placeholder', 'Search users by name or email...');
+        }
+    }
+
+    // Initialize with hidden dropdown
+    usersDropdown.hide();
 
         // Post cards horizontal scrolling functionality
         const scroller = $('#post-cards-scroller');
