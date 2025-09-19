@@ -15,6 +15,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Kreait\Firebase\Messaging\CloudMessage;
 use App\Models\Notification as NotificationModel;
+use App\Models\NotificationDelivery;
 use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
 use Illuminate\Support\Facades\Storage;
 
@@ -97,6 +98,8 @@ class CreateNotificationJob implements ShouldQueue
 
         $notification = NotificationModel::create($notificationData);
 
+        $deliveryId = $this->createDeliveryRecord($notification);
+
         // Now send the push notification
         $this->sendPushNotification($notification);
     }
@@ -146,9 +149,24 @@ class CreateNotificationJob implements ShouldQueue
             'is_read' => false
         ]);
 
-        $this->sendBigPicturePushNotification($user, $notification);
+         $deliveryId = $this->createDeliveryRecord($notification);
+
+        $this->sendBigPicturePushNotification($user, $notification, $deliveryId);
     }
 }
+
+protected function createDeliveryRecord($notification)
+    {
+        $delivery = NotificationDelivery::create([
+            'notification_id' => $notification->id,
+            'user_id' => $notification->user_id,
+            'status' => 'sent',
+            'sent_at' => now(),
+            'message_id' => 'msg_' . uniqid() . '_' . time(), // Unique message ID
+        ]);
+
+        return $delivery->id;
+    }
 
     protected function sanitizeData(array $data): array
     {
@@ -175,7 +193,7 @@ class CreateNotificationJob implements ShouldQueue
         return json_encode($mergedData, JSON_UNESCAPED_UNICODE);
     }
 
-    protected function sendPushNotification($notification)
+    protected function sendPushNotification($notification, $deliveryId)
     {
         // Get all active FCM tokens for the target user
         $activeTokens = FcmToken::where('user_id', $this->targetUserId)
@@ -242,6 +260,11 @@ class CreateNotificationJob implements ShouldQueue
                     }
 
                     $messaging->send($message);
+
+                    NotificationDelivery::where('id', $deliveryId)->update([
+                        'device_token' => $token,
+                        'status' => 'sent'
+                    ]);
                 } catch (\Exception $e) {
                     Log::error('Failed to send to token: ' . $token, [
                         'error' => $e->getMessage(),
@@ -259,6 +282,10 @@ class CreateNotificationJob implements ShouldQueue
                 'notification_data' => $notification->data,
                 'error' => $e->getTraceAsString()
             ]);
+            NotificationDelivery::where('id', $deliveryId)->update([
+                'status' => 'failed',
+                'error_message' => $e->getMessage()
+            ]);
         } finally {
             if (isset($tempFilePath) && file_exists($tempFilePath)) {
                 unlink($tempFilePath);
@@ -266,7 +293,7 @@ class CreateNotificationJob implements ShouldQueue
         }
     }
 
-    protected function sendBigPicturePushNotification(User $user, $notification)
+    protected function sendBigPicturePushNotification(User $user, $notification, $deliveryId)
     {
         $activeTokens = FcmToken::where('user_id', $user->id)
             ->where('status', 'active')
@@ -274,6 +301,7 @@ class CreateNotificationJob implements ShouldQueue
             ->toArray();
 
         if (empty($activeTokens)) {
+            NotificationDelivery::where('id', $deliveryId)->update(['status' => 'failed']);
             return;
         }
 
@@ -346,16 +374,25 @@ class CreateNotificationJob implements ShouldQueue
                     'image' => $imageUrl,
                     'thumbnail' => $albumimageUrl,
                     'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                    'screen_to_open' => 'post'
+                    'screen_to_open' => 'post',
+                    'message_id' => (string)$deliveryId,
                 ]);
 
             // Send to each active token for this user
             foreach ($activeTokens as $token) {
                 try {
                     $messaging->send($message->withChangedTarget('token', $token));
+                     NotificationDelivery::where('id', $deliveryId)->update([
+                        'device_token' => $token,
+                        'status' => 'sent'
+                    ]);
                 } catch (\Exception $e) {
                     Log::error("Failed to send to token {$token}: " . $e->getMessage());
                     FcmToken::where('token', $token)->update(['status' => 'expired']);
+                    NotificationDelivery::where('id', $deliveryId)->update([
+                        'status' => 'failed',
+                        'error_message' => $e->getMessage()
+                    ]);
 
                     SystemError::create([
                         'user_id' => $user->id,
@@ -389,7 +426,7 @@ class CreateNotificationJob implements ShouldQueue
         }
     }
 
-    protected function preparePushData($notification): array
+    protected function preparePushData($notification, $deliveryId): array
     {
         $data = json_decode($notification->data, true);
         $type = $this->determineTypeFromAction($notification->action);
@@ -419,6 +456,7 @@ class CreateNotificationJob implements ShouldQueue
             'metadata' => $this->sanitizeData($data),
             'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
             'image' => $imageUrl,
+            'message_id' => (string)$deliveryId,
             //'is_big_picture' => 'false',
         ];
     }
