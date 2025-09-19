@@ -101,7 +101,7 @@ class CreateNotificationJob implements ShouldQueue
         $deliveryId = $this->createDeliveryRecord($notification);
 
         // Now send the push notification
-        $this->sendPushNotification($notification);
+        $this->sendPushNotification($notification, $deliveryId);
     }
 
     protected function handleBigPictureNotification()
