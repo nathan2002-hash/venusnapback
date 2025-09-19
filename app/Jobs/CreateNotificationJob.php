@@ -228,7 +228,7 @@ protected function createDeliveryRecord($notification)
             // $body = $this->getNotificationBody($notification);
             $title = $this->getNotificationTitle($notification);
             $body = $this->getNotificationBody($notification);
-            $notificationData = $this->preparePushData($notification);
+            $notificationData = $this->preparePushData($notification, $deliveryId);
 
             $imageUrl = $notificationData['image'] ?? null;
             unset($notificationData['image']); // Remove from data payload
