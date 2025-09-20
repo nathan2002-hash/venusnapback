@@ -137,6 +137,8 @@
                                                 <option value="album_explore">Album Explore</option>
                                                 <option value="profile">Profile</option>
                                                 <option value="home_feed">Home Feed</option>
+                                                <option value="image_generator">Generate Image</option>
+                                                <option value="password_change">Change Password</option>
                                             </select>
                                             <small class="form-text text-muted">
                                                 Where should the action button take users?
