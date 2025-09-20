@@ -453,9 +453,9 @@
 
         <a href="/" class="logo" style="color: white; text-decoration: none; font-weight: bold; font-size: 24px;">Venusnap</a>
 
-        <button class="mobile-menu-btn" id="menuBtn">
+        {{-- <button class="mobile-menu-btn" id="menuBtn">
             <i class="fas fa-bars"></i>
-        </button>
+        </button> --}}
 
         {{-- <div class="mobile-nav" id="mobileNav">
             <button class="close-menu" id="closeMenu">
@@ -497,24 +497,24 @@
         // Sample art data
         const artData = [
             {
-                image: "{{ asset('assets1/img/cta/venusnap.jpg') }}",
-                artist: "Designed by Freepik",
-                title: "Abstract Dreams",
-                description: "A vibrant exploration of color and form that challenges traditional perspectives.",
+                image: "https://images.unsplash.com/photo-1579546929662-711aa81148cf",
+                artist: "SnapCrack",
+                title: "Addictive funny content",
+                description: "Addictive, fast, and funny. This album brings the internet’s funniest moments to life one meme at a time",
                 tags: ["Abstract", "Colorful", "Modern"]
             },
             {
                 image: "https://images.unsplash.com/photo-1579546929662-711aa81148cf",
-                artist: "Modern Artist",
-                title: "Color Symphony",
-                description: "A harmonious blend of colors that creates a visual symphony for the eyes.",
+                artist: "ToonPlay",
+                title: "Animated humor",
+                description: "ToonPlay is the home of animated humor where iconic characters, funny expressions.",
                 tags: ["Colorful", "Modern", "Expressionism"]
             },
             {
                 image: "https://images.unsplash.com/photo-1541961017774-22349e4a1262",
-                artist: "Contemporary Creator",
-                title: "Urban Landscape",
-                description: "Reimagining cityscapes through an abstract lens of shape and form.",
+                artist: "Better Every Day",
+                title: "Source of inspiration",
+                description: "This album is your daily source of inspiration and practical wisdom to help you grow, heal, and thrive.",
                 tags: ["Urban", "Abstract", "Contemporary"]
             }
         ];
