@@ -457,7 +457,7 @@
             <i class="fas fa-bars"></i>
         </button>
 
-        <div class="mobile-nav" id="mobileNav">
+        {{-- <div class="mobile-nav" id="mobileNav">
             <button class="close-menu" id="closeMenu">
                 <i class="fas fa-times"></i>
             </button>
@@ -466,7 +466,7 @@
             <a href="/about">About</a>
             <a href="/contact">Contact</a>
             <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" target="_blank">Download App</a>
-        </div>
+        </div> --}}
 
         <div class="art-container" id="artContainer">
             <!-- Art items will be added dynamically -->
