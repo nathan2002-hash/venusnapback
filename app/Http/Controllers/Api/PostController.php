@@ -108,7 +108,7 @@ class PostController extends Controller
                     'filepath' => generateSecureMediaUrl($media->file_path_compress),
                     'sequence_order' => (int)$media->sequence_order,
                     'comments_count' => $media->comments->count(),
-                    'likes_count' => $media->admires->count(),
+                    'likes_count' => 2000 + $media->admires->count(),
                     'admired' => $media->admired,
                     'comments' => $media->comments->map(function ($comment) {
                         return [
