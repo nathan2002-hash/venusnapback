@@ -113,6 +113,17 @@ class CommentController extends Controller
             ->paginate($replyLimit, ['*'], 'page', $replyPage);
 
         $authUserId = Auth::check() ? Auth::id() : null;
+        $currentUserProfile = null;
+        $authUser = Auth::user();
+
+        if ($authUser) {
+            $isCurrentUserAlbumOwner = $authUser->id == $albumOwnerId;
+            $currentUserProfile = $isCurrentUserAlbumOwner
+                ? $this->getProfileUrl($album)
+                : ($authUser->profile_compressed
+                    ? generateSecureMediaUrl($authUser->profile_compressed)
+                    : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($authUser->email))) . '?s=100&d=mp');
+        }
 
         $formattedReplies = $replies->map(function ($reply) use ($authUserId, $album, $albumOwnerId) {
             $isOwner = $albumOwnerId && ($reply->user_id == $albumOwnerId);
@@ -136,6 +147,8 @@ class CommentController extends Controller
         return response()->json([
             'replies' => $formattedReplies,
             'has_more' => $replies->hasMorePages(),
+            'current_user_profile' => $currentUserProfile, // Add this
+            'album_owner_id' => $albumOwnerId, // Add this
         ]);
     }
 
