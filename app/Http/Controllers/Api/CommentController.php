@@ -141,14 +141,19 @@ class CommentController extends Controller
                 'created_at' => $reply->created_at->diffForHumans(),
                 'is_owner' => $isOwner,
                 'is_reply_owner' => $authUserId && $reply->user_id == $authUserId,
+                // Add GIF fields
+                'type' => $reply->type ?? 'text', // Default to 'text' if null
+                'gif_id' => $reply->gif_id,
+                'gif_url' => $reply->gif_url,
+                'gif_provider' => $reply->gif_provider,
             ];
         });
 
         return response()->json([
             'replies' => $formattedReplies,
             'has_more' => $replies->hasMorePages(),
-            'current_user_profile' => $currentUserProfile, // Add this
-            'album_owner_id' => $albumOwnerId, // Add this
+            'current_user_profile' => $currentUserProfile,
+            'album_owner_id' => $albumOwnerId,
         ]);
     }
 
