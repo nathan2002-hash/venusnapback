@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use GuzzleHttp\Client;
 use App\Models\SystemError;
 
 class PostController extends Controller
@@ -474,7 +474,7 @@ class PostController extends Controller
             ], 404);
         }
 
-        // 4. Return status with appropriate messages
+        // 4. Prepare response
         $response = [
             'status' => $post->status,
             'post_id' => $postId
@@ -491,8 +491,14 @@ class PostController extends Controller
                 break;
 
             case 'rejected':
+                $response['message'] = 'Your post needs manual review. We will inform you once it is active (usually within 30 minutes or less).';
+                break;
+
             case 'inappropriate':
-                $response['message'] = 'Content rejected';
+                $response['message'] = 'Your post needs manual review. We will inform you once it is active (usually within 30 minutes or less).';
+
+                // Trigger SMS to admin
+                //$this->notifyAdminOfReview($postId, $request->user()->id);
                 break;
 
             default:
@@ -501,6 +507,50 @@ class PostController extends Controller
         }
 
         return response()->json($response);
+    }
+
+    /**
+     * Send SMS to admin via Beem
+     */
+    private function notifyAdminOfReview($postId, $userId)
+    {
+        $adminPhone = '260970333596'; // add this to your .env
+        if (!$adminPhone) {
+            \Log::warning("Admin phone not configured for manual review alerts.");
+            return;
+        }
+
+        try {
+            $client = new Client();
+
+            $message = "Post #$postId by User #$userId requires manual review.";
+
+            $postData = [
+                'source_addr' => 'Venusnap',
+                'encoding' => 0,
+                'schedule_time' => '',
+                'message' => $message,
+                'recipients' => [
+                    ['recipient_id' => '1', 'dest_addr' => $adminPhone],
+                ]
+            ];
+
+            $response = $client->post('https://apisms.beem.africa/v1/send', [
+                'json' => $postData,
+                'headers' => [
+                    'Authorization' => 'Basic ' . base64_encode(env('BEEM_API_KEY') . ':' . env('BEEM_SECRET_KEY')),
+                    'Content-Type' => 'application/json',
+                ],
+            ]);
+
+            $responseData = json_decode($response->getBody(), true);
+
+            if (isset($responseData['code']) && $responseData['code'] != 100) {
+                \Log::error('Beem error: ' . ($responseData['message'] ?? 'Unknown error'));
+            }
+        } catch (\Exception $e) {
+            \Log::error("Failed to send admin SMS: " . $e->getMessage());
+        }
     }
 
     public function postdelete(Request $request, $id)
