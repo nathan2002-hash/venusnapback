@@ -217,77 +217,101 @@ class CommentController extends Controller
     }
 
     public function storeReply(Request $request, $id)
-    {
-        $request->validate([
-            'reply' => 'required|string',
-        ]);
+{
+    // $request->validate([
+    //     'reply' => 'required_if:type,text|string|nullable',
+    //     'type' => 'required|in:text,gif',
+    //     'gif_id' => 'required_if:type,gif|string|nullable',
+    //     'gif_url' => 'required_if:type,gif|url|nullable',
+    //     'gif_provider' => 'required_if:type,gif|in:giphy,tenor|nullable',
+    //     'gif_width' => 'required_if:type,gif|integer|nullable',
+    //     'gif_height' => 'required_if:type,gif|integer|nullable',
+    // ]);
 
-        $user = Auth::user();
+    $user = Auth::user();
 
-        // Create the reply
-        $reply = new CommentReply();
-        $reply->user_id = $user->id;
-        $reply->comment_id = $id;
+    // Create the reply
+    $reply = new CommentReply();
+    $reply->user_id = $user->id;
+    $reply->comment_id = $id;
+    $reply->type = $request->type;
+
+    if ($request->type === 'text') {
         $reply->reply = $request->reply;
-        $reply->status = 'active';
-        $reply->save();
-
-        $reply->load('user');
-
-        // Load the comment and relationships
-        $comment = Comment::find($id);
-        if (!$comment) {
-            return response()->json(['message' => 'Comment not found'], 404);
-        }
-
-        $postMedia = PostMedia::with('post.album.user')->find($comment->post_media_id);
-        if (!$postMedia || !$postMedia->post || !$postMedia->post->album) {
-            return response()->json(['message' => 'Post media, post, or album not found'], 404);
-        }
-
-        $album = $postMedia->post->album;
-        $albumOwnerId = $album->user_id;
-
-        $isOwner = ($user->id == $albumOwnerId);
-
-        // Determine display name and profile picture
-        $displayName = $isOwner ? $album->name : $user->name;
-        $profilePictureUrl = $isOwner
-            ? $this->getProfileUrl($album)
-            : ($user->profile_compressed
-                ? generateSecureMediaUrl($user->profile_compressed)
-                : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
-
-           if ((int)$comment->user_id !== (int)$user->id)
-            CreateNotificationJob::dispatch(
-                $user,
-                $postMedia,
-                'replied',
-                $comment->user_id,
-                [
-                    'username' => $displayName,
-                    'post_id' => $postMedia->post->id,
-                    'media_id' => $postMedia->id,
-                    'comment_id' => $comment->id,
-                    'reply_id' => $reply->id,
-                    'album_id' => $album->id,
-                    'album_name' => $album->name,
-                    'is_reply' => true,
-                    'is_album_owner' => $isOwner
-                ]
-            );
-
-        return response()->json([
-            'id' => $reply->id,
-            'reply' => $reply->reply,
-            'comment_id' => $reply->comment_id,
-            'user_id' => $user->id,
-            'username' => $displayName,  // Now shows album name if owner
-            'profile_picture_url' => $profilePictureUrl,  // Now shows album image if owner
-            'created_at' => Carbon::parse($reply->created_at)->diffForHumans(),
-            'is_owner' => $isOwner  // Helpful for frontend styling
-        ], 201);
+    } else {
+        // For GIF replies, store GIF data
+        $reply->reply = null;
+        $reply->gif_id = $request->gif_id;
+        $reply->gif_url = $request->gif_url;
+        $reply->gif_provider = $request->gif_provider;
     }
+
+    $reply->status = 'active';
+    $reply->save();
+
+    // Load the comment and relationships
+    $comment = Comment::find($id);
+    if (!$comment) {
+        return response()->json(['message' => 'Comment not found'], 404);
+    }
+
+    $postMedia = PostMedia::with('post.album.user')->find($comment->post_media_id);
+    if (!$postMedia || !$postMedia->post || !$postMedia->post->album) {
+        return response()->json(['message' => 'Post media, post, or album not found'], 404);
+    }
+
+    $album = $postMedia->post->album;
+    $albumOwnerId = $album->user_id;
+
+    $isOwner = ($user->id == $albumOwnerId);
+
+    // Determine display name and profile picture
+    $displayName = $isOwner ? $album->name : $user->name;
+    $profilePictureUrl = $isOwner
+        ? $this->getProfileUrl($album)
+        : ($user->profile_compressed
+            ? generateSecureMediaUrl($user->profile_compressed)
+            : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
+
+    // Send notification only for text replies to avoid spam
+    if ((int)$comment->user_id !== (int)$user->id && $request->type === 'text') {
+        CreateNotificationJob::dispatch(
+            $user,
+            $postMedia,
+            'replied',
+            $comment->user_id,
+            [
+                'username' => $displayName,
+                'post_id' => $postMedia->post->id,
+                'media_id' => $postMedia->id,
+                'comment_id' => $comment->id,
+                'reply_id' => $reply->id,
+                'album_id' => $album->id,
+                'album_name' => $album->name,
+                'is_reply' => true,
+                'is_album_owner' => $isOwner,
+                'reply_type' => $request->type
+            ]
+        );
+    }
+
+    return response()->json([
+        'id' => $reply->id,
+        'reply' => $reply->reply, // Will be null for GIFs
+        'comment_id' => $reply->comment_id,
+        'user_id' => $user->id,
+        'username' => $displayName,
+        'profile_picture_url' => $profilePictureUrl,
+        'created_at' => Carbon::parse($reply->created_at)->diffForHumans(),
+        'is_owner' => $isOwner,
+        'type' => $reply->type,
+        'gif_id' => $reply->gif_id,
+        'gif_url' => $reply->gif_url,
+        'gif_provider' => $reply->gif_provider,
+        'gif_width' => $reply->gif_width,
+        'gif_height' => $reply->gif_height,
+    ], 201);
+}
 
     private function getProfileUrl($album)
     {

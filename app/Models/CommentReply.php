@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CommentReply extends Model
 {
-    protected $fillable = ['comment_id', 'reply', 'status'];
+    protected $fillable = ['comment_id', 'reply', 'status', 'gif_id', 'type', 'gif_url', 'gif_provider'];
 
     public function user(){
         return $this->belongsTo(User::class);
