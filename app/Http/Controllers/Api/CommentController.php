@@ -69,6 +69,10 @@ class CommentController extends Controller
             'total_replies' => $comment->commentreplies()->where('status', 'active')->count(),
             'is_owner' => $isOwner,
             'is_comment_owner' => $authUserId && $comment->user_id == $authUserId,
+            'type' => $comment->type ?? 'text', // Default to 'text' if null
+            'gif_id' => $comment->gif_id,
+            'gif_url' => $comment->gif_url,
+            'gif_provider' => $comment->gif_provider,
         ];
     });
 
@@ -159,15 +163,32 @@ class CommentController extends Controller
 
     public function storeComment(Request $request, $id)
     {
-        $request->validate([
-            'comment' => 'required|string',
-        ]);
+        // $request->validate([
+        //     'comment' => 'required_if:type,text|string|nullable',
+        //     'type' => 'required|in:text,gif',
+        //     'gif_id' => 'required_if:type,gif|string|nullable',
+        //     'gif_url' => 'required_if:type,gif|url|nullable',
+        //     'gif_provider' => 'required_if:type,gif|in:giphy,tenor|nullable',
+        //     'gif_width' => 'required_if:type,gif|integer|nullable',
+        //     'gif_height' => 'required_if:type,gif|integer|nullable',
+        // ]);
 
         $user = Auth::user();
         $comment = new Comment();
         $comment->user_id = $user->id;
         $comment->post_media_id = $id;
-        $comment->comment = $request->comment;
+        $comment->type = $request->type;
+
+        if ($request->type === 'text') {
+            $comment->comment = $request->comment;
+        } else {
+            // For GIF comments, store GIF data
+            $comment->comment = null;
+            $comment->gif_id = $request->gif_id;
+            $comment->gif_url = $request->gif_url;
+            $comment->gif_provider = $request->gif_provider;
+        }
+
         $comment->status = 'active';
         $comment->save();
 
@@ -189,8 +210,8 @@ class CommentController extends Controller
                 ? generateSecureMediaUrl($user->profile_compressed)
                 : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
 
-            // Send notification if not owner
-        if ($albumOwnerId !== $user->id) {
+        // Send notification if not owner (only for text comments to avoid spam)
+        if ($albumOwnerId !== $user->id && $request->type === 'text') {
             CreateNotificationJob::dispatch(
                 $user,
                 $postMedia,
@@ -202,14 +223,15 @@ class CommentController extends Controller
                     'media_id' => $postMedia->id,
                     'album_id' => $album->id,
                     'album_name' => $album->name,
-                    'comment_id' => $comment->id
+                    'comment_id' => $comment->id,
+                    'comment_type' => $request->type
                 ]
             );
         }
 
         return response()->json([
             'id' => $comment->id,
-            'comment' => $comment->comment,
+            'comment' => $comment->comment, // Will be null for GIFs
             'post_media_id' => $comment->post_media_id,
             'user_id' => $user->id,
             'username' => $displayName,
@@ -217,106 +239,110 @@ class CommentController extends Controller
             'created_at' => Carbon::parse($comment->created_at)->diffForHumans(),
             'commentreplies' => [],
             'total_replies' => 0,
-            'is_owner' => $isOwner // Optional: helpful for frontend
+            'is_owner' => $isOwner,
+            'type' => $comment->type,
+            'gif_id' => $comment->gif_id,
+            'gif_url' => $comment->gif_url,
+            'gif_provider' => $comment->gif_provider,
         ], 201);
     }
 
     public function storeReply(Request $request, $id)
-{
-    // $request->validate([
-    //     'reply' => 'required_if:type,text|string|nullable',
-    //     'type' => 'required|in:text,gif',
-    //     'gif_id' => 'required_if:type,gif|string|nullable',
-    //     'gif_url' => 'required_if:type,gif|url|nullable',
-    //     'gif_provider' => 'required_if:type,gif|in:giphy,tenor|nullable',
-    //     'gif_width' => 'required_if:type,gif|integer|nullable',
-    //     'gif_height' => 'required_if:type,gif|integer|nullable',
-    // ]);
+    {
+        // $request->validate([
+        //     'reply' => 'required_if:type,text|string|nullable',
+        //     'type' => 'required|in:text,gif',
+        //     'gif_id' => 'required_if:type,gif|string|nullable',
+        //     'gif_url' => 'required_if:type,gif|url|nullable',
+        //     'gif_provider' => 'required_if:type,gif|in:giphy,tenor|nullable',
+        //     'gif_width' => 'required_if:type,gif|integer|nullable',
+        //     'gif_height' => 'required_if:type,gif|integer|nullable',
+        // ]);
 
-    $user = Auth::user();
+        $user = Auth::user();
 
-    // Create the reply
-    $reply = new CommentReply();
-    $reply->user_id = $user->id;
-    $reply->comment_id = $id;
-    $reply->type = $request->type;
+        // Create the reply
+        $reply = new CommentReply();
+        $reply->user_id = $user->id;
+        $reply->comment_id = $id;
+        $reply->type = $request->type;
 
-    if ($request->type === 'text') {
-        $reply->reply = $request->reply;
-    } else {
-        // For GIF replies, store GIF data
-        $reply->reply = null;
-        $reply->gif_id = $request->gif_id;
-        $reply->gif_url = $request->gif_url;
-        $reply->gif_provider = $request->gif_provider;
+        if ($request->type === 'text') {
+            $reply->reply = $request->reply;
+        } else {
+            // For GIF replies, store GIF data
+            $reply->reply = null;
+            $reply->gif_id = $request->gif_id;
+            $reply->gif_url = $request->gif_url;
+            $reply->gif_provider = $request->gif_provider;
+        }
+
+        $reply->status = 'active';
+        $reply->save();
+
+        // Load the comment and relationships
+        $comment = Comment::find($id);
+        if (!$comment) {
+            return response()->json(['message' => 'Comment not found'], 404);
+        }
+
+        $postMedia = PostMedia::with('post.album.user')->find($comment->post_media_id);
+        if (!$postMedia || !$postMedia->post || !$postMedia->post->album) {
+            return response()->json(['message' => 'Post media, post, or album not found'], 404);
+        }
+
+        $album = $postMedia->post->album;
+        $albumOwnerId = $album->user_id;
+
+        $isOwner = ($user->id == $albumOwnerId);
+
+        // Determine display name and profile picture
+        $displayName = $isOwner ? $album->name : $user->name;
+        $profilePictureUrl = $isOwner
+            ? $this->getProfileUrl($album)
+            : ($user->profile_compressed
+                ? generateSecureMediaUrl($user->profile_compressed)
+                : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
+
+        // Send notification only for text replies to avoid spam
+        if ((int)$comment->user_id !== (int)$user->id && $request->type === 'text') {
+            CreateNotificationJob::dispatch(
+                $user,
+                $postMedia,
+                'replied',
+                $comment->user_id,
+                [
+                    'username' => $displayName,
+                    'post_id' => $postMedia->post->id,
+                    'media_id' => $postMedia->id,
+                    'comment_id' => $comment->id,
+                    'reply_id' => $reply->id,
+                    'album_id' => $album->id,
+                    'album_name' => $album->name,
+                    'is_reply' => true,
+                    'is_album_owner' => $isOwner,
+                    'reply_type' => $request->type
+                ]
+            );
+        }
+
+        return response()->json([
+            'id' => $reply->id,
+            'reply' => $reply->reply, // Will be null for GIFs
+            'comment_id' => $reply->comment_id,
+            'user_id' => $user->id,
+            'username' => $displayName,
+            'profile_picture_url' => $profilePictureUrl,
+            'created_at' => Carbon::parse($reply->created_at)->diffForHumans(),
+            'is_owner' => $isOwner,
+            'type' => $reply->type,
+            'gif_id' => $reply->gif_id,
+            'gif_url' => $reply->gif_url,
+            'gif_provider' => $reply->gif_provider,
+            'gif_width' => $reply->gif_width,
+            'gif_height' => $reply->gif_height,
+        ], 201);
     }
-
-    $reply->status = 'active';
-    $reply->save();
-
-    // Load the comment and relationships
-    $comment = Comment::find($id);
-    if (!$comment) {
-        return response()->json(['message' => 'Comment not found'], 404);
-    }
-
-    $postMedia = PostMedia::with('post.album.user')->find($comment->post_media_id);
-    if (!$postMedia || !$postMedia->post || !$postMedia->post->album) {
-        return response()->json(['message' => 'Post media, post, or album not found'], 404);
-    }
-
-    $album = $postMedia->post->album;
-    $albumOwnerId = $album->user_id;
-
-    $isOwner = ($user->id == $albumOwnerId);
-
-    // Determine display name and profile picture
-    $displayName = $isOwner ? $album->name : $user->name;
-    $profilePictureUrl = $isOwner
-        ? $this->getProfileUrl($album)
-        : ($user->profile_compressed
-            ? generateSecureMediaUrl($user->profile_compressed)
-            : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
-
-    // Send notification only for text replies to avoid spam
-    if ((int)$comment->user_id !== (int)$user->id && $request->type === 'text') {
-        CreateNotificationJob::dispatch(
-            $user,
-            $postMedia,
-            'replied',
-            $comment->user_id,
-            [
-                'username' => $displayName,
-                'post_id' => $postMedia->post->id,
-                'media_id' => $postMedia->id,
-                'comment_id' => $comment->id,
-                'reply_id' => $reply->id,
-                'album_id' => $album->id,
-                'album_name' => $album->name,
-                'is_reply' => true,
-                'is_album_owner' => $isOwner,
-                'reply_type' => $request->type
-            ]
-        );
-    }
-
-    return response()->json([
-        'id' => $reply->id,
-        'reply' => $reply->reply, // Will be null for GIFs
-        'comment_id' => $reply->comment_id,
-        'user_id' => $user->id,
-        'username' => $displayName,
-        'profile_picture_url' => $profilePictureUrl,
-        'created_at' => Carbon::parse($reply->created_at)->diffForHumans(),
-        'is_owner' => $isOwner,
-        'type' => $reply->type,
-        'gif_id' => $reply->gif_id,
-        'gif_url' => $reply->gif_url,
-        'gif_provider' => $reply->gif_provider,
-        'gif_width' => $reply->gif_width,
-        'gif_height' => $reply->gif_height,
-    ], 201);
-}
 
     private function getProfileUrl($album)
     {
