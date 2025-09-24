@@ -15,7 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('user_id');
             $table->string('post_media_id');
-            $table->string('comment');
+            $table->string('comment')->nullable();
+            $table->enum('type', ['text', 'gif'])->default('text'); // Add type column
+            $table->string('gif_provider')->nullable(); // 'giphy' or 'tenor'
+            $table->string('gif_id')->nullable(); // GIF ID from provider
+            $table->string('gif_url')->nullable(); // GIF URL from provider
             $table->string('status')->default('active');
             $table->timestamps();
         });

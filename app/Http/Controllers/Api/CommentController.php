@@ -15,57 +15,70 @@ use App\Jobs\CreateNotificationJob;
 class CommentController extends Controller
 {
     public function getBasicComments($postMediaId, Request $request)
-    {
-        $commentPage = $request->query('page', 1);
-        $commentLimit = $request->query('limit', 10);
+{
+    $commentPage = $request->query('page', 1);
+    $commentLimit = $request->query('limit', 10);
 
-        // Get post media with the needed relationships
-        $postMedia = PostMedia::with('post.album.user')->find($postMediaId);
+    // Get post media with the needed relationships
+    $postMedia = PostMedia::with('post.album.user')->find($postMediaId);
 
-        // Handle missing or broken relationships
-        if (!$postMedia || !$postMedia->post || !$postMedia->post->album || !$postMedia->post->album->user) {
-            return response()->json(['message' => 'Post media, post, or album not found'], 404);
-        }
-
-        $album = $postMedia->post->album;
-        $albumOwnerId = $album->user_id;
-        $albumName = $album->name;
-
-        // Load comments
-        $comments = Comment::with('user')
-            ->where('post_media_id', $postMediaId)
-            ->where('status', 'active')
-            ->orderBy('created_at', 'desc')
-            ->paginate($commentLimit, ['*'], 'page', $commentPage);
-
-        $authUserId = Auth::check() ? Auth::id() : null;
-
-        $formattedComments = $comments->map(function ($comment) use ($album, $albumOwnerId, $authUserId) {
-            $isOwner = $comment->user_id == $albumOwnerId;
-
-            return [
-                'id' => $comment->id,
-                'user_id' => $comment->user_id,
-                'username' => $isOwner ? $album->name : $comment->user->name,
-                'profile_picture_url' => $isOwner
-                    ? $this->getProfileUrl($album)
-                    : ($comment->user->profile_compressed
-                        ? generateSecureMediaUrl($comment->user->profile_compressed)
-                        : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp'),
-                'comment' => $comment->comment,
-                'created_at' => $comment->created_at->diffForHumans(),
-                'total_replies' => $comment->commentreplies()->where('status', 'active')->count(),
-                'is_owner' => $isOwner,
-                'is_comment_owner' => $authUserId && $comment->user_id == $authUserId,
-            ];
-        });
-
-        return response()->json([
-            'comments' => $formattedComments,
-            'has_more' => $comments->hasMorePages(),
-        ]);
+    // Handle missing or broken relationships
+    if (!$postMedia || !$postMedia->post || !$postMedia->post->album || !$postMedia->post->album->user) {
+        return response()->json(['message' => 'Post media, post, or album not found'], 404);
     }
 
+    $album = $postMedia->post->album;
+    $albumOwnerId = $album->user_id;
+    $albumName = $album->name;
+
+    // Load comments
+    $comments = Comment::with('user')
+        ->where('post_media_id', $postMediaId)
+        ->where('status', 'active')
+        ->orderBy('created_at', 'desc')
+        ->paginate($commentLimit, ['*'], 'page', $commentPage);
+
+    $authUserId = Auth::check() ? Auth::id() : null;
+    $authUser = Auth::user();
+
+    // Determine current user's profile picture (if authenticated)
+    $currentUserProfile = null;
+    if ($authUser) {
+        $isCurrentUserAlbumOwner = $authUser->id == $albumOwnerId;
+        $currentUserProfile = $isCurrentUserAlbumOwner
+            ? $this->getProfileUrl($album)
+            : ($authUser->profile_compressed
+                ? generateSecureMediaUrl($authUser->profile_compressed)
+                : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($authUser->email))) . '?s=100&d=mp');
+    }
+
+    $formattedComments = $comments->map(function ($comment) use ($album, $albumOwnerId, $authUserId) {
+        $isOwner = $comment->user_id == $albumOwnerId;
+
+        return [
+            'id' => $comment->id,
+            'user_id' => $comment->user_id,
+            'username' => $isOwner ? $album->name : $comment->user->name,
+            'profile_picture_url' => $isOwner
+                ? $this->getProfileUrl($album)
+                : ($comment->user->profile_compressed
+                    ? generateSecureMediaUrl($comment->user->profile_compressed)
+                    : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($comment->user->email))) . '?s=100&d=mp'),
+            'comment' => $comment->comment,
+            'created_at' => $comment->created_at->diffForHumans(),
+            'total_replies' => $comment->commentreplies()->where('status', 'active')->count(),
+            'is_owner' => $isOwner,
+            'is_comment_owner' => $authUserId && $comment->user_id == $authUserId,
+        ];
+    });
+
+    return response()->json([
+        'comments' => $formattedComments,
+        'has_more' => $comments->hasMorePages(),
+        'current_user_profile' => $currentUserProfile, // Add this
+        'album_owner_id' => $albumOwnerId, // Add this
+    ]);
+}
     public function getCommentReplies($commentId, Request $request)
     {
         // Validate input
