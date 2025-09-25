@@ -47,7 +47,7 @@ class CommentController extends Controller
         // Get all albums owned by the current user
         $userAlbums = Album::where('user_id', $authUser->id)
             ->where('status', 'active')
-            ->get(['id', 'name', 'profile_picture', 'user_id']);
+            ->get();
 
         // Add the user's personal profile as an option too
         $userAlbums->prepend((object)[
@@ -169,7 +169,7 @@ class CommentController extends Controller
         // Get all albums owned by the current user
         $userAlbums = Album::where('user_id', $authUser->id)
             ->where('status', 'active')
-            ->get(['id', 'name', 'profile_picture', 'user_id']);
+            ->get();
 
         // Add the user's personal profile as an option too
         $userAlbums->prepend((object)[
