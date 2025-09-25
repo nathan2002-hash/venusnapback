@@ -231,12 +231,16 @@ class CommentController extends Controller
 
     public function storeComment(Request $request, $id)
     {
-
         $user = Auth::user();
         $comment = new Comment();
         $comment->user_id = $user->id;
         $comment->post_media_id = $id;
         $comment->type = $request->type;
+
+        // Handle identity (comment as user or album)
+        if ($request->has('comment_as_album_id') && $request->comment_as_album_id) {
+            $comment->comment_as_album_id = $request->comment_as_album_id;
+        }
 
         if ($request->type === 'text') {
             $comment->comment = $request->comment;
@@ -251,7 +255,9 @@ class CommentController extends Controller
         $comment->status = 'active';
         $comment->save();
 
-        // Load post media with album and owner info
+        // Load relationships for response
+        $comment->load(['user', 'commentAsAlbum']);
+
         $postMedia = PostMedia::with('post.album.user')->find($id);
         if (!$postMedia || !$postMedia->post || !$postMedia->post->album) {
             return response()->json(['message' => 'Post or post media not found'], 404);
@@ -259,15 +265,21 @@ class CommentController extends Controller
 
         $album = $postMedia->post->album;
         $albumOwnerId = $album->user_id;
-        $isOwner = ($user->id === $albumOwnerId);
 
-        // Determine display name and profile picture
-        $displayName = $isOwner ? $album->name : $user->name;
-        $profilePictureUrl = $isOwner
-            ? $this->getProfileUrl($album)
-            : ($user->profile_compressed
-                ? generateSecureMediaUrl($user->profile_compressed)
-                : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
+        // Determine commenter identity
+        $commenterType = 'user';
+        $displayName = $user->name;
+        $profilePictureUrl = $user->profile_compressed
+            ? generateSecureMediaUrl($user->profile_compressed)
+            : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
+
+        if ($comment->comment_as_album_id && $comment->commentAsAlbum) {
+            $commenterType = 'album';
+            $displayName = $comment->commentAsAlbum->name;
+            $profilePictureUrl = $this->getProfileUrl($comment->commentAsAlbum);
+        }
+
+        $isOwner = ($user->id === $albumOwnerId);
 
         // Send notification if not owner (only for text comments to avoid spam)
         if ($albumOwnerId !== $user->id && $request->type === 'text') {
@@ -277,32 +289,35 @@ class CommentController extends Controller
                 'commented',
                 $albumOwnerId,
                 [
-                    'username' => $user->name,
+                    'username' => $displayName,
                     'post_id' => $postMedia->post->id,
                     'media_id' => $postMedia->id,
                     'album_id' => $album->id,
                     'album_name' => $album->name,
                     'comment_id' => $comment->id,
-                    'comment_type' => $request->type
+                    'comment_type' => $request->type,
+                    'commenter_type' => $commenterType,
                 ]
             );
         }
 
         return response()->json([
             'id' => $comment->id,
-            'comment' => $comment->comment, // Will be null for GIFs
+            'comment' => $comment->comment,
             'post_media_id' => $comment->post_media_id,
             'user_id' => $user->id,
             'username' => $displayName,
             'profile_picture_url' => $profilePictureUrl,
             'created_at' => Carbon::parse($comment->created_at)->diffForHumans(),
-            'commentreplies' => [],
             'total_replies' => 0,
             'is_owner' => $isOwner,
+            'is_comment_owner' => true,
             'type' => $comment->type,
             'gif_id' => $comment->gif_id,
             'gif_url' => $comment->gif_url,
             'gif_provider' => $comment->gif_provider,
+            'comment_as_album_id' => $comment->comment_as_album_id,
+            'commenter_type' => $commenterType,
         ], 201);
     }
 
