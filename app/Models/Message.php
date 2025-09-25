@@ -15,4 +15,9 @@ class Message extends Model
         'received_at',
         'user_id',
     ];
+
+    public function conversation()
+    {
+        return $this->belongsTo(Conversation::class);
+    }
 }

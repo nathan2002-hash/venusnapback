@@ -11,4 +11,9 @@ class Conversation extends Model
         'our_number',
         'type',
     ];
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
 }
