@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Venusnap - Discover Amazing Art</title>
-    <link href="{{ asset('assets1/img/logo1.png') }}" rel="icon">
-    <link href="{{ asset('assets1/img/logo1.png') }}" rel="apple-touch-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -18,45 +16,30 @@
         body {
             background: #000;
             color: #fff;
-            overflow: hidden;
-            height: 100vh;
+            overflow-x: hidden;
+            min-height: 100vh;
         }
 
         .container {
             position: relative;
-            height: 100vh;
+            min-height: 100vh;
             width: 100%;
             overflow: hidden;
         }
 
         .art-container {
-            position: absolute;
-            height: 100%;
+            position: relative;
             width: 100%;
+            height: 70vh;
+            overflow: hidden;
         }
 
         .art-item {
-            position: absolute;
             width: 100%;
             height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            opacity: 0;
-            transition: transform 1.2s ease, opacity 1.2s ease;
-            transform: translateX(100%);
-        }
-
-        .art-item.active {
-            opacity: 1;
-            transform: translateX(0);
-            z-index: 2;
-        }
-
-        .art-item.exiting {
-            transform: translateX(-100%);
-            opacity: 0.5;
-            z-index: 1;
         }
 
         .art-item img {
@@ -76,12 +59,10 @@
         }
 
         .art-info {
-            position: absolute;
-            bottom: 130px;
-            left: 0;
-            width: 100%;
-            padding: 0 30px;
+            position: relative;
+            padding: 30px;
             z-index: 10;
+            background: #000;
         }
 
         .artist {
@@ -129,11 +110,9 @@
         }
 
         .cta-section {
-            position: absolute;
-            bottom: 0;
-            left: 0;
+            position: relative;
             width: 100%;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.95));
+            background: #000;
             padding: 25px 20px;
             text-align: center;
             z-index: 20;
@@ -172,23 +151,6 @@
             background: #f8f8f8;
         }
 
-        .progress-bar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.2);
-            width: 100%;
-            z-index: 30;
-        }
-
-        .progress {
-            height: 100%;
-            background: #fff;
-            width: 0%;
-            transition: width 6s linear;
-        }
-
         .logo {
             position: absolute;
             top: 25px;
@@ -197,29 +159,6 @@
             font-weight: 700;
             z-index: 10;
             letter-spacing: 1px;
-        }
-
-        .slide-indicators {
-            position: absolute;
-            bottom: 180px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-            z-index: 10;
-        }
-
-        .indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
-            transition: all 0.3s ease;
-        }
-
-        .indicator.active {
-            background: #fff;
-            transform: scale(1.3);
         }
 
         /* Mobile menu button */
@@ -242,26 +181,12 @@
 
         /* Mobile-specific styles */
         @media (max-width: 768px) {
-            body {
-                overflow: auto;
-            }
-
-            .container {
-                height: auto;
-                min-height: 100vh;
-                overflow: auto;
-            }
-
             .art-container {
-                position: relative;
-                height: 60vh;
+                height: 50vh;
             }
 
             .art-info {
-                position: relative;
-                bottom: auto;
                 padding: 20px;
-                margin-top: -80px;
             }
 
             .artist {
@@ -293,9 +218,7 @@
             }
 
             .cta-section {
-                position: relative;
                 padding: 30px 20px;
-                background: #000;
             }
 
             .cta-title {
@@ -323,20 +246,10 @@
                 font-size: 20px;
             }
 
-            .slide-indicators {
-                bottom: 200px;
-            }
-
             .mobile-menu-btn {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-            }
-
-            /* Adjust art item for mobile */
-            .art-item {
-                position: relative;
-                height: 60vh;
             }
 
             /* Mobile navigation */
@@ -381,7 +294,6 @@
 
         @media (max-width: 480px) {
             .art-info {
-                margin-top: -60px;
                 padding: 15px;
             }
 
@@ -410,16 +322,8 @@
                 font-size: 13px;
             }
 
-            .slide-indicators {
-                bottom: 210px;
-            }
-
             .art-container {
-                height: 50vh;
-            }
-
-            .art-item {
-                height: 50vh;
+                height: 40vh;
             }
 
             .download-btn {
@@ -447,39 +351,28 @@
 </head>
 <body>
     <div class="container">
-        <div class="progress-bar">
-            <div class="progress" id="progress"></div>
-        </div>
-
         <a href="/" class="logo" style="color: white; text-decoration: none; font-weight: bold; font-size: 24px;">Venusnap</a>
 
-        {{-- <button class="mobile-menu-btn" id="menuBtn">
+        <button class="mobile-menu-btn" id="menuBtn">
             <i class="fas fa-bars"></i>
-        </button> --}}
+        </button>
 
-        {{-- <div class="mobile-nav" id="mobileNav">
-            <button class="close-menu" id="closeMenu">
-                <i class="fas fa-times"></i>
-            </button>
-            <a href="/">Home</a>
-            <a href="/gallery">Gallery</a>
-            <a href="/about">About</a>
-            <a href="/contact">Contact</a>
-            <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" target="_blank">Download App</a>
-        </div> --}}
-
-        <div class="art-container" id="artContainer">
-            <!-- Art items will be added dynamically -->
+        <div class="art-container">
+            <div class="art-item">
+                <img src="https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1458&q=80" alt="Artwork">
+            </div>
+            <div class="overlay"></div>
         </div>
 
-        <div class="overlay"></div>
-
-        <div class="slide-indicators" id="indicators">
-            <!-- Indicators will be added dynamically -->
-        </div>
-
-        <div class="art-info" id="artInfo">
-            <!-- Art info will be added dynamically -->
+        <div class="art-info">
+            <div class="artist">SnapCrack</div>
+            <h2 class="title">Funny content</h2>
+            <p class="description">Fast, and funny. This album brings the internet's funniest moments to life one meme at a time</p>
+            <div class="tags">
+                <span class="tag">Abstract</span>
+                <span class="tag">Colorful</span>
+                <span class="tag">Modern</span>
+            </div>
         </div>
 
         <div class="cta-section">
@@ -493,185 +386,23 @@
         </div>
     </div>
 
-    <script>
-        // Sample art data
-        const artData = [
-            {
-                image: "{{ asset('assets/img/design.jpeg') }}",
-                artist: "SnapCrack",
-                title: "Addictive funny content",
-                description: "Addictive, fast, and funny. This album brings the internet’s funniest moments to life one meme at a time",
-                tags: ["Abstract", "Colorful", "Modern"]
-            },
-            {
-                image: "{{ asset('assets/img/design.jpeg') }}",
-                artist: "ToonPlay",
-                title: "Animated humor",
-                description: "ToonPlay is the home of animated humor where iconic characters, funny expressions.",
-                tags: ["Colorful", "Modern", "Expressionism"]
-            },
-            {
-                image: "{{ asset('assets/img/design.jpeg') }}",
-                artist: "Better Every Day",
-                title: "Source of inspiration",
-                description: "This album is your daily source of inspiration and practical wisdom to help you grow, heal, and thrive.",
-                tags: ["Urban", "Abstract", "Contemporary"]
-            }
-        ];
+    <div class="mobile-nav" id="mobileNav">
+        <button class="close-menu" id="closeMenu">
+            <i class="fas fa-times"></i>
+        </button>
+        <a href="#">Home</a>
+        <a href="#">Gallery</a>
+        <a href="#">Artists</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+    </div>
 
-        const artContainer = document.getElementById('artContainer');
-        const indicatorsContainer = document.getElementById('indicators');
-        const artInfoContainer = document.getElementById('artInfo');
-        const progressBar = document.getElementById('progress');
+    <script>
+        // Mobile menu functionality
         const menuBtn = document.getElementById('menuBtn');
         const mobileNav = document.getElementById('mobileNav');
         const closeMenu = document.getElementById('closeMenu');
-        let currentIndex = 0;
-        let slideInterval;
-        let isMobile = window.innerWidth <= 768;
 
-        // Create art items and indicators
-        artData.forEach((art, index) => {
-            // Create art item
-            const artItem = document.createElement('div');
-            artItem.className = 'art-item';
-            if (index === 0) artItem.classList.add('active');
-            artItem.innerHTML = `
-                <img src="${art.image}" alt="${art.title}">
-            `;
-            artContainer.appendChild(artItem);
-
-            // Create indicator
-            const indicator = document.createElement('div');
-            indicator.className = 'indicator';
-            if (index === 0) indicator.classList.add('active');
-            indicatorsContainer.appendChild(indicator);
-        });
-
-        // Create initial art info
-        function createArtInfo(index) {
-            artInfoContainer.innerHTML = `
-                <div class="artist">${artData[index].artist}</div>
-                <h2 class="title">${artData[index].title}</h2>
-                <p class="description">${artData[index].description}</p>
-                <div class="tags">
-                    ${artData[index].tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                </div>
-            `;
-        }
-
-        const artItems = document.querySelectorAll('.art-item');
-        const indicators = document.querySelectorAll('.indicator');
-
-        // Show art item with smooth transition
-        function showArt(index) {
-            // Mark current item as exiting
-            artItems[currentIndex].classList.remove('active');
-            artItems[currentIndex].classList.add('exiting');
-
-            // Update indicators
-            indicators[currentIndex].classList.remove('active');
-
-            // Set new current index
-            currentIndex = index;
-
-            // Show new item
-            artItems[currentIndex].classList.remove('exiting');
-            artItems[currentIndex].classList.add('active');
-
-            // Update indicators
-            indicators[currentIndex].classList.add('active');
-
-            // Update art info
-            createArtInfo(currentIndex);
-
-            // Reset and animate progress bar
-            progressBar.style.width = '0%';
-            setTimeout(() => {
-                progressBar.style.width = '100%';
-            }, 50);
-        }
-
-        // Auto-advance art
-        function nextArt() {
-            const nextIndex = (currentIndex + 1) % artItems.length;
-            showArt(nextIndex);
-        }
-
-        // Initialize
-        function initSlider() {
-            createArtInfo(0);
-            showArt(0);
-            slideInterval = setInterval(nextArt, 6000);
-        }
-
-        // Start the slider
-        initSlider();
-
-        // Progress bar completes
-        progressBar.addEventListener('transitionend', () => {
-            if (progressBar.style.width === '100%') {
-                // This is handled by the interval
-            }
-        });
-
-        // Pause on hover (desktop only)
-        if (!isMobile) {
-            artContainer.addEventListener('mouseenter', () => {
-                clearInterval(slideInterval);
-                progressBar.style.transition = 'width 0s linear';
-            });
-
-            artContainer.addEventListener('mouseleave', () => {
-                // Calculate remaining time based on progress bar width
-                const remainingWidth = 100 - parseFloat(progressBar.style.width || 0);
-                const remainingTime = (remainingWidth / 100) * 6000;
-
-                // Continue progress bar
-                progressBar.style.transition = `width ${remainingTime}ms linear`;
-                progressBar.style.width = '100%';
-
-                // Set timeout for next slide
-                setTimeout(() => {
-                    nextArt();
-                    // Restart interval
-                    slideInterval = setInterval(nextArt, 6000);
-                }, remainingTime);
-            });
-        }
-
-        // Handle swipe for mobile
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        artContainer.addEventListener('touchstart', e => {
-            touchStartX = e.changedTouches[0].screenX;
-            clearInterval(slideInterval);
-        });
-
-        artContainer.addEventListener('touchend', e => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-            slideInterval = setInterval(nextArt, 6000);
-        });
-
-        function handleSwipe() {
-            const minSwipeDistance = 50;
-            const distance = touchStartX - touchEndX;
-
-            if (Math.abs(distance) < minSwipeDistance) return;
-
-            if (distance > 0) {
-                // Swipe left - next art
-                nextArt();
-            } else {
-                // Swipe right - previous art
-                const prevIndex = (currentIndex - 1 + artItems.length) % artItems.length;
-                showArt(prevIndex);
-            }
-        }
-
-        // Mobile menu functionality
         menuBtn.addEventListener('click', () => {
             mobileNav.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -682,24 +413,15 @@
             document.body.style.overflow = 'auto';
         });
 
-        // Adjust layout for mobile
-        function adjustLayout() {
-            isMobile = window.innerWidth <= 768;
-
-            if (isMobile) {
-                // Additional mobile adjustments if needed
-                document.body.style.overflow = 'auto';
-            } else {
-                document.body.style.overflow = 'hidden';
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (mobileNav.classList.contains('active') &&
+                !mobileNav.contains(e.target) &&
+                e.target !== menuBtn) {
                 mobileNav.classList.remove('active');
+                document.body.style.overflow = 'auto';
             }
-        }
-
-        // Initial adjustment
-        adjustLayout();
-
-        // Adjust on resize
-        window.addEventListener('resize', adjustLayout);
+        });
     </script>
 </body>
 </html>
