@@ -15,4 +15,9 @@ class CommentReply extends Model
     public function comment(){
         return $this->belongsTo(Comment::class);
     }
+
+    public function replyAsAlbum()
+    {
+        return $this->belongsTo(Album::class, 'reply_as_album_id');
+    }
 }

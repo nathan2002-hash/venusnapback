@@ -19,4 +19,9 @@ class Comment extends Model
     public function commentreplies(){
         return $this->hasMany(CommentReply::class);
     }
+
+    public function commentAsAlbum()
+    {
+        return $this->belongsTo(Album::class, 'comment_as_album_id');
+    }
 }

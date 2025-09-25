@@ -20,7 +20,11 @@ return new class extends Migration
             $table->string('gif_provider')->nullable(); // 'giphy' or 'tenor'
             $table->string('gif_id')->nullable(); // GIF ID from provider
             $table->string('gif_url')->nullable(); // GIF URL from provider
+            $table->unsignedBigInteger('comment_as_album_id')->nullable();
             $table->string('status')->default('active');
+
+            $table->string('attachment_path')->nullable(); // stored in R2/S3
+            $table->string('attachment_type')->nullable(); // image/png, image/jpg, etc.
             $table->timestamps();
         });
     }

@@ -21,6 +21,9 @@ return new class extends Migration
             $table->string('gif_id')->nullable(); // GIF ID from provider
             $table->string('gif_url')->nullable(); // GIF URL from provider
             $table->string('status')->default('active');
+            $table->unsignedBigInteger('reply_as_album_id')->nullable();
+            $table->string('attachment_path')->nullable();
+            $table->string('attachment_type')->nullable();
             $table->timestamps();
         });
     }
