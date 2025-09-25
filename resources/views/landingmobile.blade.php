@@ -364,11 +364,11 @@
             <div class="artist">SnapCrack</div>
             <h2 class="title">Funny content</h2>
             <p class="description">Fast, and funny. This album brings the internet's funniest moments to life one meme at a time</p>
-            <div class="tags">
+            {{-- <div class="tags">
                 <span class="tag">Abstract</span>
                 <span class="tag">Colorful</span>
                 <span class="tag">Modern</span>
-            </div>
+            </div> --}}
         </div>
 
         <div class="cta-section">
