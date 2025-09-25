@@ -73,6 +73,7 @@ Route::get('/auto-login', function (Request $request) {
     Route::get('/privacy/policy', 'HomeController@privacy');
 
 Route::post('/blocked', 'HomeController@blocked');
+Route::post('/webhook/vonage', 'Admin\MessageController@receiveWebhook')->name('webhook.vonage');
 //terms routes
 
 //Route::post('/contact', 'ContactFormController@submit')->name('contact.submit');
@@ -175,7 +176,6 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     Route::get('/message/chats', 'Admin\MessageController@index');
     Route::get('/chat/messages', 'Admin\MessageController@getMessages')->name('admin.chat.messages');
      Route::post('/chat/send', 'Admin\MessageController@sendMessage')->name('admin.chat.send');
-     Route::post('/webhook/vonage', 'Admin\MessageController@receiveWebhook')->name('webhook.vonage');
 
 
      Route::get('/start-ad-check', function() {
