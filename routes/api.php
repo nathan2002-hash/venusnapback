@@ -27,7 +27,7 @@ Route::middleware('auth:api')->group(function () {
     });
 });
 
-Route::post('/incoming-sms', 'IncomingController@receive');
+Route::post('/incoming/message/9s8df7as98df7asd', 'IncomingController@receive');
 
 Route::post('/decrypt/filepath', function (Request $request) {
     try {

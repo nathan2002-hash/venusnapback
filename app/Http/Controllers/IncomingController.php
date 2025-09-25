@@ -4,50 +4,47 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\IncomingSms;
+use App\Models\Conversation;
 
 class IncomingController extends Controller
 {
-    public function receive(Request $request)
+     public function recesive(Request $request)
     {
-        // Vonage's known User-Agent prefix
-        $expectedUserAgent = 'Nexmo/MessagingHUB';
-
-        // Extract User-Agent header
-        $userAgent = $request->header('user-agent', '');
-
-        // Optionally get client IP behind Cloudflare
-        $clientIp = $request->header('cf-connecting-ip') ?? $request->ip();
-
-        // Example whitelist of Vonage IPs (expand as needed)
-        $vonageAllowedIps = [
-            '216.147.7.132',
-            // Add other IPs here
-        ];
-
-        // Check IP whitelist
-        $ipAllowed = in_array($clientIp, $vonageAllowedIps);
-
-        // Check User-Agent contains expected prefix
-        $userAgentAllowed = str_starts_with($userAgent, $expectedUserAgent);
-
-        if (! $ipAllowed && ! $userAgentAllowed) {
-            \Log::warning('Unauthorized SMS webhook access.', [
-                'ip' => $clientIp,
-                'user_agent' => $userAgent,
-            ]);
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-        \Log::info('Incoming SMS:', $request->all());
-
+        // Store everything directly
         IncomingSms::create([
             'from' => $request->input('msisdn'),
             'to' => $request->input('to'),
             'text' => $request->input('text'),
-            'message_id' => $request->input('messageId'),
-            'received_at' => $request->input('message-timestamp'),
+            'payload' => json_encode($request->all()), // store full raw payload if needed
         ]);
 
-        return response()->json(['status' => 'SMS received']);
+        return response()->json(['status' => 'success']);
     }
+
+    public function receive(Request $request)
+    {
+        $payload = $request->all();
+
+        $from = $payload['from']['number'] ?? null;
+        $to = $payload['to']['number'] ?? null;
+        $type = $payload['to']['type'] ?? 'sms';
+
+        // Find or create conversation
+        $conversation = Conversation::firstOrCreate(
+            ['user_number' => $from, 'our_number' => $to, 'type' => $type]
+        );
+
+        // Store message
+        $conversation->messages()->create([
+            'direction'   => 'inbound',
+            'user_id'   => '1',
+            'message_id'  => $payload['message_uuid'] ?? null,
+            'text'        => $payload['message']['content']['text'] ?? null,
+            'payload'     => json_encode($payload),
+            'received_at' => $payload['timestamp'] ?? now(),
+        ]);
+
+        return response()->json(['status' => 'success']);
+    }
+
 }
