@@ -331,6 +331,11 @@ class CommentController extends Controller
         $reply->comment_id = $id;
         $reply->type = $request->type;
 
+        // Handle identity (reply as user or album)
+        if ($request->has('reply_as_album_id') && $request->reply_as_album_id) {
+            $reply->reply_as_album_id = $request->reply_as_album_id;
+        }
+
         if ($request->type === 'text') {
             $reply->reply = $request->reply;
         } else {
@@ -339,10 +344,21 @@ class CommentController extends Controller
             $reply->gif_id = $request->gif_id;
             $reply->gif_url = $request->gif_url;
             $reply->gif_provider = $request->gif_provider;
+
+            // Store GIF dimensions if provided
+            if ($request->has('gif_width')) {
+                $reply->gif_width = $request->gif_width;
+            }
+            if ($request->has('gif_height')) {
+                $reply->gif_height = $request->gif_height;
+            }
         }
 
         $reply->status = 'active';
         $reply->save();
+
+        // Load relationships for proper identity detection
+        $reply->load(['user', 'replyAsAlbum']);
 
         // Load the comment and relationships
         $comment = Comment::find($id);
@@ -358,15 +374,22 @@ class CommentController extends Controller
         $album = $postMedia->post->album;
         $albumOwnerId = $album->user_id;
 
-        $isOwner = ($user->id == $albumOwnerId);
+        // Determine replier identity based on reply_as_album_id
+        $replierType = 'user'; // Default to user
+        $displayName = $user->name;
+        $profilePictureUrl = $user->profile_compressed
+            ? generateSecureMediaUrl($user->profile_compressed)
+            : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
 
-        // Determine display name and profile picture
-        $displayName = $isOwner ? $album->name : $user->name;
-        $profilePictureUrl = $isOwner
-            ? $this->getProfileUrl($album)
-            : ($user->profile_compressed
-                ? generateSecureMediaUrl($user->profile_compressed)
-                : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
+        // Check if replying as album
+        if ($reply->reply_as_album_id && $reply->replyAsAlbum) {
+            $replierType = 'album';
+            $displayName = $reply->replyAsAlbum->name;
+            $profilePictureUrl = $this->getProfileUrl($reply->replyAsAlbum);
+        }
+
+        $isOwner = ($user->id == $albumOwnerId);
+        $isReplyOwner = ($user->id == $reply->user_id);
 
         // Send notification only for text replies to avoid spam
         if ((int)$comment->user_id !== (int)$user->id && $request->type === 'text') {
@@ -385,7 +408,8 @@ class CommentController extends Controller
                     'album_name' => $album->name,
                     'is_reply' => true,
                     'is_album_owner' => $isOwner,
-                    'reply_type' => $request->type
+                    'reply_type' => $request->type,
+                    'replier_type' => $replierType,
                 ]
             );
         }
@@ -398,13 +422,16 @@ class CommentController extends Controller
             'username' => $displayName,
             'profile_picture_url' => $profilePictureUrl,
             'created_at' => Carbon::parse($reply->created_at)->diffForHumans(),
-            'is_owner' => $isOwner,
+            'is_owner' => $replierType === 'album', // Album replies are considered "owner"
+            'is_reply_owner' => $isReplyOwner,
             'type' => $reply->type,
             'gif_id' => $reply->gif_id,
             'gif_url' => $reply->gif_url,
             'gif_provider' => $reply->gif_provider,
             'gif_width' => $reply->gif_width,
             'gif_height' => $reply->gif_height,
+            'reply_as_album_id' => $reply->reply_as_album_id,
+            'replier_type' => $replierType, // 'user' or 'album'
         ], 201);
     }
 
