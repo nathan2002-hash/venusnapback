@@ -107,13 +107,14 @@ class CommentController extends Controller
             'current_user_profile' => $currentUserProfile,
             'album_owner_id' => $albumOwnerId,
             'user_identities' => $userAlbums->map(function($album) {
+                 $isUser = isset($album->type) && $album->type === 'user';
                 return [
                     'id' => $album->id,
                     'name' => $album->name,
                     'profile_picture_url' => isset($album->type) && $album->type === 'user'
                         ? ($album->profile_picture ? generateSecureMediaUrl($album->profile_picture) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($album->email ?? ''))) . '?s=100&d=mp')
                         : $this->getProfileUrl($album),
-                    'type' => 'album', // 'user' or 'album'
+                    'type' => $isUser ? 'user' : 'album',
                 ];
             }),
         ]);
@@ -227,17 +228,9 @@ class CommentController extends Controller
             }),
         ]);
     }
+
     public function storeComment(Request $request, $id)
     {
-        // $request->validate([
-        //     'comment' => 'required_if:type,text|string|nullable',
-        //     'type' => 'required|in:text,gif',
-        //     'gif_id' => 'required_if:type,gif|string|nullable',
-        //     'gif_url' => 'required_if:type,gif|url|nullable',
-        //     'gif_provider' => 'required_if:type,gif|in:giphy,tenor|nullable',
-        //     'gif_width' => 'required_if:type,gif|integer|nullable',
-        //     'gif_height' => 'required_if:type,gif|integer|nullable',
-        // ]);
 
         $user = Auth::user();
         $comment = new Comment();
@@ -315,16 +308,6 @@ class CommentController extends Controller
 
     public function storeReply(Request $request, $id)
     {
-        // $request->validate([
-        //     'reply' => 'required_if:type,text|string|nullable',
-        //     'type' => 'required|in:text,gif',
-        //     'gif_id' => 'required_if:type,gif|string|nullable',
-        //     'gif_url' => 'required_if:type,gif|url|nullable',
-        //     'gif_provider' => 'required_if:type,gif|in:giphy,tenor|nullable',
-        //     'gif_width' => 'required_if:type,gif|integer|nullable',
-        //     'gif_height' => 'required_if:type,gif|integer|nullable',
-        // ]);
-
         $user = Auth::user();
 
         // Create the reply
