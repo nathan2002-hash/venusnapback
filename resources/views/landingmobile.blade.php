@@ -353,13 +353,9 @@
     <div class="container">
         <a href="/" class="logo" style="color: white; text-decoration: none; font-weight: bold; font-size: 24px;">Venusnap</a>
 
-        <button class="mobile-menu-btn" id="menuBtn">
-            <i class="fas fa-bars"></i>
-        </button>
-
         <div class="art-container">
             <div class="art-item">
-                <img src="https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1458&q=80" alt="Artwork">
+                <img src="{{ asset('assets/img/design.jpeg') }}" alt="Artwork">
             </div>
             <div class="overlay"></div>
         </div>
@@ -384,17 +380,6 @@
                 <button class="download-btn">Get the App</button>
             </a>
         </div>
-    </div>
-
-    <div class="mobile-nav" id="mobileNav">
-        <button class="close-menu" id="closeMenu">
-            <i class="fas fa-times"></i>
-        </button>
-        <a href="#">Home</a>
-        <a href="#">Gallery</a>
-        <a href="#">Artists</a>
-        <a href="#">About</a>
-        <a href="#">Contact</a>
     </div>
 
     <script>
