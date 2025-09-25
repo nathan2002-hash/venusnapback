@@ -497,21 +497,21 @@
         // Sample art data
         const artData = [
             {
-                image: "{{ asset('assets/img/design.jpg') }}",
+                image: "{{ asset('assets/img/design.jpeg') }}",
                 artist: "SnapCrack",
                 title: "Addictive funny content",
                 description: "Addictive, fast, and funny. This album brings the internet’s funniest moments to life one meme at a time",
                 tags: ["Abstract", "Colorful", "Modern"]
             },
             {
-                image: "{{ asset('assets/img/design.jpg') }}",
+                image: "{{ asset('assets/img/design.jpeg') }}",
                 artist: "ToonPlay",
                 title: "Animated humor",
                 description: "ToonPlay is the home of animated humor where iconic characters, funny expressions.",
                 tags: ["Colorful", "Modern", "Expressionism"]
             },
             {
-                image: "{{ asset('assets/img/design.jpg') }}",
+                image: "{{ asset('assets/img/design.jpeg') }}",
                 artist: "Better Every Day",
                 title: "Source of inspiration",
                 description: "This album is your daily source of inspiration and practical wisdom to help you grow, heal, and thrive.",
