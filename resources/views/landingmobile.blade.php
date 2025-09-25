@@ -351,7 +351,7 @@
 </head>
 <body>
     <div class="container">
-        <a href="/" class="logo" style="color: white; text-decoration: none; font-weight: bold; font-size: 24px;">Venusnap</a>
+        <a href="/" class="logo" style="color: white; text-decoration: none; font-weight: bold; font-size: 24px;"></a>
 
         <div class="art-container">
             <div class="art-item">
@@ -361,9 +361,10 @@
         </div>
 
         <div class="art-info">
-            <div class="artist">SnapCrack</div>
-            <h2 class="title">Funny content</h2>
-            <p class="description">Fast, and funny. This album brings the internet's funniest moments to life one meme at a time</p>
+            <div class="artist">Venusnap</div>
+            <h2 class="title">Discover and Create Visual Creativity</h2>
+            <p class="description">Venusnap is the home for visual creators. Share your quotes, memes, art, and photography
+        in albums that inspire, entertain, and connect with people who truly appreciate creativity.</p>
             {{-- <div class="tags">
                 <span class="tag">Abstract</span>
                 <span class="tag">Colorful</span>
