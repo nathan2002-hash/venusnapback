@@ -21,9 +21,8 @@ class MessageController extends Controller
 
     public function __construct()
     {
-        $this->vonageApiKey = '57165f13';
-        $this->vonageApiSecret = 'p0Q9ap59IqgH0iWt';
-        $this->vonageWhatsAppNumber = '14157386102';
+        $this->vonageApiKey = env('VONAGE_API_KEY');
+        $this->vonageApiSecret = env('VONAGE_API_SECRET');
     }
 
     public function receive(Request $request)
