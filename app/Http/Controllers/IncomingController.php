@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\IncomingSms;
 use App\Models\Conversation;
+use Carbon\Carbon;
 
 class IncomingController extends Controller
 {
@@ -41,7 +42,9 @@ class IncomingController extends Controller
             'message_id'  => $payload['message_uuid'] ?? null,
             'text'        => $payload['message']['content']['text'] ?? null,
             'payload'     => json_encode($payload),
-            'received_at' => $payload['timestamp'] ?? now(),
+            'received_at' => isset($payload['timestamp'])
+                ? Carbon::parse($payload['timestamp'])->format('Y-m-d H:i:s')
+                : now(),
         ]);
 
         return response()->json(['status' => 'success']);
