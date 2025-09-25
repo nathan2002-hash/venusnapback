@@ -172,6 +172,10 @@ Route::prefix('restricted')->middleware('auth', 'admin')->group(function () {
     Route::get('/app/notices', 'Admin\AppMessageController@showPostNotificationForm');
     Route::post('/app/send/notice', 'Admin\AppMessageController@postnoticecreate')->name('admin.notices.send-post-notification');
 
+    Route::get('/message/chats', 'Admin\MessageController@index');
+    Route::get('/chat/messages', 'Admin\MessageController@getMessages')->name('admin.chat.messages');
+     Route::post('/chat/send', 'Admin\MessageController@sendMessage')->name('admin.chat.send');
+     Route::post('/webhook/vonage', 'Admin\MessageController@receiveWebhook')->name('webhook.vonage');
 
 
      Route::get('/start-ad-check', function() {

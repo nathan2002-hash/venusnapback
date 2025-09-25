@@ -222,6 +222,11 @@
 											<li><a href="/restricted/support/tickets">Ticket Lists</a></li>
 										</ul>
 									</li>
+                                    <li>
+										<a href="/restricted/message/chats">
+											<i class="isax isax-convert-card5"></i><span>Message Chats</span>
+										</a>
+									</li>
 								</ul>
 							</li>
 							<li class="menu-title"><span>Administration</span></li>

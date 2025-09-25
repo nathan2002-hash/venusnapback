@@ -16,4 +16,25 @@ class Conversation extends Model
     {
         return $this->hasMany(Message::class);
     }
+
+    public function latestMessage()
+    {
+        return $this->hasOne(Message::class)->latestOfMany();
+    }
+
+    /**
+     * Scope for WhatsApp conversations
+     */
+    public function scopeWhatsApp($query)
+    {
+        return $query->where('type', 'whatsapp');
+    }
+
+    /**
+     * Scope for SMS conversations
+     */
+    public function scopeSms($query)
+    {
+        return $query->where('type', 'sms');
+    }
 }
