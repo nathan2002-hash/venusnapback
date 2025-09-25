@@ -9,6 +9,7 @@
         "php": "^8.3.7",
         "ext-gd": "*",
         "algolia/algoliasearch-client-php": "^4.23",
+        "firebase/php-jwt": "^6.11",
         "intervention/image": "^3.11",
         "kreait/laravel-firebase": "^6.0",
         "laravel/framework": "^11.31",

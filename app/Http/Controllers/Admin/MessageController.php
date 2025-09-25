@@ -1,29 +1,35 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\IncomingSms;
 use App\Models\Conversation;
 use Carbon\Carbon;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
-class IncomingController extends Controller
+class MessageController extends Controller
 {
-     public function recesive(Request $request)
-    {
-        // Store everything directly
-        IncomingSms::create([
-            'from' => $request->input('msisdn'),
-            'to' => $request->input('to'),
-            'text' => $request->input('text'),
-            'payload' => json_encode($request->all()), // store full raw payload if needed
-        ]);
-
-        return response()->json(['status' => 'success']);
-    }
-
     public function receive(Request $request)
     {
+        $authHeader = $request->header('authorization');
+        $secret = env('VONAGE_SIGNATURE_SECRET'); // store in .env
+
+        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $jwt = substr($authHeader, 7); // remove "Bearer "
+
+        try {
+            $decoded = JWT::decode($jwt, new Key($secret, 'HS256'));
+            // ✅ Valid webhook
+        } catch (\Exception $e) {
+            \Log::warning('Invalid Vonage signature', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
         $payload = $request->all();
 
         $from = $payload['from']['number'] ?? null;
