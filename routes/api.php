@@ -28,6 +28,7 @@ Route::middleware('auth:api')->group(function () {
 });
 
 Route::post('/incoming/message/9s8df7as98df7asd', 'IncomingController@receive');
+Route::post('/webhook/vonage', 'Admin\MessageController@receiveWebhook')->name('webhook.vonage');
 
 Route::post('/decrypt/filepath', function (Request $request) {
     try {

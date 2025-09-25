@@ -73,7 +73,6 @@ Route::get('/auto-login', function (Request $request) {
     Route::get('/privacy/policy', 'HomeController@privacy');
 
 Route::post('/blocked', 'HomeController@blocked');
-Route::post('/webhook/vonage', 'Admin\MessageController@receiveWebhook')->name('webhook.vonage');
 //terms routes
 
 //Route::post('/contact', 'ContactFormController@submit')->name('contact.submit');
