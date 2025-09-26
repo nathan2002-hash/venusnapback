@@ -360,27 +360,26 @@
             <div class="overlay"></div>
         </div>
 
-        <div class="art-info">
-            <div class="artist">Venusnap</div>
-            <h2 class="title">Discover and Create Visual Creativity</h2>
-            <p class="description">Venusnap is the home for visual creators. Share your quotes, memes, art, and photography
-        in albums that inspire, entertain, and connect with people who truly appreciate creativity.</p>
-            {{-- <div class="tags">
-                <span class="tag">Abstract</span>
-                <span class="tag">Colorful</span>
-                <span class="tag">Modern</span>
-            </div> --}}
-        </div>
+       <div class="art-info">
+  <div class="artist">Venusnap</div>
+  <h2 class="title">A Home for Visual Creators</h2>
+  <p class="description">
+    Share your quotes, memes, art, and photography in Albums that inspire, entertain,
+    and connect with people who truly appreciate creativity.
+  </p>
+</div>
 
-        <div class="cta-section">
-            <h2 class="cta-title">Create. Share. Inspire.</h2>
-            <p class="cta-subtitle">
-                On Venusnap, albums bring your ideas to life create, share, and connect with fresh content every day.
-            </p>
-            <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" target="_blank">
-                <button class="download-btn">Get the App</button>
-            </a>
-        </div>
+<div class="cta-section">
+  <h2 class="cta-title">Create. Share. Inspire.</h2>
+  <p class="cta-subtitle">
+    Join a growing community of creators building Albums that people love.
+    Your creativity deserves recognition—start today.
+  </p>
+  <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" target="_blank">
+    <button class="download-btn">Start Your Album Free</button>
+  </a>
+</div>
+
     </div>
 
     <script>
