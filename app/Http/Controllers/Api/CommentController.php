@@ -282,14 +282,18 @@ class CommentController extends Controller
         $isOwner = ($user->id === $albumOwnerId);
 
         // Send notification if not owner (only for text comments to avoid spam)
-        if ($albumOwnerId !== $user->id && $request->type === 'text') {
+        // Send notification if not owner (for both text and GIF comments)
+        if ($albumOwnerId !== $user->id) {
+            $action = $request->type === 'gif' ? 'reacted' : 'commented';
+
             CreateNotificationJob::dispatch(
                 $user,
                 $postMedia,
-                'commented',
+                $action,
                 $albumOwnerId,
                 [
                     'username' => $displayName,
+                    'sender_id' => $user->id,
                     'post_id' => $postMedia->post->id,
                     'media_id' => $postMedia->id,
                     'album_id' => $album->id,
@@ -297,6 +301,8 @@ class CommentController extends Controller
                     'comment_id' => $comment->id,
                     'comment_type' => $request->type,
                     'commenter_type' => $commenterType,
+                    'comment_as_album_id' => $comment->comment_as_album_id,
+                    'comment_as_album_name' => $commenterType === 'album' ? $displayName : null,
                 ]
             );
         }
@@ -392,27 +398,33 @@ class CommentController extends Controller
         $isReplyOwner = ($user->id == $reply->user_id);
 
         // Send notification only for text replies to avoid spam
-        if ((int)$comment->user_id !== (int)$user->id && $request->type === 'text') {
-            CreateNotificationJob::dispatch(
-                $user,
-                $postMedia,
-                'replied',
-                $comment->user_id,
-                [
-                    'username' => $displayName,
-                    'post_id' => $postMedia->post->id,
-                    'media_id' => $postMedia->id,
-                    'comment_id' => $comment->id,
-                    'reply_id' => $reply->id,
-                    'album_id' => $album->id,
-                    'album_name' => $album->name,
-                    'is_reply' => true,
-                    'is_album_owner' => $isOwner,
-                    'reply_type' => $request->type,
-                    'replier_type' => $replierType,
-                ]
-            );
-        }
+        // In storeReply method, update the notification creation:
+if ((int)$comment->user_id !== (int)$user->id) {
+    $action = $request->type === 'gif' ? 'reacted' : 'replied';
+
+    CreateNotificationJob::dispatch(
+        $user,
+        $postMedia,
+        $action,
+        $comment->user_id,
+        [
+            'username' => $displayName,
+            'sender_id' => $user->id,
+            'post_id' => $postMedia->post->id,
+            'media_id' => $postMedia->id,
+            'album_id' => $album->id,
+            'album_name' => $album->name,
+            'comment_id' => $comment->id,
+            'reply_id' => $reply->id,
+            'reply_type' => $request->type,
+            'replier_type' => $replierType,
+            'reply_as_album_id' => $reply->reply_as_album_id,
+            'reply_as_album_name' => $replierType === 'album' ? $displayName : null,
+            'is_reply' => true,
+            'is_album_owner' => $isOwner,
+        ]
+    );
+}
 
         return response()->json([
             'id' => $reply->id,

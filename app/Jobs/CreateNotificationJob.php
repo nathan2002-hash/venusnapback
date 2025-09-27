@@ -5,7 +5,7 @@ namespace App\Jobs;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\FcmToken;
-use App\Models\PostMedia;
+use App\Models\Album;
 use App\Models\SystemError;
 use App\Models\UserSetting;
 use Kreait\Firebase\Factory;
@@ -426,17 +426,21 @@ protected function createDeliveryRecord($notification)
         }
     }
 
-    protected function preparePushData($notification, $deliveryId): array
+   protected function preparePushData($notification, $deliveryId): array
     {
         $data = json_decode($notification->data, true);
         $type = $this->determineTypeFromAction($notification->action);
 
         $imageUrl = $this->getNotificationImageUrl($notification, $data);
 
-        // For media-specific actions, include the post_id in metadata
-        if (in_array($notification->action, ['admired', 'liked', 'commented', 'replied'])) {
-            if ($notification->notifiable_type === 'App\Models\PostMedia') {
-                $data['post_id'] = $this->notifiable->post_id;
+        // Use album profile picture if commenting as album
+        if (in_array($notification->action, ['commented', 'reacted', 'replied'])) {
+            $commenterType = $data['commenter_type'] ?? 'user';
+            if ($commenterType === 'album' && isset($data['comment_as_album_id'])) {
+                $album = Album::find($data['comment_as_album_id']);
+                if ($album) {
+                    $imageUrl = $this->getProfileUrl($album);
+                }
             }
         }
 
@@ -449,7 +453,6 @@ protected function createDeliveryRecord($notification)
         return [
             'type' => $type,
             'action' => $notification->action,
-            //'notifiable_id' => (string)$notification->notifiable_id,
             'notifiable_id' => isset($data['post_id']) ? (string)$data['post_id'] : (string)$notification->notifiable_id,
             'notifiablemedia_id' => $data['media_id'] ?? '0',
             'screen_to_open' => $this->getTargetScreen($notification->action),
@@ -457,7 +460,6 @@ protected function createDeliveryRecord($notification)
             'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
             'image' => $imageUrl,
             'message_id' => (string)$deliveryId,
-            //'is_big_picture' => 'false',
         ];
     }
 
@@ -473,26 +475,26 @@ protected function createDeliveryRecord($notification)
 
     protected function getNotificationImageUrl($notification, $data)
     {
-        // For album-related notifications
-        if (in_array($notification->action, ['viewed_album', 'shared_album', 'invited'])) {
-            $album = $this->notifiable;
-
-            if ($album->type === 'personal' || $album->type === 'creator') {
-                return $album->thumbnail_compressed
-                    ? generateSecureMediaUrl($album->thumbnail_compressed)
-                    : ($album->thumbnail_original
-                        ? generateSecureMediaUrl($album->thumbnail_original)
-                        : null);
-            } elseif ($album->type === 'business') {
-                return $album->business_logo_compressed
-                    ? generateSecureMediaUrl($album->business_logo_compressed)
-                    : ($album->business_logo_original
-                        ? generateSecureMediaUrl($album->business_logo_original)
-                        : null);
+        // For comments/replies - use album profile if commenting as album
+        if (in_array($notification->action, ['commented', 'reacted', 'replied'])) {
+            $commenterType = $data['commenter_type'] ?? 'user';
+            if ($commenterType === 'album' && isset($data['comment_as_album_id'])) {
+                $album = Album::find($data['comment_as_album_id']);
+                if ($album) {
+                    return $this->getProfileUrl($album);
+                }
             }
         }
 
-        // For user-related notifications (likes, comments, etc.)
+        // For album-related notifications
+        if (in_array($notification->action, ['viewed_album', 'shared_album', 'invited'])) {
+            $album = $this->notifiable;
+            if ($album instanceof Album) {
+                return $this->getProfileUrl($album);
+            }
+        }
+
+        // For user-related notifications
         $sender = User::find($data['sender_id'] ?? null);
         if ($sender) {
             return $sender->profile_compressed
@@ -501,6 +503,25 @@ protected function createDeliveryRecord($notification)
         }
 
         return null;
+    }
+
+    protected function getProfileUrl($album)
+    {
+        if ($album->type === 'personal' || $album->type === 'creator') {
+            return $album->thumbnail_compressed
+                ? generateSecureMediaUrl($album->thumbnail_compressed)
+                : ($album->thumbnail_original
+                    ? generateSecureMediaUrl($album->thumbnail_original)
+                    : 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y');
+        } elseif ($album->type === 'business') {
+            return $album->business_logo_compressed
+                ? generateSecureMediaUrl($album->business_logo_compressed)
+                : ($album->business_logo_original
+                    ? generateSecureMediaUrl($album->business_logo_original)
+                    : 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y');
+        }
+
+        return 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
     }
 
     protected function prepareNotificationData($notification)
@@ -546,32 +567,81 @@ protected function createDeliveryRecord($notification)
         $data = json_decode($notification->data, true);
         $action = $notification->action;
 
+        // Get commenter information
+        $commenterType = $data['commenter_type'] ?? 'user';
+        $commenterName = $data['username'] ?? 'Someone';
+        $albumName = $data['album_name'] ?? null;
+        $commentType = $data['comment_type'] ?? 'text';
+
         switch ($action) {
             case 'viewed_album':
                 $albumName = $data['album_name'] ?? 'your album';
                 return "explored your $albumName Album";
+
             case 'commented':
-                $albumName = $data['album_name'] ?? null;
-                return $albumName ?
-                    "commented on your post in $albumName Album" :
-                    "commented on your post";
+                if ($commenterType === 'album') {
+                    $albumName = $data['comment_as_album_name'] ?? $commenterName;
+                    return $commentType === 'gif' ?
+                        "{$albumName} reacted with a GIF to your post" :
+                        "{$albumName} commented on your post";
+                } else {
+                    return $commentType === 'gif' ?
+                        "{$commenterName} reacted with a GIF to your post" :
+                        "{$commenterName} commented on your post";
+                }
+
+            case 'reacted': // New case for GIF reactions
+                if ($commenterType === 'album') {
+                    $albumName = $data['comment_as_album_name'] ?? $commenterName;
+                    return "{$albumName} reacted to your post";
+                } else {
+                    return "{$commenterName} reacted to your post";
+                }
+
             case 'replied':
                 $isAlbumOwner = $data['is_album_owner'] ?? false;
-                $albumName = $data['album_name'] ?? null;
-                return $isAlbumOwner ?
-                    "replied to your comment in $albumName Album" :
-                    "replied to your comment";
+                $replierType = $data['replier_type'] ?? 'user';
+                $replierName = $data['username'] ?? 'Someone';
+
+                if ($replierType === 'album') {
+                    $albumName = $data['reply_as_album_name'] ?? $replierName;
+                    return "{$albumName} replied to your comment";
+                } else {
+                    return $isAlbumOwner ?
+                        "{$albumName} replied to your comment" :
+                        "{$replierName} replied to your comment";
+                }
+
             case 'liked':
-                return "liked your post";
+                $likerType = $data['liker_type'] ?? 'user';
+                $likerName = $data['username'] ?? 'Someone';
+
+                if ($likerType === 'album') {
+                    $albumName = $data['like_as_album_name'] ?? $likerName;
+                    return "{$albumName} liked your post";
+                } else {
+                    return "{$likerName} liked your post";
+                }
+
             case 'admired':
-                $albumName = $data['album_name'] ?? null;
-                return $albumName ?
-                    "admired your snap in $albumName Album" :
-                    "admired your snap";
+                $admirerType = $data['admirer_type'] ?? 'user';
+                $admirerName = $data['username'] ?? 'Someone';
+
+                if ($admirerType === 'album') {
+                    $albumName = $data['admire_as_album_name'] ?? $admirerName;
+                    return "{$albumName} admired your snap";
+                } else {
+                    $albumName = $data['album_name'] ?? null;
+                    return $albumName ?
+                        "{$admirerName} admired your snap in $albumName Album" :
+                        "{$admirerName} admired your snap";
+                }
+
             case 'shared_album':
             case 'invited':
                 $albumName = $data['album_name'] ?? 'an album';
                 return "invited you to collaborate on $albumName Album";
+
             default:
                 return "sent you a notification";
         }

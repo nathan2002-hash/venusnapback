@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('push_notifications')->default(1);
             $table->string('dark_mode')->default(0);
             $table->string('history')->default(1);
+            $table->string('meta_notification')->default(0);
             $table->timestamps();
         });
     }
