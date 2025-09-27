@@ -284,12 +284,12 @@ class CommentController extends Controller
         // Send notification if not owner (only for text comments to avoid spam)
         // Send notification if not owner (for both text and GIF comments)
         if ($albumOwnerId !== $user->id) {
-            $action = $request->type === 'gif' ? 'reacted' : 'commented';
+            $action = $request->type === 'gif' ? 'gif' : 'commented';
 
             CreateNotificationJob::dispatch(
                 $user,
                 $postMedia,
-                $action,
+                'commented',
                 $albumOwnerId,
                 [
                     'username' => $displayName,
