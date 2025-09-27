@@ -467,7 +467,7 @@ protected function createDeliveryRecord($notification)
     {
         return match($action) {
             'viewed_album' => 'album_analytics',
-            'commented', 'replied', 'liked', 'admired', 'album_new_post' => 'post',
+            'commented', 'replied', 'liked', 'admired', 'album_new_post', 'reacted' => 'post',
             'shared_album', 'invited' => 'album_requests',
             default => 'notifications'
         };
