@@ -405,7 +405,7 @@ if ((int)$comment->user_id !== (int)$user->id) {
     CreateNotificationJob::dispatch(
         $user,
         $postMedia,
-        $action,
+        'replied',
         $comment->user_id,
         [
             'username' => $displayName,
