@@ -15,7 +15,7 @@ Route::get('/chat', function () {
     return view('emails.receipts.payment');
 });
 
-Route::post('/track-click', 'ButtonClickController@store')->name('track.click');
+Route::post('/track-button-click', 'ButtonClickController@store')->name('track.click');
 
 
 Route::get('/post/{post}/media/{media}', 'DeeplinkController@postmedia');
