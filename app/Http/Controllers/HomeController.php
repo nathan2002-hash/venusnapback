@@ -52,7 +52,7 @@ class HomeController extends Controller
         $posts = $this->getFeaturedPostsForCarousel();
 
         return view('landing', [
-            'featuredPosts' => $posts
+            'posts' => $posts
         ]);
     }
 
