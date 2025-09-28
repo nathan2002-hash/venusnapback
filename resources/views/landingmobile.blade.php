@@ -379,7 +379,7 @@
     <a href="https://play.google.com/store/apps/details?id=com.venusnap.app"
         target="_blank"
         onclick="trackClick('start_album')">
-        <button class="download-btn">Get Started</button>
+        <button class="download-btn">Install Venusnap</button>
     </a>
 </div>
 
