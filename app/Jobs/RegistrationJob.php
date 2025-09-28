@@ -103,7 +103,7 @@ class RegistrationJob implements ShouldQueue
             $this->ipaddress
         ));
 
-        $this->sendWithVonage('260970333596', 'New Venusnap user registered: ' . $this->user->name);
+        //$this->sendWithVonage('260970333596', 'New Venusnap user registered: ' . $this->user->name);
     }
 
     private function sendWithVonage($phone, $message)
