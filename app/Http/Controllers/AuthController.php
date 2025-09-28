@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
-    public function register()
+    public function registerform()
     {
         return view('auth.register');
     }
@@ -60,6 +60,25 @@ class AuthController extends Controller
             'country' => null,
             'country_code' => null,
         ]);
+    }
+
+    public function register(Request $request)
+    {
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'country' => 'required|string',
+            'country_code' => 'required|string',
+            'phone_number' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+            'accept_terms' => 'required|accepted',
+            'accept_privacy' => 'required|accepted',
+        ]);
+
+        // Your registration logic here
+        // ...
+
+        return redirect()->route('login')->with('success', 'Registration successful!');
     }
 
 }
