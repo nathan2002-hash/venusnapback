@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Venusnap</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="{{ asset('assets1/img/logo1.png') }}" rel="icon">
     <link href="{{ asset('assets1/img/logo1.png') }}" rel="apple-touch-icon">
@@ -527,7 +528,7 @@
                     formData.append('password', password);
                     formData.append('password_confirmation', passwordConfirmation);
 
-                    fetch('{{ route("register") }}', {
+                    fetch('{{ route("register.user.web") }}', {
                         method: 'POST',
                         body: formData,
                         headers: {
