@@ -351,24 +351,6 @@
 <body>
     <div class="container">
         <!-- Header Section -->
-        <div class="header fade-in">
-            <div class="header-content">
-                <div class="success-icon">
-                    <i class="fas fa-check"></i>
-                </div>
-                <h1>Welcome to Venusnap! 🎉</h1>
-                <p class="subtitle">Your creative dashboard is ready</p>
-                <div class="user-greeting">
-                    Hello <strong>{{ Auth::user()->name }}</strong>! Start your creative journey
-                </div>
-                <a href="https://play.google.com/store/apps/details?id=com.venusnap.app"
-                class="download-app-btn"
-                target="_blank">
-                    <i class="fab fa-google-play"></i>
-                    Download Venusnap App to Get Started
-                </a>
-            </div>
-        </div>
         @if ($browser->isMobile())
            <div class="header fade-in">
             <div class="header-content">
