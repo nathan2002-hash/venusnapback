@@ -528,7 +528,7 @@
                     formData.append('password', password);
                     formData.append('password_confirmation', passwordConfirmation);
 
-                    fetch('{{ route("register.user.web") }}', {
+                    fetch('{{ route("register") }}', {
                         method: 'POST',
                         body: formData,
                         headers: {
