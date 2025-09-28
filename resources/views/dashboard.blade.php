@@ -365,11 +365,35 @@
             .app-cards {
                 grid-template-columns: 1fr;
             }
+
+            .download-app-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    padding: 0.75rem 1.5rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+}
+
+.download-app-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.8);
+}
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header Section -->
         <!-- Header Section -->
         <div class="header fade-in">
             <div class="header-content">
@@ -381,6 +405,12 @@
                 <div class="user-greeting">
                     Hello <strong>{{ Auth::user()->name }}</strong>! Start your creative journey
                 </div>
+                <a href="https://play.google.com/store/apps/details?id=com.venusnap.app"
+                class="download-app-btn"
+                target="_blank">
+                    <i class="fab fa-google-play"></i>
+                    Download Venusnap App to Get Started
+                </a>
             </div>
         </div>
 
@@ -390,36 +420,36 @@
             <div class="dashboard-section fade-in">
                 <h2 class="section-title">
                     <i class="fas fa-chart-line"></i>
-                    Platform Overview
+                    Your Account Overview
                 </h2>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon primary">
                             <i class="fas fa-users"></i>
                         </div>
-                        <div class="stat-number">10.2K</div>
-                        <div class="stat-label">Total Users</div>
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Total Posts</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon success">
                             <i class="fas fa-palette"></i>
                         </div>
-                        <div class="stat-number">3.5K</div>
-                        <div class="stat-label">Active Creators</div>
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Albums</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon warning">
                             <i class="fas fa-image"></i>
                         </div>
-                        <div class="stat-number">67.8K</div>
+                        <div class="stat-number">0</div>
                         <div class="stat-label">Artworks</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon info">
                             <i class="fas fa-heart"></i>
                         </div>
-                        <div class="stat-number">245K</div>
-                        <div class="stat-label">Interactions</div>
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Admires</div>
                     </div>
                 </div>
             </div>
@@ -521,13 +551,6 @@
                     <div class="app-badge">Notify Me</div>
                 </a>
             </div>
-        </div>
-
-        <!-- Continue Button -->
-        <div class="text-center">
-            <a href="/dashboard" class="continue-button">
-                Continue to Full Dashboard
-            </a>
         </div>
     </div>
 
