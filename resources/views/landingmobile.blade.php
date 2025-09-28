@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Venusnap - Discover Amazing Art</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -375,12 +376,32 @@
     Join a growing community of creators building Albums that people love.
     Your creativity deserves recognition—start today.
   </p>
-  <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" target="_blank">
-    <button class="download-btn">Start Your Album Free</button>
-  </a>
+    <a href="https://play.google.com/store/apps/details?id=com.venusnap.app"
+        target="_blank"
+        onclick="trackClick('start_album')">
+        <button class="download-btn">Get Started</button>
+    </a>
 </div>
 
     </div>
+<script>
+document.querySelector('.download-btn').addEventListener('click', function () {
+    fetch('/track-button-click', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            button_name: 'Get Started',
+            page_url: window.location.href
+        })
+    })
+    .then(res => res.json())
+    .then(data => console.log(data));
+});
+</script>
+
 
     <script>
         // Mobile menu functionality
