@@ -593,7 +593,7 @@
         <!-- Hero Section -->
         <section class="hero">
             <h1>A Home for Visual Creators</h1>
-            <p>Get Eaarly Access and Monetization, Share your quotes, memes, art, and photography in Albums that inspire, entertain, and connect with people who truly appreciate creativity.</p>
+            <p>Get Early Access and Monetization, Share your quotes, memes, art, and photography in Albums that inspire, entertain, and connect with people who truly appreciate creativity.</p>
            <div class="hero-buttons">
                 <a href="{{ route('register') }}" class="cta-button">Start Creating</a><a href="#gallery" class="secondary-button">Explore Gallery</a>
             </div>
