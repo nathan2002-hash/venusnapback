@@ -608,12 +608,10 @@
                         <div class="carousel-item">
                         <img src="{{ $post['image_url'] }}" alt="Abstract Art">
                         <div class="carousel-content">
-                            <h3 class="carousel-title">{{ $post['album_name'] }}</h3>
-                            <p class="carousel-description">{{ $post['description'] }}</p>
+                            {{-- <h3 class="carousel-title">{{ $post['album_name'] }}</h3>
+                            <p class="carousel-description">{{ $post['description'] }}</p> --}}
                             <div class="carousel-tags">
-                                <span class="carousel-tag">Abstract</span>
-                                <span class="carousel-tag">Colorful</span>
-                                <span class="carousel-tag">Modern</span>
+                                <span class="carousel-tag">{{ $post['album_name'] }}</span>
                             </div>
                         </div>
                     </div>
