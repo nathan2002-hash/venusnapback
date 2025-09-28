@@ -379,7 +379,7 @@
     <a href="https://play.google.com/store/apps/details?id=com.venusnap.app"
         target="_blank"
         onclick="trackClick('start_album')">
-        <button class="download-btn">Install Venusnap</button>
+        <button class="download-btn">Sign Up</button>
     </a>
 </div>
 
@@ -393,7 +393,7 @@ document.querySelector('.download-btn').addEventListener('click', function () {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         body: JSON.stringify({
-            button_name: 'Install Venusnap',
+            button_name: 'Sign Up',
             page_url: window.location.href
         })
     })
