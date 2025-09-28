@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
-    public function showRegistrationForm()
+    public function register()
     {
         return view('auth.register');
     }
