@@ -329,10 +329,8 @@
                     const response = await fetch('{{ route("api.detect-country") }}');
                     const data = await response.json();
 
-                    if (data.country && data.country_code) {
-                        const detectedCountry = countries.find(c =>
-                            c.code === data.country || c.name === data.country
-                        );
+                    if (data.country_code) {
+                        const detectedCountry = countries.find(c => c.code === data.country_code);
 
                         if (detectedCountry) {
                             countryInput.value = detectedCountry.name;
@@ -340,6 +338,7 @@
                             phonePrefix.textContent = `+${detectedCountry.phone_code}`;
                         }
                     }
+
                 } catch (error) {
                     console.error('Error detecting country:', error);
                 }

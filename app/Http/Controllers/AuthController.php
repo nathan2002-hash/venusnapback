@@ -26,6 +26,7 @@ class AuthController extends Controller
             ['name' => 'Japan', 'code' => 'JP', 'phone_code' => '81'],
             ['name' => 'Brazil', 'code' => 'BR', 'phone_code' => '55'],
             ['name' => 'South Africa', 'code' => 'ZA', 'phone_code' => '27'],
+            ['name' => 'Zambia', 'code' => 'ZM', 'phone_code' => '260'],
         ];
 
         return response()->json($countries);
