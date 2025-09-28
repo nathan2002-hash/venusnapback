@@ -13,17 +13,10 @@ class AuthController extends Controller
     }
 
     public function getCountries()
-{
-    $countries = collect(countries())->map(function ($country, $code) {
-        return [
-            'name'       => $country->getName(),
-            'code'       => $code, // ISO Alpha-2
-            'phone_code' => $country->getCallingCode(),
-        ];
-    })->values();
+    {
+        dd(countries());
+    }
 
-    return response()->json($countries);
-}
 
 
     public function detectCountry(Request $request)

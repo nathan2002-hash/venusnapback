@@ -700,7 +700,7 @@
                 <a href="#" class="store-button">
                     <i class="fab fa-apple store-icon"></i>
                     <div class="store-text">
-                        <span class="store-label">Download on the</span>
+                        <span class="store-label">Coming Soon</span>
                         <span class="store-name">App Store</span>
                     </div>
                 </a>
