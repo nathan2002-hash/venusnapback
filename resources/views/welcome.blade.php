@@ -724,7 +724,7 @@
                 <i class="bi bi-chat-dots"></i>
                 <span>Live Chat</span>
               </a> --}}
-              <a href="tel:+260970333596" class="contact-option">
+              <a href="tel:+441218231829" class="contact-option">
                 <i class="bi bi-telephone"></i>
                 <span>Call Us</span>
               </a>
@@ -1001,7 +1001,7 @@
                 <i class="bi bi-telephone"></i>
               </div>
               <h3>Contact Number</h3>
-              <p>Mobile: +44 7441 473240<br>
+              <p>SMS/Whatsapp: +447441473240<br>
                 Email: support@venusnap.com</p>
             </div>
           </div>
@@ -1101,7 +1101,7 @@
           </a>
           <div class="footer-contact pt-3">
             <p><strong>Address:</strong> Remote</p>
-            <p class="mt-3"><strong>SMS:</strong> <span>+44 744 147 3240</span></p>
+            <p class="mt-3"><strong>SMS/Whatsapp:</strong> <span>+44 744 147 3240</span></p>
             <p class="mt-3"><strong>Call:</strong> <span>+44 121 823 1829</span></p>
             <p class="mt-3"><strong>SMS/Call:</strong> <span>+260 970 333 596</span></p>
             <p class="mt-3"><strong>Email:</strong> <span>support@venusnap.com</span></p>
