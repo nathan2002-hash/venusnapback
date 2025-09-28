@@ -195,7 +195,7 @@
                 <div class="phone-input-container">
                     <!-- Country code prefix - styled as separate element -->
                     <div class="phone-prefix" id="phone-prefix">
-                        <span id="phone-prefix-text" class="text-gray-600">+</span>
+                        <span id="phone-prefix-text" class="text-gray-600"></span>
                     </div>
                     <!-- Phone number input -->
                     <div class="relative flex-1">
@@ -427,7 +427,7 @@
                 window.open('https://www.venusnap.com/privacy/policy', '_blank');
             });
 
-            // Form validation
+           // Form validation - UPDATED PART
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
 
@@ -445,6 +445,7 @@
                 const passwordConfirmation = document.getElementById('password_confirmation').value;
                 const acceptTerms = document.getElementById('accept_terms').checked;
                 const acceptPrivacy = document.getElementById('accept_privacy').checked;
+                const countryCode = document.getElementById('country_code').value;
 
                 let isValid = true;
 
@@ -515,8 +516,50 @@
                     buttonText.textContent = 'Creating account...';
                     buttonSpinner.classList.remove('hidden');
 
-                    // Submit the form
-                    form.submit();
+                    // Submit via AJAX instead of form submission
+                    const formData = new FormData();
+                    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+                    formData.append('full_name', fullName);
+                    formData.append('email', email);
+                    formData.append('country', country);
+                    formData.append('country_code', countryCode);
+                    formData.append('phone_number', phoneNumber);
+                    formData.append('password', password);
+                    formData.append('password_confirmation', passwordConfirmation);
+
+                    fetch('{{ route("register") }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // Redirect to welcome page
+                            window.location.href = data.redirect_url;
+                        } else {
+                            // Show error message
+                            alert(data.message || 'Registration failed. Please try again.');
+
+                            // Reset button state
+                            submitButton.disabled = false;
+                            submitButton.classList.remove('btn-disabled');
+                            buttonText.textContent = 'Sign Up';
+                            buttonSpinner.classList.add('hidden');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred. Please try again.');
+
+                        // Reset button state
+                        submitButton.disabled = false;
+                        submitButton.classList.remove('btn-disabled');
+                        buttonText.textContent = 'Sign Up';
+                        buttonSpinner.classList.add('hidden');
+                    });
                 }
             });
         });

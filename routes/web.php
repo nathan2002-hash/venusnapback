@@ -23,6 +23,7 @@ Route::get('/register', 'AuthController@registerform');
 Route::post('/register', 'AuthController@register')->name('register');
 Route::get('/api/countries', 'AuthController@getCountries')->name('api.countries');
 Route::get('/api/detect-country', 'AuthController@detectCountry')->name('api.detect-country');
+Route::get('/onboard/welcome', 'AuthController@registerform');
 
 
 Route::get('/post/{post}', 'DeeplinkController@post');
