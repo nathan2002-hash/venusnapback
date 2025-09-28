@@ -26,6 +26,7 @@
         "paypal/paypal-checkout-sdk": "^1.0",
         "predis/predis": "^3.0",
         "pusher/pusher-php-server": "^7.2",
+        "rinvex/countries": "^9.1",
         "stripe/stripe-php": "^16.6"
     },
     "require-dev": {

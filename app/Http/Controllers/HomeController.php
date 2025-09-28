@@ -42,7 +42,7 @@ class HomeController extends Controller
 
     public function welcome()
     {
-        return view('landingmobile', [
+        return view('landing', [
         ]);
     }
 }

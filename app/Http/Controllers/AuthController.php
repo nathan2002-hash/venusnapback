@@ -14,20 +14,14 @@ class AuthController extends Controller
 
     public function getCountries()
     {
-        // You can get countries from database or a package
-        $countries = [
-            ['name' => 'United States', 'code' => 'US', 'phone_code' => '1'],
-            ['name' => 'United Kingdom', 'code' => 'GB', 'phone_code' => '44'],
-            ['name' => 'Canada', 'code' => 'CA', 'phone_code' => '1'],
-            ['name' => 'Australia', 'code' => 'AU', 'phone_code' => '61'],
-            ['name' => 'Germany', 'code' => 'DE', 'phone_code' => '49'],
-            ['name' => 'France', 'code' => 'FR', 'phone_code' => '33'],
-            ['name' => 'India', 'code' => 'IN', 'phone_code' => '91'],
-            ['name' => 'Japan', 'code' => 'JP', 'phone_code' => '81'],
-            ['name' => 'Brazil', 'code' => 'BR', 'phone_code' => '55'],
-            ['name' => 'South Africa', 'code' => 'ZA', 'phone_code' => '27'],
-            ['name' => 'Zambia', 'code' => 'ZM', 'phone_code' => '260'],
-        ];
+        $countries = collect(app('rinvex.countries'))
+            ->map(function ($country, $code) {
+                return [
+                    'name'       => $country->getName(),
+                    'code'       => $code,
+                    'phone_code' => $country->getCallingCode(),
+                ];
+            })->values();
 
         return response()->json($countries);
     }
