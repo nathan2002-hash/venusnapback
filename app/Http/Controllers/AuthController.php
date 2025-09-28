@@ -14,9 +14,14 @@ class AuthController extends Controller
 
     public function getCountries()
     {
-        dd(countries());
-    }
+        $response = Http::post('https://countriesnow.space/api/v0.1/countries/codes');
 
+        if ($response->successful()) {
+            return response()->json($response->json()['data']);
+        }
+
+        return response()->json(['error' => 'Failed to fetch countries'], 500);
+    }
 
 
     public function detectCountry(Request $request)

@@ -148,11 +148,15 @@
         }
 
         .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.hero-buttons a {
+    white-space: nowrap;
+}
 
         .secondary-button {
             background: transparent;
@@ -581,20 +585,15 @@
             </div>
 
             <a href="{{ route('register') }}" class="cta-button">Get Started</a>
-
-            <button class="mobile-menu-btn">
-                <i class="fas fa-bars"></i>
-            </button>
         </header>
 
         <!-- Hero Section -->
         <section class="hero">
             <h1>A Home for Visual Creators</h1>
             <p>Share your quotes, memes, art, and photography in Albums that inspire, entertain, and connect with people who truly appreciate creativity.</p>
-            <div class="hero-buttons">
-                <a href="{{ route('register') }}" class="cta-button">Start Creating</a>
-                <a href="#gallery" class="secondary-button">Explore Gallery</a>
-            </div>
+           <div class="hero-buttons">
+    <a href="{{ route('register') }}" class="cta-button">Start Creating</a><a href="#gallery" class="secondary-button">Explore Gallery</a>
+</div>
         </section>
 
         <!-- Carousel Section -->
