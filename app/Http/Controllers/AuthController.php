@@ -17,7 +17,15 @@ class AuthController extends Controller
         $response = Http::post('https://countriesnow.space/api/v0.1/countries/codes');
 
         if ($response->successful()) {
-            return response()->json($response->json()['data']);
+            $countries = collect($response->json()['data'])->map(function ($country) {
+                return [
+                    'name'       => $country['name'],
+                    'code'       => $country['code'],
+                    'phone_code' => $country['dial_code'],
+                ];
+            })->values();
+
+            return response()->json($countries);
         }
 
         return response()->json(['error' => 'Failed to fetch countries'], 500);
