@@ -26,7 +26,7 @@ class AuthController extends Controller
                 return [
                     'name'       => $country['name'],
                     'code'       => $country['code'],
-                    'phone_code' => $country['dial_code'],
+                    'phone_code' => str_replace('+', '', $country['dial_code']),
                 ];
             })->values();
 

@@ -573,7 +573,6 @@
         <!-- Header -->
         <header>
             <a href="/" class="logo">
-                <i class="fas fa-palette"></i>
                 Venusnap
             </a>
 
@@ -583,17 +582,22 @@
                 <a href="#community">Community</a>
                 <a href="{{ route('login') }}">Sign In</a>
             </div>
+            <a href="https://play.google.com/store/apps/details?id=com.venusnap.app"
+                target="_blank"
+                onclick="trackClick('start_album')">
+                <button class="download-btn">Download App</button>
+            </a>
 
-            <a href="{{ route('register') }}" class="cta-button">Get Started</a>
+            {{-- <a href="{{ route('register') }}" class="cta-button">Download App</a> --}}
         </header>
 
         <!-- Hero Section -->
         <section class="hero">
             <h1>A Home for Visual Creators</h1>
-            <p>Share your quotes, memes, art, and photography in Albums that inspire, entertain, and connect with people who truly appreciate creativity.</p>
+            <p>Get Eaarly Access and Monetization, Share your quotes, memes, art, and photography in Albums that inspire, entertain, and connect with people who truly appreciate creativity.</p>
            <div class="hero-buttons">
-    <a href="{{ route('register') }}" class="cta-button">Start Creating</a><a href="#gallery" class="secondary-button">Explore Gallery</a>
-</div>
+                <a href="{{ route('register') }}" class="cta-button">Start Creating</a><a href="#gallery" class="secondary-button">Explore Gallery</a>
+            </div>
         </section>
 
         <!-- Carousel Section -->
@@ -814,5 +818,22 @@
             });
         });
     </script>
+    <script>
+document.querySelector('.download-btn').addEventListener('click', function () {
+    fetch('/track-button-click', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            button_name: 'Download App',
+            page_url: window.location.href
+        })
+    })
+    .then(res => res.json())
+    .then(data => console.log(data));
+});
+</script>
 </body>
 </html>

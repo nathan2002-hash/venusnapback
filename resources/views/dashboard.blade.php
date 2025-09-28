@@ -21,24 +21,17 @@
             --primary-dark: #6d28d9;
             --primary-light: #8b5cf6;
             --accent: #d8b4fe;
-            --success: #10b981;
         }
 
         body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(30, 27, 75, 0.9)),
+                        url('https://images.unsplash.com/photo-1550684376-efcbd6e3f031?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: white;
             min-height: 100vh;
             overflow-x: hidden;
-        }
-
-        .confetti {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 1000;
         }
 
         .container {
@@ -58,7 +51,7 @@
             backdrop-filter: blur(20px);
             border-radius: 2rem;
             padding: 3rem;
-            max-width: 600px;
+            max-width: 500px;
             width: 100%;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -77,139 +70,101 @@
         }
 
         .success-icon {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 2rem;
+            margin: 0 auto 1.5rem;
             animation: pulse 2s infinite;
             box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);
         }
 
         .success-icon i {
-            font-size: 3rem;
+            font-size: 2rem;
             color: white;
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 800;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             background: linear-gradient(to right, #fff, var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .subtitle {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: #cbd5e1;
             margin-bottom: 2rem;
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
-        .welcome-message {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin: 2rem 0;
-            border-left: 4px solid var(--primary);
-        }
-
-        .welcome-message p {
-            font-size: 1.1rem;
-            color: #e2e8f0;
-            line-height: 1.6;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
+        .download-section {
             margin: 2rem 0;
         }
 
-        .feature-item {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 1rem;
-            border-radius: 1rem;
-            transition: transform 0.3s;
-        }
-
-        .feature-item:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .feature-icon {
-            font-size: 1.5rem;
-            color: var(--accent);
-            margin-bottom: 0.5rem;
-        }
-
-        .feature-text {
-            font-size: 0.9rem;
-            color: #cbd5e1;
-        }
-
-        .cta-section {
-            margin: 2rem 0;
-        }
-
-        .cta-title {
-            font-size: 1.5rem;
+        .download-title {
+            font-size: 1.3rem;
             font-weight: 700;
             margin-bottom: 1rem;
+            color: var(--accent);
         }
 
-        .download-buttons {
-            display: flex;
+        .app-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 1.5rem;
+            margin: 1.5rem 0;
         }
 
-        .store-button {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1rem 1.5rem;
+        .app-card {
+            background: rgba(255, 255, 255, 0.08);
             border-radius: 1rem;
-            color: white;
+            padding: 1.5rem;
             text-decoration: none;
+            color: white;
             transition: all 0.3s;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            min-width: 200px;
-        }
-
-        .store-button:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .store-icon {
-            font-size: 2rem;
-        }
-
-        .store-text {
+            border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
+            gap: 0.75rem;
         }
 
-        .store-label {
-            font-size: 0.8rem;
-            color: #94a3b8;
+        .app-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
         }
 
-        .store-name {
+        .app-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+        }
+
+        .app-name {
             font-size: 1.1rem;
             font-weight: 600;
+        }
+
+        .app-description {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            text-align: center;
+        }
+
+        .app-badge {
+            background: var(--primary);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
         }
 
         .continue-button {
@@ -221,9 +176,10 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 1.5rem;
+            margin-top: 1rem;
             text-decoration: none;
             display: inline-block;
+            width: 100%;
         }
 
         .continue-button:hover {
@@ -232,27 +188,14 @@
             box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3);
         }
 
-        .user-stats {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin: 2rem 0;
-            flex-wrap: wrap;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--accent);
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: #94a3b8;
+        .user-greeting {
+            font-size: 1.1rem;
+            color: #e2e8f0;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            border-left: 4px solid var(--primary);
         }
 
         @keyframes pulse {
@@ -282,37 +225,24 @@
             }
 
             h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
             }
 
             .subtitle {
-                font-size: 1.1rem;
+                font-size: 1rem;
             }
 
-            .download-buttons {
-                flex-direction: column;
-                align-items: center;
+            .app-cards {
+                grid-template-columns: 1fr;
             }
 
-            .store-button {
-                width: 100%;
-                max-width: 300px;
-            }
-
-            .user-stats {
-                gap: 1.5rem;
-            }
-
-            .stat-number {
-                font-size: 1.5rem;
+            .app-card {
+                padding: 1.25rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Confetti Animation -->
-    <div class="confetti" id="confetti"></div>
-
     <div class="container">
         <div class="success-card floating">
             <div class="success-icon">
@@ -320,142 +250,49 @@
             </div>
 
             <h1>Welcome to Venusnap! 🎉</h1>
-            <p class="subtitle">Your creative journey starts now. We're thrilled to have you join our community of visual storytellers.</p>
+            <p class="subtitle">Your creative journey starts now</p>
 
-            <div class="welcome-message">
-                <p>Hello <strong id="userName">{{ Auth::user()->name }}</strong>! Your account has been successfully created. Get ready to share your unique perspective with the world and connect with fellow artists who appreciate your vision.</p>
+            <div class="user-greeting">
+                Hello <strong>{{ Auth::user()->name }}</strong>! Your account is ready.
             </div>
 
-            <div class="user-stats">
-                <div class="stat-item">
-                    <div class="stat-number">67+</div>
-                    <div class="stat-label">Active Creators</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">500+</div>
-                    <div class="stat-label">Artworks Shared</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">100+</div>
-                    <div class="stat-label">Countries</div>
-                </div>
-            </div>
+            <div class="download-section">
+                <h2 class="download-title">Get the App</h2>
+                <p class="subtitle">Take your creativity everywhere</p>
 
-            <div class="features-grid">
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-layer-group"></i>
-                    </div>
-                    <div class="feature-text">Create Albums</div>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-heart"></i>
-                    </div>
-                    <div class="feature-text">Get Feedback</div>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="feature-text">Join Community</div>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="feature-text">Track Growth</div>
-                </div>
-            </div>
-
-            <div class="cta-section">
-                <h2 class="cta-title">Download the App & Start Creating</h2>
-                <p class="subtitle">Take Venusnap with you wherever inspiration strikes</p>
-
-                <div class="download-buttons">
-                    <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" class="store-button">
-                        <i class="fab fa-google-play store-icon"></i>
-                        <div class="store-text">
-                            <span class="store-label">GET IT ON</span>
-                            <span class="store-name">Google Play</span>
-                        </div>
+                <div class="app-cards">
+                    <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" class="app-card">
+                        <i class="fab fa-google-play app-icon"></i>
+                        <div class="app-name">Android App</div>
+                        <div class="app-description">Available on Google Play Store</div>
+                        <div class="app-badge">Download</div>
                     </a>
-                    <a href="#" class="store-button">
-                        <i class="fab fa-apple store-icon"></i>
-                        <div class="store-text">
-                            <span class="store-label">Download on the</span>
-                            <span class="store-name">App Store</span>
-                        </div>
+
+                    <a href="#" class="app-card">
+                        <i class="fab fa-apple app-icon"></i>
+                        <div class="app-name">iOS App</div>
+                        <div class="app-description">Coming soon to App Store</div>
+                        <div class="app-badge">Notify Me</div>
                     </a>
                 </div>
-
-                <a href="/dashboard" class="continue-button">
-                    Continue to Web Dashboard
-                </a>
             </div>
+
+            <a href="/dashboard" class="continue-button">
+                Continue to Dashboard
+            </a>
         </div>
     </div>
 
     <script>
-        // Confetti animation
-        function createConfetti() {
-            const confettiContainer = document.getElementById('confetti');
-            const colors = ['#7c3aed', '#8b5cf6', '#d8b4fe', '#10b981', '#f59e0b'];
-
-            for (let i = 0; i < 100; i++) {
-                const confetti = document.createElement('div');
-                confetti.style.position = 'absolute';
-                confetti.style.width = '10px';
-                confetti.style.height = '10px';
-                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.top = '-10px';
-                confetti.style.opacity = Math.random() * 0.5 + 0.5;
-                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
-                confetti.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
-
-                confettiContainer.appendChild(confetti);
-
-                // Remove confetti after animation
-                setTimeout(() => {
-                    confetti.remove();
-                }, 5000);
-            }
-
-            // Add CSS for falling animation
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes fall {
-                    to {
-                        transform: translateY(100vh) rotate(${Math.random() * 360}deg);
-                    }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
-        // Create confetti on load and every 3 seconds
+        // Simple animation on load
         document.addEventListener('DOMContentLoaded', function() {
-            createConfetti();
-            setInterval(createConfetti, 3000);
-
-            // Get user name from URL or use default
-            const urlParams = new URLSearchParams(window.location.search);
-            const userName = urlParams.get('name') || 'Creator';
-            document.getElementById('userName').textContent = userName;
-
-            // Track successful registration
-            fetch('/track-registration-success', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    user_id: urlParams.get('user_id') || 'unknown',
-                    timestamp: new Date().toISOString()
-                })
+            // Add click tracking for app cards
+            document.querySelectorAll('.app-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const appName = this.querySelector('.app-name').textContent;
+                    console.log('App download clicked:', appName);
+                    // You can add analytics tracking here
+                });
             });
         });
     </script>
