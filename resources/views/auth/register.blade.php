@@ -69,10 +69,22 @@
         .country-option:last-child {
             border-bottom: none;
         }
+        /* Background image styles */
+        body {
+            background-image: url('https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md form-container rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <!-- Header -->
         <div class="bg-[#7c3aed] p-6 text-white">
            <center>
@@ -293,45 +305,82 @@
             const termsLink = document.getElementById('terms-link');
             const privacyLink = document.getElementById('privacy-link');
 
-            // Country data
-            const countries = [
-                { name: "United States", code: "US", phoneCode: "1" },
-                { name: "United Kingdom", code: "GB", phoneCode: "44" },
-                { name: "Canada", code: "CA", phoneCode: "1" },
-                { name: "Australia", code: "AU", phoneCode: "61" },
-                { name: "Germany", code: "DE", phoneCode: "49" },
-                { name: "France", code: "FR", phoneCode: "33" },
-                { name: "India", code: "IN", phoneCode: "91" },
-                { name: "Japan", code: "JP", phoneCode: "81" },
-                { name: "Brazil", code: "BR", phoneCode: "55" },
-                { name: "South Africa", code: "ZA", phoneCode: "27" }
-            ];
+            let countries = [];
+
+            // Fetch countries from Laravel backend
+            async function fetchCountries() {
+                try {
+                    const response = await fetch('{{ route("api.countries") }}');
+                    const data = await response.json();
+                    countries = data;
+                    populateCountryDropdown();
+                    detectUserCountry();
+                } catch (error) {
+                    console.error('Error fetching countries:', error);
+                    // Fallback to empty array
+                    countries = [];
+                    populateCountryDropdown();
+                }
+            }
+
+            // Detect user's country
+            async function detectUserCountry() {
+                try {
+                    const response = await fetch('{{ route("api.detect-country") }}');
+                    const data = await response.json();
+
+                    if (data.country && data.country_code) {
+                        const detectedCountry = countries.find(c =>
+                            c.code === data.country || c.name === data.country
+                        );
+
+                        if (detectedCountry) {
+                            countryInput.value = detectedCountry.name;
+                            countryCodeInput.value = detectedCountry.phone_code;
+                            phonePrefix.textContent = `+${detectedCountry.phone_code}`;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error detecting country:', error);
+                }
+            }
 
             // Populate country dropdown
             function populateCountryDropdown() {
                 countryDropdown.innerHTML = '';
+
+                if (countries.length === 0) {
+                    const noDataOption = document.createElement('div');
+                    noDataOption.className = 'country-option text-gray-500';
+                    noDataOption.textContent = 'No countries available';
+                    countryDropdown.appendChild(noDataOption);
+                    return;
+                }
+
                 countries.forEach(country => {
                     const option = document.createElement('div');
                     option.className = 'country-option';
                     option.textContent = country.name;
                     option.dataset.code = country.code;
-                    option.dataset.phoneCode = country.phoneCode;
+                    option.dataset.phoneCode = country.phone_code;
                     option.addEventListener('click', function() {
                         countryInput.value = country.name;
-                        countryCodeInput.value = country.phoneCode;
-                        phonePrefix.textContent = `+${country.phoneCode}`;
+                        countryCodeInput.value = country.phone_code;
+                        phonePrefix.textContent = `+${country.phone_code}`;
                         countryDropdown.style.display = 'none';
                     });
                     countryDropdown.appendChild(option);
                 });
             }
 
-            // Initialize country dropdown
-            populateCountryDropdown();
+            // Initialize
+            fetchCountries();
 
             // Show country dropdown when clicking on country input
             countryInput.addEventListener('click', function() {
-                countryDropdown.style.display = 'block';
+                if (countries.length > 0) {
+                    countryDropdown.style.display = 'block';
+                }
             });
 
             // Hide country dropdown when clicking outside
@@ -438,13 +487,8 @@
                     buttonText.textContent = 'Creating account...';
                     buttonSpinner.classList.remove('hidden');
 
-                    // In a real implementation, you would submit the form to your backend here
-                    // For now, we'll simulate a successful registration after 2 seconds
-                    setTimeout(function() {
-                        alert('Registration successful!');
-                        // In a real implementation, you would redirect to the login page
-                        // window.location.href = "{{ route('login') }}";
-                    }, 2000);
+                    // Submit the form
+                    form.submit();
                 }
             });
         });
