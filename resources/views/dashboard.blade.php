@@ -369,6 +369,42 @@
                 </a>
             </div>
         </div>
+        @if ($browser->isMobile())
+           <div class="header fade-in">
+            <div class="header-content">
+                <div class="success-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h1>Hello {{ Auth::user()->name }} Welcome to Venusnap</h1>
+                <p class="subtitle">Your creative dashboard is ready</p>
+                <a href="https://play.google.com/store/apps/details?id=com.venusnap.app"
+                class="download-app-btn"
+                target="_blank">
+                    <i class="fab fa-google-play"></i>
+                    Download App
+                </a>
+            </div>
+        </div>
+        @else
+        <div class="header fade-in">
+            <div class="header-content">
+                <div class="success-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h1>Welcome to Venusnap! 🎉</h1>
+                <p class="subtitle">Your creative dashboard is ready</p>
+                <div class="user-greeting">
+                    Hello <strong>{{ Auth::user()->name }}</strong>! Start your creative journey
+                </div>
+                <a href="https://play.google.com/store/apps/details?id=com.venusnap.app"
+                class="download-app-btn"
+                target="_blank">
+                    <i class="fab fa-google-play"></i>
+                    Download Venusnap App to Get Started
+                </a>
+            </div>
+        </div>
+        @endif
 
         <!-- Your Stats -->
         <div class="dashboard-section fade-in">
@@ -381,14 +417,14 @@
                     <div class="stat-icon primary">
                         <i class="fas fa-star"></i>
                     </div>
-                    <div class="stat-number">300</div>
+                    <div class="stat-number">{{ Auth::user()->points }}</div>
                     <div class="stat-label">Your Points</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon success">
                         <i class="fas fa-layer-group"></i>
                     </div>
-                    <div class="stat-number">0</div>
+                    <div class="stat-number">{{ Auth::user()->albums->count() }}</div>
                     <div class="stat-label">Your Albums</div>
                 </div>
             </div>
@@ -421,7 +457,7 @@
         <!-- Mobile App Section -->
         <div class="app-section fade-in">
             <h2 class="app-title">Take Venusnap With You</h2>
-            <p class="subtitle">Create on the go with our mobile apps</p>
+            <p class="subtitle">Create on the go with our mobile app</p>
 
             <div class="app-cards">
                 <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" class="app-card">

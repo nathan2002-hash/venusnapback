@@ -719,7 +719,7 @@
                 <a href="#">Privacy</a>
                 <a href="#">Terms</a>
             </div>
-            <p class="copyright">© 2023 Venusnap. All rights reserved.</p>
+            <p class="copyright">© 2025 Venusnap. All rights reserved.</p>
         </footer>
     </div>
 
