@@ -69,6 +69,31 @@
         .country-option:last-child {
             border-bottom: none;
         }
+
+                /* Phone input container styles */
+        .phone-input-container {
+            position: relative;
+            display: flex;
+        }
+
+        .phone-prefix {
+            background-color: #f9fafb;
+            border: 1px solid #d1d5db;
+            border-right: none;
+            border-radius: 0.5rem 0 0 0.5rem;
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .phone-input {
+            border-radius: 0 0.5rem 0.5rem 0;
+            flex: 1;
+        }
         /* Background image styles */
         body {
             background-image: url('https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80');
@@ -164,26 +189,30 @@
                 <div id="country_error" class="text-red-500 text-xs mt-1 hidden"></div>
             </div>
 
-            <!-- Phone Number Input -->
+           <!-- Phone Number Input -->
             <div class="mb-4">
                 <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                        </svg>
+                <div class="phone-input-container">
+                    <!-- Country code prefix - styled as separate element -->
+                    <div class="phone-prefix" id="phone-prefix">
+                        <span id="phone-prefix-text" class="text-gray-600">+</span>
                     </div>
-                    <div class="absolute inset-y-0 left-0 pl-10 flex items-center pointer-events-none">
-                        <span id="phone-prefix" class="text-gray-500">+</span>
+                    <!-- Phone number input -->
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                            </svg>
+                        </div>
+                        <input
+                            type="tel"
+                            id="phone_number"
+                            name="phone_number"
+                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-r-lg input-focus phone-input"
+                            placeholder="123456789"
+                            required
+                        >
                     </div>
-                    <input
-                        type="tel"
-                        id="phone_number"
-                        name="phone_number"
-                        class="block w-full pl-16 pr-3 py-2 border border-gray-300 rounded-lg input-focus"
-                        placeholder="123456789"
-                        required
-                    >
                 </div>
                 <div id="phone_error" class="text-red-500 text-xs mt-1 hidden"></div>
             </div>
