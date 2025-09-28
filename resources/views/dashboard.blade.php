@@ -323,16 +323,16 @@
             <p class="subtitle">Your creative journey starts now. We're thrilled to have you join our community of visual storytellers.</p>
 
             <div class="welcome-message">
-                <p>Hello <strong id="userName">Creator</strong>! Your account has been successfully created. Get ready to share your unique perspective with the world and connect with fellow artists who appreciate your vision.</p>
+                <p>Hello <strong id="userName">{{ Auth::user()->name }}</strong>! Your account has been successfully created. Get ready to share your unique perspective with the world and connect with fellow artists who appreciate your vision.</p>
             </div>
 
             <div class="user-stats">
                 <div class="stat-item">
-                    <div class="stat-number">10K+</div>
+                    <div class="stat-number">67+</div>
                     <div class="stat-label">Active Creators</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number">50K+</div>
+                    <div class="stat-number">500+</div>
                     <div class="stat-label">Artworks Shared</div>
                 </div>
                 <div class="stat-item">
