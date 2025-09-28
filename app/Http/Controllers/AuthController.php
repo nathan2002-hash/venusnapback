@@ -14,7 +14,7 @@ class AuthController extends Controller
 
     public function getCountries()
     {
-        $response = Http::post('https://countriesnow.space/api/v0.1/countries/codes');
+        $response = Http::get('https://countriesnow.space/api/v0.1/countries/codes');
 
         if ($response->successful()) {
             $countries = collect($response->json()['data'])->map(function ($country) {
