@@ -602,69 +602,23 @@
         <!-- Carousel Section -->
         <section class="carousel-section" id="gallery">
             <h2 class="section-title">Featured Creations</h2>
-            <!-- Carousel Section -->
-            <section class="carousel-section" id="gallery">
-                <h2 class="section-title">Featured Creations</h2>
-                <div class="carousel-container">
-                    <div class="carousel">
-                        @forelse($featuredPosts as $post)
+            <div class="carousel-container">
+                <div class="carousel">
+                   @foreach ($posts as $post)
                         <div class="carousel-item">
-                            <img src="{{ $post['image_url'] }}" alt="{{ $post['title'] }}" onerror="this.src='https://images.unsplash.com/photo-1579546929662-711aa81148cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'">
-                            <div class="carousel-content">
-                                <h3 class="carousel-title">{{ $post['title'] }}</h3>
-                                <p class="carousel-description">{{ $post['description'] }}</p>
-                                <div class="carousel-tags">
-                                    <span class="carousel-tag">{{ $post['category'] }}</span>
-                                    <span class="carousel-tag">{{ $post['created_at'] }}</span>
-                                    @if($post['album_name'])
-                                    <span class="carousel-tag">{{ Str::limit($post['album_name'], 15) }}</span>
-                                    @endif
-                                </div>
+                        <img src="{{ $post['image_url'] }}" alt="Abstract Art">
+                        <div class="carousel-content">
+                            <h3 class="carousel-title">{{ $post['album_name'] }}</h3>
+                            <p class="carousel-description">{{ $post['description'] }}</p>
+                            <div class="carousel-tags">
+                                <span class="carousel-tag">Abstract</span>
+                                <span class="carousel-tag">Colorful</span>
+                                <span class="carousel-tag">Modern</span>
                             </div>
                         </div>
-                        @empty
-                        <!-- Fallback content if no posts -->
-                        <div class="carousel-item">
-                            <img src="https://images.unsplash.com/photo-1579546929662-711aa81148cf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Abstract Art">
-                            <div class="carousel-content">
-                                <h3 class="carousel-title">Colorful Abstract</h3>
-                                <p class="carousel-description">Vibrant colors blending in perfect harmony, creating an emotional visual experience.</p>
-                                <div class="carousel-tags">
-                                    <span class="carousel-tag">Abstract</span>
-                                    <span class="carousel-tag">Colorful</span>
-                                    <span class="carousel-tag">Modern</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="carousel-item">
-                            <img src="https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2058&q=80" alt="Portrait Photography">
-                            <div class="carousel-content">
-                                <h3 class="carousel-title">Emotional Portrait</h3>
-                                <p class="carousel-description">Capturing the raw emotion and story behind every face through the lens.</p>
-                                <div class="carousel-tags">
-                                    <span class="carousel-tag">Portrait</span>
-                                    <span class="carousel-tag">Photography</span>
-                                    <span class="carousel-tag">Emotion</span>
-                                </div>
-                            </div>
-                        </div>
-                        @endforelse
                     </div>
-
-                    <button class="carousel-nav carousel-prev">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button class="carousel-nav carousel-next">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-
-                    <div class="carousel-indicators">
-                        @for($i = 0; $i < count($featuredPosts) ?: 3; $i++)
-                        <div class="indicator {{ $i === 0 ? 'active' : '' }}"></div>
-                        @endfor
-                    </div>
+                   @endforeach
                 </div>
-            </section>
                 <button class="carousel-nav carousel-prev">
                     <i class="fas fa-chevron-left"></i>
                 </button>

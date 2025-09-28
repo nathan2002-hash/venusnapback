@@ -88,15 +88,14 @@ class HomeController extends Controller
 
             // Get album name and category
             $albumName = $album ? $album->name : 'Unknown Album';
-            $category = $album && $album->post_categories ? $album->post_categories : 'Art';
+            //$category = $album && $album->post_categories ? $album->post_categories : 'Art';
 
             return [
                 'id' => $post->id,
-                'title' => $albumName,
                 'description' => $truncatedDescription,
                 'image_url' => $imageUrl,
                 'album_name' => $albumName,
-                'category' => $category,
+                //'category' => $category,
                 'created_at' => $post->created_at->diffForHumans(),
             ];
         });
