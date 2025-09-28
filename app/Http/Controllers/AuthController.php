@@ -13,18 +13,18 @@ class AuthController extends Controller
     }
 
     public function getCountries()
-    {
-        $countries = collect(app('rinvex.countries'))
-            ->map(function ($country, $code) {
-                return [
-                    'name'       => $country->getName(),
-                    'code'       => $code,
-                    'phone_code' => $country->getCallingCode(),
-                ];
-            })->values();
+{
+    $countries = collect(countries())->map(function ($country, $code) {
+        return [
+            'name'       => $country->getName(),
+            'code'       => $code, // ISO Alpha-2
+            'phone_code' => $country->getCallingCode(),
+        ];
+    })->values();
 
-        return response()->json($countries);
-    }
+    return response()->json($countries);
+}
+
 
     public function detectCountry(Request $request)
     {
