@@ -125,7 +125,7 @@ class AuthController extends Controller
         return response()->json([
             'status'  => 'success',
             'message' => 'Registration successful',
-            'redirect_url' => route('welcome') . '?name=' . urlencode($user->name)
+            'redirect_url' => '/onboard/welcome'
         ], 200);
     }
 
