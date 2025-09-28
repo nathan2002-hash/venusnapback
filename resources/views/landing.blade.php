@@ -585,10 +585,9 @@
             <a href="https://play.google.com/store/apps/details?id=com.venusnap.app"
                 target="_blank"
                 onclick="trackClick('start_album')">
-                <button class="download-btn">Download App</button>
+                <button class="cta-button">Download App</button>
             </a>
 
-            {{-- <a href="{{ route('register') }}" class="cta-button">Download App</a> --}}
         </header>
 
         <!-- Hero Section -->
@@ -818,22 +817,5 @@
             });
         });
     </script>
-    <script>
-document.querySelector('.download-btn').addEventListener('click', function () {
-    fetch('/track-button-click', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({
-            button_name: 'Download App',
-            page_url: window.location.href
-        })
-    })
-    .then(res => res.json())
-    .then(data => console.log(data));
-});
-</script>
 </body>
 </html>
