@@ -33,33 +33,16 @@ class AuthController extends Controller
 
     public function detectCountry(Request $request)
     {
-        try {
-            // Get client IP
-            $clientIP = $request->ip();
+        $clientIP = $request->header('do-connecting-ip');
+        $response = Http::get("http://ip-api.com/json/{$clientIP}");
 
-            // For local development, use a test IP or service
-            if ($clientIP === '127.0.0.1' || $clientIP === '::1') {
-                $clientIP = '8.8.8.8'; // Google DNS as fallback for local development
-            }
-
-            // Use ipinfo.io or similar service to detect country
-            $response = Http::get("http://ipinfo.io/{$clientIP}/json");
-
-            if ($response->successful()) {
-                $data = $response->json();
-                return response()->json([
-                    'country' => $data['country'] ?? null,
-                    'country_code' => $data['country'] ?? null,
-                ]);
-            }
-        } catch (\Exception $e) {
-            \Log::error('Country detection failed: ' . $e->getMessage());
+        if ($response->successful()) {
+            $data = $response->json();
+            return response()->json([
+                'country' => $data['country'] ?? null,
+                'country_code' => $data['countryCode'] ?? null,
+            ]);
         }
-
-        return response()->json([
-            'country' => null,
-            'country_code' => null,
-        ]);
     }
 
     public function register(Request $request)
