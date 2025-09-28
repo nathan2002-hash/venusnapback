@@ -393,7 +393,7 @@ document.querySelector('.download-btn').addEventListener('click', function () {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         body: JSON.stringify({
-            button_name: 'Get Started',
+            button_name: 'Install Venusnap',
             page_url: window.location.href
         })
     })
