@@ -237,7 +237,7 @@ When you need information about the user's albums, analytics, or want to generat
             ])->timeout(60)->post('https://api.openai.com/v1/chat/completions', [
                 'model' => 'gpt-4', // or 'gpt-3.5-turbo'
                 'messages' => $messages,
-                'functions' => $this->available_functions,
+                'functions' => array_values($this->available_functions), // FIXED ✅
                 'function_call' => 'auto',
             ]);
 
