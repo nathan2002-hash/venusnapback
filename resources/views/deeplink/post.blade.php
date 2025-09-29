@@ -7,6 +7,7 @@
         $description = "Check out this post from the '".($post->album->name ?? 'album')."' on Venusnap.";
     @endphp
 
+    <title>{{ $post->album->name ?? 'Venusnap Post' }}</title>
     <meta property="og:title" content="{{ $post->album->name ?? 'Venusnap Post' }}">
     <meta property="og:description" content="{{ $description }}">
     <meta property="og:image" content="{{ $thumbnailUrl ?? asset('default.jpg') }}">
@@ -23,7 +24,11 @@
         }
 
         body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(30, 27, 75, 0.9)),
+                        url('https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: #fff;
             min-height: 100vh;
             display: flex;
@@ -36,27 +41,46 @@
             max-width: 500px;
             width: 100%;
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             margin: 20px 0;
         }
 
         .header {
             text-align: center;
-            padding: 30px 20px 20px;
-            background: rgba(0, 0, 0, 0.2);
+            padding: 40px 30px 30px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.3) 0%, rgba(139, 92, 246, 0.2) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1550684376-efcbd6e3f031?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.1;
+            z-index: -1;
         }
 
         .avatar {
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
-            border: 4px solid #ffdd40;
-            margin: 0 auto 15px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            margin: 0 auto 20px;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .avatar img {
@@ -66,141 +90,203 @@
         }
 
         .album-name {
-            font-size: 24px;
-            margin-bottom: 10px;
-            font-weight: 700;
-            color: #ffdd40;
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 800;
+            background: linear-gradient(to right, #fff, #d8b4fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .post-description {
             font-size: 16px;
             opacity: 0.9;
             max-width: 400px;
-            margin: 0 auto 15px;
-            line-height: 1.5;
+            margin: 0 auto 20px;
+            line-height: 1.6;
+            color: #e2e8f0;
         }
 
         .sharing-message {
             font-size: 16px;
             opacity: 0.9;
-            font-style: italic;
-            padding: 10px;
+            padding: 15px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
+            border-radius: 12px;
+            border-left: 4px solid #7c3aed;
+            backdrop-filter: blur(10px);
         }
 
         .content {
             display: flex;
             flex-direction: column;
-            padding: 20px;
+            padding: 30px;
         }
 
         .action-buttons {
             display: flex;
             flex-direction: column;
             gap: 15px;
-            margin: 20px 0;
+            margin: 25px 0;
         }
 
         .action-btn {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 16px 25px;
+            padding: 18px 30px;
             border-radius: 50px;
             font-weight: 600;
             text-decoration: none;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            font-size: 16px;
+            border: 2px solid transparent;
         }
 
         .action-btn i {
-            margin-right: 10px;
-            font-size: 20px;
+            margin-right: 12px;
+            font-size: 22px;
         }
 
         .download-btn {
-            background: #fff;
-            color: #333;
+            background: #7c3aed;
+            color: white;
+            border-color: #8b5cf6;
         }
 
         .download-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-            background: #ffdd40;
+            box-shadow: 0 15px 30px rgba(124, 58, 237, 0.4);
+            background: #6d28d9;
         }
 
-        .open-btn {
-            background: #ffdd40;
-            color: #333;
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+            text-align: center;
         }
 
-        .open-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-            background: #fff;
+        .stat-item {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-number {
+            font-size: 20px;
+            font-weight: 800;
+            color: #8b5cf6;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+            color: #cbd5e1;
         }
 
         .more-content {
             margin-top: 30px;
-            padding-top: 20px;
+            padding-top: 25px;
             border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: #d8b4fe;
         }
 
         .features {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 15px;
-            margin: 20px 0;
+            margin: 25px 0;
         }
 
         .feature {
             text-align: center;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+            padding: 20px 15px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.12);
         }
 
         .feature i {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: #ffdd40;
+            font-size: 28px;
+            margin-bottom: 12px;
+            color: #8b5cf6;
         }
 
         .feature h3 {
-            font-size: 14px;
-            margin-bottom: 5px;
+            font-size: 15px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: white;
         }
 
         .feature p {
-            opacity: 0.9;
-            font-size: 12px;
+            opacity: 0.8;
+            font-size: 13px;
+            line-height: 1.4;
+            color: #cbd5e1;
         }
 
         .footer {
             text-align: center;
-            padding: 20px;
-            margin-top: 10px;
+            padding: 25px;
+            margin-top: 20px;
             font-size: 14px;
             opacity: 0.8;
+            color: #94a3b8;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.8s ease-out;
         }
 
         @media (max-width: 500px) {
             .container {
                 border-radius: 15px;
+                margin: 10px;
             }
 
             .header {
-                padding: 25px 15px 15px;
+                padding: 30px 20px 20px;
             }
 
             .avatar {
-                width: 80px;
-                height: 80px;
+                width: 100px;
+                height: 100px;
             }
 
             .album-name {
-                font-size: 20px;
+                font-size: 24px;
             }
 
             .post-description, .sharing-message {
@@ -208,18 +294,23 @@
             }
 
             .action-btn {
-                padding: 14px 20px;
-                font-size: 14px;
+                padding: 16px 25px;
+                font-size: 15px;
             }
 
             .features {
                 grid-template-columns: 1fr;
             }
+
+            .stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container fade-in">
         <div class="header">
             <div class="avatar">
                 <img src="{{ $thumbnailUrl ?? 'https://images.unsplash.com/photo-1554080353-321e452ccf19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80' }}" alt="Post preview">
@@ -232,62 +323,77 @@
                 "{{ $post->description }}"
             </div>
             @else
-                Check out this snap from the {{ $post->album->name }} album!
+                <div class="post-description">
+                    Check out this snap from the {{ $post->album->name }} album!
+                </div>
             @endif
 
             <div class="sharing-message">
-                Post from {{ $post->album->name ?? 'Exclusive album' }}.
+                Post from <strong>{{ $post->album->name ?? 'Exclusive Album' }}</strong>
             </div>
         </div>
 
         <div class="content">
             <div class="action-buttons">
                 <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" class="action-btn download-btn">
-                    <i class="fab fa-google-play"></i> Download the App
+                    <i class="fab fa-google-play"></i> Download Venusnap App
                 </a>
             </div>
 
+
             <div class="more-content">
-                <h2 style="text-align: center; margin-bottom: 15px; font-size: 18px;">Why Join Venusnap?</h2>
+                <h2 class="section-title">Why Join Venusnap?</h2>
 
                 <div class="features">
                     <div class="feature">
                         <i class="fas fa-images"></i>
-                        <h3>Premium Photos</h3>
-                        <p>Exclusive content</p>
+                        <h3>Premium Content</h3>
+                        <p>Exclusive photos and videos from creators</p>
                     </div>
                     <div class="feature">
                         <i class="fas fa-lock"></i>
                         <h3>Private Access</h3>
-                        <p>Secure sharing</p>
+                        <p>Secure and private sharing</p>
                     </div>
                     <div class="feature">
                         <i class="fas fa-user-friends"></i>
                         <h3>Connect</h3>
-                        <p>Join creators</p>
+                        <p>Join creative community</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="footer">
+    <div class="footer fade-in">
         <p>&copy; 2025 Venusnap. All rights reserved.</p>
+        <p style="margin-top: 8px; font-size: 12px; opacity: 0.6;">A home for visual creators</p>
     </div>
 
     <script>
-        // Simple animation for the action buttons
+        // Enhanced animations
         document.addEventListener('DOMContentLoaded', function() {
-            const buttons = document.querySelectorAll('.action-btn');
-            buttons.forEach((button, index) => {
-                button.style.opacity = 0;
-                button.style.transform = 'translateY(20px)';
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((element, index) => {
+                element.style.opacity = 0;
+                element.style.transform = 'translateY(20px)';
 
                 setTimeout(() => {
-                    button.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                    button.style.opacity = 1;
-                    button.style.transform = 'translateY(0)';
-                }, 300 + (index * 200));
+                    element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    element.style.opacity = 1;
+                    element.style.transform = 'translateY(0)';
+                }, 200 + (index * 150));
+            });
+
+            // Add hover effects to features
+            const features = document.querySelectorAll('.feature');
+            features.forEach(feature => {
+                feature.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px) scale(1.02)';
+                });
+                feature.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
             });
         });
     </script>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Album;
+use App\Models\Artwork;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -13,29 +14,27 @@ use App\Models\ChatMessage;
 
 class AIController extends Controller
 {
-     private $available_functions = [
-    'get_user_albums' => [
-        'name' => 'get_user_albums',
-        'description' => 'Get all albums belonging to the user with their descriptions, types, and recent activity',
-    ],
-    'generate_image' => [
-        'name' => 'generate_image',
-        'description' => 'Generate an image based on a detailed prompt for social media content',
-        'parameters' => [
-            'type' => 'object',
-            'properties' => [
-                'prompt' => [
-                    'type' => 'string',
-                    'description' => 'Detailed description of the image to generate'
-                ]
-            ],
-            'required' => ['prompt']
+   private $available_functions = [
+        'get_user_albums' => [
+            'name' => 'get_user_albums',
+            'description' => 'Get all albums belonging to the user with their descriptions, types, and recent activity',
+        ],
+        'generate_image' => [
+            'name' => 'generate_image',
+            'description' => 'Generate an image based on a detailed prompt for social media content',
+            'parameters' => [
+                'type' => 'object',
+                'properties' => [
+                    'prompt' => [
+                        'type' => 'string',
+                        'description' => 'Detailed description of the image to generate'
+                    ]
+                ],
+                'required' => ['prompt']
+            ]
         ]
-    ]
-];
+    ];
 
-
-    // Get all projects for the user
     public function getProjects(Request $request)
     {
         $user = $request->user();
@@ -71,7 +70,7 @@ class AIController extends Controller
         ]);
     }
 
-     public function getMessages(Request $request, $projectId)
+    public function getMessages(Request $request, $projectId)
     {
         $user = $request->user();
         $project = Project::where('user_id', $user->id)->findOrFail($projectId);
@@ -83,7 +82,7 @@ class AIController extends Controller
         ]);
     }
 
-     public function sendMessage(Request $request, $projectId)
+    public function sendMessage(Request $request, $projectId)
     {
         $user = $request->user();
         $project = Project::where('user_id', $user->id)->findOrFail($projectId);
@@ -174,50 +173,49 @@ class AIController extends Controller
 
     public function checkImageStatus(Request $request, $imageId)
     {
-        // Implement your image status checking logic here
-        // This would check your Artwork model status
+        $artwork = Artwork::findOrFail($imageId);
 
         return response()->json([
-            'status' => 'completed', // or 'pending', 'failed'
-            'image_url' => null // Add actual image URL when ready
+            'status' => $artwork->status,
+            'image_url' => $artwork->image_url,
+            'prompt' => $artwork->prompt
         ]);
     }
 
-   private function prepareConversationHistory($project)
-{
-    $messages = [];
+    private function prepareConversationHistory($project)
+    {
+        $messages = [];
 
-    $chatMessages = $project->messages()
-        ->orderBy('created_at', 'desc')
-        ->limit(15)
-        ->get()
-        ->reverse();
+        $chatMessages = $project->messages()
+            ->orderBy('created_at', 'desc')
+            ->limit(15)
+            ->get()
+            ->reverse();
 
-    foreach ($chatMessages as $msg) {
-        $message = ['role' => $msg->role];
+        foreach ($chatMessages as $msg) {
+            $message = ['role' => $msg->role];
 
-        if ($msg->role === 'assistant' && $msg->function_name) {
-            // Assistant is requesting a function call
-            $message['function_call'] = [
-                'name' => $msg->function_name,
-                'arguments' => json_encode($msg->metadata['arguments'] ?? [])
-            ];
-            $message['content'] = $msg->content ?? ''; // must be string, not null
-        } elseif ($msg->role === 'function') {
-            // Function result coming back
-            $message['name'] = $msg->function_name;
-            $message['content'] = $msg->content ?? '{}'; // JSON string of result
-        } else {
-            // Normal user/assistant chat
-            $message['content'] = $msg->content ?? '';
+            if ($msg->role === 'assistant' && $msg->function_name) {
+                // Assistant is requesting a function call
+                $message['function_call'] = [
+                    'name' => $msg->function_name,
+                    'arguments' => json_encode($msg->metadata['arguments'] ?? [])
+                ];
+                $message['content'] = $msg->content ?? '';
+            } elseif ($msg->role === 'function') {
+                // Function result coming back
+                $message['name'] = $msg->function_name;
+                $message['content'] = $msg->content ?? '{}';
+            } else {
+                // Normal user/assistant chat
+                $message['content'] = $msg->content ?? '';
+            }
+
+            $messages[] = $message;
         }
 
-        $messages[] = $message;
+        return $messages;
     }
-
-    return $messages;
-}
-
 
     private function getSystemPrompt()
     {
@@ -231,19 +229,21 @@ You help creators with:
 
 You have access to tools that let you fetch real user data when needed. Be conversational, creative, and proactive.
 
-When you need information about the user's albums, analytics, or want to generate images, use the available functions.";
+IMPORTANT: When presenting data like albums or posts, format it in a clean, readable way using bullet points or numbered lists. For images, use the generate_image function.
+
+Keep responses clear and well-formatted for the mobile chat interface.";
     }
 
-   private function callOpenAIWithFunctions($messages)
+    private function callOpenAIWithFunctions($messages)
     {
         try {
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
                 'Content-Type' => 'application/json',
             ])->timeout(60)->post('https://api.openai.com/v1/chat/completions', [
-                'model' => 'gpt-4', // or 'gpt-3.5-turbo'
+                'model' => 'gpt-4',
                 'messages' => $messages,
-                'functions' => array_values($this->available_functions), // FIXED ✅
+                'functions' => array_values($this->available_functions),
                 'function_call' => 'auto',
             ]);
 
@@ -267,9 +267,8 @@ When you need information about the user's albums, analytics, or want to generat
         }
     }
 
-   private function processAIResponse($project, $response, $userMessage)
+    private function processAIResponse($project, $response, $userMessage)
     {
-        // Check if there was an error in the response
         if (isset($response['error'])) {
             throw new \Exception($response['error']);
         }
@@ -281,14 +280,14 @@ When you need information about the user's albums, analytics, or want to generat
             return $this->handleFunctionCall($project, $aiResponse, $userMessage);
         }
 
-        // Regular response
+        // Regular text response
         $assistantMessage = ChatMessage::create([
             'project_id' => $project->id,
             'role' => 'assistant',
             'content' => $aiResponse['content'] ?? 'I apologize, but I encountered an error processing your request.',
         ]);
 
-        // Auto-generate project title
+        // Auto-generate project title after a few messages
         $this->generateProjectTitle($project);
 
         return response()->json([
@@ -347,8 +346,6 @@ When you need information about the user's albums, analytics, or want to generat
     {
         $user = Auth::user();
 
-        // Replace with your actual album fetching logic
-        // Example:
         $albums = Album::where('user_id', $user->id)
             ->withCount('posts')
             ->orderBy('updated_at', 'desc')
@@ -358,12 +355,10 @@ When you need information about the user's albums, analytics, or want to generat
                     'id' => $album->id,
                     'name' => $album->name,
                     'type' => $album->type,
-                    'post_count' => $album->posts->count(),
+                    'post_count' => $album->posts_count,
                     'last_activity' => $album->updated_at->diffForHumans()
                 ];
-            });
-
-        $albums = []; // Temporary empty array
+            })->toArray();
 
         return [
             'albums' => $albums,
@@ -376,21 +371,32 @@ When you need information about the user's albums, analytics, or want to generat
     {
         $user = Auth::user();
 
-        // Use your existing image generation logic from your other controller
-        // This would integrate with your ProcessArtworkImage job
+        try {
+            // Create artwork record
+            $artwork = Artwork::create([
+                'user_id' => $user->id,
+                'prompt' => $prompt,
+                'status' => 'pending',
+            ]);
 
-        // For now, return a simulated response
-        return [
-            'status' => 'pending',
-            'message' => 'Image generation started',
-            'prompt' => $prompt,
-            'estimated_completion_time' => '30 seconds'
-        ];
+            // Dispatch image generation job (use your existing job)
+            // ProcessArtworkImage::dispatch($artwork->id, $prompt, $user->id);
 
-        // Later, integrate with your actual image generation:
-        // $artwork = Artwork::create([...]);
-        // ProcessArtworkImage::dispatch($artwork->id, $prompt, $user->id, $transaction->id);
-        // return ['status' => 'pending', 'artwork_id' => $artwork->id];
+            return [
+                'status' => 'pending',
+                'artwork_id' => $artwork->id,
+                'message' => 'Image generation started',
+                'prompt' => $prompt,
+                'estimated_completion_time' => '30 seconds'
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Image generation error: ' . $e->getMessage());
+            return [
+                'status' => 'failed',
+                'error' => 'Failed to start image generation'
+            ];
+        }
     }
 
     private function continueConversationWithFunctionResult($project, $userMessage)
@@ -408,10 +414,16 @@ When you need information about the user's albums, analytics, or want to generat
         // Process the final response
         $aiResponse = $response['choices'][0]['message'];
 
+        // Check if this is an image generation response
+        $metadata = $this->extractImageMetadata($aiResponse['content']);
+
         $assistantMessage = ChatMessage::create([
             'project_id' => $project->id,
             'role' => 'assistant',
             'content' => $aiResponse['content'],
+            'image_url' => $metadata['image_url'] ?? null,
+            'image_prompt' => $metadata['image_prompt'] ?? null,
+            'is_generating_image' => $metadata['is_generating'] ?? false,
         ]);
 
         return response()->json([
@@ -421,14 +433,37 @@ When you need information about the user's albums, analytics, or want to generat
         ]);
     }
 
+    private function extractImageMetadata($content)
+    {
+        // This method would extract image-related metadata from the AI response
+        // For now, return empty - you can enhance this based on your needs
+        return [];
+    }
+
     private function generateProjectTitle($project)
     {
         // Generate title after 2-3 messages
         $messageCount = $project->messages()->count();
 
         if ($messageCount === 3) {
-            // Use AI to generate title based on conversation
-            // You can implement this later
+            // Use the first user message as title, or generate one with AI
+            $firstUserMessage = $project->messages()
+                ->where('role', 'user')
+                ->orderBy('created_at', 'asc')
+                ->first();
+
+            if ($firstUserMessage && $project->title === 'New Chat') {
+                $title = $this->generateTitleFromMessage($firstUserMessage->content);
+                $project->update(['title' => $title]);
+            }
         }
+    }
+
+    private function generateTitleFromMessage($message)
+    {
+        // Simple title generation - take first few words
+        $words = explode(' ', $message);
+        $title = implode(' ', array_slice($words, 0, 5));
+        return strlen($title) > 30 ? substr($title, 0, 30) . '...' : $title;
     }
 }

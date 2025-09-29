@@ -362,22 +362,6 @@
                 </a>
             </div>
 
-            <!-- Platform Stats -->
-            <div class="stats">
-                <div class="stat-item">
-                    <div class="stat-number">10K+</div>
-                    <div class="stat-label">Creators</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">50K+</div>
-                    <div class="stat-label">Artworks</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">100+</div>
-                    <div class="stat-label">Countries</div>
-                </div>
-            </div>
-
             <div class="more-content">
                 <h2 class="section-title">Why Join Venusnap?</h2>
 
