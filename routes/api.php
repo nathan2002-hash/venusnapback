@@ -276,6 +276,10 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/payments', 'Api\PaymentController@fetchUserPayments');
     Route::get('/payouts', 'Api\PayoutController@fetchUserPayouts');
 
+
+    Route::get('/api/venusnap-ai/projects', 'Api\AIController@createProject');
+    //Route::get('/payouts', 'Api\PayoutController@fetchUserPayouts');
+
     Route::get('/points', 'Api\PointController@getPoints');
     Route::get('/payment-info', 'Api\PointController@paymentinfo');
 
