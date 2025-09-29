@@ -75,7 +75,15 @@ class AIController extends Controller
         $user = $request->user();
         $project = Project::where('user_id', $user->id)->findOrFail($projectId);
 
-        $messages = $project->messages()->orderBy('created_at', 'asc')->get();
+        $messages = $project->messages()
+            ->where(function($query) {
+                $query->whereNull('function_name') // Exclude function calls
+                    ->orWhere('role', 'user')    // Always include user messages
+                    ->orWhere('role', 'assistant'); // Include assistant messages without function calls
+            })
+            ->where('role', '!=', 'function') // Exclude function results
+            ->orderBy('created_at', 'asc')
+            ->get();
 
         return response()->json([
             'messages' => $messages
