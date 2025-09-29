@@ -27,6 +27,7 @@ Route::get('/onboard/welcome', 'AuthController@show');
 
 
 Route::get('/post/{post}', 'DeeplinkController@post');
+Route::get('/post/{post}/media/{media}', 'DeeplinkController@postmedia');
 Route::get('/album/{album}', 'DeeplinkController@album');
 Route::get('/sponsored/{shortcode}', 'DeeplinkController@ad');
 // routes/web.php
