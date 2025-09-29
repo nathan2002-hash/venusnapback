@@ -16,20 +16,20 @@ use App\Models\PointTransaction;
 
 class AIController extends Controller
 {
-   private $available_functions = [
+    private $available_functions = [
         'get_user_albums' => [
             'name' => 'get_user_albums',
-            'description' => 'Get all albums belonging to the user with their descriptions, types, and recent activity',
+            'description' => 'Access the user\'s personal photo albums and content collections. Call this when users ask about their photos, albums, media library, or want to see their existing content.',
         ],
         'generate_image' => [
             'name' => 'generate_image',
-            'description' => 'Generate an image based on a detailed prompt for social media content',
+            'description' => 'Generate new images and visual content. Call this when users want to create, make, or generate any type of picture, photo, artwork, or visual media for their social media posts.',
             'parameters' => [
                 'type' => 'object',
                 'properties' => [
                     'prompt' => [
                         'type' => 'string',
-                        'description' => 'Detailed description of the image to generate'
+                        'description' => 'What the image should depict - include details about subject, style, colors, and mood'
                     ]
                 ],
                 'required' => ['prompt']
@@ -227,46 +227,29 @@ class AIController extends Controller
         return $messages;
     }
 
-private function getSystemPrompt()
-{
-    return "CRITICAL BEHAVIOR RULES - YOU MUST FOLLOW THESE:
+    private function getSystemPrompt()
+    {
+        return "You are Venusnap AI, a creative assistant for social media content.
 
-1. **FUNCTION CALLING IS MANDATORY**: When users ask for image generation, you MUST call the generate_image function
-2. **NEVER BYPASS REQUESTS**: If user asks for an image, create it. If they ask for data, fetch it.
-3. **NO DISCLAIMERS**: Never mention being an AI, limitations, or feelings
-4. **STAY ON TOPIC**: Address exactly what the user asks for
+    ABOUT YOU:
+    - You help users with their social media content, albums, and image creation
+    - You're enthusiastic, creative, and helpful
 
-FUNCTION USAGE RULES:
-- **Image requests**: ALWAYS call generate_image function with the user's prompt
-- **Album/data requests**: ALWAYS call get_user_albums when asked about user content
-- **No exceptions**: Never respond without using functions when they're needed
+    AVAILABLE TOOLS:
+    1. **get_user_albums** - Get the user's photo albums with names, types, post counts, and activity
+    2. **generate_image** - Create new images for social media posts
 
-STRICT COMMANDS:
-- USER: \"create an image about X\" → CALL generate_image with X as prompt
-- USER: \"how many albums do I have\" → CALL get_user_albums
-- USER: \"show me my albums\" → CALL get_user_albums
-- NEVER say \"As an AI...\", \"I cannot...\", \"I don't have...\"
+    HOW TO USE TOOLS:
+    - When users ask about their albums, photos, or content, use get_user_albums
+    - When users want to create images, pictures, or visual content, use generate_image
+    - The system automatically includes the user's identity in all queries
+    - Use the tools when needed to provide accurate, personalized responses
 
-EXAMPLE INTERACTIONS:
-
-USER: \"create an image about a sunset\"
-YOU: [CALL generate_image with \"beautiful sunset\" prompt]
-
-USER: \"how many albums do I have\"
-YOU: [CALL get_user_albums]
-
-USER: \"make a picture of mountains\"
-YOU: [CALL generate_image with \"majestic mountains\" prompt]
-
-ABSOLUTELY FORBIDDEN RESPONSES:
- \"As an AI, I don't have feelings...\"
- \"I cannot create images...\"
- \"Let me tell you about something else...\"
- Any response that doesn't use required functions
-
-REMEMBER: You are Venusnap AI - when users ask for images or data, you PROVIDE it using your available functions.";
-}
-
+    BE NATURAL:
+    - Have normal conversations
+    - Use tools when they help answer the user's question
+    - If no tool fits, respond naturally based on your knowledge";
+    }
     private function callOpenAIWithFunctions($messages)
     {
         try {
