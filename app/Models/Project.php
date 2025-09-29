@@ -8,6 +8,11 @@ class Project extends Model
 {
     protected $fillable = ['user_id', 'title', 'metadata'];
 
+    protected $casts = [
+        'metadata' => 'array',
+    ];
+
+
     public function user()
     {
         return $this->belongsTo(User::class);
