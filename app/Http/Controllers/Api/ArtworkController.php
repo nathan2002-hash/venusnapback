@@ -264,7 +264,7 @@ class ArtworkController extends Controller
         // Create transaction record
         $transaction = PointTransaction::create([
             'user_id' => $user->id,
-            'points' => 50,
+            'points' => 30,
             'type' => 'image_regeneration',
             'resource_id' => $artwork->id,
             'status' => 'pending',
@@ -273,7 +273,7 @@ class ArtworkController extends Controller
             'balance_after' => $user->points
         ]);
 
-        if ($user->points < 50) {
+        if ($user->points < 30) {
             $transaction->update([
                 'status' => 'failed',
                 'description' => 'Insufficient points for image regeneration'

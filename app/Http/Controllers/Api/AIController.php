@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Project;
 use App\Models\ChatMessage;
+use App\Jobs\ProcessArtworkImage;
+use App\Models\PointTransaction;
 
 class AIController extends Controller
 {
@@ -185,7 +187,7 @@ class AIController extends Controller
 
         return response()->json([
             'status' => $artwork->status,
-            'image_url' => $artwork->image_url,
+            'image_url' => generateSecureMediaUrl($artwork->thumbnail),
             'prompt' => $artwork->prompt
         ]);
     }
@@ -414,6 +416,8 @@ private function getSystemPrompt()
     {
         $user = Auth::user();
 
+
+
         try {
             // Create artwork record
             $artwork = Artwork::create([
@@ -422,8 +426,19 @@ private function getSystemPrompt()
                 'status' => 'pending',
             ]);
 
+            $transaction = PointTransaction::create([
+                'user_id' => $user->id,
+                'points' => 30,
+                'type' => 'image_regeneration',
+                'resource_id' => $artwork->id,
+                'status' => 'pending',
+                'description' => 'Attempt to regenerate image',
+                'balance_before' => $user->points,
+                'balance_after' => $user->points
+            ]);
+
             // Dispatch image generation job (use your existing job)
-            // ProcessArtworkImage::dispatch($artwork->id, $prompt, $user->id);
+            ProcessArtworkImage::dispatch($artwork->id, $prompt, $user->id, $transaction->id);
 
             return [
                 'status' => 'pending',
