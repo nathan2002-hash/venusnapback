@@ -14,30 +14,26 @@ use App\Models\ChatMessage;
 class AIController extends Controller
 {
      private $available_functions = [
-        'get_user_albums' => [
-            'name' => 'get_user_albums',
-            'description' => 'Get all albums belonging to the user with their descriptions, types, and recent activity',
-            'parameters' => [
-                'type' => 'object',
-                'properties' => [],
-                'required' => []
-            ]
-        ],
-        'generate_image' => [
-            'name' => 'generate_image',
-            'description' => 'Generate an image based on a detailed prompt for social media content',
-            'parameters' => [
-                'type' => 'object',
-                'properties' => [
-                    'prompt' => [
-                        'type' => 'string',
-                        'description' => 'Detailed description of the image to generate'
-                    ]
-                ],
-                'required' => ['prompt']
-            ]
+    'get_user_albums' => [
+        'name' => 'get_user_albums',
+        'description' => 'Get all albums belonging to the user with their descriptions, types, and recent activity',
+    ],
+    'generate_image' => [
+        'name' => 'generate_image',
+        'description' => 'Generate an image based on a detailed prompt for social media content',
+        'parameters' => [
+            'type' => 'object',
+            'properties' => [
+                'prompt' => [
+                    'type' => 'string',
+                    'description' => 'Detailed description of the image to generate'
+                ]
+            ],
+            'required' => ['prompt']
         ]
-    ];
+    ]
+];
+
 
     // Get all projects for the user
     public function getProjects(Request $request)
