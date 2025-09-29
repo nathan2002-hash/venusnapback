@@ -74,7 +74,7 @@ class AIController extends Controller
         ]);
     }
 
-    public function getMessages(Request $request, $projectId)
+     public function getMessages(Request $request, $projectId)
     {
         $user = $request->user();
         $project = Project::where('user_id', $user->id)->findOrFail($projectId);
@@ -86,7 +86,7 @@ class AIController extends Controller
         ]);
     }
 
-    public function sendMessage(Request $request, $projectId)
+     public function sendMessage(Request $request, $projectId)
     {
         $user = $request->user();
         $project = Project::where('user_id', $user->id)->findOrFail($projectId);
@@ -102,7 +102,7 @@ class AIController extends Controller
             'content' => $request->message,
         ]);
 
-        // Get conversation history (last 15 messages for context)
+        // Get conversation history
         $messages = $this->prepareConversationHistory($project);
 
         // Add system prompt
@@ -111,11 +111,34 @@ class AIController extends Controller
             'content' => $this->getSystemPrompt()
         ]);
 
-        // Call OpenAI with function calling
-        $response = $this->callOpenAIWithFunctions($messages);
+        try {
+            // Call OpenAI with function calling
+            $response = $this->callOpenAIWithFunctions($messages);
 
-        // Process the response and handle function calls
-        return $this->processAIResponse($project, $response, $userMessage);
+            // Check if OpenAI returned an error
+            if (isset($response['error'])) {
+                throw new \Exception($response['error']);
+            }
+
+            // Process the response
+            return $this->processAIResponse($project, $response, $userMessage);
+
+        } catch (\Exception $e) {
+            Log::error('OpenAI API Error: ' . $e->getMessage());
+
+            // Save error message
+            $errorMessage = ChatMessage::create([
+                'project_id' => $project->id,
+                'role' => 'assistant',
+                'content' => "I apologize, but I'm having trouble processing your request right now. Please try again in a moment.",
+            ]);
+
+            return response()->json([
+                'userMessage' => $userMessage,
+                'newMessages' => [$errorMessage],
+                'project' => $project->fresh()
+            ], 500);
+        }
     }
 
     public function renameProject(Request $request, $projectId)
@@ -204,21 +227,46 @@ You have access to tools that let you fetch real user data when needed. Be conve
 When you need information about the user's albums, analytics, or want to generate images, use the available functions.";
     }
 
-    private function callOpenAIWithFunctions($messages)
+   private function callOpenAIWithFunctions($messages)
     {
-        return Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
-            'Content-Type' => 'application/json',
-        ])->timeout(60)->post('https://api.openai.com/v1/chat/completions', [
-            'model' => 'gpt-4', // or gpt-4-turbo-preview
-            'messages' => $messages,
-            'functions' => array_values($this->available_functions),
-            'function_call' => 'auto',
-        ])->json();
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
+                'Content-Type' => 'application/json',
+            ])->timeout(60)->post('https://api.openai.com/v1/chat/completions', [
+                'model' => 'gpt-4', // or 'gpt-3.5-turbo'
+                'messages' => $messages,
+                'functions' => $this->available_functions,
+                'function_call' => 'auto',
+            ]);
+
+            if ($response->failed()) {
+                Log::error('OpenAI API HTTP Error: ' . $response->body());
+                return ['error' => 'OpenAI API request failed: ' . $response->status()];
+            }
+
+            $data = $response->json();
+
+            if (!isset($data['choices'][0])) {
+                Log::error('OpenAI API Invalid Response: ' . json_encode($data));
+                return ['error' => 'Invalid response from OpenAI API'];
+            }
+
+            return $data;
+
+        } catch (\Exception $e) {
+            Log::error('OpenAI API Exception: ' . $e->getMessage());
+            return ['error' => $e->getMessage()];
+        }
     }
 
-    private function processAIResponse($project, $response, $userMessage)
+   private function processAIResponse($project, $response, $userMessage)
     {
+        // Check if there was an error in the response
+        if (isset($response['error'])) {
+            throw new \Exception($response['error']);
+        }
+
         $aiResponse = $response['choices'][0]['message'];
 
         // Check if AI wants to call a function
@@ -226,14 +274,14 @@ When you need information about the user's albums, analytics, or want to generat
             return $this->handleFunctionCall($project, $aiResponse, $userMessage);
         }
 
-        // Regular response - save and return
+        // Regular response
         $assistantMessage = ChatMessage::create([
             'project_id' => $project->id,
             'role' => 'assistant',
-            'content' => $aiResponse['content'],
+            'content' => $aiResponse['content'] ?? 'I apologize, but I encountered an error processing your request.',
         ]);
 
-        // Auto-generate project title if this is early in conversation
+        // Auto-generate project title
         $this->generateProjectTitle($project);
 
         return response()->json([
