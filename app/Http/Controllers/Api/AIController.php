@@ -183,31 +183,41 @@ class AIController extends Controller
         ]);
     }
 
-    private function prepareConversationHistory($project)
-    {
-        $messages = [];
+   private function prepareConversationHistory($project)
+{
+    $messages = [];
 
-        $chatMessages = $project->messages()
-            ->orderBy('created_at', 'desc')
-            ->limit(15)
-            ->get()
-            ->reverse();
+    $chatMessages = $project->messages()
+        ->orderBy('created_at', 'desc')
+        ->limit(15)
+        ->get()
+        ->reverse();
 
-        foreach ($chatMessages as $msg) {
-            $message = [
-                'role' => $msg->role,
-                'content' => $msg->content
+    foreach ($chatMessages as $msg) {
+        $message = ['role' => $msg->role];
+
+        if ($msg->role === 'assistant' && $msg->function_name) {
+            // Assistant is requesting a function call
+            $message['function_call'] = [
+                'name' => $msg->function_name,
+                'arguments' => json_encode($msg->metadata['arguments'] ?? [])
             ];
-
-            if ($msg->function_name) {
-                $message['name'] = $msg->function_name;
-            }
-
-            $messages[] = $message;
+            $message['content'] = $msg->content ?? ''; // must be string, not null
+        } elseif ($msg->role === 'function') {
+            // Function result coming back
+            $message['name'] = $msg->function_name;
+            $message['content'] = $msg->content ?? '{}'; // JSON string of result
+        } else {
+            // Normal user/assistant chat
+            $message['content'] = $msg->content ?? '';
         }
 
-        return $messages;
+        $messages[] = $message;
     }
+
+    return $messages;
+}
+
 
     private function getSystemPrompt()
     {
