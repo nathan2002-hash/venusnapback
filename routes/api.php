@@ -278,7 +278,18 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
 
 
     Route::get('/venusnap-ai/projects', 'Api\AIController@createProject');
-    //Route::get('/payouts', 'Api\PayoutController@fetchUserPayouts');
+     Route::prefix('venusnap-ai')->group(function () {
+        // Projects
+        Route::get('/projects', 'Api\AIController@getProjects');
+        Route::post('/projects', 'Api\AIController@createProject');
+        Route::put('/projects/{project}', 'Api\AIController@renameProject');
+        Route::delete('/projects/{project}', 'Api\AIController@deleteProject');
+        // Messages
+        Route::get('/projects/{project}/messages', 'Api\AIController@getMessages');
+        Route::post('/projects/{project}/messages', 'Api\AIController@sendMessage');
+        // Image Status
+        Route::get('/images/{imageId}/status', 'Api\AIController@checkImageStatus');
+    });
 
     Route::get('/points', 'Api\PointController@getPoints');
     Route::get('/payment-info', 'Api\PointController@paymentinfo');
