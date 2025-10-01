@@ -53,6 +53,18 @@ class AuthController extends Controller
 
      public function register(Request $request)
     {
+        // Verify reCAPTCHA first
+         $realIp = $request->header('cf-connecting-ip') ?? $request->ip();
+         $ipaddress = is_string($realIp) ? $realIp : $request->ip();
+         $recaptchaResponse = $this->verifyRecaptcha($request->input('g-recaptcha-response'), $request);
+
+        if (!$recaptchaResponse['success'] || $recaptchaResponse['score'] < 0.5) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Security verification failed. Please try again.'
+            ], 422);
+        }
+
         $request->validate([
             'full_name'     => 'required|string|max:255',
             'email'         => 'required|string|email|max:255|unique:users',
@@ -128,6 +140,26 @@ class AuthController extends Controller
             'redirect_url' => '/onboard/welcome'
         ], 200);
     }
+
+    /**
+     * Verify reCAPTCHA token
+     */
+   private function verifyRecaptcha($token, $ip = null)
+    {
+        try {
+            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => config('services.recaptcha.secret_key'),
+                'response' => $token,
+                'remoteip' => $ip
+            ]);
+
+            return $response->json();
+        } catch (\Exception $e) {
+            \Log::error('reCAPTCHA verification failed: ' . $e->getMessage());
+            return ['success' => false];
+        }
+    }
+
 
 
     public function show(Request $request)

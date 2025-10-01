@@ -249,22 +249,6 @@
             Don't worry, even the best explorers get lost sometimes. Let's get you back on track!
         </div>
 
-        <!-- Platform Stats -->
-        <div class="stats">
-            <div class="stat-item">
-                <div class="stat-number">10K+</div>
-                <div class="stat-label">Creators</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number">50K+</div>
-                <div class="stat-label">Albums</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number">100+</div>
-                <div class="stat-label">Countries</div>
-            </div>
-        </div>
-
         <div class="action-buttons">
             <a href="/" class="btn">
                 <i class="fas fa-home"></i> Go Home

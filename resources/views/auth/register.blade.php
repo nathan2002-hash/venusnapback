@@ -6,6 +6,7 @@
     <title>Register - Venusnap</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LfITtsrAAAAABM5kP6D-PTQSfMOoTlyeuCTuGjL"></script>
     <link href="{{ asset('assets1/img/logo1.png') }}" rel="icon">
     <link href="{{ asset('assets1/img/logo1.png') }}" rel="apple-touch-icon">
     <style>
@@ -319,251 +320,285 @@
             <div class="mt-6 text-center text-sm text-gray-600">
                 <p>Already have an account? <a href="{{ route('login') }}" class="text-[#7c3aed] font-medium hover:text-[#6d28d9]">Sign In</a></p>
             </div>
+
         </form>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('register-form');
-            const submitButton = document.getElementById('submit-button');
-            const buttonText = document.getElementById('button-text');
-            const buttonSpinner = document.getElementById('button-spinner');
-            const countryInput = document.getElementById('country');
-            const countryDropdown = document.getElementById('country-dropdown');
-            const countryCodeInput = document.getElementById('country_code');
-            const phonePrefix = document.getElementById('phone-prefix');
-            const termsLink = document.getElementById('terms-link');
-            const privacyLink = document.getElementById('privacy-link');
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('register-form');
+        const submitButton = document.getElementById('submit-button');
+        const buttonText = document.getElementById('button-text');
+        const buttonSpinner = document.getElementById('button-spinner');
+        const countryInput = document.getElementById('country');
+        const countryDropdown = document.getElementById('country-dropdown');
+        const countryCodeInput = document.getElementById('country_code');
+        const phonePrefix = document.getElementById('phone-prefix');
+        const termsLink = document.getElementById('terms-link');
+        const privacyLink = document.getElementById('privacy-link');
 
-            let countries = [];
+        let countries = [];
 
-            // Fetch countries from Laravel backend
-            async function fetchCountries() {
-                try {
-                    const response = await fetch('{{ route("api.countries") }}');
-                    const data = await response.json();
-                    countries = data;
-                    populateCountryDropdown();
-                    detectUserCountry();
-                } catch (error) {
-                    console.error('Error fetching countries:', error);
-                    // Fallback to empty array
-                    countries = [];
-                    populateCountryDropdown();
-                }
+        // Fetch countries from Laravel backend
+        async function fetchCountries() {
+            try {
+                const response = await fetch('{{ route("api.countries") }}');
+                const data = await response.json();
+                countries = data;
+                populateCountryDropdown();
+                detectUserCountry();
+            } catch (error) {
+                console.error('Error fetching countries:', error);
+                // Fallback to empty array
+                countries = [];
+                populateCountryDropdown();
             }
+        }
 
-            // Detect user's country
-            async function detectUserCountry() {
-                try {
-                    const response = await fetch('{{ route("api.detect-country") }}');
-                    const data = await response.json();
+        // Detect user's country
+        async function detectUserCountry() {
+            try {
+                const response = await fetch('{{ route("api.detect-country") }}');
+                const data = await response.json();
 
-                    if (data.country_code) {
-                        const detectedCountry = countries.find(c => c.code === data.country_code);
+                if (data.country_code) {
+                    const detectedCountry = countries.find(c => c.code === data.country_code);
 
-                        if (detectedCountry) {
-                            countryInput.value = detectedCountry.name;
-                            countryCodeInput.value = detectedCountry.phone_code;
-                            phonePrefix.textContent = `+${detectedCountry.phone_code}`;
-                        }
+                    if (detectedCountry) {
+                        countryInput.value = detectedCountry.name;
+                        countryCodeInput.value = detectedCountry.phone_code;
+                        phonePrefix.textContent = `+${detectedCountry.phone_code}`;
                     }
-
-                } catch (error) {
-                    console.error('Error detecting country:', error);
                 }
+
+            } catch (error) {
+                console.error('Error detecting country:', error);
+            }
+        }
+
+        // Populate country dropdown
+        function populateCountryDropdown() {
+            countryDropdown.innerHTML = '';
+
+            if (countries.length === 0) {
+                const noDataOption = document.createElement('div');
+                noDataOption.className = 'country-option text-gray-500';
+                noDataOption.textContent = 'No countries available';
+                countryDropdown.appendChild(noDataOption);
+                return;
             }
 
-            // Populate country dropdown
-            function populateCountryDropdown() {
-                countryDropdown.innerHTML = '';
-
-                if (countries.length === 0) {
-                    const noDataOption = document.createElement('div');
-                    noDataOption.className = 'country-option text-gray-500';
-                    noDataOption.textContent = 'No countries available';
-                    countryDropdown.appendChild(noDataOption);
-                    return;
-                }
-
-                countries.forEach(country => {
-                    const option = document.createElement('div');
-                    option.className = 'country-option';
-                    option.textContent = country.name;
-                    option.dataset.code = country.code;
-                    option.dataset.phoneCode = country.phone_code;
-                    option.addEventListener('click', function() {
-                        countryInput.value = country.name;
-                        countryCodeInput.value = country.phone_code;
-                        phonePrefix.textContent = `+${country.phone_code}`;
-                        countryDropdown.style.display = 'none';
-                    });
-                    countryDropdown.appendChild(option);
-                });
-            }
-
-            // Initialize
-            fetchCountries();
-
-            // Show country dropdown when clicking on country input
-            countryInput.addEventListener('click', function() {
-                if (countries.length > 0) {
-                    countryDropdown.style.display = 'block';
-                }
-            });
-
-            // Hide country dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!countryInput.contains(e.target) && !countryDropdown.contains(e.target)) {
+            countries.forEach(country => {
+                const option = document.createElement('div');
+                option.className = 'country-option';
+                option.textContent = country.name;
+                option.dataset.code = country.code;
+                option.dataset.phoneCode = country.phone_code;
+                option.addEventListener('click', function() {
+                    countryInput.value = country.name;
+                    countryCodeInput.value = country.phone_code;
+                    phonePrefix.textContent = `+${country.phone_code}`;
                     countryDropdown.style.display = 'none';
-                }
-            });
-
-            // Policy links
-            termsLink.addEventListener('click', function() {
-                window.open('https://www.venusnap.com/terms/conditions', '_blank');
-            });
-
-            privacyLink.addEventListener('click', function() {
-                window.open('https://www.venusnap.com/privacy/policy', '_blank');
-            });
-
-           // Form validation - UPDATED PART
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                // Reset error messages
-                document.querySelectorAll('[id$="_error"]').forEach(el => {
-                    el.classList.add('hidden');
                 });
+                countryDropdown.appendChild(option);
+            });
+        }
 
-                // Get form values
-                const fullName = document.getElementById('full_name').value;
-                const email = document.getElementById('email').value;
-                const country = document.getElementById('country').value;
-                const phoneNumber = document.getElementById('phone_number').value;
-                const password = document.getElementById('password').value;
-                const passwordConfirmation = document.getElementById('password_confirmation').value;
-                const acceptTerms = document.getElementById('accept_terms').checked;
-                const acceptPrivacy = document.getElementById('accept_privacy').checked;
-                const countryCode = document.getElementById('country_code').value;
+        // Initialize
+        fetchCountries();
 
-                let isValid = true;
+        // Show country dropdown when clicking on country input
+        countryInput.addEventListener('click', function() {
+            if (countries.length > 0) {
+                countryDropdown.style.display = 'block';
+            }
+        });
 
-                // Validate full name
-                if (!fullName) {
-                    document.getElementById('full_name_error').textContent = 'Please enter your full name';
-                    document.getElementById('full_name_error').classList.remove('hidden');
-                    isValid = false;
-                }
+        // Hide country dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!countryInput.contains(e.target) && !countryDropdown.contains(e.target)) {
+                countryDropdown.style.display = 'none';
+            }
+        });
 
-                // Validate email
-                if (!email) {
-                    document.getElementById('email_error').textContent = 'Please enter your email';
-                    document.getElementById('email_error').classList.remove('hidden');
-                    isValid = false;
-                } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-                    document.getElementById('email_error').textContent = 'Please enter a valid email';
-                    document.getElementById('email_error').classList.remove('hidden');
-                    isValid = false;
-                }
+        // Policy links
+        termsLink.addEventListener('click', function() {
+            window.open('https://www.venusnap.com/terms/conditions', '_blank');
+        });
 
-                // Validate country
-                if (!country) {
-                    document.getElementById('country_error').textContent = 'Please select your country';
-                    document.getElementById('country_error').classList.remove('hidden');
-                    isValid = false;
-                }
+        privacyLink.addEventListener('click', function() {
+            window.open('https://www.venusnap.com/privacy/policy', '_blank');
+        });
 
-                // Validate phone number
-                if (!phoneNumber) {
-                    document.getElementById('phone_error').textContent = 'Please enter your phone number';
-                    document.getElementById('phone_error').classList.remove('hidden');
-                    isValid = false;
-                } else if (!/^[0-9]{8,15}$/.test(phoneNumber)) {
-                    document.getElementById('phone_error').textContent = 'Please enter a valid phone number';
-                    document.getElementById('phone_error').classList.remove('hidden');
-                    isValid = false;
-                }
+        // Form validation with reCAPTCHA
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
 
-                // Validate password
-                if (!password) {
-                    document.getElementById('password_error').textContent = 'Please enter a password';
-                    document.getElementById('password_error').classList.remove('hidden');
-                    isValid = false;
-                } else if (password.length < 8) {
-                    document.getElementById('password_error').textContent = 'Password must be at least 8 characters';
-                    document.getElementById('password_error').classList.remove('hidden');
-                    isValid = false;
-                }
-
-                // Validate password confirmation
-                if (password !== passwordConfirmation) {
-                    document.getElementById('password_confirmation_error').textContent = 'Passwords do not match';
-                    document.getElementById('password_confirmation_error').classList.remove('hidden');
-                    isValid = false;
-                }
-
-                // Validate acceptance
-                if (!acceptTerms || !acceptPrivacy) {
-                    document.getElementById('acceptance_error').classList.remove('hidden');
-                    isValid = false;
-                }
-
-                if (isValid) {
-                    // Show loading state
-                    submitButton.disabled = true;
-                    submitButton.classList.add('btn-disabled');
-                    buttonText.textContent = 'Creating account...';
-                    buttonSpinner.classList.remove('hidden');
-
-                    // Submit via AJAX instead of form submission
-                    const formData = new FormData();
-                    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-                    formData.append('full_name', fullName);
-                    formData.append('email', email);
-                    formData.append('country', country);
-                    formData.append('country_code', countryCode);
-                    formData.append('phone_number', phoneNumber);
-                    formData.append('password', password);
-                    formData.append('password_confirmation', passwordConfirmation);
-
-                    fetch('{{ route("register") }}', {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            // Redirect to welcome page
-                            window.location.href = data.redirect_url;
-                        } else {
-                            // Show error message
-                            alert(data.message || 'Registration failed. Please try again.');
-
-                            // Reset button state
-                            submitButton.disabled = false;
-                            submitButton.classList.remove('btn-disabled');
-                            buttonText.textContent = 'Sign Up';
-                            buttonSpinner.classList.add('hidden');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred. Please try again.');
-
-                        // Reset button state
-                        submitButton.disabled = false;
-                        submitButton.classList.remove('btn-disabled');
-                        buttonText.textContent = 'Sign Up';
-                        buttonSpinner.classList.add('hidden');
-                    });
-                }
+            // Execute reCAPTCHA before form submission
+            grecaptcha.ready(function() {
+                grecaptcha.execute('6LfITtsrAAAAABM5kP6D-PTQSfMOoTlyeuCTuGjL', {action: 'register'}).then(function(token) {
+                    // Add token to form data and proceed with validation
+                    validateAndSubmitForm(token);
+                }).catch(function(error) {
+                    console.error('reCAPTCHA error:', error);
+                    // Fallback: proceed without reCAPTCHA but show warning
+                    alert('Security check failed. Please try again.');
+                });
             });
         });
-    </script>
+
+        function validateAndSubmitForm(recaptchaToken) {
+            // Reset error messages
+            document.querySelectorAll('[id$="_error"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+
+            // Get form values
+            const fullName = document.getElementById('full_name').value;
+            const email = document.getElementById('email').value;
+            const country = document.getElementById('country').value;
+            const phoneNumber = document.getElementById('phone_number').value;
+            const password = document.getElementById('password').value;
+            const passwordConfirmation = document.getElementById('password_confirmation').value;
+            const acceptTerms = document.getElementById('accept_terms').checked;
+            const acceptPrivacy = document.getElementById('accept_privacy').checked;
+            const countryCode = document.getElementById('country_code').value;
+
+            let isValid = true;
+
+            // Validate full name
+            if (!fullName) {
+                document.getElementById('full_name_error').textContent = 'Please enter your full name';
+                document.getElementById('full_name_error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            // Validate email
+            if (!email) {
+                document.getElementById('email_error').textContent = 'Please enter your email';
+                document.getElementById('email_error').classList.remove('hidden');
+                isValid = false;
+            } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+                document.getElementById('email_error').textContent = 'Please enter a valid email';
+                document.getElementById('email_error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            // Validate country
+            if (!country) {
+                document.getElementById('country_error').textContent = 'Please select your country';
+                document.getElementById('country_error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            // Validate phone number
+            if (!phoneNumber) {
+                document.getElementById('phone_error').textContent = 'Please enter your phone number';
+                document.getElementById('phone_error').classList.remove('hidden');
+                isValid = false;
+            } else if (!/^[0-9]{8,15}$/.test(phoneNumber)) {
+                document.getElementById('phone_error').textContent = 'Please enter a valid phone number';
+                document.getElementById('phone_error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            // Validate password
+            if (!password) {
+                document.getElementById('password_error').textContent = 'Please enter a password';
+                document.getElementById('password_error').classList.remove('hidden');
+                isValid = false;
+            } else if (password.length < 8) {
+                document.getElementById('password_error').textContent = 'Password must be at least 8 characters';
+                document.getElementById('password_error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            // Validate password confirmation
+            if (password !== passwordConfirmation) {
+                document.getElementById('password_confirmation_error').textContent = 'Passwords do not match';
+                document.getElementById('password_confirmation_error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            // Validate acceptance
+            if (!acceptTerms || !acceptPrivacy) {
+                document.getElementById('acceptance_error').classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Show loading state
+                submitButton.disabled = true;
+                submitButton.classList.add('btn-disabled');
+                buttonText.textContent = 'Creating account...';
+                buttonSpinner.classList.remove('hidden');
+
+                // Submit via AJAX with reCAPTCHA token
+                const formData = new FormData();
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+                formData.append('g-recaptcha-response', recaptchaToken);
+                formData.append('full_name', fullName);
+                formData.append('email', email);
+                formData.append('country', country);
+                formData.append('country_code', countryCode);
+                formData.append('phone_number', phoneNumber);
+                formData.append('password', password);
+                formData.append('password_confirmation', passwordConfirmation);
+
+                fetch('{{ route("register") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Redirect to welcome page
+                        window.location.href = data.redirect_url || '/welcome';
+                    } else {
+                        // Show error message
+                        showError(data.message || 'Registration failed. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('An error occurred. Please try again.');
+                });
+            }
+        }
+
+        function showError(message) {
+            alert(message);
+            resetButtonState();
+        }
+
+        function resetButtonState() {
+            submitButton.disabled = false;
+            submitButton.classList.remove('btn-disabled');
+            buttonText.textContent = 'Sign Up';
+            buttonSpinner.classList.add('hidden');
+        }
+
+        // Alternative: hCaptcha implementation (if preferred)
+        /*
+        function initializeHCaptcha() {
+            // Add hCaptcha script dynamically
+            const script = document.createElement('script');
+            script.src = 'https://js.hcaptcha.com/1/api.js';
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+        */
+    });
+</script>
 </body>
 </html>
