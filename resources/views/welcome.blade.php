@@ -160,7 +160,7 @@
             <li><i class="bi bi-check-circle"></i> <span>Get supported through admires, subscriptions, and Venusnap Points.</span></li>
             <li><i class="bi bi-check-circle"></i> <span>Join a vibrant community of artists, photographers, and creatives who believe in the power of visual expression.</span></li>
             </ul>
-            <a href="#" class="read-more"><span>Read More</span><i class="bi bi-arrow-right"></i></a>
+            <a href="/welcome" class="read-more"><span>Read More</span><i class="bi bi-arrow-right"></i></a>
           </div>
 
           <div class="col-lg-6 about-images" data-aos="fade-up" data-aos-delay="200">
