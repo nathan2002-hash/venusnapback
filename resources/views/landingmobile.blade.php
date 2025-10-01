@@ -374,7 +374,7 @@
   <h2 class="cta-title">Create. Share. Inspire.</h2>
   <p class="cta-subtitle">
     Join a growing community of creators building Albums that people love.
-    Your creativity deserves recognition—start today.
+    Your creativity deserves recognition start today.
   </p>
     <a href="https://play.google.com/store/apps/details?id=com.venusnap.app"
         target="_blank"
