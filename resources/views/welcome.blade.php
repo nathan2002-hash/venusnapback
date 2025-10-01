@@ -173,9 +173,9 @@
                   <div class="col-lg-12">
                     <img src="{{ $posts[1]['image_url'] }}" class="img-fluid" alt="{{ $posts[1]['album_name'] }}">
                   </div>
-                  <div class="col-lg-12">
+                  {{-- <div class="col-lg-12">
                     <img src="{{ $posts[2]['image_url'] }}" class="img-fluid" alt="{{ $posts[2]['album_name'] }}">
-                  </div>
+                  </div> --}}
                 </div>
               </div>
             </div>
@@ -458,22 +458,22 @@
         <div class="row g-5 align-items-center">
           <div class="col-lg-6" data-aos="fade-right" data-aos-delay="200">
             <div class="cta-image-wrapper">
-              <img src="{{ asset('assets1/img/cta/cta-4.webp') }}" alt="Call to Action" class="img-fluid rounded-4">
+              <img src="{{ $posts[2]['image_url'] }}" alt="{{ $posts[2]['image_url'] }}" class="img-fluid rounded-4">
               <div class="cta-pattern"></div>
             </div>
           </div>
 
           <div class="col-lg-6" data-aos="fade-left" data-aos-delay="300">
             <div class="cta-content">
-              <h2>Create Powerful Ads from Just a Description</h2>
+              <h2>Create Powerful posts from Just a Description</h2>
               <p class="lead">
-                    No graphic designer? No problem. Venusnap helps businesses generate eye-catching ad Snaps instantly just describe your offer, and you're ready to go.
+                    No graphic designer? No problem. Venusnap helps creators generate eye-catching post Snaps instantly just describe your idea, and you’re ready to go.
                 </p>
 
               <div class="cta-features">
                 <div class="feature-item" data-aos="zoom-in" data-aos-delay="400">
                 <i class="bi bi-check-circle-fill"></i>
-                <span>Instant image generation for ads</span>
+                <span>Instant image generation for posts</span>
                 </div>
                 <div class="feature-item" data-aos="zoom-in" data-aos-delay="450">
                 <i class="bi bi-check-circle-fill"></i>
@@ -486,8 +486,8 @@
             </div>
 
             <div class="cta-action mt-5">
-                <a href="/ads" class="btn btn-primary btn-lg me-3">Start Creating Ads</a>
-                <a href="/learn-more" class="btn btn-outline-primary btn-lg">How It Works</a>
+                <a href="/register" class="btn btn-primary btn-lg me-3">Start Creating</a>
+                <a href="/welcome" class="btn btn-outline-primary btn-lg">How It Works</a>
             </div>
             </div>
           </div>
@@ -1001,7 +1001,7 @@
                 <i class="bi bi-telephone"></i>
               </div>
               <h3>Contact Number</h3>
-              <p>SMS/Whatsapp: +447441473240<br>
+              <p>SMS/Whatsapp: +44 744 147 3240<br>
                 Email: support@venusnap.com</p>
             </div>
           </div>
