@@ -662,7 +662,7 @@
         <!-- CTA Section -->
         <section class="cta-section" id="community">
             <h2 class="cta-title">Create. Share. Inspire.</h2>
-            <p class="cta-subtitle">Join a growing community of creators building Albums that people love. Your creativity deserves recognition—start today.</p>
+            <p class="cta-subtitle">Join a growing community of creators building Albums that people love. Your creativity deserves recognition start today.</p>
             <div class="cta-buttons">
                 <a href="{{ route('register') }}" class="cta-button">Start Your Album</a>
                 <a href="#gallery" class="secondary-button">See Examples</a>

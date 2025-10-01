@@ -166,15 +166,15 @@
           <div class="col-lg-6 about-images" data-aos="fade-up" data-aos-delay="200">
             <div class="row gy-4">
               <div class="col-lg-6">
-                <img src="{{ asset('assets1/img/about/about-portrait-1.webp') }}" class="img-fluid" alt="">
+                <img src="{{ $posts[0]['image_url'] }}" class="img-fluid" alt="{{ $posts[0]['album_name'] }}">
               </div>
               <div class="col-lg-6">
                 <div class="row gy-4">
                   <div class="col-lg-12">
-                    <img src="{{ asset('assets1/img/about/about-8.webp') }}" class="img-fluid" alt="">
+                    <img src="{{ $posts[1]['image_url'] }}" class="img-fluid" alt="{{ $posts[1]['album_name'] }}">
                   </div>
                   <div class="col-lg-12">
-                    <img src="{{ asset('assets1/img/about/about-12.webp') }}" class="img-fluid" alt="">
+                    <img src="{{ $posts[2]['image_url'] }}" class="img-fluid" alt="{{ $posts[2]['album_name'] }}">
                   </div>
                 </div>
               </div>
@@ -288,7 +288,7 @@
               </div>
               <div class="service-content">
                 <h3>Visual Albums</h3>
-                <p>Create stunning albums—whether personal, business, or creative—and share your story with your audience through captivating visuals.</p>
+                <p>Create stunning albums whether personal, business, or creative and share your story with your audience through captivating visuals.</p>
                 <a href="#" class="service-link">
                 <span>Explore Albums</span>
                 <i class="bi bi-arrow-right"></i>
@@ -304,7 +304,7 @@
               </div>
               <div class="service-content">
                 <h3>Monetization Through visual</h3>
-                <p>Users can support your content with paid visuals, turning admiration into earnings. Every like has real value.</p>
+                <p>Users can support your content with paid visuals, turning admiration into earnings. Every admiration has real value.</p>
                 <a href="#" class="service-link">
                 <span>Learn More</span>
                 <i class="bi bi-arrow-right"></i>

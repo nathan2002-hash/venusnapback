@@ -25,9 +25,12 @@ class HomeController extends Controller
 
     public function home()
     {
+        $posts = $this->getFeaturedPostsForCarousel(3)->values()->all();
         return view('welcome', [
+            'posts' => $posts
         ]);
     }
+
 
     public function blocked()
     {
@@ -59,7 +62,7 @@ class HomeController extends Controller
    private function getFeaturedPostsForCarousel($limit = 6)
 {
     // Hardcoded array of specific post IDs
-    $featuredPostIds = [411, 423, 397, 409, 437, 451]; // Replace with your actual post IDs
+    $featuredPostIds = [469, 411, 423, 397, 409, 437]; // Replace with your actual post IDs
 
     // Get featured posts with their first media and album info
     $posts = Post::with([
