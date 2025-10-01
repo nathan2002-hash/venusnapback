@@ -56,50 +56,52 @@ class HomeController extends Controller
         ]);
     }
 
-    private function getFeaturedPostsForCarousel($limit = 6)
-    {
-        // Get featured posts with their first media and album info
-        $posts = Post::with([
-                'postmedias' => function ($query) {
-                    $query->orderBy('sequence_order')
-                        ->limit(1); // Only get first media
-                },
-                'album'
-            ])
-            ->where('status', 'active')
-            ->where('visibility', 'public')
-            ->orderBy('created_at', 'desc')
-            ->limit($limit)
-            ->get();
+   private function getFeaturedPostsForCarousel($limit = 6)
+{
+    // Hardcoded array of specific post IDs
+    $featuredPostIds = [411, 423, 397, 409, 437, 451]; // Replace with your actual post IDs
 
-        // Format the posts for carousel
-        $formattedPosts = $posts->map(function ($post) {
-            $album = $post->album;
-            $firstMedia = $post->postmedias->first();
+    // Get featured posts with their first media and album info
+    $posts = Post::with([
+            'postmedias' => function ($query) {
+                $query->orderBy('sequence_order')
+                    ->limit(1); // Only get first media
+            },
+            'album'
+        ])
+        ->whereIn('id', $featuredPostIds) // Use whereIn with hardcoded IDs
+        ->where('status', 'active')
+        ->where('visibility', 'public')
+        ->orderByRaw('FIELD(id, ' . implode(',', $featuredPostIds) . ')') // Maintain the order from your array
+        ->limit($limit)
+        ->get();
 
-            // Get image URL
-            $imageUrl = $firstMedia && $firstMedia->file_path_compress
-                ? generateSecureMediaUrl($firstMedia->file_path_compress)
-                : 'https://images.unsplash.com/photo-1579546929662-711aa81148cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'; // Fallback image
+    // Format the posts for carousel
+    $formattedPosts = $posts->map(function ($post) {
+        $album = $post->album;
+        $firstMedia = $post->postmedias->first();
 
-            // Truncate description
-            $description = $post->description ?: ($album ? "Check out this snap from the {$album->name} album!" : 'Amazing creation on Venusnap');
-            $truncatedDescription = Str::limit($description, 120);
+        // Get image URL
+        $imageUrl = $firstMedia && $firstMedia->file_path_compress
+            ? generateSecureMediaUrl($firstMedia->file_path_compress)
+            : 'https://images.unsplash.com/photo-1579546929662-711aa81148cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'; // Fallback image
 
-            // Get album name and category
-            $albumName = $album ? $album->name : 'Unknown Album';
-            //$category = $album && $album->post_categories ? $album->post_categories : 'Art';
+        // Truncate description
+        $description = $post->description ?: ($album ? "Check out this snap from the {$album->name} album!" : 'Amazing creation on Venusnap');
+        $truncatedDescription = Str::limit($description, 120);
 
-            return [
-                'id' => $post->id,
-                'description' => $truncatedDescription,
-                'image_url' => $imageUrl,
-                'album_name' => $albumName,
-                //'category' => $category,
-                'created_at' => $post->created_at->diffForHumans(),
-            ];
-        });
+        // Get album name and category
+        $albumName = $album ? $album->name : 'Unknown Album';
 
-        return $formattedPosts;
-    }
+        return [
+            'id' => $post->id,
+            'description' => $truncatedDescription,
+            'image_url' => $imageUrl,
+            'album_name' => $albumName,
+            'created_at' => $post->created_at->diffForHumans(),
+        ];
+    });
+
+    return $formattedPosts;
+}
 }
