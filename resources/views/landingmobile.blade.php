@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Venusnap - Discover Amazing Art</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -14,9 +13,20 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
+        :root {
+            --primary: #7c3aed;
+            --primary-dark: #6d28d9;
+            --primary-light: #8b5cf6;
+            --accent: #d8b4fe;
+            --text-light: #f8fafc;
+            --text-dark: #1e293b;
+            --bg-dark: #0f172a;
+            --bg-card: rgba(255, 255, 255, 0.1);
+        }
+
         body {
-            background: #000;
-            color: #fff;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: var(--text-light);
             overflow-x: hidden;
             min-height: 100vh;
         }
@@ -28,405 +38,882 @@
             overflow: hidden;
         }
 
-        .art-container {
+        /* Header Styles */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .cta-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 10rem 5% 5rem;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.hero-buttons a {
+    white-space: nowrap;
+}
+
+        .secondary-button {
+            background: transparent;
+            color: white;
+            border: 2px solid var(--primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .secondary-button:hover {
+            background: rgba(124, 58, 237, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Carousel Section */
+        .carousel-section {
+            padding: 5rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            font-weight: 700;
+        }
+
+        .carousel-container {
             position: relative;
             width: 100%;
-            height: 70vh;
             overflow: hidden;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        .art-item {
-            width: 100%;
-            height: 100%;
+        .carousel {
             display: flex;
-            justify-content: center;
-            align-items: center;
+            transition: transform 0.5s ease;
         }
 
-        .art-item img {
+        .carousel-item {
+            flex: 0 0 auto;
+            width: 300px; /* Fixed width for portrait items */
+            position: relative;
+            height: 450px; /* Taller height for portrait */
+            overflow: hidden;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+          .carousel-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+
+        .carousel-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .overlay {
+        .carousel-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.9) 0%, transparent 100%);
+            color: white;
+        }
+
+        .carousel-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .carousel-description {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            max-width: 600px;
+        }
+
+        .carousel-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .carousel-tag {
+            background: var(--bg-card);
+            padding: 0.4rem 0.8rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .carousel-nav:hover {
+            background: var(--primary);
+        }
+
+        .carousel-prev {
+            left: 20px;
+        }
+
+        .carousel-next {
+            right: 20px;
+        }
+
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .indicator.active {
+            background: var(--primary);
+            transform: scale(1.2);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 6rem 5%;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            margin: 5rem 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 30%, rgba(0,0,0,0) 100%);
-            z-index: 5;
-        }
-
-        .art-info {
-            position: relative;
-            padding: 30px;
-            z-index: 10;
-            background: #000;
-        }
-
-        .artist {
-            font-size: 16px;
-            font-weight: 500;
-            margin-bottom: 8px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-            color: #f8f8f8;
-            letter-spacing: 0.5px;
-        }
-
-        .title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
-            color: #fff;
-            line-height: 1.2;
-        }
-
-        .description {
-            font-size: 16px;
-            font-weight: 400;
-            line-height: 1.5;
-            margin-bottom: 15px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-            max-width: 600px;
-            color: #f0f0f0;
-        }
-
-        .tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 15px;
-        }
-
-        .tag {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 14px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .cta-section {
-            position: relative;
-            width: 100%;
-            background: #000;
-            padding: 25px 20px;
-            text-align: center;
-            z-index: 20;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="%236d28d9"><polygon points="0,0 1000,50 1000,100 0,100"></polygon></svg>');
+            background-size: cover;
+            opacity: 0.1;
         }
 
         .cta-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            letter-spacing: 0.5px;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
         }
 
         .cta-subtitle {
-            font-size: 16px;
-            margin-bottom: 20px;
-            opacity: 0.9;
-            font-weight: 400;
-            line-height: 1.4;
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
         }
 
-        .download-btn {
-            background: #fff;
-            color: #000;
-            border: none;
-            padding: 16px 40px;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.3s, background 0.3s;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
-        .download-btn:hover {
-            transform: translateY(-2px);
-            background: #f8f8f8;
+        .store-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
         }
 
-        .logo {
-            position: absolute;
-            top: 25px;
-            left: 25px;
-            font-size: 24px;
-            font-weight: 700;
-            z-index: 10;
-            letter-spacing: 1px;
-        }
-
-        /* Mobile menu button */
-        .mobile-menu-btn {
-            display: none;
-            position: absolute;
-            top: 25px;
-            right: 25px;
-            z-index: 100;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+        .store-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
             color: white;
-            font-size: 20px;
-            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* Mobile-specific styles */
+        .store-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .store-icon {
+            font-size: 1.5rem;
+        }
+
+        .store-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .store-label {
+            font-size: 0.8rem;
+        }
+
+        .store-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            text-align: center;
+            background: var(--bg-dark);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .copyright {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* Mobile Styles */
         @media (max-width: 768px) {
-            .art-container {
-                height: 50vh;
+            header {
+                padding: 1rem 5%;
             }
 
-            .art-info {
-                padding: 20px;
-            }
-
-            .artist {
-                font-size: 14px;
-                margin-bottom: 6px;
-            }
-
-            .title {
-                font-size: 20px;
-                margin-bottom: 10px;
-                line-height: 1.3;
-            }
-
-            .description {
-                font-size: 14px;
-                margin-bottom: 12px;
-                line-height: 1.5;
-                max-width: 100%;
-            }
-
-            .tags {
-                gap: 6px;
-                margin-top: 12px;
-            }
-
-            .tag {
-                padding: 5px 12px;
-                font-size: 12px;
-            }
-
-            .cta-section {
-                padding: 30px 20px;
-            }
-
-            .cta-title {
-                font-size: 20px;
-                margin-bottom: 10px;
-            }
-
-            .cta-subtitle {
-                font-size: 14px;
-                margin-bottom: 18px;
-                line-height: 1.4;
-                padding: 0 10px;
-            }
-
-            .download-btn {
-                padding: 14px 35px;
-                font-size: 16px;
-                width: 100%;
-                max-width: 300px;
-            }
-
-            .logo {
-                top: 20px;
-                left: 20px;
-                font-size: 20px;
+            .nav-links {
+                display: none;
             }
 
             .mobile-menu-btn {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            /* Mobile navigation */
-            .mobile-nav {
-                position: fixed;
-                top: 0;
-                right: -100%;
-                width: 80%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.95);
-                z-index: 1000;
-                padding: 60px 30px;
-                transition: right 0.3s ease;
-                backdrop-filter: blur(10px);
-            }
-
-            .mobile-nav.active {
-                right: 0;
-            }
-
-            .mobile-nav a {
                 display: block;
-                color: white;
-                text-decoration: none;
-                font-size: 18px;
-                margin-bottom: 20px;
-                padding: 10px 0;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            }
-
-            .close-menu {
-                position: absolute;
-                top: 20px;
-                right: 20px;
                 background: none;
                 border: none;
                 color: white;
-                font-size: 24px;
+                font-size: 1.5rem;
                 cursor: pointer;
+            }
+
+            .hero {
+                padding: 8rem 5% 3rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .carousel-item {
+                height: 400px;
+            }
+
+            .carousel-content {
+                padding: 1.5rem;
+            }
+
+            .carousel-title {
+                font-size: 1.5rem;
+            }
+
+            .carousel-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .cta-title {
+                font-size: 2rem;
+            }
+
+            .cta-subtitle {
+                font-size: 1.1rem;
             }
         }
 
         @media (max-width: 480px) {
-            .art-info {
-                padding: 15px;
+            .hero h1 {
+                font-size: 2rem;
             }
 
-            .artist {
-                font-size: 13px;
+            .hero p {
+                font-size: 1rem;
             }
 
-            .title {
-                font-size: 18px;
+            .carousel-item {
+                height: 350px;
             }
 
-            .description {
-                font-size: 13px;
+            .carousel-content {
+                padding: 1rem;
             }
 
-            .tag {
-                font-size: 11px;
-                padding: 4px 10px;
+            .carousel-title {
+                font-size: 1.3rem;
+            }
+
+            .carousel-description {
+                font-size: 0.9rem;
+            }
+
+            .feature-card {
+                padding: 1.5rem;
             }
 
             .cta-title {
-                font-size: 18px;
+                font-size: 1.8rem;
             }
 
-            .cta-subtitle {
-                font-size: 13px;
+            /* Mobile Styles for Portrait Carousel */
+        @media (max-width: 768px) {
+            .carousel-container {
+                overflow-x: auto;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none; /* Firefox */
+                -ms-overflow-style: none; /* IE and Edge */
             }
 
-            .art-container {
-                height: 40vh;
+            .carousel-container::-webkit-scrollbar {
+                display: none; /* Chrome, Safari and Opera */
             }
 
-            .download-btn {
-                padding: 12px 25px;
-                font-size: 15px;
+            .carousel {
+                padding: 0 1rem;
+                scroll-snap-type: x mandatory;
+            }
+
+            .carousel-item {
+                scroll-snap-align: center;
+                width: 280px;
+                height: 420px;
+            }
+
+            .carousel-nav {
+                display: none; /* Hide navigation arrows on mobile */
+            }
+
+            .carousel-indicators {
+                display: none; /* Hide indicators on mobile */
             }
         }
-
-        /* Safe area insets for notch phones */
-        @supports(padding: max(0px)) {
-            .logo, .mobile-menu-btn {
-                top: max(25px, env(safe-area-inset-top));
-                left: max(25px, env(safe-area-inset-left));
-            }
-
-            .mobile-menu-btn {
-                right: max(25px, env(safe-area-inset-right));
-            }
-
-            .cta-section {
-                padding-bottom: max(25px, env(safe-area-inset-bottom));
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="/" class="logo" style="color: white; text-decoration: none; font-weight: bold; font-size: 24px;"></a>
+        <!-- Header -->
+        <header>
+            <a href="/" class="logo">
+                Venusnap
+            </a>
 
-        <div class="art-container">
-            <div class="art-item">
-                <img src="{{ asset('assets/img/design.jpeg') }}" alt="Artwork">
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#gallery">Gallery</a>
+                <a href="#community">Community</a>
+                <a href="{{ route('login') }}">Sign In</a>
             </div>
-            <div class="overlay"></div>
-        </div>
+            <a href="https://play.google.com/store/apps/details?id=com.venusnap.app"
+                target="_blank"
+                onclick="trackClick('start_album')">
+                <button class="cta-button">Download App</button>
+            </a>
 
-       <div class="art-info">
-  <div class="artist">Venusnap</div>
-  <h2 class="title">A Home for Visual Creators</h2>
-  <p class="description">
-    Share your quotes, memes, art, and photography in Albums that inspire, entertain,
-    and connect with people who truly appreciate creativity.
-  </p>
-</div>
+        </header>
 
-<div class="cta-section">
-  <h2 class="cta-title">Create. Share. Inspire.</h2>
-  <p class="cta-subtitle">
-    Join a growing community of creators building Albums that people love.
-    Your creativity deserves recognition start today.
-  </p>
-    <a href="https://play.google.com/store/apps/details?id=com.venusnap.app"
-        target="_blank"
-        onclick="trackClick('start_album')">
-        <button class="download-btn">Sign Up</button>
-    </a>
-</div>
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>A Home for Visual Creators</h1>
+            <p>Get Early Access and Monetization, Share your quotes, memes, art, and photography in Albums that inspire, entertain, and connect with people who truly appreciate creativity.</p>
+           <div class="hero-buttons">
+                <a href="{{ route('register') }}" class="cta-button">Start Creating</a><a href="#gallery" class="secondary-button">Explore Gallery</a>
+            </div>
+        </section>
 
+        <!-- Updated Carousel Section with Portrait Layout -->
+        <section class="carousel-section" id="gallery">
+            <h2 class="section-title">Featured Creations</h2>
+            <div class="carousel-container">
+                <div class="carousel">
+                   <!-- Sample posts - replace with your dynamic content -->
+                   <div class="carousel-item">
+                        <img src="https://images.unsplash.com/photo-1500462918059-b1a0cb512f1d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Portrait Art">
+                        <div class="carousel-content">
+                            <div class="carousel-tags">
+                                <span class="carousel-tag">Abstract Portraits</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=688&q=80" alt="Portrait Photography">
+                        <div class="carousel-content">
+                            <div class="carousel-tags">
+                                <span class="carousel-tag">Portrait Photography</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80" alt="Artistic Portrait">
+                        <div class="carousel-content">
+                            <div class="carousel-tags">
+                                <span class="carousel-tag">Artistic Vision</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Creative Portrait">
+                        <div class="carousel-content">
+                            <div class="carousel-tags">
+                                <span class="carousel-tag">Creative Expression</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Professional Portrait">
+                        <div class="carousel-content">
+                            <div class="carousel-tags">
+                                <span class="carousel-tag">Professional Work</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-nav carousel-prev">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="carousel-nav carousel-next">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <div class="carousel-indicators">
+                    <div class="indicator active"></div>
+                    <div class="indicator"></div>
+                    <div class="indicator"></div>
+                    <div class="indicator"></div>
+                    <div class="indicator"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features" id="features">
+            <h2 class="section-title">Why Creators Love Venusnap</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <h3 class="feature-title">Organize in Albums</h3>
+                    <p class="feature-description">Create beautiful albums to showcase your work thematically and tell your creative story.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="feature-title">Engage with Community</h3>
+                    <p class="feature-description">Connect with fellow creators, get feedback, and find inspiration in a supportive environment.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">Track Your Growth</h3>
+                    <p class="feature-description">Monitor your audience engagement and understand what resonates with your followers.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section" id="community">
+            <h2 class="cta-title">Create. Share. Inspire.</h2>
+            <p class="cta-subtitle">Join a growing community of creators building Albums that people love. Your creativity deserves recognition start today.</p>
+            <div class="cta-buttons">
+                <a href="{{ route('register') }}" class="cta-button">Start Your Album</a>
+                <a href="#gallery" class="secondary-button">See Examples</a>
+            </div>
+            <div class="store-buttons">
+                <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" class="store-button">
+                    <i class="fab fa-google-play store-icon"></i>
+                    <div class="store-text">
+                        <span class="store-label">GET IT ON</span>
+                        <span class="store-name">Google Play</span>
+                    </div>
+                </a>
+                <a href="#" class="store-button">
+                    <i class="fab fa-apple store-icon"></i>
+                    <div class="store-text">
+                        <span class="store-label">Coming Soon</span>
+                        <span class="store-name">App Store</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-links">
+                <a href="/">Venusnap</a>
+                <a href="/#about">About</a>
+                <a href="/#contact">Help</a>
+                <a href="/privacy/policy">Privacy</a>
+                <a href="/terms/of/service">Terms</a>
+            </div>
+            <p class="copyright">© 2025 Venusnap. All rights reserved.</p>
+        </footer>
     </div>
-<script>
-document.querySelector('.download-btn').addEventListener('click', function () {
-    fetch('/track-button-click', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({
-            button_name: 'Sign Up',
-            page_url: window.location.href
-        })
-    })
-    .then(res => res.json())
-    .then(data => console.log(data));
-});
-</script>
 
+   <script>
+        // Updated Carousel functionality for portrait layout
+        document.addEventListener('DOMContentLoaded', function() {
+            const carousel = document.querySelector('.carousel');
+            const items = document.querySelectorAll('.carousel-item');
+            const prevBtn = document.querySelector('.carousel-prev');
+            const nextBtn = document.querySelector('.carousel-next');
+            const indicators = document.querySelectorAll('.indicator');
+            const container = document.querySelector('.carousel-container');
 
-    <script>
-        // Mobile menu functionality
-        const menuBtn = document.getElementById('menuBtn');
-        const mobileNav = document.getElementById('mobileNav');
-        const closeMenu = document.getElementById('closeMenu');
+            let currentIndex = 0;
+            const totalItems = items.length;
+            const itemWidth = items[0].offsetWidth + 24; // width + gap
+            const isMobile = window.innerWidth <= 768;
 
-        menuBtn.addEventListener('click', () => {
-            mobileNav.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        });
+            // Update carousel position
+            function updateCarousel() {
+                if (!isMobile) {
+                    carousel.style.transform = `translateX(-${currentIndex * itemWidth}px)`;
+                }
 
-        closeMenu.addEventListener('click', () => {
-            mobileNav.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (mobileNav.classList.contains('active') &&
-                !mobileNav.contains(e.target) &&
-                e.target !== menuBtn) {
-                mobileNav.classList.remove('active');
-                document.body.style.overflow = 'auto';
+                // Update indicators
+                indicators.forEach((indicator, index) => {
+                    if (index === currentIndex) {
+                        indicator.classList.add('active');
+                    } else {
+                        indicator.classList.remove('active');
+                    }
+                });
             }
+
+            // Next slide
+            function nextSlide() {
+                if (currentIndex < totalItems - 1) {
+                    currentIndex++;
+                    updateCarousel();
+                }
+            }
+
+            // Previous slide
+            function prevSlide() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateCarousel();
+                }
+            }
+
+            // Go to specific slide
+            function goToSlide(index) {
+                currentIndex = index;
+                updateCarousel();
+            }
+
+            // Event listeners for desktop navigation
+            if (!isMobile) {
+                nextBtn.addEventListener('click', nextSlide);
+                prevBtn.addEventListener('click', prevSlide);
+
+                indicators.forEach((indicator, index) => {
+                    indicator.addEventListener('click', () => goToSlide(index));
+                });
+
+                // Auto advance carousel on desktop
+                setInterval(nextSlide, 4000);
+            }
+
+            // Mobile swipe functionality
+            if (isMobile) {
+                let startX = 0;
+                let currentX = 0;
+                let isDragging = false;
+
+                container.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].clientX;
+                    isDragging = true;
+                });
+
+                container.addEventListener('touchmove', (e) => {
+                    if (!isDragging) return;
+                    currentX = e.touches[0].clientX;
+                });
+
+                container.addEventListener('touchend', () => {
+                    if (!isDragging) return;
+
+                    const diffX = startX - currentX;
+                    const threshold = 50;
+
+                    if (Math.abs(diffX) > threshold) {
+                        if (diffX > 0) {
+                            // Swiped left
+                            nextSlide();
+                        } else {
+                            // Swiped right
+                            prevSlide();
+                        }
+                    }
+
+                    isDragging = false;
+                });
+            }
+
+            // Mobile menu functionality
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+                });
+            }
+
+            // Adjust menu on resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    if (navLinks) navLinks.style.display = 'flex';
+                } else {
+                    if (navLinks) navLinks.style.display = 'none';
+                }
+            });
+
+            // Track button clicks
+            document.querySelectorAll('.cta-button, .store-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const buttonText = this.textContent || this.querySelector('.store-name').textContent;
+
+                    fetch('/track-button-click', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            button_name: buttonText,
+                            page_url: window.location.href
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => console.log('Button click tracked:', data));
+                });
+            });
         });
     </script>
 </body>
