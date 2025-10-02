@@ -45,7 +45,10 @@ class User extends Authenticatable
         'phone_code_expires_at',
         'email_code',
         'email_code_expires_at',
-        'timezone'
+        'timezone',
+        'provider',
+        'provider_id',
+        'email_verified_at'
     ];
 
     /**

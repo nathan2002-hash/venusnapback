@@ -9,6 +9,7 @@ use App\Models\UserSetting;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use App\Jobs\SendTwoFactorCodeJob;
 use App\Jobs\SendPasswordRestCode;
 use App\Jobs\LoginActivityJob;
@@ -77,34 +78,49 @@ public function socialLogin(Request $request)
         }
 
         $isNewUser = false;
+        $profileAvatarUrl = $socialUser->getAvatar();
+
         // Create new user if doesn't exist
         if (!$user) {
             $isNewUser = true;
+
+            // Detect country and timezone from IP
+            $locationData = $this->detectCountryAndTimezone($ipaddress);
+
             $user = User::create([
                 'name' => $socialUser->getName() ?? $socialUser->getNickname() ?? 'Social User',
                 'email' => $socialUser->getEmail() ?? $providerId . '@' . $provider . '.com',
                 'username' => $this->generateUniqueUsername($socialUser->getName() ?? $socialUser->getNickname()),
                 'phone' => '',
-                'country_code' => '',
+                'country_code' => $locationData['country_code'] ?? '',
                 'partial_number' => '',
-                'country' => '',
+                'country' => $locationData['country'] ?? '',
                 'points' => '300',
                 'preference' => '1',
-                'timezone' => 'Africa/Lusaka',
+                'timezone' => $locationData['timezone'] ?? 'Africa/Lusaka',
                 'password' => Hash::make(Str::random(24)),
                 'provider' => $provider,
                 'provider_id' => $providerId,
                 'email_verified_at' => now(),
-                'status' => 'active', // Explicitly set status to active
+                'status' => 'active',
             ]);
 
-            // For social login, run the registration setup immediately instead of queuing
+            // For social login, run the registration setup immediately
             $this->runRegistrationSetup($user, $userAgent, $deviceinfo, $ipaddress);
+
+            // Download and store profile image for new users
+            if ($profileAvatarUrl) {
+                $this->downloadAndStoreProfileImage($user, $profileAvatarUrl, $provider);
+            }
+        } else {
+            // For existing users, update profile image if they don't have one
+            if (!$user->profile_original && $profileAvatarUrl) {
+                $this->downloadAndStoreProfileImage($user, $profileAvatarUrl, $provider);
+            }
         }
 
         // Double-check user status and settings
         if ($user->status !== 'active') {
-            // If status is not active, activate it
             $user->update(['status' => 'active']);
         }
 
@@ -162,9 +178,10 @@ public function socialLogin(Request $request)
             SendTwoFactorCodeJob::dispatch($user, $code);
         }
 
+        // Generate profile URL - use the compressed version if available
         $profileUrl = $user->profile_compressed
             ? generateSecureMediaUrl($user->profile_compressed)
-            : ($socialUser->getAvatar() ?? 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
+            : ($profileAvatarUrl ?? 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp');
 
         $preference = ($user->preference === null || $user->preference == 1) ? 1 : 0;
 
@@ -186,6 +203,114 @@ public function socialLogin(Request $request)
             'message' => $e->getMessage()
         ], 401);
     }
+}
+
+private function detectCountryAndTimezone($ipaddress)
+{
+    try {
+        $response = Http::get("http://ip-api.com/json/{$ipaddress}");
+
+        if ($response->successful()) {
+            $data = $response->json();
+
+            if ($data['status'] === 'success') {
+                return [
+                    'country' => $data['country'] ?? null,
+                    'country_code' => $data['countryCode'] ?? null,
+                    'timezone' => $data['timezone'] ?? 'Africa/Lusaka',
+                    'city' => $data['city'] ?? null,
+                    'region' => $data['region'] ?? null,
+                ];
+            }
+        }
+    } catch (\Exception $e) {
+        \Log::error("Failed to detect country/timezone for IP {$ipaddress}: " . $e->getMessage());
+    }
+
+    // Return default values if API fails
+    return [
+        'country' => null,
+        'country_code' => null,
+        'timezone' => 'Africa/Lusaka',
+        'city' => null,
+        'region' => null,
+    ];
+}
+
+/**
+ * Download and store social profile image in S3 (no compression)
+ */
+private function downloadAndStoreProfileImage(User $user, string $imageUrl, string $provider)
+{
+    try {
+        // Download the image
+        $client = new \GuzzleHttp\Client();
+        $response = $client->get($imageUrl, [
+            'timeout' => 30,
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            ]
+        ]);
+
+        if ($response->getStatusCode() !== 200) {
+            throw new \Exception('Failed to download image. HTTP status: ' . $response->getStatusCode());
+        }
+
+        $imageContent = $response->getBody();
+        $imageSize = strlen($imageContent);
+
+        // Validate image size (max 10MB)
+        if ($imageSize > 10 * 1024 * 1024) {
+            throw new \Exception('Image too large: ' . $imageSize . ' bytes');
+        }
+
+        // Get image extension from URL or content type
+        $extension = $this->getImageExtension($imageUrl, $response->getHeaderLine('Content-Type'));
+
+        // Generate unique filenames
+        $timestamp = now()->timestamp;
+        $filename = "uploads/profiles/originals/profile/{$user->id}_{$timestamp}.{$extension}";
+        $compressedFilename = "uploads/profiles/compressed/profile/{$user->id}_{$timestamp}.{$extension}";
+
+        // Store the same image in both original and compressed columns
+        Storage::disk('s3')->put($filename, $imageContent, 'public');
+
+        // Update user record - store same image in both columns
+        $user->update([
+            'profile_original' => $filename,
+            'profile_compressed' => $compressedFilename, // Same file for both
+        ]);
+
+        \Log::info("Profile image stored for user {$user->id} from {$provider} - File: {$filename}");
+
+    } catch (\Exception $e) {
+        \Log::error("Failed to download profile image for user {$user->id}: " . $e->getMessage());
+        // Don't throw the error - we don't want to break the login process
+    }
+}
+
+/**
+ * Get image extension from URL or content type
+ */
+private function getImageExtension(string $imageUrl, string $contentType): string
+{
+    // Try to get extension from URL
+    $path = parse_url($imageUrl, PHP_URL_PATH);
+    if ($path && preg_match('/\.(jpg|jpeg|png|gif|webp|bmp)$/i', $path, $matches)) {
+        return strtolower($matches[1]);
+    }
+
+    // Get extension from content type
+    $contentTypeToExtension = [
+        'image/jpeg' => 'jpg',
+        'image/jpg' => 'jpg',
+        'image/png' => 'png',
+        'image/gif' => 'gif',
+        'image/webp' => 'webp',
+        'image/bmp' => 'bmp',
+    ];
+
+    return $contentTypeToExtension[$contentType] ?? 'jpg';
 }
 
 /**
