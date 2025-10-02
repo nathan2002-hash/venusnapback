@@ -18,7 +18,8 @@ class SettingController extends Controller
             'tfa' => 0,
             'push_notifications' => 1,
             'dark_mode' => 0,
-            'history' => 1
+            'history' => 1,
+            'meta_notification' => 0
         ]);
 
         return response()->json([
@@ -27,7 +28,8 @@ class SettingController extends Controller
             'tfa' => (bool) $settings->tfa,
             'push_notifications' => (bool) $settings->push_notifications,
             'dark_mode' => (bool) $settings->dark_mode,
-            'save_history' => (bool) $settings->history
+            'save_history' => (bool) $settings->history,
+            'whatsapp_notifications' => (bool) $settings->meta_notification
         ]);
     }
 
@@ -49,29 +51,35 @@ class SettingController extends Controller
         ]);
     }
 
-    public function updateUserSetting(Request $request)
+   public function updateUserSetting(Request $request)
     {
         $user = Auth::user();
+
         $validated = $request->validate([
-            'setting_key' => 'required|string|in:sms_alert,email_notifications,tfa,push_notifications,dark_mode,history,save_history',
+            'setting_key' => 'required|string|in:sms_alert,email_notifications,tfa,push_notifications,dark_mode,history,save_history,whatsapp_notifications',
             'setting_value' => 'required|boolean',
         ]);
 
-        // Map save_history → history for DB
-        $dbKey = $validated['setting_key'] === 'save_history' ? 'history' : $validated['setting_key'];
+        // Mapping from API keys → DB keys
+        $keyMap = [
+            'save_history' => 'history',
+            'whatsapp_notifications' => 'meta_notification',
+        ];
+
+        // Determine the DB key
+        $dbKey = $keyMap[$validated['setting_key']] ?? $validated['setting_key'];
 
         $settings = UserSetting::firstOrCreate(['user_id' => $user->id]);
         $settings->update([$dbKey => $validated['setting_value']]);
 
-        // Return the original key Flutter sent (save_history) if that’s what was used
-        $responseKey = $validated['setting_key'] === 'history' ? 'save_history' : $validated['setting_key'];
-
+        // Return the original key Flutter sent
         return response()->json([
             'message' => 'Setting updated successfully',
-            'updated_setting' => $responseKey,
-            'new_value' => $validated['setting_value']
+            'updated_setting' => $validated['setting_key'],
+            'new_value' => $validated['setting_value'],
         ]);
     }
+
 
 
 

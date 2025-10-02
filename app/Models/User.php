@@ -48,7 +48,9 @@ class User extends Authenticatable
         'timezone',
         'provider',
         'provider_id',
-        'email_verified_at'
+        'email_verified_at',
+        'profile_original',
+        'profile_compressed',
     ];
 
     /**
