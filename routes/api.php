@@ -46,6 +46,7 @@ Route::post('/decrypt/filepath', function (Request $request) {
 
 Route::post('/register', 'Api\AuthController@register');
 Route::post('/login', 'Api\AuthController@login');
+Route::post('/auth/social-login', 'AuthController@socialLogin');
 Route::post('/forgot/password/code', 'Api\AuthController@sendResetCode');
 Route::post('/reset/password', 'Api\AuthController@ResetPassword');
 

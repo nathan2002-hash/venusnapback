@@ -18,6 +18,7 @@
         "laravel/passport": "^12.4",
         "laravel/sanctum": "^4.0",
         "laravel/scout": "^10.15",
+        "laravel/socialite": "^5.23",
         "laravel/telescope": "^5.5",
         "laravel/tinker": "^2.9",
         "league/flysystem-aws-s3-v3": "*",
@@ -28,6 +29,9 @@
         "predis/predis": "^3.0",
         "pusher/pusher-php-server": "^7.2",
         "rinvex/countries": "^9.1",
+        "socialiteproviders/facebook": "^4.1",
+        "socialiteproviders/google": "^4.1",
+        "socialiteproviders/manager": "^4.8",
         "stripe/stripe-php": "^16.6"
     },
     "require-dev": {
