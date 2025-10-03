@@ -101,7 +101,7 @@ class AlbumController extends Controller
 
                 return [
                     'id' => $album->id,
-                    'album_name' => "{$album->name} ($typeLabel)",
+                    'album_name' => "{$album->name}",
                     'type' => $album->type,
                     'privacy' => $album->visibility === 'private',
                     'cover_image' => $getAlbumProfile($album),
