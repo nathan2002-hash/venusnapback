@@ -83,20 +83,6 @@ class RegistrationJob implements ShouldQueue
         $usersetting->history = 1;
         $usersetting->save();
 
-        $account = Account::firstOrCreate(
-            ['user_id' => $this->user->id],
-            [
-                'user_id' => $this->user->id,
-                'account_balance' => 0.00,
-                'available_balance' => 0.00,
-                'monetization_status' => 'inactive',
-                'payout_method' => 'paypal',
-                'country' => $this->user->country,
-                'currency' => 'USD',
-                'paypal_email' => $this->user->email
-            ]
-        );
-
         Mail::to($this->user->email)->send(new WelcomeFromCeoMail(
             $this->user,
             $this->deviceinfo,

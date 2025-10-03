@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Album;
 use GuzzleHttp\Client;
-use App\Models\Artwork;
+use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Artboard;
 use Illuminate\Http\Request;
@@ -240,6 +240,20 @@ class AuthController extends Controller
             'timezone'   => 'Africa/Lusaka',
             'password'     => Hash::make($request->password),
         ]);
+
+        $account = Account::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'user_id' => $user->id,
+                'account_balance' => 0.00,
+                'available_balance' => 0.00,
+                'monetization_status' => 'inactive',
+                'payout_method' => 'paypal',
+                'country' => $user->country,
+                'currency' => 'USD',
+                'paypal_email' => $user->email
+            ]
+        );
 
         RegistrationJob::dispatch($user, $userAgent, $deviceinfo, $ipaddress);
 
