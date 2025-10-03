@@ -243,8 +243,44 @@ class AuthController extends Controller
 
         RegistrationJob::dispatch($user, $userAgent, $deviceinfo, $ipaddress);
 
+        // Create token and return login response
+        $token = $user->createToken('authToken');
+
+        // Log login activity for registration
+        LoginActivityJob::dispatch(
+            $user,
+            true,
+            'You successfully registered and logged into your account',
+            'Registration Successful',
+            $userAgent,
+            $ipaddress,
+            $deviceinfo
+        );
+
+        // Handle 2FA for new user
+        $authe = 0; // Default to no 2FA for new users, or set based on your logic
+        if ($user->usersetting && ($user->usersetting->tfa === null || $user->usersetting->tfa == 1)) {
+            $authe = 1;
+            $code = rand(100000, 999999);
+            $user->tfa_code = Hash::make($code);
+            $user->tfa_expires_at = now()->addMinutes(10);
+            $user->save();
+            SendTwoFactorCodeJob::dispatch($user, $code);
+        }
+
+        $profileUrl = $user->profile_compressed
+            ? generateSecureMediaUrl($user->profile_compressed)
+            : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user->email))) . '?s=100&d=mp';
+
+        $preference = ($user->preference === null || $user->preference == 1) ? 1 : 0;
+
         return response()->json([
-            'status'  => 'success',
+            'username' => (string) $user->username,
+            'fullname' => $user->name,
+            'token' => $token->accessToken,
+            'preference' => (string) $preference,
+            'profile' => $profileUrl,
+            '2fa' => (string) $authe,
             'message' => 'Registration successful'
         ], 200);
     }
