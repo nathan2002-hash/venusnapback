@@ -59,7 +59,25 @@ class AlbumController extends Controller
     {
         $user = Auth::user();
 
-        // Owned albums (Eloquent collection)
+        // Helper closure to get album profile
+        $getAlbumProfile = function ($album) {
+            if ($album->type === 'personal' || $album->type === 'creator') {
+                return $album->thumbnail_compressed
+                    ? generateSecureMediaUrl($album->thumbnail_compressed)
+                    : ($album->thumbnail_original
+                        ? generateSecureMediaUrl($album->thumbnail_original)
+                        : null);
+            } elseif ($album->type === 'business') {
+                return $album->business_logo_compressed
+                    ? generateSecureMediaUrl($album->business_logo_compressed)
+                    : ($album->business_logo_original
+                        ? generateSecureMediaUrl($album->business_logo_original)
+                        : null);
+            }
+            return 'https://example.com/default-thumbnail.jpg';
+        };
+
+        // Owned albums
         $ownedAlbums = Album::where('user_id', $user->id)
             ->whereIn('type', ['creator', 'business', 'personal'])
             ->select(
@@ -74,40 +92,24 @@ class AlbumController extends Controller
                 'business_logo_original'
             )
             ->get()
-            ->map(function ($album) {
+            ->map(function ($album) use ($getAlbumProfile) {
                 $typeLabel = match($album->type) {
                     'personal' => 'Personal',
                     'creator' => 'Creator',
                     default => 'Business',
                 };
 
-                // Determine album profile (thumbnail/logo)
-                if ($album->type === 'personal' || $album->type === 'creator') {
-                    $albumProfile = $album->thumbnail_compressed
-                        ? generateSecureMediaUrl($album->thumbnail_compressed)
-                        : ($album->thumbnail_original
-                            ? generateSecureMediaUrl($album->thumbnail_original)
-                            : null);
-                } elseif ($album->type === 'business') {
-                    $albumProfile = $album->business_logo_compressed
-                        ? generateSecureMediaUrl($album->business_logo_compressed)
-                        : ($album->business_logo_original
-                            ? generateSecureMediaUrl($album->business_logo_original)
-                            : null);
-                } else {
-                    $albumProfile = 'https://example.com/default-thumbnail.jpg';
-                }
-
                 return [
                     'id' => $album->id,
                     'album_name' => "{$album->name} ($typeLabel)",
+                    'type' => $album->type,
                     'privacy' => $album->visibility === 'private',
-                    'album_profile' => $albumProfile,
+                    'cover_image' => $getAlbumProfile($album),
                     'created_at' => $album->created_at
                 ];
             });
 
-        // Shared albums (from DB)
+        // Shared albums
         $sharedAlbums = DB::table('album_accesses')
             ->join('albums', 'album_accesses.album_id', '=', 'albums.id')
             ->where('album_accesses.user_id', $user->id)
@@ -125,46 +127,29 @@ class AlbumController extends Controller
                 'albums.business_logo_original'
             )
             ->get()
-            ->map(function ($album) {
+            ->map(function ($album) use ($getAlbumProfile) {
                 $typeLabel = match($album->type) {
                     'creator' => 'Creator',
                     default => 'Business',
                 };
 
-                // Determine album profile (thumbnail/logo)
-                if ($album->type === 'creator') {
-                    $albumProfile = $album->thumbnail_compressed
-                        ? generateSecureMediaUrl($album->thumbnail_compressed)
-                        : ($album->thumbnail_original
-                            ? generateSecureMediaUrl($album->thumbnail_original)
-                            : null);
-                } elseif ($album->type === 'business') {
-                    $albumProfile = $album->business_logo_compressed
-                        ? generateSecureMediaUrl($album->business_logo_compressed)
-                        : ($album->business_logo_original
-                            ? generateSecureMediaUrl($album->business_logo_original)
-                            : null);
-                } else {
-                    $albumProfile = 'https://example.com/default-thumbnail.jpg';
-                }
-
                 return [
                     'id' => $album->id,
-                    'album_name' => "{$album->name} ($typeLabel)",
+                    'album_name' => "{$album->name}",
+                    'type' => $album->type,
                     'privacy' => $album->visibility === 'private',
-                    'cover_image' => $albumProfile,
+                    'cover_image' => $getAlbumProfile($album),
                     'created_at' => $album->created_at
                 ];
             });
 
+        // Merge and clean
         $albums = $ownedAlbums->merge($sharedAlbums)
             ->sortByDesc('created_at')
-            ->values();
-
-        // Remove created_at from final output if you don’t want it in API response
-        $albums = $albums->map(function ($album) {
-            return collect($album)->except('created_at');
-        });
+            ->values()
+            ->map(function ($album) {
+                return collect($album)->except('created_at'); // remove created_at from final response
+            });
 
         return response()->json([
             'success' => true,
