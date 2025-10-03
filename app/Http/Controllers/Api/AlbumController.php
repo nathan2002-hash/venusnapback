@@ -62,7 +62,17 @@ class AlbumController extends Controller
         // Owned albums (Eloquent collection)
         $ownedAlbums = Album::where('user_id', $user->id)
             ->whereIn('type', ['creator', 'business', 'personal'])
-            ->select('id', 'name', 'type', 'visibility', 'created_at') // include visibility
+            ->select(
+                'id',
+                'name',
+                'type',
+                'visibility',
+                'created_at',
+                'thumbnail_compressed',
+                'thumbnail_original',
+                'business_logo_compressed',
+                'business_logo_original'
+            )
             ->get()
             ->map(function ($album) {
                 $typeLabel = match($album->type) {
@@ -71,10 +81,28 @@ class AlbumController extends Controller
                     default => 'Business',
                 };
 
+                // Determine album profile (thumbnail/logo)
+                if ($album->type === 'personal' || $album->type === 'creator') {
+                    $albumProfile = $album->thumbnail_compressed
+                        ? generateSecureMediaUrl($album->thumbnail_compressed)
+                        : ($album->thumbnail_original
+                            ? generateSecureMediaUrl($album->thumbnail_original)
+                            : null);
+                } elseif ($album->type === 'business') {
+                    $albumProfile = $album->business_logo_compressed
+                        ? generateSecureMediaUrl($album->business_logo_compressed)
+                        : ($album->business_logo_original
+                            ? generateSecureMediaUrl($album->business_logo_original)
+                            : null);
+                } else {
+                    $albumProfile = 'https://example.com/default-thumbnail.jpg';
+                }
+
                 return [
                     'id' => $album->id,
                     'album_name' => "{$album->name} ($typeLabel)",
                     'privacy' => $album->visibility === 'private',
+                    'album_profile' => $albumProfile,
                     'created_at' => $album->created_at
                 ];
             });
@@ -85,7 +113,17 @@ class AlbumController extends Controller
             ->where('album_accesses.user_id', $user->id)
             ->where('album_accesses.status', 'approved')
             ->whereIn('albums.type', ['creator', 'business'])
-            ->select('albums.id', 'albums.name', 'albums.type', 'albums.visibility', 'albums.created_at')
+            ->select(
+                'albums.id',
+                'albums.name',
+                'albums.type',
+                'albums.visibility',
+                'albums.created_at',
+                'albums.thumbnail_compressed',
+                'albums.thumbnail_original',
+                'albums.business_logo_compressed',
+                'albums.business_logo_original'
+            )
             ->get()
             ->map(function ($album) {
                 $typeLabel = match($album->type) {
@@ -93,27 +131,47 @@ class AlbumController extends Controller
                     default => 'Business',
                 };
 
+                // Determine album profile (thumbnail/logo)
+                if ($album->type === 'creator') {
+                    $albumProfile = $album->thumbnail_compressed
+                        ? generateSecureMediaUrl($album->thumbnail_compressed)
+                        : ($album->thumbnail_original
+                            ? generateSecureMediaUrl($album->thumbnail_original)
+                            : null);
+                } elseif ($album->type === 'business') {
+                    $albumProfile = $album->business_logo_compressed
+                        ? generateSecureMediaUrl($album->business_logo_compressed)
+                        : ($album->business_logo_original
+                            ? generateSecureMediaUrl($album->business_logo_original)
+                            : null);
+                } else {
+                    $albumProfile = 'https://example.com/default-thumbnail.jpg';
+                }
+
                 return [
                     'id' => $album->id,
                     'album_name' => "{$album->name} ($typeLabel)",
                     'privacy' => $album->visibility === 'private',
+                    'cover_image' => $albumProfile,
                     'created_at' => $album->created_at
                 ];
             });
 
         $albums = $ownedAlbums->merge($sharedAlbums)
-        ->sortByDesc('created_at')
-        ->values();
+            ->sortByDesc('created_at')
+            ->values();
+
+        // Remove created_at from final output if you don’t want it in API response
         $albums = $albums->map(function ($album) {
             return collect($album)->except('created_at');
         });
-
 
         return response()->json([
             'success' => true,
             'data' => $albums->values()
         ]);
     }
+
 
 
     protected function containsBlockedWord(string $text): bool
