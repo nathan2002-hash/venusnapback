@@ -107,30 +107,8 @@ class PostController extends Controller
                     'id' => $media->id,
                     'filepath' => generateSecureMediaUrl($media->file_path_compress),
                     'sequence_order' => (int)$media->sequence_order,
-                    'comments_count' => $media->comments->count(),
-                    'likes_count' => $media->admires->count(),
-                    'admired' => $media->admired,
-                    'comments' => $media->comments->map(function ($comment) {
-                        return [
-                            'id' => $comment->id,
-                            'content' => $comment->content,
-                            'user' => [
-                                'id' => $comment->user->id,
-                                'name' => $comment->user->name,
-                                'profile_photo_url' => $comment->user->profile_photo_url
-                            ]
-                        ];
-                    }),
-                    'admires' => $media->admires->map(function ($admire) {
-                        return [
-                            'id' => $admire->id,
-                            'user' => [
-                                'id' => $admire->user->id,
-                                'name' => $admire->user->name,
-                                'profile_photo_url' => $admire->user->profile_photo_url
-                            ]
-                        ];
-                    })
+                    'comments_count' => $media->comments_count, // use count from eager load
+                    'likes_count' => $media->admires_count,    // use count from eager load
                 ];
             })->values()->all();
 
@@ -238,18 +216,15 @@ class PostController extends Controller
         $posts = $posts->merge($fillers);
     }
 
-    // ✅ Eager load relations ONCE
+    // ✅ Eager load relations ONCE with counts only
     $posts->load([
-        'postmedias' => function ($query) use ($userId) {
+        'postmedias' => function ($query) {
             $query->orderBy('sequence_order')
-                ->withCount(['comments', 'admires'])
-                ->with(['comments.user', 'admires.user'])
-                ->withExists(['admires as admired' => function($q) use ($userId) {
-                    $q->where('user_id', $userId);
-                }]);
+                ->withCount(['comments', 'admires']); // only counts
         },
         'album.supporters'
     ]);
+
 
     return $posts->shuffle()->values();
 }
