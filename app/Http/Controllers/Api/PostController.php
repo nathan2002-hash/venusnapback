@@ -165,7 +165,7 @@ class PostController extends Controller
 
     private function fetchFallbackPostsForUser(int $userId, int $limit = 10)
     {
-        // Step 1: Get all post IDs the user has seen via post_media_id -> post_id
+        // STEP 1: Get all seen post IDs
         $seenPostIds = DB::table('views')
             ->join('post_media', 'views.post_media_id', '=', 'post_media.id')
             ->where('views.user_id', $userId)
@@ -173,77 +173,95 @@ class PostController extends Controller
             ->unique()
             ->toArray();
 
-        // Step 2: Prioritize fresh, unseen posts (newest first)
-        $freshUnseen = Post::with([
-                    'postmedias' => function ($query) use ($userId) {
-                        $query->orderBy('sequence_order')
-                            ->withCount(['comments', 'admires'])
-                            ->with(['comments.user', 'admires.user'])
-                            ->withExists(['admires as admired' => function($q) use ($userId) {
-                                $q->where('user_id', $userId);
-                            }]);
-                    },
-                    'album.supporters'
-                ])
+        // STEP 2: Get user's preferred categories
+        $preferredCategoryIds = DB::table('user_preferences')
+            ->where('user_id', $userId)
             ->where('status', 'active')
-            ->where('visibility', 'public')
-            ->whereNotIn('id', $seenPostIds)
-            ->orderBy('created_at', 'desc')
-            ->take($limit)
-            ->get();
+            ->pluck('category_id')
+            ->toArray();
 
-        $remaining = $limit - $freshUnseen->count();
+        // Common relationship eager load
+        $withRelations = [
+            'postmedias' => function ($query) use ($userId) {
+                $query->orderBy('sequence_order')
+                    ->withCount(['comments', 'admires'])
+                    ->with(['comments.user', 'admires.user'])
+                    ->withExists(['admires as admired' => function($q) use ($userId) {
+                        $q->where('user_id', $userId);
+                    }]);
+            },
+            'album.supporters'
+        ];
 
-        // Step 3: Fill remaining with random unseen posts
-        $randomUnseen = collect();
+        // STEP 3: Fetch category-based posts (user’s interests)
+        $categoryPosts = collect();
+        if (!empty($preferredCategoryIds)) {
+            $categoryPosts = Post::with($withRelations)
+                ->join('post_categories', 'posts.id', '=', 'post_categories.post_id')
+                ->where('posts.status', 'active')
+                ->where('posts.visibility', 'public')
+                ->where('posts.created_at', '<', now()->subHour())
+                ->whereNotIn('posts.id', $seenPostIds)
+                ->whereIn('post_categories.category_id', $preferredCategoryIds)
+                ->orderBy('posts.created_at', 'desc')
+                ->select('posts.*')
+                ->take($limit)
+                ->get();
+        }
+
+        $remaining = $limit - $categoryPosts->count();
+
+        // STEP 4: Fetch fresh unseen posts
+        $freshUnseen = collect();
         if ($remaining > 0) {
-            $randomUnseen = Post::with([
-                    'postmedias' => function ($query) use ($userId) {
-                        $query->orderBy('sequence_order')
-                            ->withCount(['comments', 'admires'])
-                            ->with(['comments.user', 'admires.user'])
-                            ->withExists(['admires as admired' => function($q) use ($userId) {
-                                $q->where('user_id', $userId);
-                            }]);
-                    },
-                    'album.supporters'
-                ])
+            $freshUnseen = Post::with($withRelations)
                 ->where('status', 'active')
                 ->where('visibility', 'public')
-                ->whereNotIn('id', array_merge($seenPostIds, $freshUnseen->pluck('id')->toArray()))
+                ->where('created_at', '<', now()->subHour())
+                ->whereNotIn('id', array_merge($seenPostIds, $categoryPosts->pluck('id')->toArray()))
+                ->orderBy('created_at', 'desc')
+                ->take($remaining)
+                ->get();
+        }
+
+        $remaining -= $freshUnseen->count();
+
+        // STEP 5: Fetch random unseen posts
+        $randomUnseen = collect();
+        if ($remaining > 0) {
+            $randomUnseen = Post::with($withRelations)
+                ->where('status', 'active')
+                ->where('visibility', 'public')
+                ->where('created_at', '<', now()->subHour())
+                ->whereNotIn('id', array_merge(
+                    $seenPostIds,
+                    $categoryPosts->pluck('id')->toArray(),
+                    $freshUnseen->pluck('id')->toArray()
+                ))
                 ->inRandomOrder()
                 ->take($remaining)
                 ->get();
         }
 
-        // Step 4: Optional fallback to seen posts if feed is still not full
-        $posts = $freshUnseen->merge($randomUnseen);
-        $stillNeeded = $limit - $posts->count();
+        $posts = $categoryPosts->merge($freshUnseen)->merge($randomUnseen);
 
-        if ($stillNeeded > 0) {
-            $seenFillers = Post::with([
-                    'postmedias' => function ($query) use ($userId) {
-                        $query->orderBy('sequence_order')
-                            ->withCount(['comments', 'admires'])
-                            ->with(['comments.user', 'admires.user'])
-                            ->withExists(['admires as admired' => function($q) use ($userId) {
-                                $q->where('user_id', $userId);
-                            }]);
-                    },
-                    'album.supporters'
-                ])
+        // STEP 6: Optional fallback to seen posts if still not enough
+        if ($posts->count() < $limit) {
+            $fillers = Post::with($withRelations)
                 ->where('status', 'active')
                 ->where('visibility', 'public')
+                ->where('created_at', '<', now()->subHour())
                 ->whereIn('id', $seenPostIds)
                 ->inRandomOrder()
-                ->take($stillNeeded)
+                ->take($limit - $posts->count())
                 ->get();
 
-            $posts = $posts->merge($seenFillers);
+            $posts = $posts->merge($fillers);
         }
 
         return $posts->shuffle()->values();
     }
+
 
 
     public function show(Request $request, $id)
@@ -408,6 +426,8 @@ class PostController extends Controller
         $post->visibility = $request->visibility;
         $post->save();
 
+         $this->notifyAdminOfNewPost($post->id, $user->id);
+
         $sequenceOrders = collect($request->post_medias)
             ->sortBy('sequence_order') // Ensure images are sorted by their sequence order
             ->values(); // Reindex the collection
@@ -428,6 +448,33 @@ class PostController extends Controller
 
         return response()->json(['message' => 'Post created successfully', 'post' => $post], 200);
     }
+
+    private function notifyAdminOfNewPost($postId, $userId)
+    {
+        $adminPhone = '260970333596'; // move to .env later
+        try {
+            $client = new \GuzzleHttp\Client();
+            $message = "New post #$postId by user #$userId uploaded and pending compression.";
+
+            $client->post('https://apisms.beem.africa/v1/send', [
+                'json' => [
+                    'source_addr' => 'Venusnap',
+                    'encoding' => 0,
+                    'message' => $message,
+                    'recipients' => [
+                        ['recipient_id' => 1, 'dest_addr' => $adminPhone],
+                    ],
+                ],
+                'headers' => [
+                    'Authorization' => 'Basic ' . base64_encode(env('BEEM_API_KEY') . ':' . env('BEEM_SECRET_KEY')),
+                    'Content-Type' => 'application/json',
+                ],
+            ]);
+        } catch (\Exception $e) {
+            \Log::error("Beem SMS failed: " . $e->getMessage());
+        }
+    }
+
 
     public function postedit($id)
     {

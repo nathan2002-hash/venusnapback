@@ -85,7 +85,7 @@ class CompressImageJob implements ShouldQueue
         $post = $this->postMedia->post;
 
         if ($post->postmedias()->where('status', '!=', 'compressed')->doesntExist()) {
-            $post->update(['status' => 'review']);
+            $post->update(['status' => 'active']);
         }
 
         if ($post->visibility === 'Private') {
