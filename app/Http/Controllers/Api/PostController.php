@@ -107,8 +107,10 @@ class PostController extends Controller
                     'id' => $media->id,
                     'filepath' => generateSecureMediaUrl($media->file_path_compress),
                     'sequence_order' => (int)$media->sequence_order,
-                    'comments_count' => $media->comments_count, // use count from eager load
-                    'likes_count' => $media->admires_count,    // use count from eager load
+                    'comments_count' => $media->comments->count(),
+                    'likes_count' => $media->admires->count(),
+                    'admired' => $media->admired,
+
                 ];
             })->values()->all();
 
@@ -228,6 +230,20 @@ class PostController extends Controller
         },
         'album.supporters'
     ]);
+
+    // ✅ Eager load relations ONCE with counts only
+    $posts->load([
+        'postmedias' => function ($query) use ($userId) {
+            $query->orderBy('sequence_order')
+                ->withCount(['comments', 'admires']) // only counts
+                ->withExists(['admires as admired' => function($q) use ($userId) {
+                    $q->where('user_id', $userId);
+                }]); // boolean flag for current user
+        },
+        'album.supporters' // you can keep this if you need supporter count
+    ]);
+
+
 
     return $posts->shuffle()->values();
 }
