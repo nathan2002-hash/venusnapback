@@ -216,15 +216,18 @@ class PostController extends Controller
         $posts = $posts->merge($fillers);
     }
 
-    // ✅ Eager load relations ONCE with counts only
+    // ✅ Eager load relations ONCE
     $posts->load([
-        'postmedias' => function ($query) {
+        'postmedias' => function ($query) use ($userId) {
             $query->orderBy('sequence_order')
-                ->withCount(['comments', 'admires']); // only counts
+                ->withCount(['comments', 'admires'])
+                ->with(['comments.user', 'admires.user'])
+                ->withExists(['admires as admired' => function($q) use ($userId) {
+                    $q->where('user_id', $userId);
+                }]);
         },
         'album.supporters'
     ]);
-
 
     return $posts->shuffle()->values();
 }
