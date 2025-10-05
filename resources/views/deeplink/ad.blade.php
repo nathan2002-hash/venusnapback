@@ -18,6 +18,8 @@
     <meta property="og:image" content="{{ $thumbnailUrl ?? asset('default.jpg') }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="article">
+     <link href="{{ asset('assets1/img/logo1.png') }}" rel="icon">
+    <link href="{{ asset('assets1/img/logo1.png') }}" rel="apple-touch-icon">
 
     <meta name="description" content="{{ $description }}">
 

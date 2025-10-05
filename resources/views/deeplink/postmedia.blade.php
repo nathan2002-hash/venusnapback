@@ -16,6 +16,8 @@
     <meta property="og:image" content="{{ $thumbnailUrl ?? asset('default.jpg') }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="article">
+     <link href="{{ asset('assets1/img/logo1.png') }}" rel="icon">
+    <link href="{{ asset('assets1/img/logo1.png') }}" rel="apple-touch-icon">
 
     <meta name="description" content="{{ $description }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -369,7 +371,7 @@
                     <div class="feature">
                         <i class="fas fa-images"></i>
                         <h3>Premium Content</h3>
-                        <p>Exclusive photos and videos from creators</p>
+                        <p>Exclusive photos from creators</p>
                     </div>
                     <div class="feature">
                         <i class="fas fa-lock"></i>

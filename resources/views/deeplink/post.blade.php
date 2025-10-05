@@ -14,6 +14,8 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="article">
     <meta name="description" content="{{ $description }}">
+    <link href="{{ asset('assets1/img/logo1.png') }}" rel="icon">
+    <link href="{{ asset('assets1/img/logo1.png') }}" rel="apple-touch-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
