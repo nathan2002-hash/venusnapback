@@ -74,7 +74,8 @@
 
         <!-- Main Card -->
         <div class="card bg-white rounded-xl p-8 fade-in">
-            <form id="password-reset-form">
+            <form id="password-reset-form" method="POST" action="{{ route('password.email') }}">
+                @csrf
                 <div class="mb-6">
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fas fa-envelope mr-2 text-gray-500"></i>Email Address
