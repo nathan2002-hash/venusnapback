@@ -23,6 +23,10 @@ Route::get('/register', 'AuthController@registerform');
 Route::post('/register', 'AuthController@register')->name('register');
 Route::get('/api/countries', 'AuthController@getCountries')->name('api.countries');
 Route::get('/api/detect-country', 'AuthController@detectCountry')->name('api.detect-country');
+
+// routes/web.php
+Route::get('/auth/{provider}', [App\Http\Controllers\AuthController::class, 'redirectToProvider'])->name('social.login');
+Route::get('/auth/{provider}/callback', [App\Http\Controllers\AuthController::class, 'handleProviderCallback']);
 Route::get('/onboard/welcome', 'AuthController@show');
 
 

@@ -4,12 +4,18 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Jobs\RegistrationJob;
 use Laravel\Socialite\Facades\Socialite;
+use App\Models\Activity;
+use Illuminate\Support\Facades\Storage;
+use App\Jobs\SendTwoFactorCodeJob;
+use App\Models\Account;
+use App\Models\UserSetting;
+use App\Jobs\LoginActivityJob;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -183,54 +189,374 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Redirect to provider for web login
+     */
     public function redirectToProvider($provider)
     {
         return Socialite::driver($provider)->redirect();
     }
 
+    /**
+     * Handle provider callback for web login
+     */
     public function handleProviderCallback($provider)
     {
         try {
             $socialUser = Socialite::driver($provider)->user();
 
-            // Find or create user (similar to your API method)
-            $user = User::where('provider', $provider)
-                        ->where('provider_id', $socialUser->getId())
-                        ->first();
+            $userAgent = request()->header('User-Agent');
+            $deviceinfo = 'Web Browser';
+            $realIp = request()->header('cf-connecting-ip') ?? request()->ip();
+            $ipaddress = $realIp;
 
-            if (!$user && $socialUser->getEmail()) {
-                $user = User::where('email', $socialUser->getEmail())->first();
+            // Reuse your existing social login logic
+            $user = $this->findOrCreateUserFromSocial($socialUser, $provider, $userAgent, $deviceinfo, $ipaddress);
 
-                if ($user) {
-                    $user->update([
-                        'provider' => $provider,
-                        'provider_id' => $socialUser->getId(),
-                    ]);
-                }
-            }
-
-            if (!$user) {
-                $user = User::create([
-                    'name' => $socialUser->getName() ?? $socialUser->getNickname() ?? 'Social User',
-                    'email' => $socialUser->getEmail() ?? $socialUser->getId() . '@' . $provider . '.com',
-                    'username' => $this->generateUniqueUsername($socialUser->getName() ?? $socialUser->getNickname()),
-                    'password' => Hash::make(Str::random(24)),
-                    'provider' => $provider,
-                    'provider_id' => $socialUser->getId(),
-                    'email_verified_at' => now(),
-                    'status' => 'active',
-                ]);
-            }
-
-            // Log the user in
+            // Log the user in using Laravel's session
             Auth::login($user, true);
 
-            // Redirect to intended page or dashboard
-            return redirect()->intended('/dashboard');
+            // Log login activity
+            LoginActivityJob::dispatch(
+                $user,
+                true,
+                'You successfully logged into your account via ' . ucfirst($provider),
+                'Social Login Successful',
+                $userAgent,
+                $ipaddress,
+                $deviceinfo
+            );
+
+            // Handle 2FA for web
+            if ($user->usersetting && ($user->usersetting->tfa === null || $user->usersetting->tfa == 1)) {
+                $code = rand(100000, 999999);
+                $user->tfa_code = Hash::make($code);
+                $user->tfa_expires_at = now()->addMinutes(10);
+                $user->save();
+                SendTwoFactorCodeJob::dispatch($user, $code);
+
+                // Redirect to 2FA page for web
+                return redirect('/two-factor-auth');
+            }
+
+            // Redirect based on preference for web
+            if ($user->preference == 1) {
+                return redirect('/categories');
+            } else {
+                return redirect('/home');
+            }
 
         } catch (\Exception $e) {
-            \Log::error('Social login failed: ' . $e->getMessage());
-            return redirect('/login')->with('error', 'Social authentication failed');
+            \Log::error('Web social login failed: ' . $e->getMessage());
+            return redirect('/login')->with('error', 'Social authentication failed: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Reusable method to find or create user from social provider
+     * This extracts the common logic from your API method
+     */
+    private function findOrCreateUserFromSocial($socialUser, $provider, $userAgent, $deviceinfo, $ipaddress)
+    {
+        // Find existing user by provider
+        $user = User::where('provider', $provider)
+                    ->where('provider_id', $socialUser->getId())
+                    ->first();
+
+        // If user doesn't exist, try to find by email
+        if (!$user && $socialUser->getEmail()) {
+            $user = User::where('email', $socialUser->getEmail())->first();
+
+            // If user exists but with different provider, update provider info
+            if ($user) {
+                $user->update([
+                    'provider' => $provider,
+                    'provider_id' => $socialUser->getId(),
+                ]);
+
+                // Ensure user settings exist for existing users
+                $this->ensureUserSettingsExist($user);
+            }
+        }
+
+        $profileAvatarUrl = $socialUser->getAvatar();
+
+        // Create new user if doesn't exist
+        if (!$user) {
+            // Detect country and timezone from IP
+            $locationData = $this->detectCountryAndTimezone($ipaddress);
+
+            $user = User::create([
+                'name' => $socialUser->getName() ?? $socialUser->getNickname() ?? 'Social User',
+                'email' => $socialUser->getEmail() ?? $socialUser->getId() . '@' . $provider . '.com',
+                'username' => $this->generateUniqueUsername($socialUser->getName() ?? $socialUser->getNickname()),
+                'phone' => '',
+                'country_code' => $locationData['country_code'] ?? '',
+                'partial_number' => '',
+                'country' => $locationData['country'] ?? '',
+                'points' => '300',
+                'preference' => '1',
+                'timezone' => $locationData['timezone'] ?? 'Africa/Lusaka',
+                'password' => Hash::make(Str::random(24)),
+                'provider' => $provider,
+                'provider_id' => $socialUser->getId(),
+                'email_verified_at' => now(),
+                'status' => 'active',
+            ]);
+
+            // Run registration setup
+            $this->runRegistrationSetup($user, $userAgent, $deviceinfo, $ipaddress);
+
+            // Download and store profile image for new users
+            if ($profileAvatarUrl) {
+                $this->downloadAndStoreProfileImage($user, $profileAvatarUrl, $provider);
+            }
+        } else {
+            // For existing users, update profile image if they don't have one
+            if (!$user->profile_original && $profileAvatarUrl) {
+                $this->downloadAndStoreProfileImage($user, $profileAvatarUrl, $provider);
+            }
+        }
+
+        // Double-check user status and settings
+        if ($user->status !== 'active') {
+            $user->update(['status' => 'active']);
+        }
+
+        // Ensure user settings exist
+        $this->ensureUserSettingsExist($user);
+
+        // Check account status and throw exceptions for web flow
+        if ($user->status === 'deletion') {
+            throw new \Exception('Your account is queued for deletion.');
+        }
+
+        if ($user->status === 'locked') {
+            throw new \Exception('Your account is locked. Contact support.');
+        }
+
+        if ($user->status !== 'active') {
+            throw new \Exception('Account not active. Current status: ' . $user->status);
+        }
+
+        return $user;
+    }
+
+    private function detectCountryAndTimezone($ipaddress)
+    {
+        try {
+            $response = Http::get("http://ip-api.com/json/{$ipaddress}");
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                if ($data['status'] === 'success') {
+                    return [
+                        'country' => $data['country'] ?? null,
+                        'country_code' => $data['countryCode'] ?? null,
+                        'timezone' => $data['timezone'] ?? 'Africa/Lusaka',
+                        'city' => $data['city'] ?? null,
+                        'region' => $data['region'] ?? null,
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error("Failed to detect country/timezone for IP {$ipaddress}: " . $e->getMessage());
+        }
+
+        // Return default values if API fails
+        return [
+            'country' => null,
+            'country_code' => null,
+            'timezone' => 'Africa/Lusaka',
+            'city' => null,
+            'region' => null,
+        ];
+    }
+
+    /**
+     * Download and store social profile image in S3 (no compression)
+     */
+    private function downloadAndStoreProfileImage(User $user, string $imageUrl, string $provider)
+    {
+        try {
+            // Download the image
+            $client = new \GuzzleHttp\Client();
+            $response = $client->get($imageUrl, [
+                'timeout' => 30,
+                'headers' => [
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                ]
+            ]);
+
+            if ($response->getStatusCode() !== 200) {
+                throw new \Exception('Failed to download image. HTTP status: ' . $response->getStatusCode());
+            }
+
+            $imageContent = $response->getBody();
+            $imageSize = strlen($imageContent);
+
+            // Validate image size (max 10MB)
+            if ($imageSize > 10 * 1024 * 1024) {
+                throw new \Exception('Image too large: ' . $imageSize . ' bytes');
+            }
+
+            // Get image extension from URL or content type
+            $extension = $this->getImageExtension($imageUrl, $response->getHeaderLine('Content-Type'));
+
+            // Generate unique filenames
+            $timestamp = now()->timestamp;
+            $filename = "uploads/profiles/originals/profile/{$user->id}_{$timestamp}.{$extension}";
+            $compressedFilename = "uploads/profiles/compressed/profile/{$user->id}_{$timestamp}.{$extension}";
+
+            // Store the same image in both original and compressed columns
+            Storage::disk('s3')->put($filename, $imageContent, 'public');
+
+            // Update user record - store same image in both columns
+            $user->update([
+                'profile_original' => $filename,
+                'profile_compressed' => $compressedFilename, // Same file for both
+            ]);
+
+            \Log::info("Profile image stored for user {$user->id} from {$provider} - File: {$filename}");
+
+        } catch (\Exception $e) {
+            \Log::error("Failed to download profile image for user {$user->id}: " . $e->getMessage());
+            // Don't throw the error - we don't want to break the login process
+        }
+    }
+
+    /**
+     * Get image extension from URL or content type
+     */
+    private function getImageExtension(string $imageUrl, string $contentType): string
+    {
+        // Try to get extension from URL
+        $path = parse_url($imageUrl, PHP_URL_PATH);
+        if ($path && preg_match('/\.(jpg|jpeg|png|gif|webp|bmp)$/i', $path, $matches)) {
+            return strtolower($matches[1]);
+        }
+
+        // Get extension from content type
+        $contentTypeToExtension = [
+            'image/jpeg' => 'jpg',
+            'image/jpg' => 'jpg',
+            'image/png' => 'png',
+            'image/gif' => 'gif',
+            'image/webp' => 'webp',
+            'image/bmp' => 'bmp',
+        ];
+
+        return $contentTypeToExtension[$contentType] ?? 'jpg';
+    }
+
+    /**
+     * Ensure user settings exist for social login users
+     */
+    private function ensureUserSettingsExist(User $user)
+    {
+        // Check if user setting exists, if not create it
+        if (!$user->usersetting) {
+            $usersetting = new UserSetting();
+            $usersetting->user_id = $user->id;
+            $usersetting->sms_alert = 1;
+            $usersetting->history = 1;
+            $usersetting->save();
+
+            // Reload the relationship
+            $user->load('usersetting');
+        }
+
+        // Check if account exists, if not create it
+        if (!$user->account) {
+            $account = Account::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'user_id' => $user->id,
+                    'account_balance' => 0.00,
+                    'available_balance' => 0.00,
+                    'monetization_status' => 'inactive',
+                    'payout_method' => 'paypal',
+                    'country' => $user->country,
+                    'currency' => 'USD',
+                    'paypal_email' => $user->email
+                ]
+            );
+        }
+    }
+
+    private function runRegistrationSetup(User $user, $userAgent, $deviceinfo, $ipaddress)
+    {
+        try {
+            $timezone = 'Africa/Lusaka'; // default fallback
+
+            // Get location info from IP
+            $response = Http::get("http://ipinfo.io/{$ipaddress}/json");
+            if ($response->successful()) {
+                $data = $response->json();
+                if (!empty($data['timezone'])) {
+                    $timezone = $data['timezone'];
+                }
+
+                // Update user timezone
+                $user->timezone = $timezone;
+                $user->save();
+            }
+        } catch (\Exception $e) {
+            \Log::error("Failed to fetch IP info for {$ipaddress}: " . $e->getMessage());
+        }
+
+        // Create activity log
+        $activity = new Activity();
+        $activity->title = 'Account Created via Social Login';
+        $activity->description = 'Your account has been created via ' . $user->provider;
+        $activity->source = 'Social Registration';
+        $activity->user_id = $user->id;
+        $activity->status = true;
+        $activity->user_agent = $userAgent;
+        $activity->device_info = $deviceinfo;
+        $activity->ipaddress = $ipaddress;
+        $activity->save();
+
+        // Create user settings
+        $usersetting = new UserSetting();
+        $usersetting->user_id = $user->id;
+        $usersetting->sms_alert = 1;
+        $usersetting->history = 1;
+        $usersetting->save();
+
+        // Create account
+        $account = Account::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'user_id' => $user->id,
+                'account_balance' => 0.00,
+                'available_balance' => 0.00,
+                'monetization_status' => 'inactive',
+                'payout_method' => 'paypal',
+                'country' => $user->country,
+                'currency' => 'USD',
+                'paypal_email' => $user->email
+            ]
+        );
+
+        // Send welcome email via queue
+        //SendWelcomeEmail::dispatch($user, $deviceinfo, $ipaddress);
+        // Send notification SMS
+        // $this->sendWithVonage('260970333596', 'New Venusnap user registered via ' . $user->provider . ': ' . $user->name);
+    }
+
+    private function generateUniqueUsername($baseName)
+    {
+        $baseUsername = Str::slug($baseName);
+        $username = $baseUsername;
+        $counter = 1;
+
+        while (User::where('username', $username)->exists()) {
+            $username = $baseUsername . $counter;
+            $counter++;
+        }
+
+        return $username;
     }
 }
