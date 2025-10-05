@@ -153,7 +153,7 @@
 
                 // Execute reCAPTCHA before form submission
                 grecaptcha.ready(function() {
-                    grecaptcha.execute('YOUR_RECAPTCHA_SITE_KEY', {action: 'password_reset'}).then(function(token) {
+                    grecaptcha.execute('6LfITtsrAAAAABM5kP6D-PTQSfMOoTlyeuCTuGjL', {action: 'password_reset'}).then(function(token) {
                         // Add token to form data and proceed with validation
                         validateAndSubmitForm(token);
                     }).catch(function(error) {
