@@ -540,7 +540,7 @@
             </div>
             <div class="portfolio-content">
               <span class="category">{{ $posts[0]['album_name'] }}</span>
-              <h3>{{ $posts[0]['supporters'] }}</h3>
+              <h3>{{ $posts[0]['supporters'] }} Supporters</h3>
               <p>{{ $posts[0]['description'] }}</p>
             </div>
           </div>
@@ -560,7 +560,7 @@
             </div>
             <div class="portfolio-content">
               <span class="category">{{ $posts[1]['album_name'] }}</span>
-              <h3>{{ $posts[1]['supporters'] }}</h3>
+              <h3>{{ $posts[1]['supporters'] }} Supporters</h3>
               <p>{{ $posts[1]['description'] }}</p>
             </div>
           </div>
@@ -580,7 +580,7 @@
             </div>
             <div class="portfolio-content">
              <span class="category">{{ $posts[2]['album_name'] }}</span>
-              <h3>{{ $posts[2]['supporters'] }}</h3>
+              <h3>{{ $posts[2]['supporters'] }} Supporters</h3>
               <p>{{ $posts[2]['description'] }}</p>
             </div>
           </div>
@@ -602,7 +602,7 @@
             </div>
             <div class="portfolio-content">
              <span class="category">{{ $posts[3]['album_name'] }}</span>
-              <h3>{{ $posts[3]['supporters'] }}</h3>
+              <h3>{{ $posts[3]['supporters'] }} Supporters</h3>
               <p>{{ $posts[3]['description'] }}</p>
             </div>
           </div>
@@ -622,7 +622,7 @@
             </div>
             <div class="portfolio-content">
               <span class="category">{{ $posts[4]['album_name'] }}</span>
-              <h3>{{ $posts[4]['supporters'] }}</h3>
+              <h3>{{ $posts[4]['supporters'] }} Supporters</h3>
               <p>{{ $posts[4]['description'] }}</p>
             </div>
           </div>
@@ -642,7 +642,7 @@
             </div>
             <div class="portfolio-content">
              <span class="category">{{ $posts[5]['album_name'] }}</span>
-              <h3>{{ $posts[5]['supporters'] }}</h3>
+              <h3>{{ $posts[5]['supporters'] }} Supporters</h3>
               <p>{{ $posts[5]['description'] }}</p>
             </div>
           </div>
