@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Jobs\RegistrationJob;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -179,6 +180,57 @@ class AuthController extends Controller
             return view('dashboard', [
                 'name' => $request->query('name', 'Creator')
             ]);
+        }
+    }
+
+    public function redirectToProvider($provider)
+    {
+        return Socialite::driver($provider)->redirect();
+    }
+
+    public function handleProviderCallback($provider)
+    {
+        try {
+            $socialUser = Socialite::driver($provider)->user();
+
+            // Find or create user (similar to your API method)
+            $user = User::where('provider', $provider)
+                        ->where('provider_id', $socialUser->getId())
+                        ->first();
+
+            if (!$user && $socialUser->getEmail()) {
+                $user = User::where('email', $socialUser->getEmail())->first();
+
+                if ($user) {
+                    $user->update([
+                        'provider' => $provider,
+                        'provider_id' => $socialUser->getId(),
+                    ]);
+                }
+            }
+
+            if (!$user) {
+                $user = User::create([
+                    'name' => $socialUser->getName() ?? $socialUser->getNickname() ?? 'Social User',
+                    'email' => $socialUser->getEmail() ?? $socialUser->getId() . '@' . $provider . '.com',
+                    'username' => $this->generateUniqueUsername($socialUser->getName() ?? $socialUser->getNickname()),
+                    'password' => Hash::make(Str::random(24)),
+                    'provider' => $provider,
+                    'provider_id' => $socialUser->getId(),
+                    'email_verified_at' => now(),
+                    'status' => 'active',
+                ]);
+            }
+
+            // Log the user in
+            Auth::login($user, true);
+
+            // Redirect to intended page or dashboard
+            return redirect()->intended('/dashboard');
+
+        } catch (\Exception $e) {
+            \Log::error('Social login failed: ' . $e->getMessage());
+            return redirect('/login')->with('error', 'Social authentication failed');
         }
     }
 }
