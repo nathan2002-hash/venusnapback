@@ -119,33 +119,12 @@
             box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3);
         }
 
-        /* Hero Section with Background Image */
+        /* Hero Section */
         .hero {
-            position: relative;
             padding: 10rem 5% 5rem;
             text-align: center;
             max-width: 1200px;
             margin: 0 auto;
-            min-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            opacity: 0.2;
-            z-index: -1;
         }
 
         .hero h1 {
@@ -169,15 +148,15 @@
         }
 
         .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
 
-        .hero-buttons a {
-            white-space: nowrap;
-        }
+.hero-buttons a {
+    white-space: nowrap;
+}
 
         .secondary-button {
             background: transparent;
@@ -221,15 +200,15 @@
         .carousel {
             display: flex;
             transition: transform 0.5s ease;
-            gap: 1.5rem;
-            padding: 0 1rem;
+            gap: 1.5rem; /* ADDED: Space between carousel items */
+            padding: 0 1rem; /* ADDED: Padding to prevent items from touching edges */
         }
 
         .carousel-item {
             flex: 0 0 auto;
-            width: 300px;
+            width: 300px; /* Fixed width for portrait items */
             position: relative;
-            height: 450px;
+            height: 450px; /* Taller height for portrait */
             overflow: hidden;
             border-radius: 1rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -322,6 +301,7 @@
             gap: 0.5rem;
             margin-top: 1.5rem;
         }
+
 
         /* Features Section */
         .features {
@@ -508,12 +488,12 @@
                 overflow-x: auto;
                 scroll-snap-type: x mandatory;
                 -webkit-overflow-scrolling: touch;
-                scrollbar-width: none;
-                -ms-overflow-style: none;
+                scrollbar-width: none; /* Firefox */
+                -ms-overflow-style: none; /* IE and Edge */
             }
 
             .carousel-container::-webkit-scrollbar {
-                display: none;
+                display: none; /* Chrome, Safari and Opera */
             }
 
             .carousel {
@@ -528,19 +508,11 @@
             }
 
             .carousel-nav {
-                display: none;
+                display: none; /* Hide navigation arrows on mobile */
             }
 
             .carousel-indicators {
-                display: none;
-            }
-
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .hero p {
-                font-size: 1.1rem;
+                display: none; /* Hide indicators on mobile */
             }
         }
     </style>
@@ -564,69 +536,34 @@
                 onclick="trackClick('start_album')">
                 <button class="cta-button">Download App</button>
             </a>
+
         </header>
 
-        <!-- Hero Section with Background Image -->
+        <!-- Hero Section -->
         <section class="hero">
             <h1>A Home for Visual Creators</h1>
             <p>Get Early Access and Monetization, Share your quotes, memes, art, and photography in Albums that inspire, entertain, and connect with people who truly appreciate creativity.</p>
-            <div class="hero-buttons">
-                <a href="{{ route('register') }}" class="cta-button">Start Creating</a>
-                <a href="#gallery" class="secondary-button">Explore Gallery</a>
+           <div class="hero-buttons">
+                <a href="{{ route('register') }}" class="cta-button">Start Creating</a><a href="#gallery" class="secondary-button">Explore Gallery</a>
             </div>
         </section>
 
-        <!-- Updated Carousel Section with Portrait Layout -->
+      <!-- Updated Carousel Section with Portrait Layout -->
         <section class="carousel-section" id="gallery">
             <h2 class="section-title">Featured Creations</h2>
             <div class="carousel-container">
                 <div class="carousel">
-                    <!-- Sample posts - replace with your dynamic content -->
+                   <!-- Sample posts - replace with your dynamic content -->
+                   @foreach ($posts as $post)
                     <div class="carousel-item">
-                        <img src="https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1058&q=80" alt="Abstract Art">
+                        <img src="{{ $post['image_url'] }}" alt="{{ $post['album_name'] }}">
                         <div class="carousel-content">
                             <div class="carousel-tags">
-                                <span class="carousel-tag">Abstract</span>
-                                <span class="carousel-tag">Modern</span>
+                                <span class="carousel-tag">{{ $post['album_name'] }}</span>
                             </div>
                         </div>
                     </div>
-                    <div class="carousel-item">
-                        <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1050&q=80" alt="Digital Art">
-                        <div class="carousel-content">
-                            <div class="carousel-tags">
-                                <span class="carousel-tag">Digital</span>
-                                <span class="carousel-tag">Fantasy</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="carousel-item">
-                        <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1050&q=80" alt="Photography">
-                        <div class="carousel-content">
-                            <div class="carousel-tags">
-                                <span class="carousel-tag">Photography</span>
-                                <span class="carousel-tag">Urban</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="carousel-item">
-                        <img src="https://images.unsplash.com/photo-1579546929662-711aa81148cf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1050&q=80" alt="Colorful Art">
-                        <div class="carousel-content">
-                            <div class="carousel-tags">
-                                <span class="carousel-tag">Colorful</span>
-                                <span class="carousel-tag">Vibrant</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="carousel-item">
-                        <img src="https://images.unsplash.com/photo-1550684376-efcbd6e3f031?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1050&q=80" alt="Minimalist Art">
-                        <div class="carousel-content">
-                            <div class="carousel-tags">
-                                <span class="carousel-tag">Minimalist</span>
-                                <span class="carousel-tag">Clean</span>
-                            </div>
-                        </div>
-                    </div>
+                   @endforeach
                 </div>
                 <button class="carousel-nav carousel-prev">
                     <i class="fas fa-chevron-left"></i>
@@ -744,13 +681,13 @@
 
             // Next slide with looping
             function nextSlide() {
-                currentIndex = (currentIndex + 1) % totalItems;
+                currentIndex = (currentIndex + 1) % totalItems; // FIXED: Added looping
                 updateCarousel();
             }
 
             // Previous slide with looping
             function prevSlide() {
-                currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+                currentIndex = (currentIndex - 1 + totalItems) % totalItems; // FIXED: Added looping
                 updateCarousel();
             }
 
@@ -809,11 +746,181 @@
                 });
             }
 
+            // Mobile menu functionality
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+                });
+            }
+
+            // Adjust menu on resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    if (navLinks) navLinks.style.display = 'flex';
+                } else {
+                    if (navLinks) navLinks.style.display = 'none';
+                }
+            });
+
             // Track button clicks
             document.querySelectorAll('.cta-button, .store-button').forEach(button => {
                 button.addEventListener('click', function() {
                     const buttonText = this.textContent || this.querySelector('.store-name').textContent;
-                    console.log('Button clicked:', buttonText);
+
+                    fetch('/track-button-click', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            button_name: buttonText,
+                            page_url: window.location.href
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => console.log('Button click tracked:', data));
+                });
+            });
+        });
+    </script><script>
+        // Updated Carousel functionality for portrait layout
+        document.addEventListener('DOMContentLoaded', function() {
+            const carousel = document.querySelector('.carousel');
+            const items = document.querySelectorAll('.carousel-item');
+            const prevBtn = document.querySelector('.carousel-prev');
+            const nextBtn = document.querySelector('.carousel-next');
+            const indicators = document.querySelectorAll('.indicator');
+            const container = document.querySelector('.carousel-container');
+
+            let currentIndex = 0;
+            const totalItems = items.length;
+            const itemWidth = items[0].offsetWidth + 24; // width + gap
+            const isMobile = window.innerWidth <= 768;
+
+            // Update carousel position
+            function updateCarousel() {
+                if (!isMobile) {
+                    carousel.style.transform = `translateX(-${currentIndex * itemWidth}px)`;
+                }
+
+                // Update indicators
+                indicators.forEach((indicator, index) => {
+                    if (index === currentIndex) {
+                        indicator.classList.add('active');
+                    } else {
+                        indicator.classList.remove('active');
+                    }
+                });
+            }
+
+            // Next slide with looping
+            function nextSlide() {
+                currentIndex = (currentIndex + 1) % totalItems; // FIXED: Added looping
+                updateCarousel();
+            }
+
+            // Previous slide with looping
+            function prevSlide() {
+                currentIndex = (currentIndex - 1 + totalItems) % totalItems; // FIXED: Added looping
+                updateCarousel();
+            }
+
+            // Go to specific slide
+            function goToSlide(index) {
+                currentIndex = index;
+                updateCarousel();
+            }
+
+            // Event listeners for desktop navigation
+            if (!isMobile) {
+                nextBtn.addEventListener('click', nextSlide);
+                prevBtn.addEventListener('click', prevSlide);
+
+                indicators.forEach((indicator, index) => {
+                    indicator.addEventListener('click', () => goToSlide(index));
+                });
+
+                // Auto advance carousel on desktop
+                setInterval(nextSlide, 4000);
+            }
+
+            // Mobile swipe functionality
+            if (isMobile) {
+                let startX = 0;
+                let currentX = 0;
+                let isDragging = false;
+
+                container.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].clientX;
+                    isDragging = true;
+                });
+
+                container.addEventListener('touchmove', (e) => {
+                    if (!isDragging) return;
+                    currentX = e.touches[0].clientX;
+                });
+
+                container.addEventListener('touchend', () => {
+                    if (!isDragging) return;
+
+                    const diffX = startX - currentX;
+                    const threshold = 50;
+
+                    if (Math.abs(diffX) > threshold) {
+                        if (diffX > 0) {
+                            // Swiped left
+                            nextSlide();
+                        } else {
+                            // Swiped right
+                            prevSlide();
+                        }
+                    }
+
+                    isDragging = false;
+                });
+            }
+
+            // Mobile menu functionality
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+                });
+            }
+
+            // Adjust menu on resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    if (navLinks) navLinks.style.display = 'flex';
+                } else {
+                    if (navLinks) navLinks.style.display = 'none';
+                }
+            });
+
+            // Track button clicks
+            document.querySelectorAll('.cta-button, .store-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const buttonText = this.textContent || this.querySelector('.store-name').textContent;
+
+                    fetch('/track-button-click', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            button_name: buttonText,
+                            page_url: window.location.href
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => console.log('Button click tracked:', data));
                 });
             });
         });
