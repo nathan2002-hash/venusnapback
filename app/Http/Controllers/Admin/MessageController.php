@@ -30,19 +30,19 @@ class MessageController extends Controller
         $authHeader = $request->header('authorization');
         $secret = env('VONAGE_SIGNATURE_SECRET'); // store in .env
 
-        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
+        // if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+        //     return response()->json(['error' => 'Unauthorized'], 403);
+        // }
 
-        $jwt = substr($authHeader, 7); // remove "Bearer "
+        // $jwt = substr($authHeader, 7); // remove "Bearer "
 
-        try {
-            $decoded = JWT::decode($jwt, new Key($secret, 'HS256'));
-            // ✅ Valid webhook
-        } catch (\Exception $e) {
-            \Log::warning('Invalid Vonage signature', ['error' => $e->getMessage()]);
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
+        // try {
+        //     $decoded = JWT::decode($jwt, new Key($secret, 'HS256'));
+        //     // ✅ Valid webhook
+        // } catch (\Exception $e) {
+        //     \Log::warning('Invalid Vonage signature', ['error' => $e->getMessage()]);
+        //     return response()->json(['error' => 'Unauthorized'], 403);
+        // }
 
         $payload = $request->all();
 
