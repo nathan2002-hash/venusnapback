@@ -240,11 +240,7 @@ class AuthController extends Controller
             }
 
             // Redirect based on preference for web
-            if ($user->preference == 1) {
-                return redirect('/categories');
-            } else {
-                return redirect('/home');
-            }
+            return redirect('/onboard/welcome');
 
         } catch (\Exception $e) {
             \Log::error('Web social login failed: ' . $e->getMessage());
