@@ -114,7 +114,7 @@
 
             <!-- Back to Login -->
             <div class="mt-6 text-center">
-                <a href="#" class="text-purple-600 hover:text-purple-800 font-medium transition-colors duration-200">
+                <a href="/login" class="text-purple-600 hover:text-purple-800 font-medium transition-colors duration-200">
                     <i class="fas fa-arrow-left mr-2"></i>Back to Login
                 </a>
             </div>
@@ -122,10 +122,10 @@
 
         <!-- Footer Links -->
         <div class="text-center mt-8 text-sm text-gray-500 fade-in">
-            <p>Need help? <a href="#" class="text-purple-600 hover:text-purple-800 transition-colors duration-200">Contact Support</a></p>
+            <p>Need help? <a href="mailto:support@venusnap.com" class="text-purple-600 hover:text-purple-800 transition-colors duration-200">Contact Support</a></p>
             <p class="mt-2">
-                <a href="#" class="text-purple-600 hover:text-purple-800 transition-colors duration-200 mr-4">Terms of Service</a>
-                <a href="#" class="text-purple-600 hover:text-purple-800 transition-colors duration-200">Privacy Policy</a>
+                <a href="/terms/of/service" class="text-purple-600 hover:text-purple-800 transition-colors duration-200 mr-4">Terms of Service</a>
+                <a href="/privacy/policy" class="text-purple-600 hover:text-purple-800 transition-colors duration-200">Privacy Policy</a>
             </p>
         </div>
     </div>

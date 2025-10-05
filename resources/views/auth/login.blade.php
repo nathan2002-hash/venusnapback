@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Venusnap</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="{{ asset('assets1/img/logo1.png') }}" rel="icon">
-    <link href="{{ asset('assets1/img/logo1.png') }}" rel="apple-touch-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .btn-primary {
             background-color: #7c3aed;
@@ -52,19 +51,53 @@
             background-color: #f9fafb;
             border-color: #9ca3af;
         }
+        .background-image {
+            background-image: url('https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .overlay {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        .card-shadow {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <!-- Header -->
-        <div class="bg-[#7c3aed] p-6 text-white">
-           <center>
-                <h1 class="text-2xl font-bold">Welcome Back</h1>
-                <p class="text-[#d8b4fe] mt-1">Sign in to your Venusnap account</p>
-           </center>
+<body class="min-h-screen flex">
+    <!-- Background Section -->
+    <div class="hidden lg:flex lg:w-1/2 background-image">
+        <div class="w-full h-full overlay flex items-center justify-center p-12">
+            <div class="text-white max-w-md">
+                <h1 class="text-4xl font-bold mb-6">Welcome to Venusnap</h1>
+                <p class="text-xl mb-8">Your journey to wellness and beauty starts here. Discover personalized treatments and connect with top professionals.</p>
+                <div class="flex space-x-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-star text-yellow-400 mr-2"></i>
+                        <span>4.8 Rating</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-users mr-2"></i>
+                        <span>10K+ Users</span>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <div class="p-6">
+    <!-- Login Form Section -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
+        <div class="w-full max-w-md">
+            <!-- Logo -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-[#7c3aed] rounded-full shadow-lg mb-4">
+                    <i class="fas fa-spa text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800">Welcome Back</h1>
+                <p class="text-gray-600 mt-2">Sign in to your Venusnap account</p>
+            </div>
+
             <!-- Google Sign In Button -->
             <a
                 href="{{ route('social.login', ['provider' => 'google']) }}"
@@ -155,12 +188,40 @@
                     <span id="button-text">Sign In</span>
                     <span id="button-spinner" class="spinner hidden"></span>
                 </button>
-
-                <!-- Sign Up Link -->
-                <div class="mt-6 text-center text-sm text-gray-600">
-                    <p>Don't have an account? <a href="https://play.google.com/store/apps/details?id=com.venusnap.app" class="text-[#7c3aed] font-medium hover:text-[#6d28d9]">Download an App</a></p>
-                </div>
             </form>
+
+            <!-- Don't have an account section -->
+            <div class="mt-8 p-6 bg-gray-50 rounded-lg border border-gray-200 text-center">
+                <h3 class="text-lg font-medium text-gray-800 mb-2">Don't have an account?</h3>
+                <p class="text-gray-600 mb-4">Join Venusnap today and discover a world of beauty and wellness</p>
+                <a
+                    href="{{ route('register') }}"
+                    class="w-full inline-block bg-white border border-[#7c3aed] text-[#7c3aed] font-bold py-3 px-4 rounded-lg transition-colors hover:bg-[#7c3aed] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:ring-offset-2"
+                >
+                    Create Account
+                </a>
+            </div>
+
+            <!-- Download App Section -->
+            <div class="mt-8 text-center">
+                <p class="text-sm text-gray-600 mb-4">Get the full experience with our mobile app</p>
+                <a
+                    href="https://play.google.com/store/apps/details?id=com.venusnap.app"
+                    class="inline-flex items-center justify-center bg-gray-800 text-white font-medium py-3 px-6 rounded-lg hover:bg-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-800 focus:ring-offset-2"
+                    target="_blank"
+                >
+                    <i class="fab fa-google-play text-xl mr-2"></i>
+                    <div class="text-left">
+                        <div class="text-xs">GET IT ON</div>
+                        <div class="text-lg font-bold">Google Play</div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Footer Links -->
+            <div class="mt-8 text-center text-xs text-gray-500">
+                <p>By continuing, you agree to our <a href="#" class="text-[#7c3aed] hover:underline">Terms of Service</a> and <a href="#" class="text-[#7c3aed] hover:underline">Privacy Policy</a></p>
+            </div>
         </div>
     </div>
 
