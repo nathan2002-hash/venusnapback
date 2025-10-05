@@ -534,7 +534,7 @@
               <div class="portfolio-overlay">
                 <div class="portfolio-actions">
                   <a href="{{ $posts[0]['image_url'] }}" class="glightbox preview-link" data-gallery="portfolio-gallery-creator"><i class="bi bi-eye"></i></a>
-                  <a href="https://venusnap.com/posts/{{ $posts[0]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                  <a href="https://venusnap.com/post/{{ $posts[0]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div>
@@ -554,7 +554,7 @@
               <div class="portfolio-overlay">
                 <div class="portfolio-actions">
                   <a href="{{ $posts[1]['image_url'] }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
-                  <a href="https://venusnap.com/posts/{{ $posts[1]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                  <a href="https://venusnap.com/post/{{ $posts[1]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div>
@@ -574,7 +574,7 @@
               <div class="portfolio-overlay">
                 <div class="portfolio-actions">
                   <a href="{{ $posts[2]['image_url'] }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
-                  <a href="https://venusnap.com/posts/{{ $posts[2]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                  <a href="https://venusnap.com/post/{{ $posts[2]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div>
@@ -596,7 +596,7 @@
               <div class="portfolio-overlay">
                 <div class="portfolio-actions">
                   <a href="{{ $posts[3]['image_url'] }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
-                  <a href="https://venusnap.com/posts/{{ $posts[3]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                  <a href="https://venusnap.com/post/{{ $posts[3]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div>
@@ -616,7 +616,7 @@
               <div class="portfolio-overlay">
                 <div class="portfolio-actions">
                   <a href="{{ $posts[4]['image_url'] }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
-                  <a href="https://venusnap.com/posts/{{ $posts[4]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                  <a href="https://venusnap.com/post/{{ $posts[4]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div>
@@ -636,7 +636,7 @@
               <div class="portfolio-overlay">
                 <div class="portfolio-actions">
                   <a href="{{ $posts[5]['image_url'] }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
-                  <a href="https://venusnap.com/posts/{{ $posts[5]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                  <a href="https://venusnap.com/post/{{ $posts[5]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div>
