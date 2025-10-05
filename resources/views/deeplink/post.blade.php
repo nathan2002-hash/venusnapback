@@ -25,7 +25,7 @@
 
         body {
             background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(30, 27, 75, 0.9)),
-                        url('https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80');
+                        url('https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -64,7 +64,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('https://images.unsplash.com/photo-1550684376-efcbd6e3f031?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background: url('https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80');
             background-size: cover;
             background-position: center;
             opacity: 0.1;
@@ -348,7 +348,7 @@
                     <div class="feature">
                         <i class="fas fa-images"></i>
                         <h3>Premium Content</h3>
-                        <p>Exclusive photos and videos from creators</p>
+                        <p>Exclusive photos from creators</p>
                     </div>
                     <div class="feature">
                         <i class="fas fa-lock"></i>
