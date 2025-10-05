@@ -518,9 +518,9 @@
       <div class="portfolio-filters-container" data-aos="fade-up" data-aos-delay="200">
         <ul class="portfolio-filters isotope-filters">
           <li data-filter="*" class="filter-active">All</li>
-          <li data-filter=".filter-creator">Creators</li>
-          <li data-filter=".filter-ai">AI Generated</li>
-          <li data-filter=".filter-ads">Ad Creatives</li>
+          <li data-filter=".filter-creator">Technology</li>
+          <li data-filter=".filter-ai">Quote</li>
+          <li data-filter=".filter-ads">Memes</li>
         </ul>
       </div>
 
@@ -530,18 +530,18 @@
         <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-creator">
           <div class="portfolio-card portrait-card">
             <div class="portfolio-image portrait-image">
-              <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" class="img-fluid" alt="Portrait Creator Artwork" loading="lazy">
+              <img src="{{ $posts[0]['image_url'] }}" class="img-fluid" alt="{{ $posts[0]['image_url'] }}" loading="lazy">
               <div class="portfolio-overlay">
                 <div class="portfolio-actions">
-                  <a href="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" class="glightbox preview-link" data-gallery="portfolio-gallery-creator"><i class="bi bi-eye"></i></a>
-                  <a href="https://venusnap.com/posts/123" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                  <a href="{{ $posts[0]['image_url'] }}" class="glightbox preview-link" data-gallery="portfolio-gallery-creator"><i class="bi bi-eye"></i></a>
+                  <a href="https://venusnap.com/posts/{{ $posts[0]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div>
             <div class="portfolio-content">
-              <span class="category">Creator</span>
-              <h3>Portrait Series by @zoe_art</h3>
-              <p>Emotional portrait collection exploring human expression.</p>
+              <span class="category">{{ $posts[0]['album_name'] }}</span>
+              <h3>{{ $posts[0]['supporters'] }}</h3>
+              <p>{{ $posts[0]['description'] }}</p>
             </div>
           </div>
         </div>
@@ -550,18 +550,18 @@
         <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-ai">
           <div class="portfolio-card portrait-card">
             <div class="portfolio-image portrait-image">
-              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" class="img-fluid" alt="AI Portrait Art" loading="lazy">
+              <img src="{{ $posts[1]['image_url'] }}" class="img-fluid" alt="{{ $posts[1]['image_url'] }}" loading="lazy">
               <div class="portfolio-overlay">
                 <div class="portfolio-actions">
-                  <a href="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
-                  <a href="https://venusnap.com/ai-gallery" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                  <a href="{{ $posts[1]['image_url'] }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
+                  <a href="https://venusnap.com/posts/{{ $posts[1]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div>
             <div class="portfolio-content">
-              <span class="category">AI Generated</span>
-              <h3>Digital Persona</h3>
-              <p>AI-generated portrait exploring identity in the digital age.</p>
+              <span class="category">{{ $posts[1]['album_name'] }}</span>
+              <h3>{{ $posts[1]['supporters'] }}</h3>
+              <p>{{ $posts[1]['description'] }}</p>
             </div>
           </div>
         </div>
@@ -570,18 +570,18 @@
         <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-ads">
           <div class="portfolio-card portrait-card">
             <div class="portfolio-image portrait-image">
-              <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" class="img-fluid" alt="Portrait Ad Creative" loading="lazy">
+               <img src="{{ $posts[2]['image_url'] }}" class="img-fluid" alt="{{ $posts[2]['image_url'] }}" loading="lazy">
               <div class="portfolio-overlay">
                 <div class="portfolio-actions">
-                  <a href="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" class="glightbox preview-link" data-gallery="portfolio-gallery-ads"><i class="bi bi-eye"></i></a>
-                  <a href="https://venusnap.com/ads/beauty-brand" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                  <a href="{{ $posts[2]['image_url'] }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
+                  <a href="https://venusnap.com/posts/{{ $posts[2]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div>
             <div class="portfolio-content">
-              <span class="category">Ad Creative</span>
-              <h3>Beauty Campaign</h3>
-              <p>Portrait-focused advertising for luxury cosmetics brand.</p>
+             <span class="category">{{ $posts[2]['album_name'] }}</span>
+              <h3>{{ $posts[2]['supporters'] }}</h3>
+              <p>{{ $posts[2]['description'] }}</p>
             </div>
           </div>
         </div>
@@ -592,18 +592,18 @@
         <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-creator">
           <div class="portfolio-card portrait-card">
             <div class="portfolio-image portrait-image">
-              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80" class="img-fluid" alt="Creative Portrait" loading="lazy">
+               <img src="{{ $posts[3]['image_url'] }}" class="img-fluid" alt="{{ $posts[3]['image_url'] }}" loading="lazy">
               <div class="portfolio-overlay">
                 <div class="portfolio-actions">
-                  <a href="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80" class="glightbox preview-link" data-gallery="portfolio-gallery-creator"><i class="bi bi-eye"></i></a>
-                  <a href="https://venusnap.com/posts/456" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                  <a href="{{ $posts[3]['image_url'] }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
+                  <a href="https://venusnap.com/posts/{{ $posts[3]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div>
             <div class="portfolio-content">
-              <span class="category">Creator</span>
-              <h3>Urban Portraits by @mike_visuals</h3>
-              <p>Street photography portrait series in urban environments.</p>
+             <span class="category">{{ $posts[3]['album_name'] }}</span>
+              <h3>{{ $posts[3]['supporters'] }}</h3>
+              <p>{{ $posts[3]['description'] }}</p>
             </div>
           </div>
         </div>
@@ -612,18 +612,18 @@
         <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-ai">
           <div class="portfolio-card portrait-card">
             <div class="portfolio-image portrait-image">
-              <img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" class="img-fluid" alt="AI Portrait" loading="lazy">
+              <img src="{{ $posts[4]['image_url'] }}" class="img-fluid" alt="{{ $posts[4]['image_url'] }}" loading="lazy">
               <div class="portfolio-overlay">
                 <div class="portfolio-actions">
-                  <a href="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
-                  <a href="https://venusnap.com/ai-gallery" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                  <a href="{{ $posts[4]['image_url'] }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
+                  <a href="https://venusnap.com/posts/{{ $posts[4]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div>
             <div class="portfolio-content">
-              <span class="category">AI Generated</span>
-              <h3>Neo-Classical AI</h3>
-              <p>AI reinterpretation of classical portrait painting styles.</p>
+              <span class="category">{{ $posts[4]['album_name'] }}</span>
+              <h3>{{ $posts[4]['supporters'] }}</h3>
+              <p>{{ $posts[4]['description'] }}</p>
             </div>
           </div>
         </div>
@@ -632,18 +632,18 @@
         <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-ads">
           <div class="portfolio-card portrait-card">
             <div class="portfolio-image portrait-image">
-              <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" class="img-fluid" alt="Professional Portrait Ad" loading="lazy">
+               <img src="{{ $posts[5]['image_url'] }}" class="img-fluid" alt="{{ $posts[5]['image_url'] }}" loading="lazy">
               <div class="portfolio-overlay">
                 <div class="portfolio-actions">
-                  <a href="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" class="glightbox preview-link" data-gallery="portfolio-gallery-ads"><i class="bi bi-eye"></i></a>
-                  <a href="https://venusnap.com/ads/professional-services" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                  <a href="{{ $posts[5]['image_url'] }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
+                  <a href="https://venusnap.com/posts/{{ $posts[5]['id'] }}" class="details-link"><i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div>
             <div class="portfolio-content">
-              <span class="category">Ad Creative</span>
-              <h3>Professional Services</h3>
-              <p>Corporate portrait advertising for business consultancy.</p>
+             <span class="category">{{ $posts[5]['album_name'] }}</span>
+              <h3>{{ $posts[5]['supporters'] }}</h3>
+              <p>{{ $posts[5]['description'] }}</p>
             </div>
           </div>
         </div>

@@ -25,7 +25,7 @@ class HomeController extends Controller
 
     public function home()
     {
-        $posts = $this->getFeaturedPostsForCarousel(3)->values()->all();
+        $posts = $this->getFeaturedPostsForCarousel(6)->values()->all();
         return view('welcome', [
             'posts' => $posts
         ]);
@@ -59,52 +59,55 @@ class HomeController extends Controller
         ]);
     }
 
-   private function getFeaturedPostsForCarousel($limit = 6)
-{
-    // Hardcoded array of specific post IDs
-    $featuredPostIds = [469, 411, 423, 397, 409, 437]; // Replace with your actual post IDs
+    private function getFeaturedPostsForCarousel($limit = 6)
+    {
+        // Hardcoded array of specific post IDs
+        $featuredPostIds = [469, 411, 423, 397, 409, 437]; // Replace with your actual post IDs
 
-    // Get featured posts with their first media and album info
-    $posts = Post::with([
-            'postmedias' => function ($query) {
-                $query->orderBy('sequence_order')
-                    ->limit(1); // Only get first media
-            },
-            'album'
-        ])
-        ->whereIn('id', $featuredPostIds) // Use whereIn with hardcoded IDs
-        ->where('status', 'active')
-        ->where('visibility', 'public')
-        ->orderByRaw('FIELD(id, ' . implode(',', $featuredPostIds) . ')') // Maintain the order from your array
-        ->limit($limit)
-        ->get();
+        // Get featured posts with their first media and album info
+        $posts = Post::with([
+                'postmedias' => function ($query) {
+                    $query->orderBy('sequence_order')
+                        ->limit(1); // Only get first media
+                },
+                'album.supporters' // Include supporters relation
+            ])
+            ->whereIn('id', $featuredPostIds) // Use whereIn with hardcoded IDs
+            ->where('status', 'active')
+            ->where('visibility', 'public')
+            ->orderByRaw('FIELD(id, ' . implode(',', $featuredPostIds) . ')') // Maintain the order
+            ->limit($limit)
+            ->get();
 
-    // Format the posts for carousel
-    $formattedPosts = $posts->map(function ($post) {
-        $album = $post->album;
-        $firstMedia = $post->postmedias->first();
+        // Format the posts for carousel
+        $formattedPosts = $posts->map(function ($post) {
+            $album = $post->album;
+            $firstMedia = $post->postmedias->first();
 
-        // Get image URL
-        $imageUrl = $firstMedia && $firstMedia->file_path_compress
-            ? generateSecureMediaUrl($firstMedia->file_path_compress)
-            : 'https://images.unsplash.com/photo-1579546929662-711aa81148cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'; // Fallback image
+            // Get image URL
+            $imageUrl = $firstMedia && $firstMedia->file_path_compress
+                ? generateSecureMediaUrl($firstMedia->file_path_compress)
+                : 'https://images.unsplash.com/photo-1579546929662-711aa81148cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'; // Fallback image
 
-        // Truncate description
-        $description = $post->description ?: ($album ? "Check out this snap from the {$album->name} album!" : 'Amazing creation on Venusnap');
-        $truncatedDescription = Str::limit($description, 120);
+            // Truncate description
+            $description = $post->description ?: ($album ? "Check out this snap from the {$album->name} album!" : 'Amazing creation on Venusnap');
+            $truncatedDescription = Str::limit($description, 120);
 
-        // Get album name and category
-        $albumName = $album ? $album->name : 'Unknown Album';
+            // Album info
+            $albumName = $album ? $album->name : 'Unknown Album';
+            $supporterCount = $album ? $album->supporters->count() : 0;
 
-        return [
-            'id' => $post->id,
-            'description' => $truncatedDescription,
-            'image_url' => $imageUrl,
-            'album_name' => $albumName,
-            'created_at' => $post->created_at->diffForHumans(),
-        ];
-    });
+            return [
+                'id' => $post->id,
+                'description' => $truncatedDescription,
+                'image_url' => $imageUrl,
+                'album_name' => $albumName,
+                'supporters' => $supporterCount, // ✅ added
+                'created_at' => $post->created_at->diffForHumans(),
+            ];
+        });
 
-    return $formattedPosts;
-}
+        return $formattedPosts;
+    }
+
 }
