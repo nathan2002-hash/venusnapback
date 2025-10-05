@@ -503,117 +503,303 @@
 
     </section><!-- /Call To Action 2 Section -->
 
-    <!-- Portfolio Section -->
-    <section id="portfolio" class="portfolio section">
+   <!-- Portfolio Section -->
+<section id="portfolio" class="portfolio section">
 
-      <div class="container section-title" data-aos="fade-up">
-        <h2>Venusnap Gallery</h2>
-        <p>A showcase of image art, AI-generated visuals, and advertising creatives from the Venusnap community.</p>
-      </div>
-
-
-      <div class="container" data-aos="fade-up" data-aos-delay="100">
-
-        <div class="isotope-layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">
-
-          <div class="portfolio-filters-container" data-aos="fade-up" data-aos-delay="200">
-          <ul class="portfolio-filters isotope-filters">
-  <li data-filter="*" class="filter-active">All</li>
-  <li data-filter=".filter-creator">Creators</li>
-  <li data-filter=".filter-ai">AI Generated</li>
-  <li data-filter=".filter-ads">Ad Creatives</li>
-</ul>
-
-          </div>
-
-          <div class="row g-4 isotope-container" data-aos="fade-up" data-aos-delay="300">
-
-           <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-creator">
-  <div class="portfolio-card">
-    <div class="portfolio-image">
-      <img src="{{ asset('assets1/img/portfolio/portfolio-1.webp') }}" class="img-fluid" alt="Creator Artwork" loading="lazy">
-      <div class="portfolio-overlay">
-        <div class="portfolio-actions">
-          <a href="{{ asset('assets1/img/portfolio/portfolio-1.webp') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-creator"><i class="bi bi-eye"></i></a>
-          <a href="https://venusnap.com/posts/123" class="details-link"><i class="bi bi-arrow-right"></i></a>
-        </div>
-      </div>
-    </div>
-    <div class="portfolio-content">
-      <span class="category">Creator</span>
-      <h3>Nature Aesthetic by @zoe_art</h3>
-      <p>A serene collection exploring light and color in nature.</p>
-    </div>
+  <div class="container section-title" data-aos="fade-up">
+    <h2>Venusnap Gallery</h2>
+    <p>A showcase of image art, AI-generated visuals, and advertising creatives from the Venusnap community.</p>
   </div>
-</div>
 
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
 
-           <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-ai">
-  <div class="portfolio-card">
-    <div class="portfolio-image">
-      <img src="{{ asset('assets1/img/portfolio/1.jpeg') }}" class="img-fluid" alt="AI Art" loading="lazy">
-      <div class="portfolio-overlay">
-        <div class="portfolio-actions">
-          <a href="{{ asset('assets1/img/portfolio/1.jpeg') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
-          <a href="https://venusnap.com/ai-gallery" class="details-link"><i class="bi bi-arrow-right"></i></a>
-        </div>
+    <div class="isotope-layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">
+
+      <div class="portfolio-filters-container" data-aos="fade-up" data-aos-delay="200">
+        <ul class="portfolio-filters isotope-filters">
+          <li data-filter="*" class="filter-active">All</li>
+          <li data-filter=".filter-creator">Creators</li>
+          <li data-filter=".filter-ai">AI Generated</li>
+          <li data-filter=".filter-ads">Ad Creatives</li>
+        </ul>
       </div>
-    </div>
-    <div class="portfolio-content">
-      <span class="category">AI Generated</span>
-      <h3>Cyber Dreams</h3>
-      <p>Created with Venusnap's AI image generator — futuristic portrait collection.</p>
-    </div>
-  </div>
-</div>
 
+      <div class="row g-4 isotope-container" data-aos="fade-up" data-aos-delay="300">
 
-           <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-ads">
-  <div class="portfolio-card">
-    <div class="portfolio-image">
-      <img src="{{ asset('assets1/img/portfolio/2.jpeg') }}" class="img-fluid" alt="Ad Creative" loading="lazy">
-      <div class="portfolio-overlay">
-        <div class="portfolio-actions">
-          <a href="{{ asset('assets1/img/portfolio/2.jpeg') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-ads"><i class="bi bi-eye"></i></a>
-          <a href="https://venusnap.com/ads/coffee-brand" class="details-link"><i class="bi bi-arrow-right"></i></a>
-        </div>
-      </div>
-    </div>
-    <div class="portfolio-content">
-      <span class="category">Ad Creative</span>
-      <h3>Java Beans Campaign</h3>
-      <p>Advertising image made using Venusnap's AD generator tool.</p>
-    </div>
-  </div>
-</div>
-
-
-            <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-brand">
-              <div class="portfolio-card">
-                <div class="portfolio-image">
-                  <img src="{{ asset('assets1/img/portfolio/portfolio-7.webp') }}" class="img-fluid" alt="" loading="lazy">
-                  <div class="portfolio-overlay">
-                    <div class="portfolio-actions">
-                      <a href="{{ asset('assets1/img/portfolio/portfolio-7.webp') }}" class="glightbox preview-link" data-gallery="portfolio-gallery-brand"><i class="bi bi-eye"></i></a>
-                      <a href="portfolio-details.html" class="details-link"><i class="bi bi-arrow-right"></i></a>
-                    </div>
-                  </div>
-                </div>
-                <div class="portfolio-content">
-                  <span class="category">Branding</span>
-                  <h3>Luxury Brand Package</h3>
-                  <p>Aenean lacinia bibendum nulla sed consectetur elit.</p>
+        <!-- Creator Portfolio Item - Portrait -->
+        <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-creator">
+          <div class="portfolio-card portrait-card">
+            <div class="portfolio-image portrait-image">
+              <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" class="img-fluid" alt="Portrait Creator Artwork" loading="lazy">
+              <div class="portfolio-overlay">
+                <div class="portfolio-actions">
+                  <a href="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" class="glightbox preview-link" data-gallery="portfolio-gallery-creator"><i class="bi bi-eye"></i></a>
+                  <a href="https://venusnap.com/posts/123" class="details-link"><i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
-            </div><!-- End Portfolio Item -->
-
-          </div><!-- End Portfolio Container -->
-
+            </div>
+            <div class="portfolio-content">
+              <span class="category">Creator</span>
+              <h3>Portrait Series by @zoe_art</h3>
+              <p>Emotional portrait collection exploring human expression.</p>
+            </div>
+          </div>
         </div>
 
-      </div>
+        <!-- AI Generated - Portrait -->
+        <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-ai">
+          <div class="portfolio-card portrait-card">
+            <div class="portfolio-image portrait-image">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" class="img-fluid" alt="AI Portrait Art" loading="lazy">
+              <div class="portfolio-overlay">
+                <div class="portfolio-actions">
+                  <a href="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
+                  <a href="https://venusnap.com/ai-gallery" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                </div>
+              </div>
+            </div>
+            <div class="portfolio-content">
+              <span class="category">AI Generated</span>
+              <h3>Digital Persona</h3>
+              <p>AI-generated portrait exploring identity in the digital age.</p>
+            </div>
+          </div>
+        </div>
 
-    </section><!-- /Portfolio Section -->
+        <!-- Ad Creative - Portrait -->
+        <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-ads">
+          <div class="portfolio-card portrait-card">
+            <div class="portfolio-image portrait-image">
+              <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" class="img-fluid" alt="Portrait Ad Creative" loading="lazy">
+              <div class="portfolio-overlay">
+                <div class="portfolio-actions">
+                  <a href="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" class="glightbox preview-link" data-gallery="portfolio-gallery-ads"><i class="bi bi-eye"></i></a>
+                  <a href="https://venusnap.com/ads/beauty-brand" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                </div>
+              </div>
+            </div>
+            <div class="portfolio-content">
+              <span class="category">Ad Creative</span>
+              <h3>Beauty Campaign</h3>
+              <p>Portrait-focused advertising for luxury cosmetics brand.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Portrait Items -->
+
+        <!-- Creator 2 -->
+        <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-creator">
+          <div class="portfolio-card portrait-card">
+            <div class="portfolio-image portrait-image">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80" class="img-fluid" alt="Creative Portrait" loading="lazy">
+              <div class="portfolio-overlay">
+                <div class="portfolio-actions">
+                  <a href="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80" class="glightbox preview-link" data-gallery="portfolio-gallery-creator"><i class="bi bi-eye"></i></a>
+                  <a href="https://venusnap.com/posts/456" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                </div>
+              </div>
+            </div>
+            <div class="portfolio-content">
+              <span class="category">Creator</span>
+              <h3>Urban Portraits by @mike_visuals</h3>
+              <p>Street photography portrait series in urban environments.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI 2 -->
+        <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-ai">
+          <div class="portfolio-card portrait-card">
+            <div class="portfolio-image portrait-image">
+              <img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" class="img-fluid" alt="AI Portrait" loading="lazy">
+              <div class="portfolio-overlay">
+                <div class="portfolio-actions">
+                  <a href="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" class="glightbox preview-link" data-gallery="portfolio-gallery-ai"><i class="bi bi-eye"></i></a>
+                  <a href="https://venusnap.com/ai-gallery" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                </div>
+              </div>
+            </div>
+            <div class="portfolio-content">
+              <span class="category">AI Generated</span>
+              <h3>Neo-Classical AI</h3>
+              <p>AI reinterpretation of classical portrait painting styles.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ads 2 -->
+        <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-ads">
+          <div class="portfolio-card portrait-card">
+            <div class="portfolio-image portrait-image">
+              <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" class="img-fluid" alt="Professional Portrait Ad" loading="lazy">
+              <div class="portfolio-overlay">
+                <div class="portfolio-actions">
+                  <a href="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" class="glightbox preview-link" data-gallery="portfolio-gallery-ads"><i class="bi bi-eye"></i></a>
+                  <a href="https://venusnap.com/ads/professional-services" class="details-link"><i class="bi bi-arrow-right"></i></a>
+                </div>
+              </div>
+            </div>
+            <div class="portfolio-content">
+              <span class="category">Ad Creative</span>
+              <h3>Professional Services</h3>
+              <p>Corporate portrait advertising for business consultancy.</p>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- End Portfolio Container -->
+
+    </div>
+
+  </div>
+
+</section><!-- /Portfolio Section -->
+
+<style>
+/* Portrait-specific styles */
+.portrait-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.portrait-image {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 2/3; /* Portrait ratio */
+  border-radius: 12px;
+}
+
+.portrait-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.portrait-image:hover img {
+  transform: scale(1.05);
+}
+
+.portfolio-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(124, 58, 237, 0.1), rgba(15, 23, 42, 0.8));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.portrait-image:hover .portfolio-overlay {
+  opacity: 1;
+}
+
+.portfolio-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.portfolio-actions a {
+  width: 45px;
+  height: 45px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7c3aed;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.portfolio-actions a:hover {
+  background: #7c3aed;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.portfolio-content {
+  padding: 1.5rem 1rem 1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.portfolio-content .category {
+  color: #7c3aed;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.portfolio-content h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: #1e293b;
+  line-height: 1.3;
+}
+
+.portfolio-content p {
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+/* Isotope filter styles */
+.portfolio-filters {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.portfolio-filters li {
+  padding: 0.5rem 1.5rem;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.portfolio-filters li:hover,
+.portfolio-filters li.filter-active {
+  background: #7c3aed;
+  border-color: #7c3aed;
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .col-lg-4 {
+    margin-bottom: 2rem;
+  }
+
+  .portfolio-filters {
+    gap: 0.5rem;
+  }
+
+  .portfolio-filters li {
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+</style>
 
    <!-- App Download Section -->
 <section id="download" class="pricing section light-background">
