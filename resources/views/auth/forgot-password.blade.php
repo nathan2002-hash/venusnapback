@@ -179,25 +179,10 @@
             const buttonSpinner = document.getElementById('button-spinner');
             const emailInput = document.getElementById('email');
             const emailError = document.getElementById('email_error');
-            const statusMessage = document.getElementById('status-message');
-            const statusText = document.getElementById('status-text');
-            const errorMessage = document.getElementById('error-message');
-            const errorText = document.getElementById('error-text');
-
-            // Hide messages initially
-            hideMessages();
 
             // Form submission handler
             form.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                // Direct validation without reCAPTCHA
-                validateAndSubmitForm();
-            });
-
-            function validateAndSubmitForm() {
                 // Reset error messages
-                hideMessages();
                 emailError.classList.add('hidden');
 
                 // Get form values
@@ -223,60 +208,12 @@
                     buttonText.textContent = 'Sending reset link...';
                     buttonSpinner.classList.remove('hidden');
 
-                    // Simulate API call (replace with actual API call)
-                    setTimeout(() => {
-                        // In a real implementation, you would make a fetch request to your backend
-                        // For demo purposes, we'll simulate a successful response
-                        simulatePasswordResetRequest(email);
-                    }, 1500);
-                }
-            }
-
-            function simulatePasswordResetRequest(email) {
-                // This is a simulation - replace with actual API call
-                console.log('Sending password reset request for:', email);
-
-                // Simulate successful response
-                const success = Math.random() > 0.2; // 80% success rate for demo
-
-                if (success) {
-                    showStatus('Password reset link has been sent to your email!');
-                    form.reset();
+                    // Form will now submit naturally to your Laravel backend
+                    // The loading state will persist until the page reloads
                 } else {
-                    showError('We could not find an account with that email address. Please try again.');
+                    e.preventDefault(); // Only prevent default if validation fails
                 }
-
-                resetButtonState();
-            }
-
-            function showStatus(message) {
-                statusText.textContent = message;
-                statusMessage.classList.remove('hidden');
-                errorMessage.classList.add('hidden');
-
-                // Auto-hide success message after 5 seconds
-                setTimeout(() => {
-                    statusMessage.classList.add('hidden');
-                }, 5000);
-            }
-
-            function showError(message) {
-                errorText.textContent = message;
-                errorMessage.classList.remove('hidden');
-                statusMessage.classList.add('hidden');
-            }
-
-            function hideMessages() {
-                statusMessage.classList.add('hidden');
-                errorMessage.classList.add('hidden');
-            }
-
-            function resetButtonState() {
-                submitButton.disabled = false;
-                submitButton.classList.remove('btn-disabled');
-                buttonText.textContent = 'Send Reset Link';
-                buttonSpinner.classList.add('hidden');
-            }
+            });
 
             // Add input event listeners to clear errors when user starts typing
             emailInput.addEventListener('input', function() {
