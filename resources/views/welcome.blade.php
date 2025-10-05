@@ -662,24 +662,36 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.portrait-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 
 .portrait-image {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 2/3; /* Portrait ratio */
-  border-radius: 12px;
+  width: 100%;
+  height: 380px; /* Fixed height for portrait */
+  border-radius: 12px 12px 0 0;
 }
 
 .portrait-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  object-position: center;
+  transition: transform 0.5s ease;
 }
 
 .portrait-image:hover img {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 .portfolio-overlay {
@@ -688,13 +700,13 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, rgba(124, 58, 237, 0.1), rgba(15, 23, 42, 0.8));
+  background: linear-gradient(to bottom, rgba(124, 58, 237, 0.1), rgba(15, 23, 42, 0.85));
   opacity: 0;
   transition: opacity 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
+  border-radius: 12px 12px 0 0;
 }
 
 .portrait-image:hover .portfolio-overlay {
@@ -707,43 +719,47 @@
 }
 
 .portfolio-actions a {
-  width: 45px;
-  height: 45px;
-  background: rgba(255, 255, 255, 0.9);
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #7c3aed;
   text-decoration: none;
+  font-size: 1.2rem;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .portfolio-actions a:hover {
   background: #7c3aed;
   color: white;
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.1);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
 }
 
 .portfolio-content {
-  padding: 1.5rem 1rem 1rem;
+  padding: 1.5rem;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  background: white;
 }
 
 .portfolio-content .category {
   color: #7c3aed;
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   display: block;
 }
 
 .portfolio-content h3 {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
   color: #1e293b;
@@ -752,9 +768,10 @@
 
 .portfolio-content p {
   color: #64748b;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   line-height: 1.5;
   margin-bottom: 0;
+  flex-grow: 1;
 }
 
 /* Isotope filter styles */
@@ -763,18 +780,19 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .portfolio-filters li {
-  padding: 0.5rem 1.5rem;
+  padding: 0.75rem 1.75rem;
   background: #f8fafc;
   border: 2px solid #e2e8f0;
   border-radius: 2rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-weight: 500;
+  font-weight: 600;
   color: #64748b;
+  font-size: 0.95rem;
 }
 
 .portfolio-filters li:hover,
@@ -782,21 +800,71 @@
   background: #7c3aed;
   border-color: #7c3aed;
   color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.3);
+}
+
+/* Section title */
+.section-title {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.section-title h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.section-title p {
+  font-size: 1.1rem;
+  color: #64748b;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .col-lg-4 {
     margin-bottom: 2rem;
   }
 
+  .portrait-image {
+    height: 320px;
+  }
+}
+
+@media (max-width: 768px) {
   .portfolio-filters {
     gap: 0.5rem;
   }
 
   .portfolio-filters li {
-    padding: 0.4rem 1rem;
-    font-size: 0.9rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+  }
+
+  .portrait-image {
+    height: 280px;
+  }
+
+  .section-title h2 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .col-md-6 {
+    margin-bottom: 2rem;
+  }
+
+  .portrait-image {
+    height: 320px;
   }
 }
 </style>
