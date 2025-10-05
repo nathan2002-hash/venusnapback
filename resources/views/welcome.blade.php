@@ -43,10 +43,17 @@
   <header id="header" class="header d-flex align-items-center fixed-top">
     <div class="container position-relative d-flex align-items-center justify-content-between">
 
+      @if ($browser->isMobile())
+      <a href="/" class="logo d-flex align-items-center me-auto me-xl-0">
+        <img src="{{ asset('assets1/img/logo1.png') }}" alt="">
+        {{-- <h1 class="sitename">Venusnap</h1><span>.</span> --}}
+      </a>
+      @else
       <a href="/" class="logo d-flex align-items-center me-auto me-xl-0">
         <img src="{{ asset('assets1/img/logo1.png') }}" alt="">
         <h1 class="sitename">Venusnap</h1><span>.</span>
       </a>
+      @endif
 
       <nav id="navmenu" class="navmenu">
         <ul>
@@ -59,7 +66,6 @@
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
-
       <a class="btn-getstarted" href="#download">Download App</a>
 
     </div>

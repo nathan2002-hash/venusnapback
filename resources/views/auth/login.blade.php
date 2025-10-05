@@ -79,7 +79,7 @@
                     </div>
                     <div class="flex items-center">
                         <i class="fas fa-users mr-2"></i>
-                        <span>10K+ Users</span>
+                        <span>100+ Creators</span>
                     </div>
                 </div>
             </div>
@@ -220,7 +220,7 @@
 
             <!-- Footer Links -->
             <div class="mt-8 text-center text-xs text-gray-500">
-                <p>By continuing, you agree to our <a href="#" class="text-[#7c3aed] hover:underline">Terms of Service</a> and <a href="#" class="text-[#7c3aed] hover:underline">Privacy Policy</a></p>
+                <p>By continuing, you agree to our <a href="/terms/of/service" class="text-[#7c3aed] hover:underline">Terms of Service</a> and <a href="/privacy/policy" class="text-[#7c3aed] hover:underline">Privacy Policy</a></p>
             </div>
         </div>
     </div>
