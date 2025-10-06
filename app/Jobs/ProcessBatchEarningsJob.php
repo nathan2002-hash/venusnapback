@@ -61,7 +61,17 @@ class ProcessBatchEarningsJob implements ShouldQueue
         $totalAdPointsDeducted = 0;
         $validAdPoints = 0;
 
-        if ($this->adsIncluded && !empty($this->adIds) && $this->user_id) {
+       if ($this->adsIncluded && !empty($this->adIds) && $this->user_id) {
+            // Create an ad session first
+            $adSession = DB::table('ad_sessions')->insertGetId([
+                'ip_address' => request()->ip(),
+                'user_id' => $this->user_id,
+                'device_info' => json_encode(request()->header('device-info') ?? 'unknown'),
+                'user_agent' => request()->header('User-Agent') ?? 'unknown',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
             foreach ($this->adIds as $adId) {
                 $ad = Ad::find($adId);
                 if (!$ad) continue;
@@ -87,27 +97,26 @@ class ProcessBatchEarningsJob implements ShouldQueue
                     continue;
                 }
 
-                $pointsToDeduct = 3; // 3 points per ad view
+                $pointsToDeduct = 3;
 
                 if ($adboard->points >= $pointsToDeduct) {
                     $adboard->decrement('points', $pointsToDeduct);
-                    $totalAdPointsDeducted += $pointsToDeduct;
-                    $validAdPoints += $pointsToDeduct;
-                    Log::info("Deducted {$pointsToDeduct} points from adboard {$ad->adboard_id} for ad {$adId}");
 
-                    // Record the ad impression to prevent future abuse
+                    // Insert ad impression with ad_session_id
                     DB::table('ad_impressions')->insert([
                         'ad_id' => $adId,
                         'user_id' => $this->user_id,
+                        'ad_session_id' => $adSession,
                         'points_used' => $pointsToDeduct,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
-                } else {
-                    Log::warning("Insufficient points in adboard {$ad->adboard_id} for ad {$adId}");
+
+                    Log::info("Recorded ad impression for ad {$adId} with session {$adSession}");
                 }
             }
         }
+
 
         // Step 1: Process monetized posts - reward creators ONLY when ads are included
         $monetizedPosts = Post::with('album.user.account')
