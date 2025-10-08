@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\MonetizationRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class MonetizationController extends Controller
 {
@@ -56,13 +57,31 @@ class MonetizationController extends Controller
 
     public function countries()
     {
-        $countries = Country::select('code', 'name')->get();
+        // Fetch from external API
+        $response = Http::get('https://countriesnow.space/api/v0.1/countries/codes');
 
+        if ($response->successful()) {
+            // Map the data to only include code and name
+            $countries = collect($response->json()['data'])->map(function ($country) {
+                return [
+                    'code' => $country['code'],
+                    'name' => $country['name'],
+                ];
+            })->values();
+
+            return response()->json([
+                'success' => true,
+                'data' => $countries,
+                'message' => 'Countries fetched successfully'
+            ]);
+        }
+
+        // If API fails, return error
         return response()->json([
-            'success' => true,
-            'data' => $countries,
-            'message' => 'Countries fetched successfully'
-        ]);
+            'success' => false,
+            'data' => [],
+            'message' => 'Failed to fetch countries'
+        ], 500);
     }
 
     public function applyForMonetization(Request $request)
