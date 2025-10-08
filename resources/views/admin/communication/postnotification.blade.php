@@ -75,7 +75,7 @@
                                                             $imageUrl = $media ? generateSecureMediaUrl($media->file_path_compress) : asset('assets/images/default-post.jpg');
                                                             $album = $post->album;
                                                         @endphp
-                                                        <div class="post-card" data-post-id="{{ $post->id }}" data-user="{{ $post->user->name }}">
+                                                        <div class="post-card" data-post-id="{{ $post->id }}" data-user="{{ $post->album->name }}">
                                                             <div class="post-card-image">
                                                                 <img src="{{ $imageUrl }}" alt="Post image" class="img-fluid">
                                                                 <div class="post-card-overlay">
