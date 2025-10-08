@@ -55,19 +55,33 @@ class MonetizationController extends Controller
         ]);
     }
 
+
     public function countries()
     {
-        // Fetch from external API
+        // Get authenticated user's country code
+        $userCountryCode = Auth::user()->country ?? null;
+
+        // Fetch countries from external API
         $response = Http::get('https://countriesnow.space/api/v0.1/countries/codes');
 
         if ($response->successful()) {
-            // Map the data to only include code and name
             $countries = collect($response->json()['data'])->map(function ($country) {
                 return [
                     'code' => $country['code'],
                     'name' => $country['name'],
                 ];
             })->values();
+
+            // If user has a country, move it to the top
+            if ($userCountryCode) {
+                $userCountry = $countries->firstWhere('code', $userCountryCode);
+                if ($userCountry) {
+                    // Remove from current position
+                    $countries = $countries->reject(fn($c) => $c['code'] === $userCountryCode)->values();
+                    // Prepend to the list
+                    $countries->prepend($userCountry);
+                }
+            }
 
             return response()->json([
                 'success' => true,
@@ -76,13 +90,13 @@ class MonetizationController extends Controller
             ]);
         }
 
-        // If API fails, return error
         return response()->json([
             'success' => false,
             'data' => [],
             'message' => 'Failed to fetch countries'
         ], 500);
     }
+
 
     public function applyForMonetization(Request $request)
     {
