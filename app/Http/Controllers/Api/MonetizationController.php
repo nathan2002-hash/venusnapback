@@ -59,7 +59,7 @@ class MonetizationController extends Controller
     public function countries()
     {
         // Get authenticated user's country code
-        $userCountryCode = Auth::user()->country ?? null;
+        $userCountryName = Auth::user()->country ?? null;
 
         // Fetch countries from external API
         $response = Http::get('https://countriesnow.space/api/v0.1/countries/codes');
@@ -73,12 +73,10 @@ class MonetizationController extends Controller
             })->values();
 
             // If user has a country, move it to the top
-            if ($userCountryCode) {
-                $userCountry = $countries->firstWhere('code', $userCountryCode);
+          if ($userCountryName) {
+                $userCountry = $countries->firstWhere('name', $userCountryName);
                 if ($userCountry) {
-                    // Remove from current position
-                    $countries = $countries->reject(fn($c) => $c['code'] === $userCountryCode)->values();
-                    // Prepend to the list
+                    $countries = $countries->reject(fn($c) => $c['name'] === $userCountryName)->values();
                     $countries->prepend($userCountry);
                 }
             }
