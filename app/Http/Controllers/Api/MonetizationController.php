@@ -44,8 +44,8 @@ class MonetizationController extends Controller
                 $query->where('monetization_status', '!=', 'active')
                     ->orWhereNull('monetization_status');
             })
-            ->withCount('supporters')
-            //->having('supporters_count', '>=', 0)
+            //->withCount('supporters')
+            //->having('supporters_count', '>=', 10)
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
