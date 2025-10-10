@@ -73,6 +73,7 @@ Route::middleware('auth:api')->post('/support/ticket/submit', 'Api\ContactSuppor
 Route::middleware('auth:api')->get('/support/tickets', 'Api\ContactSupportController@index');
 Route::middleware('auth:api')->post('/support/tickets/resolve/{id}', 'Api\ContactSupportController@updateStatus');
 Route::middleware('auth:api')->get('/support/faqs', 'Api\ContactSupportController@getFaqs');
+Route::middleware('auth:api')->get('/search/discover', 'Api\SearchController@discover');
 
 Route::middleware('auth:api')->get('/addons', 'Api\TemplateController@index');
 
@@ -232,7 +233,6 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/post/saved', 'Api\SavedController@getSavedPosts');
 
     Route::get('/search', 'Api\SearchController@search');
-    Route::get('/search/discover', 'Api\SearchController@discover');
     Route::post('/log-search', 'Api\SearchController@logSearch');
 
     Route::get('/post/history', 'Api\HistoryController@getUserHistory');
