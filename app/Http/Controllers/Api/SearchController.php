@@ -161,7 +161,6 @@ public function discover(Request $request)
     // Get trending posts
     $posts = Post::with(['album', 'postmedias'])
         ->where('visibility', 'public')
-        ->where('is_trending', true)
         ->inRandomOrder()
         ->limit(8)
         ->get()
