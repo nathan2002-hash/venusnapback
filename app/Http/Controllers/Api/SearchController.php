@@ -46,7 +46,7 @@ class SearchController extends Controller
     }
 
     // Search posts with media relationship
-    $posts = Post::with(['album', 'media'])
+    $posts = Post::with(['album', 'postmedias'])
         ->where('description', 'like', "%$query%")
         ->where('visibility', 'public')
         ->limit(10)
@@ -54,8 +54,8 @@ class SearchController extends Controller
         ->map(function ($post) {
             // Get the first media item from the post
             $thumbnailUrl = null;
-            if ($post->media->isNotEmpty()) {
-                $firstMedia = $post->media->first();
+            if ($post->postmedias->isNotEmpty()) {
+                $firstMedia = $post->postmedias->first();
                 $thumbnailUrl = generateSecureMediaUrl($firstMedia->file_path);
             } else if ($post->album) {
                 // Fallback to album image if no post media
