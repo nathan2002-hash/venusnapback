@@ -927,75 +927,79 @@ class AlbumController extends Controller
         return response()->json(['message' => 'Image updated successfully']);
     }
 
-    public function albumAnalytics($id)
-    {
-        $album = Album::find($id);
+public function albumAnalytics($id)
+{
+    $album = Album::find($id);
 
-        if (!$album) {
-            return response()->json(['message' => 'Album not found'], 404);
-        }
-
-        $albumId = $id;
-
-        // Get all post IDs in this album
-        $postIds = Post::where('album_id', $albumId)->pluck('id');
-
-        // Get all post_media_ids from these posts
-        $postMediaIds = PostMedia::whereIn('post_id', $postIds)->pluck('id');
-
-        // Album views summary
-        $albumViewsCount = AlbumView::where('album_id', $albumId)->count();
-        $uniqueViewers = AlbumView::where('album_id', $albumId)->distinct('ip_address')->count('ip_address');
-
-        // Media views summary
-        $mediaViewsCount = View::whereIn('post_media_id', $postMediaIds)->count();
-
-        // Total duration watched across all medias
-        $totalDuration = View::whereIn('post_media_id', $postMediaIds)->sum(DB::raw("CAST(duration AS UNSIGNED)"));
-
-        // Admires (likes) summary
-        $admiresCount = Admire::whereIn('post_media_id', $postMediaIds)->count();
-
-        // Post and media counts
-        $postCount = $postIds->count();
-        $mediaCount = $postMediaIds->count();
-
-        // Optional: Top viewed media including post_id
-        $topMedia = View::whereIn('post_media_id', $postMediaIds)
-            ->select('post_media_id', DB::raw('COUNT(*) as views'))
-            ->groupBy('post_media_id')
-            ->orderByDesc('views')
-            ->first();
-
-        // Include the post_id of the top media
-        $topMediaData = null;
-        if ($topMedia) {
-            $postMedia = PostMedia::find($topMedia->post_media_id);
-            $topMediaData = [
-                'media_id' => $topMedia->post_media_id,
-                'post_id' => $postMedia ? $postMedia->post_id : null,
-                'views' => $topMedia->views,
-            ];
-        }
-
-        return response()->json([
-            'album_id' => $albumId,
-            'album_name' => $album->name,
-            'views' => [
-                'total_album_views' => $albumViewsCount,
-                'unique_viewers' => $uniqueViewers,
-                'total_media_views' => $mediaViewsCount,
-            ],
-            'engagement' => [
-                'admires' => $admiresCount,
-                'total_duration_seconds' => (int) $totalDuration,
-            ],
-            'content' => [
-                'post_count' => $postCount,
-                'media_count' => $mediaCount,
-            ],
-            'top_media' => $topMediaData
-        ]);
+    if (!$album) {
+        return response()->json(['message' => 'Album not found'], 404);
     }
+
+    $albumId = $id;
+
+    // Get all post IDs in this album
+    $postIds = Post::where('album_id', $albumId)->pluck('id');
+
+    // Get all post_media_ids from these posts
+    $postMediaIds = PostMedia::whereIn('post_id', $postIds)->pluck('id');
+
+    // Album views summary
+    $albumViewsCount = AlbumView::where('album_id', $albumId)->count();
+    $uniqueViewers = AlbumView::where('album_id', $albumId)->distinct('ip_address')->count('ip_address');
+
+    // Media views summary
+    $mediaViewsCount = View::whereIn('post_media_id', $postMediaIds)->count();
+
+    // Total duration watched across all medias
+    $totalDuration = View::whereIn('post_media_id', $postMediaIds)->sum(DB::raw("CAST(duration AS UNSIGNED)"));
+
+    // Admires (likes) summary
+    $admiresCount = Admire::whereIn('post_media_id', $postMediaIds)->count();
+
+    // Supporters count (assuming you have a supporters relationship)
+    $supportersCount = $album->supporters()->count();
+
+    // Post and media counts
+    $postCount = $postIds->count();
+    $mediaCount = $postMediaIds->count();
+
+    // Optional: Top viewed media including post_id
+    $topMedia = View::whereIn('post_media_id', $postMediaIds)
+        ->select('post_media_id', DB::raw('COUNT(*) as views'))
+        ->groupBy('post_media_id')
+        ->orderByDesc('views')
+        ->first();
+
+    // Include the post_id of the top media
+    $topMediaData = null;
+    if ($topMedia) {
+        $postMedia = PostMedia::find($topMedia->post_media_id);
+        $topMediaData = [
+            'media_id' => $topMedia->post_media_id,
+            'post_id' => $postMedia ? $postMedia->post_id : null,
+            'views' => $topMedia->views,
+        ];
+    }
+
+    return response()->json([
+        'album_id' => $albumId,
+        'album_name' => $album->name,
+        'views' => [
+            'total_album_views' => $albumViewsCount,
+            'unique_viewers' => $uniqueViewers,
+            'total_media_views' => $mediaViewsCount,
+        ],
+        'engagement' => [
+            'admires' => $admiresCount,
+            'total_duration_seconds' => (int) $totalDuration,
+        ],
+        'content' => [
+            'post_count' => $postCount,
+            'media_count' => $mediaCount,
+        ],
+        'supporters_count' => $supportersCount, // Add supporters count
+        'top_media' => $topMediaData
+    ]);
+}
 
 }
