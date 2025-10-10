@@ -159,7 +159,7 @@ class SearchController extends Controller
 public function discover(Request $request)
 {
     // Get trending posts
-    $posts = Post::with(['album', 'media'])
+    $posts = Post::with(['album', 'postmedias'])
         ->where('visibility', 'public')
         ->where('is_trending', true)
         ->inRandomOrder()
@@ -168,8 +168,8 @@ public function discover(Request $request)
         ->map(function ($post) {
             // Get the first media item from the post
             $thumbnailUrl = null;
-            if ($post->media->isNotEmpty()) {
-                $firstMedia = $post->media->first();
+            if ($post->postmedias->isNotEmpty()) {
+                $firstMedia = $post->postmedias->first();
                 $thumbnailUrl = generateSecureMediaUrl($firstMedia->file_path);
             } else if ($post->album) {
                 // Fallback to album image if no post media
