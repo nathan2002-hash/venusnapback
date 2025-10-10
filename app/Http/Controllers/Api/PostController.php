@@ -833,57 +833,79 @@ class PostController extends Controller
 
 
     public function getPosts(Request $request) {
-        $user = $request->user();
-        $perPage = 6;
-        $page = $request->query('page', 1);
+    $user = $request->user();
+    $perPage = 6;
+    $page = $request->query('page', 1);
 
-        $posts = $user->posts()
-            ->where('status', 'active') // Only include active posts
-            ->with(['postMedias', 'album']) // Load album details
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
+    $posts = $user->posts()
+        ->where('status', 'active')
+        ->with(['postMedias', 'album'])
+        ->orderBy('created_at', 'desc')
+        ->paginate($perPage);
 
-        return response()->json([
-            'posts' => $posts->map(function ($post) {
-                $album = $post->album;
-                $thumbnailUrl = null;
+    return response()->json([
+        'posts' => $posts->map(function ($post) {
+            $album = $post->album;
+            $thumbnailUrl = null;
 
-                if ($album) {
-                    if ($album->type == 'personal' || $album->type == 'creator') {
-                        // For personal and creator albums
-                        $thumbnailUrl = $album->thumbnail_compressed
-                            ? generateSecureMediaUrl($album->thumbnail_compressed)
-                            : ($album->thumbnail_original
-                                ? generateSecureMediaUrl($album->thumbnail_original)
-                                : null);
-                    } elseif ($album->type == 'business') {
-                        // For business albums, use business logo thumbnail if available
-                        $thumbnailUrl = $album->business_logo_compressed
-                            ? generateSecureMediaUrl($album->business_logo_compressed)
-                            : ($album->business_logo_original
-                                ? generateSecureMediaUrl($album->business_logo_original)
-                                : null);
-                    }
+            if ($album) {
+                if ($album->type == 'personal' || $album->type == 'creator') {
+                    $thumbnailUrl = $album->thumbnail_compressed
+                        ? generateSecureMediaUrl($album->thumbnail_compressed)
+                        : ($album->thumbnail_original
+                            ? generateSecureMediaUrl($album->thumbnail_original)
+                            : null);
+                } elseif ($album->type == 'business') {
+                    $thumbnailUrl = $album->business_logo_compressed
+                        ? generateSecureMediaUrl($album->business_logo_compressed)
+                        : ($album->business_logo_original
+                            ? generateSecureMediaUrl($album->business_logo_original)
+                            : null);
                 }
+            }
 
-                return [
-                    'id' => $post->id,
-                    'description' => $post->description,
-                    'album' => $album ? $album->name : null,
-                    'album_type' => $album ? $album->type : null,
-                    'album_thumbnail' => $thumbnailUrl,
-                    'created_at' => $post->created_at->format('d M Y, h:i A'),
-                    'postMedias' => $post->postMedias->map(function ($media) {
-                        return [
-                            'id' => $media->id,
-                            'media_url' => generateSecureMediaUrl($media->file_path),
-                            'media_url_compress' => generateSecureMediaUrl($media->file_path_compress),
-                            'sequence_order' => $media->sequence_order,
-                        ];
-                    }),
-                ];
-            }),
-            'has_more' => $posts->hasMorePages(),
-        ]);
-    }
+            // Calculate analytics for the entire post
+            $totalAdmires = $post->postMedias->sum(function ($media) {
+                return $media->admires_count ?? 0;
+            });
+
+            $totalComments = $post->postMedias->sum(function ($media) {
+                return $media->comments_count ?? 0;
+            });
+
+            $totalViews = $post->postMedias->sum(function ($media) {
+                return $media->views_count ?? 0;
+            });
+
+            $totalWatchTime = $post->postMedias->sum(function ($media) {
+                return $media->total_watch_time ?? 0;
+            });
+
+            return [
+                'id' => $post->id,
+                'description' => $post->description,
+                'album' => $album ? $album->name : null,
+                'album_type' => $album ? $album->type : null,
+                'album_thumbnail' => $thumbnailUrl,
+                'created_at' => $post->created_at->format('d M Y, h:i A'),
+                // Analytics data
+                'analytics' => [
+                    'admires' => $totalAdmires,
+                    'comments' => $totalComments,
+                    'views' => $totalViews,
+                    'watch_time' => $totalWatchTime, // in seconds
+                ],
+                'postMedias' => $post->postMedias->map(function ($media) {
+                    return [
+                        'id' => $media->id,
+                        'media_url' => generateSecureMediaUrl($media->file_path),
+                        'media_url_compress' => generateSecureMediaUrl($media->file_path_compress),
+                        'sequence_order' => $media->sequence_order,
+                    ];
+                }),
+            ];
+        }),
+        'has_more' => $posts->hasMorePages(),
+    ]);
+}
 }

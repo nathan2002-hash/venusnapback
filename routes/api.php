@@ -232,7 +232,7 @@ Route::middleware(['auth:api', 'check.account.status'])->group(function () {
     Route::get('/post/saved', 'Api\SavedController@getSavedPosts');
 
     Route::get('/search', 'Api\SearchController@search');
-    Route::get('/discover', 'Api\SearchController@discover');
+    Route::get('/search/discover', 'Api\SearchController@discover');
     Route::post('/log-search', 'Api\SearchController@logSearch');
 
     Route::get('/post/history', 'Api\HistoryController@getUserHistory');

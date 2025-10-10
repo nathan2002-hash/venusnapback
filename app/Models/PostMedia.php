@@ -31,4 +31,14 @@ class PostMedia extends Model
     public function mediaDownloads(){
         return $this->hasMany(MediaDownload::class);
     }
+
+    public function getViewsCountAttribute()
+    {
+        return $this->views()->count();
+    }
+
+    public function getTotalWatchTimeAttribute()
+    {
+        return $this->views()->sum('duration');
+    }
 }
