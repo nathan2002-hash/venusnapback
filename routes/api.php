@@ -73,7 +73,7 @@ Route::middleware('auth:api')->post('/support/ticket/submit', 'Api\ContactSuppor
 Route::middleware('auth:api')->get('/support/tickets', 'Api\ContactSupportController@index');
 Route::middleware('auth:api')->post('/support/tickets/resolve/{id}', 'Api\ContactSupportController@updateStatus');
 Route::middleware('auth:api')->get('/support/faqs', 'Api\ContactSupportController@getFaqs');
-Route::middleware('auth:api')->get('/search/discover', 'Api\SearchController@discover');
+Route::middleware('auth:api')->get('/searching/beta', 'Api\SearchController@discover');
 
 Route::middleware('auth:api')->get('/addons', 'Api\TemplateController@index');
 
